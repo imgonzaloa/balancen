@@ -47,7 +47,7 @@ export default function Profile() {
     onSuccess: () => {
       queryClient.invalidateQueries(["profile"]);
       setEditMode(false);
-      toast.success("Perfil actualizado");
+      toast.success("Profile updated");
     },
   });
 
@@ -66,16 +66,34 @@ export default function Profile() {
   };
 
   const goalLabels = {
-    consistency: "Ser más consistente",
-    eat_better: "Comer mejor",
-    move_more: "Moverme más",
+    en: {
+      consistency: "Be more consistent",
+      eat_better: "Eat better",
+      move_more: "Move more",
+      train_regularly: "Train regularly",
+    },
+    es: {
+      consistency: "Ser más consistente",
+      eat_better: "Comer mejor",
+      move_more: "Moverme más",
+      train_regularly: "Entrenar regularmente",
+    }
   };
 
   const intensityLabels = {
-    easy: "Fácil",
-    normal: "Normal",
-    challenging: "Desafiante",
+    en: {
+      easy: "Easy",
+      normal: "Normal",
+      challenging: "Challenging",
+    },
+    es: {
+      easy: "Fácil",
+      normal: "Normal",
+      challenging: "Desafiante",
+    }
   };
+
+  const currentLang = profile?.language || "en";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -185,19 +203,19 @@ export default function Profile() {
             <div className="flex items-center justify-between py-3 border-b border-slate-100">
               <span className="text-slate-600">{t("main_goal")}</span>
               <span className="font-medium text-slate-800">
-                {goalLabels[profile?.goal] || t("not_defined")}
+                {goalLabels[currentLang]?.[profile?.main_goal] || t("not_defined")}
               </span>
             </div>
             <div className="flex items-center justify-between py-3 border-b border-slate-100">
               <span className="text-slate-600">{t("intensity")}</span>
               <span className="font-medium text-slate-800">
-                {intensityLabels[profile?.intensity] || t("easy")}
+                {intensityLabels[currentLang]?.[profile?.intensity_level] || t("not_defined")}
               </span>
             </div>
             <div className="flex items-center justify-between py-3">
               <span className="text-slate-600">{t("mode")}</span>
               <span className="font-medium text-slate-800">
-                {profile?.use_mode === "with_friends" ? t("with_friends") : t("alone")}
+                {profile?.usage_mode === "with_friends" ? t("with_friends") : t("alone")}
               </span>
             </div>
           </div>

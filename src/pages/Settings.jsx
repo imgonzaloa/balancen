@@ -32,7 +32,7 @@ export default function Settings() {
     mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["profile"]);
-      toast.success("Configuración actualizada");
+      toast.success("Settings updated");
     },
   });
 
@@ -244,10 +244,8 @@ export default function Settings() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="en">🇺🇸 English</SelectItem>
-                <SelectItem value="es">🇪🇸 Español</SelectItem>
-                <SelectItem value="pt">🇧🇷 Português</SelectItem>
-                <SelectItem value="fr">🇫🇷 Français</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="es">Español</SelectItem>
               </SelectContent>
             </Select>
           </div>
