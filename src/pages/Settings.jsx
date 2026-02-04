@@ -228,10 +228,7 @@ export default function Settings() {
             
             <Select
               value={profile?.language || "en"}
-              onValueChange={(value) => {
-                updateMutation.mutate({ language: value });
-                setTimeout(() => window.location.reload(), 500);
-              }}
+              onValueChange={(value) => languageMutation.mutate(value)}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue />
