@@ -3,7 +3,7 @@ import { createPageUrl } from "@/utils";
 import { Home, Users, Award, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { Toaster } from "sonner";
-import { useTranslation } from "@/lib/useTranslation";
+import { useTranslation } from "@/components/TranslationProvider";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
