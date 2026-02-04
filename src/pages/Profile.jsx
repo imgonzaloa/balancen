@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import StreakFire from "@/components/ui/StreakFire";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Profile() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
@@ -88,7 +90,7 @@ export default function Profile() {
               >
                 <ChevronLeft size={20} className="text-slate-600" />
               </Link>
-              <h1 className="text-xl font-bold text-slate-800">Mi perfil</h1>
+              <h1 className="text-xl font-bold text-slate-800">{t("my_profile")}</h1>
             </div>
             {!editMode && (
               <Button
@@ -96,7 +98,7 @@ export default function Profile() {
                 variant="outline"
                 className="rounded-xl"
               >
-                Editar
+                {t("edit")}
               </Button>
             )}
           </div>
@@ -134,15 +136,15 @@ export default function Profile() {
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-slate-50 rounded-2xl p-4 text-center">
               <StreakFire streak={profile?.current_streak || 0} size="small" />
-              <p className="text-xs text-slate-500 mt-2">Racha actual</p>
+              <p className="text-xs text-slate-500 mt-2">{t("current_streak")}</p>
             </div>
             <div className="bg-slate-50 rounded-2xl p-4 text-center">
               <p className="text-2xl font-bold text-teal-600">{profile?.longest_streak || 0}</p>
-              <p className="text-xs text-slate-500 mt-1">Mejor racha</p>
+              <p className="text-xs text-slate-500 mt-1">{t("best_streak")}</p>
             </div>
             <div className="bg-slate-50 rounded-2xl p-4 text-center">
               <p className="text-2xl font-bold text-slate-700">{profile?.total_checkins || 0}</p>
-              <p className="text-xs text-slate-500 mt-1">Check-ins</p>
+              <p className="text-xs text-slate-500 mt-1">{t("total_checkins")}</p>
             </div>
           </div>
         </motion.div>
@@ -161,8 +163,8 @@ export default function Profile() {
                   <Settings size={20} className="text-slate-600" />
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-800">Configuración</p>
-                  <p className="text-xs text-slate-500">Idioma, notificaciones, privacidad</p>
+                  <p className="font-semibold text-slate-800">{t("settings") || "Settings"}</p>
+                  <p className="text-xs text-slate-500">{t("settings_desc") || "Language, notifications, privacy"}</p>
                 </div>
               </div>
               <ChevronLeft size={20} className="text-slate-400 rotate-180" />
@@ -177,25 +179,25 @@ export default function Profile() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          <h3 className="font-semibold text-slate-700 mb-4">Tus metas</h3>
+          <h3 className="font-semibold text-slate-700 mb-4">{t("your_goals")}</h3>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between py-3 border-b border-slate-100">
-              <span className="text-slate-600">Meta principal</span>
+              <span className="text-slate-600">{t("main_goal")}</span>
               <span className="font-medium text-slate-800">
-                {goalLabels[profile?.goal] || "No definida"}
+                {goalLabels[profile?.goal] || t("not_defined")}
               </span>
             </div>
             <div className="flex items-center justify-between py-3 border-b border-slate-100">
-              <span className="text-slate-600">Intensidad</span>
+              <span className="text-slate-600">{t("intensity")}</span>
               <span className="font-medium text-slate-800">
-                {intensityLabels[profile?.intensity] || "Fácil"}
+                {intensityLabels[profile?.intensity] || t("easy")}
               </span>
             </div>
             <div className="flex items-center justify-between py-3">
-              <span className="text-slate-600">Modo</span>
+              <span className="text-slate-600">{t("mode")}</span>
               <span className="font-medium text-slate-800">
-                {profile?.use_mode === "with_friends" ? "Con amigos" : "Solo"}
+                {profile?.use_mode === "with_friends" ? t("with_friends") : t("alone")}
               </span>
             </div>
           </div>
@@ -209,26 +211,26 @@ export default function Profile() {
           transition={{ delay: 0.2 }}
         >
           <h3 className="font-semibold text-slate-700 mb-4">
-            Datos opcionales
+            {t("optional_data")}
           </h3>
           
           <div className="space-y-4">
             <div>
               <Label className="text-slate-600 flex items-center gap-2 mb-2">
                 <Scale size={16} />
-                Peso (kg)
+                {t("weight_kg")}
               </Label>
               {editMode ? (
                 <Input
                   type="number"
                   value={formData.weight}
                   onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                  placeholder="Opcional"
+                  placeholder={t("optional") || "Optional"}
                   className="rounded-xl"
                 />
               ) : (
                 <p className="text-slate-800 font-medium">
-                  {profile?.weight ? `${profile.weight} kg` : "No definido"}
+                  {profile?.weight ? `${profile.weight} kg` : t("not_defined")}
                 </p>
               )}
             </div>
@@ -236,19 +238,19 @@ export default function Profile() {
             <div>
               <Label className="text-slate-600 flex items-center gap-2 mb-2">
                 <Ruler size={16} />
-                Altura (cm)
+                {t("height_cm")}
               </Label>
               {editMode ? (
                 <Input
                   type="number"
                   value={formData.height}
                   onChange={(e) => setFormData({ ...formData, height: e.target.value })}
-                  placeholder="Opcional"
+                  placeholder={t("optional") || "Optional"}
                   className="rounded-xl"
                 />
               ) : (
                 <p className="text-slate-800 font-medium">
-                  {profile?.height ? `${profile.height} cm` : "No definido"}
+                  {profile?.height ? `${profile.height} cm` : t("not_defined")}
                 </p>
               )}
             </div>
@@ -263,7 +265,7 @@ export default function Profile() {
               variant="outline"
               className="flex-1 rounded-xl py-6"
             >
-              Cancelar
+              {t("cancel")}
             </Button>
             <Button
               onClick={handleSave}
@@ -271,7 +273,7 @@ export default function Profile() {
               className="flex-1 rounded-xl py-6 bg-teal-500 hover:bg-teal-600"
             >
               <Save size={18} className="mr-2" />
-              Guardar
+              {t("save")}
             </Button>
           </div>
         ) : (
@@ -281,7 +283,7 @@ export default function Profile() {
             className="w-full rounded-xl py-6 text-red-500 border-red-200 hover:bg-red-50"
           >
             <LogOut size={18} className="mr-2" />
-            Cerrar sesión
+            {t("logout")}
           </Button>
         )}
       </div>
