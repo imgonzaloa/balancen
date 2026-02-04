@@ -207,10 +207,10 @@ export function TranslationProvider({ children }) {
     enabled: !!user?.email,
   });
 
-  const lang = profile?.language || "es";
+  const lang = profile?.language || "en";
   
   const t = (key) => {
-    return translations[lang]?.[key] || translations["es"][key] || key;
+    return translations[lang]?.[key] || translations["en"][key] || key;
   };
 
   return (
@@ -225,8 +225,8 @@ export function useTranslation() {
   if (!context) {
     // Fallback if not wrapped in provider
     return { 
-      t: (key) => translations.es[key] || key, 
-      lang: "es" 
+      t: (key) => translations.en[key] || key, 
+      lang: "en" 
     };
   }
   return context;

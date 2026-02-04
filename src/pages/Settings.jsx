@@ -219,15 +219,15 @@ export default function Settings() {
             </div>
             
             <Select
-              value={profile?.language || "es"}
+              value={profile?.language || "en"}
               onValueChange={(value) => updateMutation.mutate({ language: value })}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="es">🇪🇸 Español</SelectItem>
                 <SelectItem value="en">🇺🇸 English</SelectItem>
+                <SelectItem value="es">🇪🇸 Español</SelectItem>
                 <SelectItem value="pt">🇧🇷 Português</SelectItem>
                 <SelectItem value="fr">🇫🇷 Français</SelectItem>
               </SelectContent>
