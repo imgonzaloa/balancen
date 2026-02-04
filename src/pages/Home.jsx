@@ -19,6 +19,7 @@ import WeeklySummary from "@/components/ai/WeeklySummary";
 import ChallengeSuggestions from "@/components/ai/ChallengeSuggestions";
 import AIPremiumUpsell from "@/components/ai/AIPremiumUpsell";
 import { useTranslation } from "@/components/TranslationProvider";
+import { UIVersionManager } from "@/components/UIVersionManager";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -227,6 +228,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+      {/* UI Version Manager - handles migrations */}
+      <UIVersionManager user={user} profile={profile} />
+      
       {/* Animated Background */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
