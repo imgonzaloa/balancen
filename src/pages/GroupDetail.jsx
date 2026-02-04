@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Copy, Check, Crown, Flame, Circle, Trophy, Target, TrendingUp } from "lucide-react";
+import { ChevronLeft, Copy, Check, Crown, Flame, Circle, Trophy, Target, TrendingUp, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import MemberCard from "@/components/groups/MemberCard";
+import SetStatusModal from "@/components/groups/SetStatusModal";
 
 export default function GroupDetail() {
   const [user, setUser] = useState(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   
   const urlParams = new URLSearchParams(window.location.search);
   const groupId = urlParams.get("id");
@@ -39,7 +44,60 @@ export default function GroupDetail() {
     enabled: !!groupId,
   });
 
-  const sortedMembers = [...members].sort((a, b) => b.current_streak - a.current_streak);
+  // Fetch all member profiles
+  const { data: memberProfiles = [] } = useQuery({
+    queryKey: ["memberProfiles", members.map(m => m.user_email).join(",")],
+    queryFn: async () => {
+      if (members.length === 0) return [];
+      const emails = members.map(m => m.user_email);
+      const profiles = await Promise.all(
+        emails.map(email => 
+          base44.entities.UserProfile.filter({ created_by: email }).then(p => p[0] || null)
+        )
+      );
+      return profiles;
+    },
+    enabled: members.length > 0,
+  });
+
+  // Fetch current user's profile
+  const { data: currentUserProfile } = useQuery({
+    queryKey: ["profile", user?.email],
+    queryFn: async () => {
+      const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
+      return profiles[0] || null;
+    },
+    enabled: !!user?.email,
+  });
+
+  // Merge members with their profiles and sort by fire_total
+  const enrichedMembers = members.map(member => {
+    const profile = memberProfiles.find(p => p?.created_by === member.user_email);
+    return {
+      ...member,
+      profile,
+      fire_total: profile?.fire_total || member.current_streak || 0
+    };
+  });
+
+  const sortedMembers = [...enrichedMembers].sort((a, b) => b.fire_total - a.fire_total);
+
+  // Update status mutation
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ emoji, text }) => {
+      if (!currentUserProfile) return;
+      return base44.entities.UserProfile.update(currentUserProfile.id, {
+        status_emoji: emoji,
+        status_text: text,
+        status_updated_at: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["memberProfiles"]);
+      queryClient.invalidateQueries(["profile"]);
+      toast.success("Status updated");
+    },
+  });
 
   const copyCode = () => {
     if (!group) return;
@@ -58,52 +116,71 @@ export default function GroupDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
-      <div className="max-w-lg mx-auto px-4 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute top-20 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+
+      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-b from-indigo-50 to-indigo-50/80 backdrop-blur-sm pt-6 pb-4 z-10">
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link
               to={createPageUrl("Groups")}
-              className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"
+              className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors"
             >
-              <ChevronLeft size={20} className="text-slate-600" />
+              <ChevronLeft size={20} className="text-white" />
             </Link>
-            <h1 className="text-xl font-bold text-slate-800 flex-1">{group.name}</h1>
+            <h1 className="text-2xl font-bold text-white">{group.name}</h1>
           </div>
+          <Button
+            onClick={() => setStatusModalOpen(true)}
+            className="rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-lg"
+            size="sm"
+          >
+            <Sparkles size={16} className="mr-1" />
+            Status
+          </Button>
         </div>
 
         {/* Group Header Card */}
         <motion.div
-          className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white mb-6"
+          className="relative overflow-hidden bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 shadow-2xl mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-indigo-200 text-sm">Members</p>
-              <p className="text-3xl font-bold">{members.length}</p>
-            </div>
-            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-bold">
-              {group.name.charAt(0)}
-            </div>
-          </div>
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-full blur-2xl" />
           
-          <div className="flex items-center gap-3 bg-white/20 rounded-xl p-3">
-            <div className="flex-1">
-              <p className="text-xs text-indigo-200">Invite Code</p>
-              <p className="text-lg font-bold tracking-widest">{group.invite_code}</p>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-white/70 text-sm">Members</p>
+                <p className="text-4xl font-bold text-white">{members.length}</p>
+              </div>
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                {group.name.charAt(0)}
+              </div>
             </div>
-            <button
-              onClick={copyCode}
-              className="p-3 rounded-xl bg-white/20 hover:bg-white/30 transition-colors"
-            >
-              {copiedCode ? (
-                <Check size={20} />
-              ) : (
-                <Copy size={20} />
-              )}
-            </button>
+            
+            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+              <div className="flex-1">
+                <p className="text-xs text-white/70">Invite Code</p>
+                <p className="text-lg font-bold tracking-widest text-white">{group.invite_code}</p>
+              </div>
+              <button
+                onClick={copyCode}
+                className="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors border border-white/20"
+              >
+                {copiedCode ? (
+                  <Check size={20} className="text-emerald-300" />
+                ) : (
+                  <Copy size={20} className="text-white" />
+                )}
+              </button>
+            </div>
           </div>
         </motion.div>
 
@@ -152,85 +229,40 @@ export default function GroupDetail() {
           </motion.div>
         )}
 
-        {/* Leaderboard */}
+        {/* Members Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h2 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
-            <Flame size={20} className="text-orange-500" />
-            Consistency Ranking
+          <h2 className="text-xl font-bold text-white mb-5 flex items-center gap-2">
+            <Flame size={24} className="text-orange-400" />
+            Members
           </h2>
           
-          <div className="space-y-3">
-            {sortedMembers.map((member, index) => {
-              const isCurrentUser = member.user_email === user?.email;
-              const isTop3 = index < 3;
-              
-              return (
-                <motion.div
-                  key={member.id}
-                  className={`bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm border ${
-                    isCurrentUser ? "border-indigo-200 bg-indigo-50/50" : "border-slate-100"
-                  }`}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + index * 0.05 }}
-                >
-                  {/* Rank */}
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${
-                    index === 0 ? "bg-amber-100 text-amber-600" :
-                    index === 1 ? "bg-slate-200 text-slate-600" :
-                    index === 2 ? "bg-orange-100 text-orange-600" :
-                    "bg-slate-100 text-slate-500"
-                  }`}>
-                    {index + 1}
-                  </div>
-                  
-                  {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold">
-                    {member.display_name?.charAt(0) || "?"}
-                  </div>
-                  
-                  {/* Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className={`font-semibold ${isCurrentUser ? "text-indigo-700" : "text-slate-700"}`}>
-                        {member.display_name}
-                        {isCurrentUser && " (you)"}
-                      </span>
-                      {member.role === "admin" && (
-                        <Crown size={14} className="text-amber-500" />
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
-                      {member.checked_in_today ? (
-                        <span className="flex items-center gap-1 text-emerald-600">
-                          <Circle size={8} className="fill-emerald-500" />
-                          Today ✓
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-slate-400">
-                          <Circle size={8} />
-                          No check-in
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Streak */}
-                  <div className="flex items-center gap-1 bg-orange-50 px-3 py-2 rounded-xl">
-                    <Flame size={18} className={member.current_streak > 0 ? "text-orange-500" : "text-slate-300"} />
-                    <span className={`font-bold ${member.current_streak > 0 ? "text-orange-600" : "text-slate-400"}`}>
-                      {member.current_streak}
-                    </span>
-                  </div>
-                </motion.div>
-              );
-            })}
+          <div className="space-y-4">
+            {sortedMembers.map((member, index) => (
+              <MemberCard
+                key={member.id}
+                member={member}
+                userProfile={member.profile}
+                rank={index}
+                isCurrentUser={member.user_email === user?.email}
+              />
+            ))}
           </div>
         </motion.div>
+
+        {/* Set Status Modal */}
+        <SetStatusModal
+          isOpen={statusModalOpen}
+          onClose={() => setStatusModalOpen(false)}
+          onSave={(status) => updateStatusMutation.mutateAsync(status)}
+          currentStatus={{
+            emoji: currentUserProfile?.status_emoji || "",
+            text: currentUserProfile?.status_text || ""
+          }}
+        />
       </div>
     </div>
   );
