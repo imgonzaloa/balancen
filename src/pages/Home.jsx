@@ -11,6 +11,7 @@ import QuickCheckIn from "@/components/home/QuickCheckIn";
 import WeekProgress from "@/components/home/WeekProgress";
 import StepsCounter from "@/components/home/StepsCounter";
 import WeightTracker from "@/components/home/WeightTracker";
+import CalorieTracker from "@/components/nutrition/CalorieTracker";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -36,6 +37,17 @@ export default function Home() {
         { created_by: user?.email },
         "-date",
         30
+      );
+    },
+    enabled: !!user?.email,
+  });
+
+  const { data: todayMeals = [] } = useQuery({
+    queryKey: ["meals", today],
+    queryFn: async () => {
+      return base44.entities.MealLog.filter(
+        { created_by: user?.email, date: today },
+        "-meal_time"
       );
     },
     enabled: !!user?.email,
@@ -166,13 +178,27 @@ export default function Home() {
           />
         </motion.div>
 
+        {/* Calorie Tracker - Always visible */}
+        <motion.div
+          className="mt-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <CalorieTracker 
+            meals={todayMeals}
+            date={today}
+            onMealAdded={() => queryClient.invalidateQueries(["meals", today])}
+          />
+        </motion.div>
+
         {/* Today's Stats - Only show after check-in */}
         {todayCheckIn && (
           <motion.div
             className="grid grid-cols-1 gap-4 mt-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
+            transition={{ delay: 0.2 }}
           >
             {todayCheckIn.steps > 0 && (
               <StepsCounter 
@@ -196,7 +222,7 @@ export default function Home() {
           className="mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.25 }}
         >
           <WeekProgress checkIns={checkIns} />
         </motion.div>
