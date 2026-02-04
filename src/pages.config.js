@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Badges from './pages/Badges';
+import Friends from './pages/Friends';
 import GroupDetail from './pages/GroupDetail';
 import Groups from './pages/Groups';
 import Home from './pages/Home';
@@ -56,12 +57,12 @@ import Paywall from './pages/Paywall';
 import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import Friends from './pages/Friends';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Badges": Badges,
+    "Friends": Friends,
     "GroupDetail": GroupDetail,
     "Groups": Groups,
     "Home": Home,
@@ -70,7 +71,6 @@ export const PAGES = {
     "Premium": Premium,
     "Profile": Profile,
     "Settings": Settings,
-    "Friends": Friends,
 }
 
 export const pagesConfig = {
