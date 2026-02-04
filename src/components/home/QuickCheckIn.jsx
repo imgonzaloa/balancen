@@ -8,8 +8,10 @@ import MovementToggle from "@/components/ui/MovementToggle";
 import CheckInButton from "@/components/ui/CheckInButton";
 import StepsCounter from "@/components/home/StepsCounter";
 import WeightTracker from "@/components/home/WeightTracker";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yesterdayCheckIn }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(todayCheckIn ? "done" : "main");
   const [foodRating, setFoodRating] = useState(todayCheckIn?.food_rating || null);
   const [movedToday, setMovedToday] = useState(todayCheckIn?.moved_today ?? null);
@@ -95,37 +97,37 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
             <Sparkles className="text-white" size={28} />
           </motion.div>
           <div>
-            <h3 className="font-bold text-xl text-white">¡Check-in completado!</h3>
-            <p className="text-emerald-100 text-sm font-medium">Sigue así mañana</p>
+            <h3 className="font-bold text-xl text-white">{t("checkin_completed")}</h3>
+            <p className="text-emerald-100 text-sm font-medium">{t("keep_it_up")}</p>
           </div>
         </div>
         
         <div className="space-y-2 relative z-10">
           {(todayCheckIn?.food_rating || foodRating) && (
             <div className="flex items-center gap-2 text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white">
-              <span className="font-medium">Comida:</span>
+              <span className="font-medium">Food:</span>
               <span className="font-bold capitalize">
-                {(todayCheckIn?.food_rating || foodRating) === "great" ? "Bien ✓" : 
-                 (todayCheckIn?.food_rating || foodRating) === "ok" ? "Ok" : "Mal"}
+                {(todayCheckIn?.food_rating || foodRating) === "great" ? t("great") + " ✓" : 
+                 (todayCheckIn?.food_rating || foodRating) === "ok" ? t("ok") : t("poor")}
               </span>
             </div>
           )}
           
           {(todayCheckIn?.estimated_calories || estimatedCal) && (
             <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
-              Calorías estimadas: ~{todayCheckIn?.estimated_calories || estimatedCal} kcal
+              Estimated calories: ~{todayCheckIn?.estimated_calories || estimatedCal} kcal
             </div>
           )}
           
           {(todayCheckIn?.steps || steps > 0) && (
             <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
-              Pasos: {(todayCheckIn?.steps || steps).toLocaleString()} 🚶
+              Steps: {(todayCheckIn?.steps || steps).toLocaleString()} 🚶
             </div>
           )}
           
           {(todayCheckIn?.weight || weight) && (
             <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
-              Peso: {(todayCheckIn?.weight || weight).toFixed(1)} kg
+              Weight: {(todayCheckIn?.weight || weight).toFixed(1)} kg
             </div>
           )}
         </div>
@@ -140,13 +142,13 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
       animate={{ opacity: 1, y: 0 }}
     >
       <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-teal-400/30 to-emerald-400/30 rounded-full blur-2xl" />
-      <h3 className="font-bold text-2xl text-white mb-6 relative z-10">¿Cómo fue hoy?</h3>
+      <h3 className="font-bold text-2xl text-white mb-6 relative z-10">{t("how_was_today")}</h3>
       
       <div className="space-y-6 relative z-10">
         {/* Food Rating */}
         <div>
           <label className="block text-sm font-semibold text-white mb-3">
-            ¿Cómo comiste?
+            {t("how_did_you_eat")}
           </label>
           <FoodRating value={foodRating} onChange={setFoodRating} />
         </div>
@@ -154,7 +156,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
         {/* Photo Option */}
         <div>
           <label className="block text-sm font-semibold text-white mb-3">
-            Foto de comida (opcional)
+            {t("food_photo_optional")}
           </label>
           
           <input
@@ -185,7 +187,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
               {analyzing ? (
                 <div className="absolute bottom-2 left-2 bg-white/90 rounded-xl px-3 py-2 flex items-center gap-2">
                   <Loader2 size={16} className="animate-spin text-teal-500" />
-                  <span className="text-sm">Analizando...</span>
+                  <span className="text-sm">{t("analyzing")}</span>
                 </div>
               ) : estimatedCal !== null && (
                 <div className="absolute bottom-2 left-2 bg-white/90 rounded-xl px-3 py-2">
@@ -206,7 +208,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
                 <Camera size={20} className="mr-2 text-teal-500" />
               )}
               <span className="text-slate-600">
-                {uploading ? "Subiendo..." : "Tomar foto"}
+                {uploading ? "Uploading..." : "Take photo"}
               </span>
             </Button>
           )}
@@ -215,7 +217,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
         {/* Movement */}
         <div>
           <label className="block text-sm font-semibold text-white mb-3">
-            ¿Te moviste hoy?
+            {t("did_you_move")}
           </label>
           <MovementToggle value={movedToday} onChange={setMovedToday} />
         </div>
@@ -223,7 +225,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
         {/* Steps Counter */}
         <div>
           <label className="block text-sm font-semibold text-white mb-3">
-            Pasos (opcional)
+            {t("steps_optional")}
           </label>
           <StepsCounter 
             steps={steps} 
@@ -236,7 +238,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
         {/* Weight Tracker */}
         <div>
           <label className="block text-sm font-semibold text-white mb-3">
-            Peso hoy (opcional)
+            {t("weight_today_optional")}
           </label>
           <WeightTracker 
             currentWeight={weight}
@@ -256,7 +258,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
         
         {!canSubmit && (
           <p className="text-center text-sm text-teal-200 font-medium">
-            Selecciona al menos una opción
+            {t("select_at_least_one")}
           </p>
         )}
       </div>
