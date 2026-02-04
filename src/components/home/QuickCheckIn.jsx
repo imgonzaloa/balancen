@@ -36,7 +36,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
       
       setAnalyzing(true);
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: "Analiza esta imagen de comida y estima las calorías totales aproximadas. Sé breve y da solo el número estimado de calorías. Si no puedes identificar comida, responde con 0.",
+        prompt: "Analyze this food image and estimate the approximate total calories. Be brief and provide only the estimated calorie number. If you cannot identify food, respond with 0.",
         file_urls: [file_url],
         response_json_schema: {
           type: "object",

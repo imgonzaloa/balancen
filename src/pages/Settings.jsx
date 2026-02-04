@@ -74,7 +74,7 @@ export default function Settings() {
           >
             <ChevronLeft size={20} className="text-white" />
           </Link>
-          <h1 className="text-2xl font-bold text-white">Configuración</h1>
+          <h1 className="text-2xl font-bold text-white">Settings</h1>
         </div>
 
         {/* Premium Status */}
@@ -88,8 +88,8 @@ export default function Settings() {
             <div className="flex items-center gap-3 relative z-10">
               <Crown size={32} className="text-white" />
               <div>
-                <p className="text-white font-bold text-lg">Premium Activo</p>
-                <p className="text-amber-100 text-sm">Todas las features desbloqueadas</p>
+                <p className="text-white font-bold text-lg">Premium Active</p>
+                <p className="text-amber-100 text-sm">All features unlocked</p>
               </div>
             </div>
           </motion.div>
@@ -107,8 +107,8 @@ export default function Settings() {
                     <Crown size={24} className="text-white" />
                   </div>
                   <div>
-                    <p className="text-white font-bold">Upgrade a Premium</p>
-                    <p className="text-teal-200 text-sm">Desbloquea todas las features</p>
+                    <p className="text-white font-bold">Upgrade to Premium</p>
+                    <p className="text-teal-200 text-sm">Unlock all features</p>
                   </div>
                 </div>
                 <ChevronLeft size={20} className="text-white rotate-180" />
@@ -132,8 +132,8 @@ export default function Settings() {
                 <Watch size={20} className="text-blue-300" />
               </div>
               <div className="flex-1">
-                <Label className="text-white font-semibold">Conectar dispositivo</Label>
-                <p className="text-xs text-white/60">Sync automático de datos</p>
+                <Label className="text-white font-semibold">Connect device</Label>
+                <p className="text-xs text-white/60">Automatic data sync</p>
               </div>
               <Switch
                 checked={profile?.wearable_connected || false}
@@ -147,13 +147,13 @@ export default function Settings() {
                 animate={{ opacity: 1, height: "auto" }}
                 className="mt-4"
               >
-                <Label className="text-white text-sm mb-2 block">Tipo de dispositivo</Label>
+                <Label className="text-white text-sm mb-2 block">Device type</Label>
                 <Select
                   value={profile?.wearable_type || ""}
                   onValueChange={(value) => updateMutation.mutate({ wearable_type: value })}
                 >
                   <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                    <SelectValue placeholder="Seleccionar" />
+                    <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="apple_health">Apple Health</SelectItem>
@@ -164,7 +164,7 @@ export default function Settings() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-white/40 mt-2">
-                  * Entrada manual disponible. Integración nativa próximamente.
+                  * Manual entry available. Native integration coming soon.
                 </p>
               </motion.div>
             )}
@@ -184,8 +184,8 @@ export default function Settings() {
                 <Sparkles size={20} className="text-purple-300" />
               </div>
               <div>
-                <Label className="text-white font-semibold">Recomendaciones IA</Label>
-                <p className="text-xs text-white/60">Consejos personalizados</p>
+                <Label className="text-white font-semibold">AI Recommendations</Label>
+                <p className="text-xs text-white/60">Personalized tips</p>
               </div>
             </div>
             <Switch
@@ -208,8 +208,8 @@ export default function Settings() {
                 <Bell size={20} className="text-teal-300" />
               </div>
               <div>
-                <Label className="text-white font-semibold">Notificaciones</Label>
-                <p className="text-xs text-white/60">Recordatorios suaves</p>
+                <Label className="text-white font-semibold">Notifications</Label>
+                <p className="text-xs text-white/60">Gentle reminders</p>
               </div>
             </div>
             <Switch defaultChecked={false} />
@@ -263,7 +263,7 @@ export default function Settings() {
               <div className="flex items-center justify-between pt-2">
                 <div>
                   <Label className="text-white text-sm">Auto-adjust calories goal</Label>
-                  <p className="text-xs text-white/60">Reduce by 50 kcal when achieved</p>
+                  <p className="text-xs text-white/60">Reduce by 50 kcal when goal met</p>
                 </div>
                 <Switch
                   checked={profile?.auto_adjust_calories_goal || false}
@@ -289,8 +289,8 @@ export default function Settings() {
                 <Globe size={20} className="text-indigo-300" />
               </div>
               <div className="flex-1">
-                <Label className="text-white font-semibold">Idioma</Label>
-                <p className="text-xs text-white/60">Selecciona tu idioma</p>
+                <Label className="text-white font-semibold">Language</Label>
+                <p className="text-xs text-white/60">Select your language</p>
               </div>
             </div>
             
@@ -321,9 +321,9 @@ export default function Settings() {
               <Shield size={20} className="text-emerald-300" />
             </div>
             <div>
-              <Label className="text-white font-semibold">Privacidad</Label>
+              <Label className="text-white font-semibold">Privacy</Label>
               <p className="text-xs text-white/60">
-                Tus datos están encriptados y seguros
+                Your data is encrypted and secure
               </p>
             </div>
           </div>

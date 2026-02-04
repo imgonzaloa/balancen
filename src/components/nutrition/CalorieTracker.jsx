@@ -44,7 +44,7 @@ export default function CalorieTracker({ meals = [], onMealAdded, date, calories
 
       // Analyze with AI
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analiza esta foto de comida y estima las calorías totales, proteína (g), carbohidratos (g) y grasas (g). Sé preciso pero realista.`,
+        prompt: `Analyze this food photo and estimate total calories, protein (g), carbohydrates (g), and fats (g). Be accurate but realistic.`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
@@ -73,9 +73,9 @@ export default function CalorieTracker({ meals = [], onMealAdded, date, calories
       });
 
       onMealAdded?.(meal);
-      toast.success(`${analysis.calories || 0} kcal agregadas`);
+      toast.success(`${analysis.calories || 0} kcal added`);
     } catch (error) {
-      toast.error("Error al procesar la foto");
+      toast.error("Error processing photo");
       console.error(error);
     } finally {
       setUploading(false);
@@ -87,9 +87,9 @@ export default function CalorieTracker({ meals = [], onMealAdded, date, calories
     try {
       await base44.entities.MealLog.delete(mealId);
       onMealAdded?.();
-      toast.success("Comida eliminada");
+      toast.success("Meal deleted");
     } catch (error) {
-      toast.error("Error al eliminar");
+      toast.error("Error deleting meal");
     }
   };
 
