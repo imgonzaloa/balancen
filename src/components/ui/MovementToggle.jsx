@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Footprints, X } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function MovementToggle({ value, onChange }) {
+  const { t } = useTranslation();
   return (
     <div className="flex gap-3">
       <motion.button
@@ -15,7 +17,7 @@ export default function MovementToggle({ value, onChange }) {
         whileTap={{ scale: 0.98 }}
       >
         <Footprints size={24} />
-        <span className="font-semibold text-lg">Sí, me moví</span>
+        <span className="font-semibold text-lg">Yes, I moved</span>
       </motion.button>
       
       <motion.button

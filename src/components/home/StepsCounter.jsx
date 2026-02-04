@@ -1,8 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Footprints, TrendingUp } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function StepsCounter({ steps = 0, goal = 8000, showInput = false, onChange }) {
+  const { t } = useTranslation();
   const progress = Math.min((steps / goal) * 100, 100);
   const remaining = Math.max(goal - steps, 0);
   
@@ -15,8 +17,8 @@ export default function StepsCounter({ steps = 0, goal = 8000, showInput = false
             <Footprints size={22} className="text-white" />
           </div>
           <div>
-            <p className="text-sm text-white font-semibold">Pasos hoy</p>
-            <p className="text-xs text-teal-200">Meta: {goal.toLocaleString()}</p>
+            <p className="text-sm text-white font-semibold">{t("steps_today")}</p>
+            <p className="text-xs text-teal-200">{t("goal")}: {goal.toLocaleString()}</p>
           </div>
         </div>
         {showInput && (
@@ -56,11 +58,11 @@ export default function StepsCounter({ steps = 0, goal = 8000, showInput = false
         {steps >= goal ? (
           <span className="text-emerald-300 font-bold flex items-center gap-1">
             <TrendingUp size={16} />
-            ¡Meta alcanzada!
+            {t("goal_reached")}
           </span>
         ) : (
           <span className="text-teal-200 font-medium">
-            Faltan {remaining.toLocaleString()} pasos
+            {t("missing_steps")} {remaining.toLocaleString()} {t("steps")}
           </span>
         )}
         <span className="font-bold text-white text-lg">{Math.round(progress)}%</span>

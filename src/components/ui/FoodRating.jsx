@@ -1,13 +1,15 @@
 import { motion } from "framer-motion";
 import { Smile, Meh, Frown } from "lucide-react";
-
-const ratings = [
-  { value: "great", label: "Bien", icon: Smile, color: "bg-emerald-100 text-emerald-600 border-emerald-200", activeColor: "bg-emerald-500 text-white border-emerald-500" },
-  { value: "ok", label: "Ok", icon: Meh, color: "bg-amber-100 text-amber-600 border-amber-200", activeColor: "bg-amber-500 text-white border-amber-500" },
-  { value: "poor", label: "Mal", icon: Frown, color: "bg-red-100 text-red-500 border-red-200", activeColor: "bg-red-500 text-white border-red-500" },
-];
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function FoodRating({ value, onChange }) {
+  const { t } = useTranslation();
+  
+  const ratings = [
+    { value: "great", label: t("great"), icon: Smile, color: "bg-emerald-100 text-emerald-600 border-emerald-200", activeColor: "bg-emerald-500 text-white border-emerald-500" },
+    { value: "ok", label: t("ok"), icon: Meh, color: "bg-amber-100 text-amber-600 border-amber-200", activeColor: "bg-amber-500 text-white border-amber-500" },
+    { value: "poor", label: t("poor"), icon: Frown, color: "bg-red-100 text-red-500 border-red-200", activeColor: "bg-red-500 text-white border-red-500" },
+  ];
   return (
     <div className="flex gap-3">
       {ratings.map((rating) => {
