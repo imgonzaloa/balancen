@@ -66,9 +66,9 @@ export default function Premium() {
             >
               <Crown size={64} className="text-white" />
             </motion.div>
-            <h2 className="text-3xl font-black text-white mb-2">Desbloquea Todo</h2>
+            <h2 className="text-3xl font-black text-white mb-2">Balancen Premium</h2>
             <p className="text-white/90 text-lg">
-              Lleva tu consistencia al siguiente nivel
+              Build consistency, not perfection
             </p>
           </div>
         </motion.div>
