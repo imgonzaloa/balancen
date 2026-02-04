@@ -297,6 +297,7 @@ export default function Home() {
           <CalorieTracker 
             meals={todayMeals}
             date={today}
+            caloriesGoal={profile?.calories_goal}
             onMealAdded={() => queryClient.invalidateQueries(["meals", today])}
           />
         </motion.div>

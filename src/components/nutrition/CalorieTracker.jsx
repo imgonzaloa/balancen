@@ -3,8 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Plus, Flame, X, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import CalorieGoalCard from "./CalorieGoalCard";
+import { useTranslation } from "@/components/TranslationProvider";
 
-export default function CalorieTracker({ meals = [], onMealAdded, date }) {
+export default function CalorieTracker({ meals = [], onMealAdded, date, caloriesGoal }) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [showMealType, setShowMealType] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
@@ -15,10 +18,10 @@ export default function CalorieTracker({ meals = [], onMealAdded, date }) {
   const totalFats = meals.reduce((sum, meal) => sum + (meal.estimated_fats || 0), 0);
 
   const mealTypes = [
-    { value: "breakfast", label: "Desayuno", emoji: "🌅" },
-    { value: "lunch", label: "Almuerzo", emoji: "☀️" },
-    { value: "dinner", label: "Cena", emoji: "🌙" },
-    { value: "snack", label: "Snack", emoji: "🍎" },
+    { value: "breakfast", label: t("breakfast"), emoji: "🌅" },
+    { value: "lunch", label: t("lunch"), emoji: "☀️" },
+    { value: "dinner", label: t("dinner"), emoji: "🌙" },
+    { value: "snack", label: t("snack"), emoji: "🍎" },
   ];
 
   const handlePhotoCapture = async (e) => {
@@ -102,9 +105,9 @@ export default function CalorieTracker({ meals = [], onMealAdded, date }) {
               <Flame size={22} className="text-white" />
             </div>
             <div>
-              <h4 className="font-bold text-white text-lg">Calorías Hoy</h4>
+              <h4 className="font-bold text-white text-lg">{t("calories_today")}</h4>
               <p className="text-xs text-orange-200">
-                {meals.length} {meals.length === 1 ? "comida" : "comidas"} registradas
+                {meals.length} {t("meals_logged")}
               </p>
             </div>
           </div>
@@ -118,19 +121,26 @@ export default function CalorieTracker({ meals = [], onMealAdded, date }) {
           </motion.div>
         </div>
 
+        {/* Calorie Goal Progress */}
+        {caloriesGoal && (
+          <div className="mb-4">
+            <CalorieGoalCard totalCalories={totalCalories} caloriesGoal={caloriesGoal} />
+          </div>
+        )}
+
         {/* Macros Summary */}
         {meals.length > 0 && (
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="bg-white/5 rounded-xl p-2 text-center">
-              <p className="text-xs text-white/60">Proteína</p>
+              <p className="text-xs text-white/60">{t("protein")}</p>
               <p className="text-sm font-bold text-emerald-300">{Math.round(totalProtein)}g</p>
             </div>
             <div className="bg-white/5 rounded-xl p-2 text-center">
-              <p className="text-xs text-white/60">Carbos</p>
+              <p className="text-xs text-white/60">{t("carbs")}</p>
               <p className="text-sm font-bold text-amber-300">{Math.round(totalCarbs)}g</p>
             </div>
             <div className="bg-white/5 rounded-xl p-2 text-center">
-              <p className="text-xs text-white/60">Grasas</p>
+              <p className="text-xs text-white/60">{t("fats")}</p>
               <p className="text-sm font-bold text-blue-300">{Math.round(totalFats)}g</p>
             </div>
           </div>
@@ -187,7 +197,7 @@ export default function CalorieTracker({ meals = [], onMealAdded, date }) {
             <Camera size={20} className="text-white" />
           )}
           <span className="text-white font-medium text-sm">
-            {uploading ? "Analizando..." : "Agregar comida"}
+            {uploading ? t("analyzing") : t("add_meal")}
           </span>
         </label>
 
@@ -211,7 +221,7 @@ export default function CalorieTracker({ meals = [], onMealAdded, date }) {
                 onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-lg bg-slate-900 rounded-3xl p-6"
               >
-                <h3 className="text-white font-bold text-lg mb-4">¿Qué comida es?</h3>
+                <h3 className="text-white font-bold text-lg mb-4">{t("what_meal")}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {mealTypes.map((type) => (
                     <button
