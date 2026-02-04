@@ -17,15 +17,22 @@ const features = [
 
 export default function Premium() {
   const [user, setUser] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState("annual");
+  const [selectedPlan, setSelectedPlan] = useState("yearly");
+  const [region, setRegion] = useState("EU");
 
   useEffect(() => {
     base44.auth.me().then(setUser);
   }, []);
 
   const plans = {
-    monthly: { price: 9.99, label: "Mensual", save: null },
-    annual: { price: 79.99, label: "Anual", save: "Ahorra 33%" },
+    EU: {
+      monthly: { price: 6.99, label: "Mensual", period: "month", currency: "€" },
+      yearly: { price: 49.99, label: "Anual", period: "year", save: "Best Value", currency: "€" },
+    },
+    LATAM: {
+      monthly: { price: 3.99, label: "Mensual", period: "month", currency: "$" },
+      yearly: { price: 29.99, label: "Anual", period: "year", save: "Best Value", currency: "$" },
+    }
   };
 
   return (
@@ -73,6 +80,35 @@ export default function Premium() {
           </div>
         </motion.div>
 
+        {/* Region Selector */}
+        <motion.div
+          className="flex gap-2 mb-6 justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+        >
+          <button
+            onClick={() => setRegion("EU")}
+            className={`px-4 py-2 rounded-xl font-medium transition-all ${
+              region === "EU"
+                ? "bg-white/20 text-white border border-amber-400"
+                : "bg-white/10 text-white/60 border border-white/20"
+            }`}
+          >
+            🇪🇺 EU/US
+          </button>
+          <button
+            onClick={() => setRegion("LATAM")}
+            className={`px-4 py-2 rounded-xl font-medium transition-all ${
+              region === "LATAM"
+                ? "bg-white/20 text-white border border-amber-400"
+                : "bg-white/10 text-white/60 border border-white/20"
+            }`}
+          >
+            🌎 LATAM
+          </button>
+        </motion.div>
+
         {/* Plan Selection */}
         <motion.div
           className="flex gap-4 mb-8"
@@ -80,7 +116,7 @@ export default function Premium() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          {Object.entries(plans).map(([key, plan]) => (
+          {Object.entries(plans[region]).map(([key, plan]) => (
             <button
               key={key}
               onClick={() => setSelectedPlan(key)}
@@ -96,10 +132,8 @@ export default function Premium() {
                 </div>
               )}
               <p className="text-white/80 text-sm mb-1">{plan.label}</p>
-              <p className="text-3xl font-black text-white">${plan.price}</p>
-              <p className="text-white/60 text-xs mt-1">
-                {key === "annual" ? "/año" : "/mes"}
-              </p>
+              <p className="text-3xl font-black text-white">{plan.currency}{plan.price}</p>
+              <p className="text-white/60 text-xs mt-1">/ {plan.period === "year" ? "año" : "mes"}</p>
             </button>
           ))}
         </motion.div>
