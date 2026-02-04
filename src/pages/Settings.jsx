@@ -36,6 +36,14 @@ export default function Settings() {
     },
   });
 
+  const languageMutation = useMutation({
+    mutationFn: (language) => base44.entities.UserProfile.update(profile.id, { language }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["profile"]);
+      setTimeout(() => window.location.reload(), 300);
+    },
+  });
+
   const handleToggle = (field, value) => {
     updateMutation.mutate({ [field]: value });
   };
