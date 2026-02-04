@@ -66,7 +66,23 @@ const translations = {
     alone: "Alone",
     settings: "Settings",
     settings_desc: "Language, notifications, privacy",
-  },
+    steps_goal: "Steps Goal",
+    calories_goal: "Calories Goal",
+    auto_adjust_calories: "Auto-adjust calories goal",
+    steps_goal_achieved: "Steps goal achieved 🔥",
+    calories_goal_achieved: "Calories goal achieved 🔥",
+    new_steps_goal: "New steps goal",
+    new_calories_goal: "New calories goal",
+    today_rewards: "Today's Rewards",
+    consistency_fire: "Check-in",
+    steps_fire: "Steps",
+    calories_fire: "Calories",
+    set_calories_goal: "Set calories goal",
+    goals_settings: "Goals & Targets",
+    daily_steps_target: "Daily Steps Target",
+    daily_calories_limit: "Daily Calories Limit",
+    optional_leave_empty: "Optional - leave empty if not tracking",
+    },
   es: {
     good_morning: "Buenos días",
     good_afternoon: "Buenas tardes",
@@ -130,8 +146,24 @@ const translations = {
     alone: "Solo",
     settings: "Configuración",
     settings_desc: "Idioma, notificaciones, privacidad",
-  }
-};
+    steps_goal: "Meta de Pasos",
+    calories_goal: "Meta de Calorías",
+    auto_adjust_calories: "Auto-ajustar meta de calorías",
+    steps_goal_achieved: "Meta de pasos alcanzada 🔥",
+    calories_goal_achieved: "Meta de calorías alcanzada 🔥",
+    new_steps_goal: "Nueva meta de pasos",
+    new_calories_goal: "Nueva meta de calorías",
+    today_rewards: "Recompensas de Hoy",
+    consistency_fire: "Check-in",
+    steps_fire: "Pasos",
+    calories_fire: "Calorías",
+    set_calories_goal: "Establecer meta de calorías",
+    goals_settings: "Metas y Objetivos",
+    daily_steps_target: "Meta Diaria de Pasos",
+    daily_calories_limit: "Límite Diario de Calorías",
+    optional_leave_empty: "Opcional - dejar vacío si no rastrear",
+    }
+    };
 
 const TranslationContext = createContext();
 
