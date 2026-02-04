@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Watch, Sparkles, Crown, Bell, Shield } from "lucide-react";
+import { ChevronLeft, Watch, Sparkles, Crown, Bell, Shield, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -198,12 +198,49 @@ export default function Settings() {
           </div>
         </motion.div>
 
+        {/* Language */}
+        <motion.div
+          className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-indigo-400/30 to-blue-400/30 rounded-full blur-2xl" />
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+                <Globe size={20} className="text-indigo-300" />
+              </div>
+              <div className="flex-1">
+                <Label className="text-white font-semibold">Idioma</Label>
+                <p className="text-xs text-white/60">Selecciona tu idioma</p>
+              </div>
+            </div>
+            
+            <Select
+              value={profile?.language || "es"}
+              onValueChange={(value) => updateMutation.mutate({ language: value })}
+            >
+              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="es">🇪🇸 Español</SelectItem>
+                <SelectItem value="en">🇺🇸 English</SelectItem>
+                <SelectItem value="pt">🇧🇷 Português</SelectItem>
+                <SelectItem value="fr">🇫🇷 Français</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </motion.div>
+
         {/* Privacy */}
         <motion.div
           className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.5 }}
         >
           <div className="flex items-center gap-3 relative z-10">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">

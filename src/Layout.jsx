@@ -3,16 +3,23 @@ import { createPageUrl } from "@/utils";
 import { Home, Users, Award, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { Toaster } from "sonner";
+import { useTranslation } from "@/lib/useTranslation";
 
-const navItems = [
-  { name: "Home", icon: Home, label: "Inicio" },
-  { name: "Groups", icon: Users, label: "Grupos" },
-  { name: "Badges", icon: Award, label: "Logros" },
-  { name: "Profile", icon: User, label: "Perfil" },
+const navItemsBase = [
+  { name: "Home", icon: Home, key: "home" },
+  { name: "Groups", icon: Users, key: "groups" },
+  { name: "Badges", icon: Award, key: "badges" },
+  { name: "Profile", icon: User, key: "profile" },
 ];
 
 export default function Layout({ children, currentPageName }) {
   const hideNav = ["Onboarding"].includes(currentPageName);
+  const { t } = useTranslation();
+  
+  const navItems = navItemsBase.map(item => ({
+    ...item,
+    label: t(item.key)
+  }));
 
   return (
     <div className="min-h-screen bg-slate-50">
