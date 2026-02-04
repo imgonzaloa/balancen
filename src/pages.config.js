@@ -47,28 +47,28 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import Badges from './pages/Badges';
+import GroupDetail from './pages/GroupDetail';
+import Groups from './pages/Groups';
 import Home from './pages/Home';
 import Onboarding from './pages/Onboarding';
-import Badges from './pages/Badges';
-import Groups from './pages/Groups';
-import GroupDetail from './pages/GroupDetail';
+import Paywall from './pages/Paywall';
+import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import Premium from './pages/Premium';
-import Paywall from './pages/Paywall';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "Badges": Badges,
+    "GroupDetail": GroupDetail,
+    "Groups": Groups,
     "Home": Home,
     "Onboarding": Onboarding,
-    "Badges": Badges,
-    "Groups": Groups,
-    "GroupDetail": GroupDetail,
+    "Paywall": Paywall,
+    "Premium": Premium,
     "Profile": Profile,
     "Settings": Settings,
-    "Premium": Premium,
-    "Paywall": Paywall,
 }
 
 export const pagesConfig = {
