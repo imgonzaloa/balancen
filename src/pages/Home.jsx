@@ -12,10 +12,13 @@ import WeekProgress from "@/components/home/WeekProgress";
 import StepsCounter from "@/components/home/StepsCounter";
 import WeightTracker from "@/components/home/WeightTracker";
 import CalorieTracker from "@/components/nutrition/CalorieTracker";
+import FirstStreakModal from "@/components/home/FirstStreakModal";
 
 export default function Home() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
+  const [showFirstStreakModal, setShowFirstStreakModal] = useState(false);
+  const [hasShownPaywall, setHasShownPaywall] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -68,19 +71,32 @@ export default function Home() {
     },
     onSuccess: async (newCheckIn) => {
       queryClient.invalidateQueries(["checkIns"]);
-      
+
       // Update streak
       if (profile) {
         const newStreak = profile.current_streak + 1;
         const longestStreak = Math.max(profile.longest_streak, newStreak);
         const totalCheckins = profile.total_checkins + 1;
-        
+
         await base44.entities.UserProfile.update(profile.id, {
           current_streak: newStreak,
           longest_streak: longestStreak,
           total_checkins: totalCheckins,
         });
-        
+
+        // Show first streak modal
+        if (totalCheckins === 1) {
+          setShowFirstStreakModal(true);
+        }
+
+        // Show paywall after first complete check-in (only once)
+        if (totalCheckins === 1 && !hasShownPaywall && !profile.is_premium) {
+          setTimeout(() => {
+            setHasShownPaywall(true);
+            window.location.href = createPageUrl("Paywall");
+          }, 3000);
+        }
+
         // Check for badges
         const streakMilestones = [3, 7, 14, 30, 60, 100];
         for (const milestone of streakMilestones) {
@@ -93,7 +109,7 @@ export default function Home() {
             });
           }
         }
-        
+
         // First check-in badge
         if (totalCheckins === 1) {
           await base44.entities.Badge.create({
@@ -103,7 +119,7 @@ export default function Home() {
             earned_date: today,
           });
         }
-        
+
         // First photo badge
         if (newCheckIn.food_photo_url) {
           const existingPhotoBadge = await base44.entities.Badge.filter({
@@ -119,7 +135,7 @@ export default function Home() {
             });
           }
         }
-        
+
         queryClient.invalidateQueries(["profile"]);
       }
     },

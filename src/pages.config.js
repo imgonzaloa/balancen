@@ -55,6 +55,7 @@ import GroupDetail from './pages/GroupDetail';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Premium from './pages/Premium';
+import Paywall from './pages/Paywall';
 import __Layout from './Layout.jsx';
 
 
@@ -67,6 +68,7 @@ export const PAGES = {
     "Profile": Profile,
     "Settings": Settings,
     "Premium": Premium,
+    "Paywall": Paywall,
 }
 
 export const pagesConfig = {
