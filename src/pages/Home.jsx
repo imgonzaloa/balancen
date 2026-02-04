@@ -9,6 +9,8 @@ import { createPageUrl } from "@/utils";
 import StreakFire from "@/components/ui/StreakFire";
 import QuickCheckIn from "@/components/home/QuickCheckIn";
 import WeekProgress from "@/components/home/WeekProgress";
+import StepsCounter from "@/components/home/StepsCounter";
+import WeightTracker from "@/components/home/WeightTracker";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -40,7 +42,9 @@ export default function Home() {
   });
 
   const today = new Date().toISOString().split("T")[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
   const todayCheckIn = checkIns.find(c => c.date === today);
+  const yesterdayCheckIn = checkIns.find(c => c.date === yesterday);
 
   const createCheckInMutation = useMutation({
     mutationFn: async (data) => {
@@ -150,8 +154,35 @@ export default function Home() {
           <QuickCheckIn 
             onComplete={(data) => createCheckInMutation.mutateAsync(data)}
             todayCheckIn={todayCheckIn}
+            yesterdayCheckIn={yesterdayCheckIn}
+            profile={profile}
           />
         </motion.div>
+
+        {/* Today's Stats - Only show after check-in */}
+        {todayCheckIn && (
+          <motion.div
+            className="grid grid-cols-1 gap-4 mt-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            {todayCheckIn.steps > 0 && (
+              <StepsCounter 
+                steps={todayCheckIn.steps} 
+                goal={profile?.daily_step_goal || 8000}
+              />
+            )}
+            
+            {todayCheckIn.weight && (
+              <WeightTracker 
+                currentWeight={todayCheckIn.weight}
+                previousWeight={yesterdayCheckIn?.weight}
+                startingWeight={profile?.starting_weight}
+              />
+            )}
+          </motion.div>
+        )}
 
         {/* Week Progress */}
         <motion.div

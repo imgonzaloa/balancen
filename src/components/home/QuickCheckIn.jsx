@@ -6,11 +6,15 @@ import { base44 } from "@/api/base44Client";
 import FoodRating from "@/components/ui/FoodRating";
 import MovementToggle from "@/components/ui/MovementToggle";
 import CheckInButton from "@/components/ui/CheckInButton";
+import StepsCounter from "@/components/home/StepsCounter";
+import WeightTracker from "@/components/home/WeightTracker";
 
-export default function QuickCheckIn({ onComplete, todayCheckIn }) {
+export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yesterdayCheckIn }) {
   const [step, setStep] = useState(todayCheckIn ? "done" : "main");
   const [foodRating, setFoodRating] = useState(todayCheckIn?.food_rating || null);
   const [movedToday, setMovedToday] = useState(todayCheckIn?.moved_today ?? null);
+  const [steps, setSteps] = useState(todayCheckIn?.steps || 0);
+  const [weight, setWeight] = useState(todayCheckIn?.weight || null);
   const [photoUrl, setPhotoUrl] = useState(todayCheckIn?.food_photo_url || null);
   const [estimatedCal, setEstimatedCal] = useState(todayCheckIn?.estimated_calories || null);
   const [uploading, setUploading] = useState(false);
@@ -57,6 +61,8 @@ export default function QuickCheckIn({ onComplete, todayCheckIn }) {
       date: today,
       food_rating: foodRating,
       moved_today: movedToday,
+      steps: steps || 0,
+      weight: weight,
       food_photo_url: photoUrl,
       estimated_calories: estimatedCal,
       completed: true
@@ -99,6 +105,18 @@ export default function QuickCheckIn({ onComplete, todayCheckIn }) {
         {(todayCheckIn?.estimated_calories || estimatedCal) && (
           <div className="text-sm text-emerald-700">
             Calorías estimadas: ~{todayCheckIn?.estimated_calories || estimatedCal} kcal
+          </div>
+        )}
+        
+        {(todayCheckIn?.steps || steps > 0) && (
+          <div className="text-sm text-emerald-700">
+            Pasos: {(todayCheckIn?.steps || steps).toLocaleString()}
+          </div>
+        )}
+        
+        {(todayCheckIn?.weight || weight) && (
+          <div className="text-sm text-emerald-700">
+            Peso: {(todayCheckIn?.weight || weight).toFixed(1)} kg
           </div>
         )}
       </motion.div>
@@ -189,6 +207,33 @@ export default function QuickCheckIn({ onComplete, todayCheckIn }) {
             ¿Te moviste hoy?
           </label>
           <MovementToggle value={movedToday} onChange={setMovedToday} />
+        </div>
+
+        {/* Steps Counter */}
+        <div>
+          <label className="block text-sm font-medium text-slate-600 mb-3">
+            Pasos (opcional)
+          </label>
+          <StepsCounter 
+            steps={steps} 
+            goal={profile?.daily_step_goal || 8000}
+            showInput
+            onChange={setSteps}
+          />
+        </div>
+
+        {/* Weight Tracker */}
+        <div>
+          <label className="block text-sm font-medium text-slate-600 mb-3">
+            Peso hoy (opcional)
+          </label>
+          <WeightTracker 
+            currentWeight={weight}
+            previousWeight={yesterdayCheckIn?.weight}
+            startingWeight={profile?.starting_weight}
+            showInput
+            onChange={setWeight}
+          />
         </div>
 
         {/* Submit */}
