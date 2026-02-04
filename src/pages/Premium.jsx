@@ -5,20 +5,36 @@ import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap } fr
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/components/TranslationProvider";
 
-const features = [
-  { icon: Sparkles, text: "IA avanzada con recomendaciones personalizadas", premium: true },
-  { icon: Heart, text: "Análisis de recuperación y bienestar", premium: true },
-  { icon: TrendingUp, text: "Progressive overload automático", premium: true },
-  { icon: Users, text: "Desafíos exclusivos de grupo", premium: true },
-  { icon: Zap, text: "Export de datos completo", premium: true },
-  { icon: Check, text: "Sin anuncios", premium: true },
+const featuresData = [
+  { icon: Sparkles, key: "advanced_ai" },
+  { icon: Heart, key: "recovery_analysis" },
+  { icon: TrendingUp, key: "progressive_overload" },
+  { icon: Users, key: "exclusive_challenges" },
+  { icon: Zap, key: "data_export" },
+  { icon: Check, key: "no_ads" },
 ];
 
+// Auto-detect region based on timezone
+const detectRegion = () => {
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const latinAmericaZones = [
+    'America/Mexico_City', 'America/Buenos_Aires', 'America/Bogota', 
+    'America/Lima', 'America/Santiago', 'America/Caracas', 'America/Sao_Paulo',
+    'America/Montevideo', 'America/La_Paz', 'America/Asuncion', 'America/Quito',
+    'America/Panama', 'America/Costa_Rica', 'America/Guatemala', 'America/Tegucigalpa',
+    'America/Managua', 'America/San_Salvador', 'America/Havana', 'America/Santo_Domingo'
+  ];
+  
+  return latinAmericaZones.some(zone => timezone.includes(zone)) ? "LATAM" : "EU";
+};
+
 export default function Premium() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState("yearly");
-  const [region, setRegion] = useState("EU");
+  const [region] = useState(detectRegion());
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -26,12 +42,12 @@ export default function Premium() {
 
   const plans = {
     EU: {
-      monthly: { price: 6.99, label: "Mensual", period: "month", currency: "€" },
-      yearly: { price: 49.99, label: "Anual", period: "year", save: "Best Value", currency: "€" },
+      monthly: { price: 6.99, currency: "€" },
+      yearly: { price: 49.99, currency: "€" },
     },
     LATAM: {
-      monthly: { price: 3.99, label: "Mensual", period: "month", currency: "$" },
-      yearly: { price: 29.99, label: "Anual", period: "year", save: "Best Value", currency: "$" },
+      monthly: { price: 3.99, currency: "$" },
+      yearly: { price: 29.99, currency: "$" },
     }
   };
 
@@ -52,7 +68,7 @@ export default function Premium() {
           >
             <ChevronLeft size={20} className="text-white" />
           </Link>
-          <h1 className="text-2xl font-bold text-white">Upgrade a Premium</h1>
+          <h1 className="text-2xl font-bold text-white">{t("upgrade_to_premium")}</h1>
         </div>
 
         {/* Hero */}
@@ -73,40 +89,11 @@ export default function Premium() {
             >
               <Crown size={64} className="text-white" />
             </motion.div>
-            <h2 className="text-3xl font-black text-white mb-2">Balancen Premium</h2>
+            <h2 className="text-3xl font-black text-white mb-2">{t("premium_title")}</h2>
             <p className="text-white/90 text-lg">
-              Build consistency, not perfection
+              {t("build_consistency")}
             </p>
           </div>
-        </motion.div>
-
-        {/* Region Selector */}
-        <motion.div
-          className="flex gap-2 mb-6 justify-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-        >
-          <button
-            onClick={() => setRegion("EU")}
-            className={`px-4 py-2 rounded-xl font-medium transition-all ${
-              region === "EU"
-                ? "bg-white/20 text-white border border-amber-400"
-                : "bg-white/10 text-white/60 border border-white/20"
-            }`}
-          >
-            🇪🇺 EU/US
-          </button>
-          <button
-            onClick={() => setRegion("LATAM")}
-            className={`px-4 py-2 rounded-xl font-medium transition-all ${
-              region === "LATAM"
-                ? "bg-white/20 text-white border border-amber-400"
-                : "bg-white/10 text-white/60 border border-white/20"
-            }`}
-          >
-            🌎 LATAM
-          </button>
         </motion.div>
 
         {/* Plan Selection */}
@@ -126,14 +113,14 @@ export default function Premium() {
                   : "bg-white/10 border-2 border-white/20"
               }`}
             >
-              {plan.save && (
+              {key === "yearly" && (
                 <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                  {plan.save}
+                  {t("best_value")}
                 </div>
               )}
-              <p className="text-white/80 text-sm mb-1">{plan.label}</p>
+              <p className="text-white/80 text-sm mb-1">{t(key)}</p>
               <p className="text-3xl font-black text-white">{plan.currency}{plan.price}</p>
-              <p className="text-white/60 text-xs mt-1">/ {plan.period === "year" ? "año" : "mes"}</p>
+              <p className="text-white/60 text-xs mt-1">/ {t(key === "yearly" ? "year" : "month")}</p>
             </button>
           ))}
         </motion.div>
@@ -145,8 +132,8 @@ export default function Premium() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h3 className="text-white font-bold text-lg mb-4">Features Premium</h3>
-          {features.map((feature, i) => {
+          <h3 className="text-white font-bold text-lg mb-4">{t("features_premium")}</h3>
+          {featuresData.map((feature, i) => {
             const Icon = feature.icon;
             return (
               <motion.div
@@ -159,7 +146,7 @@ export default function Premium() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
                   <Icon size={20} className="text-white" />
                 </div>
-                <p className="text-white text-sm font-medium">{feature.text}</p>
+                <p className="text-white text-sm font-medium">{t(feature.key)}</p>
               </motion.div>
             );
           })}
@@ -172,14 +159,14 @@ export default function Premium() {
           transition={{ delay: 0.6 }}
         >
           <Button
-            onClick={() => alert("Integración de pago próximamente. Por ahora es demo.")}
+            onClick={() => alert("Payment integration coming soon. This is a demo.")}
             className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50"
           >
             <Crown size={24} className="mr-2" />
-            Empezar prueba gratis de 7 días
+            {t("start_trial")}
           </Button>
           <p className="text-center text-white/60 text-xs mt-4">
-            Cancela cuando quieras. No se requiere tarjeta para el trial.
+            {t("cancel_anytime")}
           </p>
         </motion.div>
       </div>
