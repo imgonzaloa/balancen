@@ -202,12 +202,19 @@ export function TranslationProvider({ children }) {
     queryKey: ["profile"],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
-      return profiles[0] || null;
+      const userProfile = profiles[0] || null;
+      // Sync localStorage with DB
+      if (userProfile?.language) {
+        localStorage.setItem("app_language", userProfile.language);
+      }
+      return userProfile;
     },
     enabled: !!user?.email,
   });
 
-  const lang = profile?.language || "en";
+  // Use localStorage as immediate fallback, then profile from DB
+  const savedLang = typeof window !== "undefined" ? localStorage.getItem("app_language") : null;
+  const lang = profile?.language || savedLang || "en";
   
   const t = (key) => {
     return translations[lang]?.[key] || translations["en"][key] || key;

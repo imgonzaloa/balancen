@@ -37,7 +37,12 @@ export default function Settings() {
   });
 
   const languageMutation = useMutation({
-    mutationFn: (language) => base44.entities.UserProfile.update(profile.id, { language }),
+    mutationFn: async (language) => {
+      // Save to localStorage immediately for instant persistence
+      localStorage.setItem("app_language", language);
+      // Then update DB
+      await base44.entities.UserProfile.update(profile.id, { language });
+    },
     onSuccess: () => {
       // Clear all cache and reload
       queryClient.clear();
