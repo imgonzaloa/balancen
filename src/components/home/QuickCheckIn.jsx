@@ -229,7 +229,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
           </label>
           <StepsCounter 
             steps={steps} 
-            goal={profile?.daily_step_goal || 8000}
+            goal={profile?.steps_goal || 8000}
             showInput
             onChange={setSteps}
           />

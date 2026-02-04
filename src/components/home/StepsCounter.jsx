@@ -18,7 +18,7 @@ export default function StepsCounter({ steps = 0, goal = 8000, showInput = false
           </div>
           <div>
             <p className="text-sm text-white font-semibold">{t("steps_today")}</p>
-            <p className="text-xs text-teal-200">{t("goal")}: {goal.toLocaleString()}</p>
+            <p className="text-xs text-teal-200">Goal: {goal.toLocaleString()}</p>
           </div>
         </div>
         {showInput && (
@@ -62,7 +62,7 @@ export default function StepsCounter({ steps = 0, goal = 8000, showInput = false
           </span>
         ) : (
           <span className="text-teal-200 font-medium">
-            {t("missing_steps")} {remaining.toLocaleString()} {t("steps")}
+            Missing {remaining.toLocaleString()} steps
           </span>
         )}
         <span className="font-bold text-white text-lg">{Math.round(progress)}%</span>

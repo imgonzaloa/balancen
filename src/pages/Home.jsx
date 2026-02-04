@@ -234,6 +234,45 @@ export default function Home() {
           <StreakFire streak={profile?.current_streak || 0} />
         </motion.div>
 
+        {/* Today's Rewards */}
+        {todayCheckIn && (
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+          >
+            <p className="text-teal-200 text-sm font-medium mb-3">{t("today_rewards")}</p>
+            <div className="flex gap-3">
+              <div className={`flex-1 rounded-2xl p-4 border-2 ${todayCheckIn.completed ? 'bg-emerald-500/20 border-emerald-400' : 'bg-white/5 border-white/10'}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Flame size={18} className={todayCheckIn.completed ? "text-emerald-300" : "text-slate-400"} />
+                  <span className="text-xs text-white font-medium">{t("consistency_fire")}</span>
+                </div>
+                <p className="text-2xl font-bold text-white">{todayCheckIn.completed ? "✓" : "—"}</p>
+              </div>
+
+              <div className={`flex-1 rounded-2xl p-4 border-2 ${todayCheckIn.steps_goal_met ? 'bg-teal-500/20 border-teal-400' : 'bg-white/5 border-white/10'}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Flame size={18} className={todayCheckIn.steps_goal_met ? "text-teal-300" : "text-slate-400"} />
+                  <span className="text-xs text-white font-medium">{t("steps_fire")}</span>
+                </div>
+                <p className="text-2xl font-bold text-white">{todayCheckIn.steps_goal_met ? "✓" : "—"}</p>
+              </div>
+
+              {profile?.calories_goal && (
+                <div className={`flex-1 rounded-2xl p-4 border-2 ${todayCheckIn.calories_goal_met ? 'bg-orange-500/20 border-orange-400' : 'bg-white/5 border-white/10'}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Flame size={18} className={todayCheckIn.calories_goal_met ? "text-orange-300" : "text-slate-400"} />
+                    <span className="text-xs text-white font-medium">{t("calories_fire")}</span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">{todayCheckIn.calories_goal_met ? "✓" : "—"}</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
         {/* Main Check-in Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
