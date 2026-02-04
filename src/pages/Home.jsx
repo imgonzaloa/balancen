@@ -33,6 +33,9 @@ export default function Home() {
     enabled: !!user?.email,
   });
 
+  const today = new Date().toISOString().split("T")[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+
   const { data: checkIns = [] } = useQuery({
     queryKey: ["checkIns"],
     queryFn: async () => {
@@ -55,9 +58,6 @@ export default function Home() {
     },
     enabled: !!user?.email,
   });
-
-  const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
   const todayCheckIn = checkIns.find(c => c.date === today);
   const yesterdayCheckIn = checkIns.find(c => c.date === yesterday);
 
