@@ -22,13 +22,14 @@ export default function WeekProgress({ checkIns = [] }) {
   const completedCount = weekDays.filter(d => d.isCompleted).length;
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-      <div className="flex justify-between items-center mb-4">
-        <h4 className="font-semibold text-slate-700">Esta semana</h4>
-        <span className="text-sm text-teal-600 font-medium">{completedCount}/7 días</span>
+    <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl">
+      <div className="absolute -top-10 -left-10 w-32 h-32 bg-gradient-to-br from-emerald-400/30 to-teal-400/30 rounded-full blur-2xl" />
+      <div className="flex justify-between items-center mb-4 relative z-10">
+        <h4 className="font-bold text-white text-lg">Esta semana</h4>
+        <span className="text-sm bg-gradient-to-r from-teal-200 to-emerald-200 bg-clip-text text-transparent font-bold">{completedCount}/7 días</span>
       </div>
       
-      <div className="flex justify-between gap-1">
+      <div className="flex justify-between gap-2 relative z-10">
         {weekDays.map((d, i) => (
           <motion.div
             key={d.date}
@@ -37,22 +38,24 @@ export default function WeekProgress({ checkIns = [] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
           >
-            <span className={`text-xs font-medium ${d.isToday ? "text-teal-600" : "text-slate-400"}`}>
+            <span className={`text-xs font-bold ${d.isToday ? "text-emerald-200" : "text-white/60"}`}>
               {d.day}
             </span>
-            <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+            <motion.div
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shadow-lg ${
                 d.isCompleted
-                  ? "bg-gradient-to-br from-teal-400 to-emerald-500"
+                  ? "bg-gradient-to-br from-emerald-400 to-teal-500"
                   : d.isToday
-                  ? "bg-teal-100 border-2 border-teal-400"
+                  ? "bg-white/20 border-2 border-emerald-300"
                   : d.isPast
-                  ? "bg-slate-100"
-                  : "bg-slate-50 border border-slate-200"
+                  ? "bg-white/5"
+                  : "bg-white/10 border border-white/20"
               }`}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
-              {d.isCompleted && <Check size={16} className="text-white" strokeWidth={3} />}
-            </div>
+              {d.isCompleted && <Check size={18} className="text-white" strokeWidth={3} />}
+            </motion.div>
           </motion.div>
         ))}
       </div>

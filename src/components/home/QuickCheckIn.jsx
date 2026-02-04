@@ -78,63 +78,74 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
   if (step === "done" || todayCheckIn) {
     return (
       <motion.div 
-        className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 border border-emerald-100"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 shadow-2xl"
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", bounce: 0.4 }}
       >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
-            <Sparkles className="text-white" size={24} />
-          </div>
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-teal-300/30 rounded-full blur-2xl" />
+        
+        <div className="flex items-center gap-3 mb-4 relative z-10">
+          <motion.div 
+            className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg"
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          >
+            <Sparkles className="text-white" size={28} />
+          </motion.div>
           <div>
-            <h3 className="font-bold text-lg text-emerald-800">¡Check-in completado!</h3>
-            <p className="text-emerald-600 text-sm">Sigue así mañana</p>
+            <h3 className="font-bold text-xl text-white">¡Check-in completado!</h3>
+            <p className="text-emerald-100 text-sm font-medium">Sigue así mañana</p>
           </div>
         </div>
         
-        {(todayCheckIn?.food_rating || foodRating) && (
-          <div className="flex items-center gap-2 text-sm text-emerald-700 mt-3">
-            <span>Comida:</span>
-            <span className="font-medium capitalize">
-              {(todayCheckIn?.food_rating || foodRating) === "great" ? "Bien" : 
-               (todayCheckIn?.food_rating || foodRating) === "ok" ? "Ok" : "Mal"}
-            </span>
-          </div>
-        )}
-        
-        {(todayCheckIn?.estimated_calories || estimatedCal) && (
-          <div className="text-sm text-emerald-700">
-            Calorías estimadas: ~{todayCheckIn?.estimated_calories || estimatedCal} kcal
-          </div>
-        )}
-        
-        {(todayCheckIn?.steps || steps > 0) && (
-          <div className="text-sm text-emerald-700">
-            Pasos: {(todayCheckIn?.steps || steps).toLocaleString()}
-          </div>
-        )}
-        
-        {(todayCheckIn?.weight || weight) && (
-          <div className="text-sm text-emerald-700">
-            Peso: {(todayCheckIn?.weight || weight).toFixed(1)} kg
-          </div>
-        )}
+        <div className="space-y-2 relative z-10">
+          {(todayCheckIn?.food_rating || foodRating) && (
+            <div className="flex items-center gap-2 text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white">
+              <span className="font-medium">Comida:</span>
+              <span className="font-bold capitalize">
+                {(todayCheckIn?.food_rating || foodRating) === "great" ? "Bien ✓" : 
+                 (todayCheckIn?.food_rating || foodRating) === "ok" ? "Ok" : "Mal"}
+              </span>
+            </div>
+          )}
+          
+          {(todayCheckIn?.estimated_calories || estimatedCal) && (
+            <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
+              Calorías estimadas: ~{todayCheckIn?.estimated_calories || estimatedCal} kcal
+            </div>
+          )}
+          
+          {(todayCheckIn?.steps || steps > 0) && (
+            <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
+              Pasos: {(todayCheckIn?.steps || steps).toLocaleString()} 🚶
+            </div>
+          )}
+          
+          {(todayCheckIn?.weight || weight) && (
+            <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
+              Peso: {(todayCheckIn?.weight || weight).toFixed(1)} kg
+            </div>
+          )}
+        </div>
       </motion.div>
     );
   }
 
   return (
     <motion.div 
-      className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100"
+      className="relative overflow-hidden rounded-3xl p-6 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <h3 className="font-bold text-xl text-slate-800 mb-6">¿Cómo fue hoy?</h3>
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-teal-400/30 to-emerald-400/30 rounded-full blur-2xl" />
+      <h3 className="font-bold text-2xl text-white mb-6 relative z-10">¿Cómo fue hoy?</h3>
       
-      <div className="space-y-6">
+      <div className="space-y-6 relative z-10">
         {/* Food Rating */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-3">
+          <label className="block text-sm font-semibold text-white mb-3">
             ¿Cómo comiste?
           </label>
           <FoodRating value={foodRating} onChange={setFoodRating} />
@@ -142,7 +153,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
 
         {/* Photo Option */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-3">
+          <label className="block text-sm font-semibold text-white mb-3">
             Foto de comida (opcional)
           </label>
           
@@ -203,7 +214,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
 
         {/* Movement */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-3">
+          <label className="block text-sm font-semibold text-white mb-3">
             ¿Te moviste hoy?
           </label>
           <MovementToggle value={movedToday} onChange={setMovedToday} />
@@ -211,7 +222,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
 
         {/* Steps Counter */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-3">
+          <label className="block text-sm font-semibold text-white mb-3">
             Pasos (opcional)
           </label>
           <StepsCounter 
@@ -224,7 +235,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
 
         {/* Weight Tracker */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-3">
+          <label className="block text-sm font-semibold text-white mb-3">
             Peso hoy (opcional)
           </label>
           <WeightTracker 
@@ -244,7 +255,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
         />
         
         {!canSubmit && (
-          <p className="text-center text-sm text-slate-400">
+          <p className="text-center text-sm text-teal-200 font-medium">
             Selecciona al menos una opción
           </p>
         )}

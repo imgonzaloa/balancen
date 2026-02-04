@@ -127,8 +127,15 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
+      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
         {/* Header */}
         <motion.div 
           className="flex justify-between items-start mb-8"
@@ -136,8 +143,8 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div>
-            <p className="text-slate-500 text-sm">{greeting()}</p>
-            <h1 className="text-2xl font-bold text-slate-800">
+            <p className="text-teal-200 text-sm font-medium mb-1">{greeting()}</p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-teal-100 bg-clip-text text-transparent">
               {profile?.display_name || user?.full_name?.split(" ")[0] || "Usuario"}
             </h1>
           </div>
@@ -201,13 +208,15 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-            <p className="text-xs text-slate-500 mb-1">Total check-ins</p>
-            <p className="text-2xl font-bold text-slate-800">{profile?.total_checkins || 0}</p>
+          <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
+            <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-teal-400/30 to-emerald-400/30 rounded-full blur-2xl" />
+            <p className="text-xs text-teal-100 mb-2 font-medium relative z-10">Total check-ins</p>
+            <p className="text-3xl font-bold text-white relative z-10">{profile?.total_checkins || 0}</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-            <p className="text-xs text-slate-500 mb-1">Mejor racha</p>
-            <p className="text-2xl font-bold text-teal-600">{profile?.longest_streak || 0} días</p>
+          <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
+            <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-amber-400/30 to-orange-400/30 rounded-full blur-2xl" />
+            <p className="text-xs text-amber-100 mb-2 font-medium relative z-10">Mejor racha</p>
+            <p className="text-3xl font-bold bg-gradient-to-r from-amber-200 to-orange-200 bg-clip-text text-transparent relative z-10">{profile?.longest_streak || 0} días</p>
           </div>
         </motion.div>
 
@@ -220,22 +229,22 @@ export default function Home() {
         >
           <Link
             to={createPageUrl("Groups")}
-            className="flex-1 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3 hover:bg-slate-50 transition-colors"
+            className="flex-1 rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
           >
-            <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
-              <Users size={20} className="text-indigo-600" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg">
+              <Users size={22} className="text-white" />
             </div>
-            <span className="font-medium text-slate-700">Grupos</span>
+            <span className="font-semibold text-white">Grupos</span>
           </Link>
           
           <Link
             to={createPageUrl("Badges")}
-            className="flex-1 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3 hover:bg-slate-50 transition-colors"
+            className="flex-1 rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
           >
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-              <Award size={20} className="text-amber-600" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+              <Award size={22} className="text-white" />
             </div>
-            <span className="font-medium text-slate-700">Logros</span>
+            <span className="font-semibold text-white">Logros</span>
           </Link>
         </motion.div>
       </div>

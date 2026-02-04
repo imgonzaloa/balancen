@@ -23,7 +23,7 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {!hideNav && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 py-2 z-50">
+        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50">
           <div className="max-w-lg mx-auto flex justify-around">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -38,18 +38,26 @@ export default function Layout({ children, currentPageName }) {
                   {isActive && (
                     <motion.div
                       layoutId="navIndicator"
-                      className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full"
+                      className="absolute -top-2 w-14 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full shadow-lg shadow-teal-500/50"
                     />
                   )}
-                  <Icon
-                    size={24}
-                    className={`transition-colors ${
-                      isActive ? "text-teal-500" : "text-slate-400"
+                  <motion.div
+                    className={`p-2 rounded-2xl transition-all ${
+                      isActive ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/20" : ""
                     }`}
-                  />
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Icon
+                      size={24}
+                      className={`transition-colors ${
+                        isActive ? "text-teal-300" : "text-slate-400"
+                      }`}
+                    />
+                  </motion.div>
                   <span
-                    className={`text-xs mt-1 transition-colors ${
-                      isActive ? "text-teal-600 font-medium" : "text-slate-400"
+                    className={`text-xs mt-1 transition-colors font-medium ${
+                      isActive ? "text-teal-300" : "text-slate-500"
                     }`}
                   >
                     {item.label}
