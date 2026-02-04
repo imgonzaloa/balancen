@@ -140,6 +140,15 @@ export default function Groups() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  // Block free users
+  const handleGroupAction = (action) => {
+    if (!profile?.is_premium) {
+      window.location.href = createPageUrl("Paywall");
+      return;
+    }
+    action();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
       <div className="max-w-lg mx-auto px-4 pb-24">
@@ -156,7 +165,7 @@ export default function Groups() {
               <h1 className="text-xl font-bold text-slate-800">Mis grupos</h1>
             </div>
             <Button
-              onClick={() => setShowCreate(true)}
+              onClick={() => handleGroupAction(() => setShowCreate(true))}
               className="rounded-xl bg-indigo-500 hover:bg-indigo-600"
             >
               <Plus size={18} className="mr-1" />
@@ -183,14 +192,14 @@ export default function Groups() {
             </p>
             <div className="flex gap-3 justify-center">
               <Button
-                onClick={() => setShowCreate(true)}
+                onClick={() => handleGroupAction(() => setShowCreate(true))}
                 className="rounded-xl bg-indigo-500 hover:bg-indigo-600"
               >
                 <Plus size={18} className="mr-1" />
                 Crear grupo
               </Button>
               <Button
-                onClick={() => setShowJoin(true)}
+                onClick={() => handleGroupAction(() => setShowJoin(true))}
                 variant="outline"
                 className="rounded-xl"
               >
@@ -265,7 +274,7 @@ export default function Groups() {
             transition={{ delay: 0.3 }}
           >
             <Button
-              onClick={() => setShowJoin(true)}
+              onClick={() => handleGroupAction(() => setShowJoin(true))}
               variant="outline"
               className="w-full rounded-xl py-6"
             >

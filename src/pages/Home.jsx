@@ -78,8 +78,11 @@ export default function Home() {
         const longestStreak = Math.max(profile.longest_streak, newStreak);
         const totalCheckins = profile.total_checkins + 1;
 
+        // FREE PLAN: Cap streak at 3 days
+        const finalStreak = (!profile.is_premium && newStreak > 3) ? 3 : newStreak;
+
         await base44.entities.UserProfile.update(profile.id, {
-          current_streak: newStreak,
+          current_streak: finalStreak,
           longest_streak: longestStreak,
           total_checkins: totalCheckins,
         });
@@ -89,12 +92,11 @@ export default function Home() {
           setShowFirstStreakModal(true);
         }
 
-        // Show paywall after first complete check-in (only once)
-        if (totalCheckins === 1 && !hasShownPaywall && !profile.is_premium) {
+        // Show paywall when reaching day 3 for free users
+        if (finalStreak === 3 && !profile.is_premium) {
           setTimeout(() => {
-            setHasShownPaywall(true);
             window.location.href = createPageUrl("Paywall");
-          }, 3000);
+          }, 2000);
         }
 
         // Check for badges
