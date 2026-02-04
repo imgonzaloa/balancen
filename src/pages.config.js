@@ -53,6 +53,8 @@ import Badges from './pages/Badges';
 import Groups from './pages/Groups';
 import GroupDetail from './pages/GroupDetail';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import Premium from './pages/Premium';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +65,8 @@ export const PAGES = {
     "Groups": Groups,
     "GroupDetail": GroupDetail,
     "Profile": Profile,
+    "Settings": Settings,
+    "Premium": Premium,
 }
 
 export const pagesConfig = {
