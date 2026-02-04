@@ -14,6 +14,9 @@ import StepsCounter from "@/components/home/StepsCounter";
 import WeightTracker from "@/components/home/WeightTracker";
 import CalorieTracker from "@/components/nutrition/CalorieTracker";
 import FirstStreakModal from "@/components/home/FirstStreakModal";
+import AIHealthInsights from "@/components/ai/AIHealthInsights";
+import WeeklySummary from "@/components/ai/WeeklySummary";
+import ChallengeSuggestions from "@/components/ai/ChallengeSuggestions";
 import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Home() {
@@ -337,6 +340,42 @@ export default function Home() {
           <WeekProgress checkIns={checkIns} />
         </motion.div>
 
+        {/* AI Health Insights */}
+        {profile?.ai_recommendations_enabled !== false && checkIns.length >= 3 && (
+          <motion.div
+            className="mt-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <AIHealthInsights profile={profile} recentCheckIns={checkIns} />
+          </motion.div>
+        )}
+
+        {/* Weekly Summary */}
+        {checkIns.length >= 7 && profile?.current_streak >= 3 && (
+          <motion.div
+            className="mt-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+          >
+            <WeeklySummary profile={profile} checkIns={checkIns} />
+          </motion.div>
+        )}
+
+        {/* Challenge Suggestions */}
+        {profile?.current_streak >= 2 && (
+          <motion.div
+            className="mt-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <ChallengeSuggestions profile={profile} checkIns={checkIns} />
+          </motion.div>
+        )}
+
         {/* Quick Stats */}
         <motion.div
           className="grid grid-cols-2 gap-4 mt-6"
@@ -361,7 +400,7 @@ export default function Home() {
           className="grid grid-cols-2 gap-3 mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.5 }}
         >
           <Link
             to={createPageUrl("Groups")}
