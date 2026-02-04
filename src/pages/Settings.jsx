@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Watch, Sparkles, Crown, Bell, Shield, Globe } from "lucide-react";
+import { ChevronLeft, Watch, Sparkles, Crown, Bell, Shield, Globe, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -213,6 +213,64 @@ export default function Settings() {
               </div>
             </div>
             <Switch defaultChecked={false} />
+          </div>
+        </motion.div>
+
+        {/* Goals & Targets */}
+        <motion.div
+          className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+        >
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-orange-400/30 to-red-400/30 rounded-full blur-2xl" />
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                <Zap size={20} className="text-orange-300" />
+              </div>
+              <div className="flex-1">
+                <Label className="text-white font-semibold">Goals & Targets</Label>
+                <p className="text-xs text-white/60">Set your daily goals</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label className="text-white text-sm mb-2 block">Daily Steps Target</Label>
+                <input
+                  type="number"
+                  value={profile?.steps_goal || 8000}
+                  onChange={(e) => updateMutation.mutate({ steps_goal: parseInt(e.target.value) || 8000 })}
+                  className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:border-orange-300 outline-none"
+                  placeholder="8000"
+                />
+              </div>
+
+              <div>
+                <Label className="text-white text-sm mb-2 block">Daily Calories Limit</Label>
+                <input
+                  type="number"
+                  value={profile?.calories_goal || ""}
+                  onChange={(e) => updateMutation.mutate({ calories_goal: parseInt(e.target.value) || null })}
+                  className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:border-orange-300 outline-none"
+                  placeholder="Optional - e.g., 2000"
+                />
+                <p className="text-xs text-white/40 mt-1">Optional - leave empty if not tracking</p>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <div>
+                  <Label className="text-white text-sm">Auto-adjust calories goal</Label>
+                  <p className="text-xs text-white/60">Reduce by 50 kcal when achieved</p>
+                </div>
+                <Switch
+                  checked={profile?.auto_adjust_calories_goal || false}
+                  onCheckedChange={(checked) => handleToggle("auto_adjust_calories_goal", checked)}
+                />
+              </div>
+            </div>
           </div>
         </motion.div>
 
