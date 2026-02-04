@@ -13,6 +13,7 @@ import StepsCounter from "@/components/home/StepsCounter";
 import WeightTracker from "@/components/home/WeightTracker";
 import CalorieTracker from "@/components/nutrition/CalorieTracker";
 import FirstStreakModal from "@/components/home/FirstStreakModal";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -149,11 +150,13 @@ export default function Home() {
     return null;
   }
 
+  const { t } = useTranslation();
+
   const greeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Buenos días";
-    if (hour < 19) return "Buenas tardes";
-    return "Buenas noches";
+    if (hour < 12) return t("good_morning");
+    if (hour < 19) return t("good_afternoon");
+    return t("good_evening");
   };
 
   return (
@@ -254,13 +257,13 @@ export default function Home() {
         >
           <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
             <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-teal-400/30 to-emerald-400/30 rounded-full blur-2xl" />
-            <p className="text-xs text-teal-100 mb-2 font-medium relative z-10">Total check-ins</p>
+            <p className="text-xs text-teal-100 mb-2 font-medium relative z-10">{t("total_checkins")}</p>
             <p className="text-3xl font-bold text-white relative z-10">{profile?.total_checkins || 0}</p>
           </div>
           <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
             <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-amber-400/30 to-orange-400/30 rounded-full blur-2xl" />
-            <p className="text-xs text-amber-100 mb-2 font-medium relative z-10">Mejor racha</p>
-            <p className="text-3xl font-bold bg-gradient-to-r from-amber-200 to-orange-200 bg-clip-text text-transparent relative z-10">{profile?.longest_streak || 0} días</p>
+            <p className="text-xs text-amber-100 mb-2 font-medium relative z-10">{t("best_streak")}</p>
+            <p className="text-3xl font-bold bg-gradient-to-r from-amber-200 to-orange-200 bg-clip-text text-transparent relative z-10">{profile?.longest_streak || 0} {t("days")}</p>
           </div>
         </motion.div>
 
@@ -278,17 +281,17 @@ export default function Home() {
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg">
               <Users size={22} className="text-white" />
             </div>
-            <span className="font-semibold text-white">Grupos</span>
-          </Link>
-          
-          <Link
+            <span className="font-semibold text-white">{t("groups")}</span>
+            </Link>
+
+            <Link
             to={createPageUrl("Badges")}
             className="flex-1 rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
-          >
+            >
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
               <Award size={22} className="text-white" />
             </div>
-            <span className="font-semibold text-white">Logros</span>
+            <span className="font-semibold text-white">{t("badges")}</span>
           </Link>
         </motion.div>
       </div>
