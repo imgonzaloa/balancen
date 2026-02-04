@@ -290,6 +290,12 @@ export default function Home() {
           </Link>
         </motion.div>
       </div>
+
+      {/* First Streak Modal */}
+      <FirstStreakModal 
+        isOpen={showFirstStreakModal} 
+        onClose={() => setShowFirstStreakModal(false)} 
+      />
     </div>
   );
 }
