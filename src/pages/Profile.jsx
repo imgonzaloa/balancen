@@ -147,14 +147,37 @@ export default function Profile() {
           </div>
         </motion.div>
 
-        {/* Settings */}
+        {/* Settings Button */}
         <motion.div
-          className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-6"
+          className="mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h3 className="font-semibold text-slate-700 mb-4">Configuración</h3>
+          <Link to={createPageUrl("Settings")}>
+            <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                  <Settings size={20} className="text-slate-600" />
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-800">Configuración</p>
+                  <p className="text-xs text-slate-500">Idioma, notificaciones, privacidad</p>
+                </div>
+              </div>
+              <ChevronLeft size={20} className="text-slate-400 rotate-180" />
+            </div>
+          </Link>
+        </motion.div>
+
+        {/* Goals */}
+        <motion.div
+          className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <h3 className="font-semibold text-slate-700 mb-4">Tus metas</h3>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between py-3 border-b border-slate-100">
