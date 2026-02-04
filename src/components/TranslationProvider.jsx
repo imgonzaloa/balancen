@@ -193,20 +193,20 @@ const TranslationContext = createContext();
 
 export function TranslationProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [currentLang, setCurrentLang] = useState(() => {
-    // Initialize from localStorage immediately
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("app_language") || "en";
-    }
-    return "en";
-  });
+  const [currentLang, setCurrentLang] = useState("en");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    base44.auth.me().then(setUser).catch(() => {
+      // Not logged in, use localStorage or default to English
+      const stored = localStorage.getItem("app_language");
+      setCurrentLang(stored || "en");
+      setIsInitialized(true);
+    });
   }, []);
 
   const { data: profile } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.email],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
       return profiles[0] || null;
@@ -214,13 +214,15 @@ export function TranslationProvider({ children }) {
     enabled: !!user?.email,
   });
 
-  // Update language when profile loads
+  // Initialize and sync language from profile
   useEffect(() => {
-    if (profile?.language && profile.language !== currentLang) {
-      setCurrentLang(profile.language);
-      localStorage.setItem("app_language", profile.language);
+    if (profile) {
+      const profileLang = profile.language || "en";
+      setCurrentLang(profileLang);
+      localStorage.setItem("app_language", profileLang);
+      setIsInitialized(true);
     }
-  }, [profile?.language]);
+  }, [profile]);
 
   const lang = currentLang;
   
