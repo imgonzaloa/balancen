@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Users, Award, Settings } from "lucide-react";
+import { Users, Award, Settings, Flame } from "lucide-react";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -65,10 +66,23 @@ export default function Home() {
   const createCheckInMutation = useMutation({
     mutationFn: async (data) => {
       const existing = checkIns.find(c => c.date === data.date);
+      
+      // Check goal achievements
+      const stepsGoalMet = profile?.steps_goal && data.steps >= profile.steps_goal;
+      const caloriesGoalMet = profile?.calories_goal && todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0) <= profile.calories_goal;
+      
+      const checkInData = {
+        ...data,
+        steps_goal_met: stepsGoalMet || false,
+        calories_goal_met: caloriesGoalMet || false,
+        steps_fire_awarded: stepsGoalMet && !existing?.steps_fire_awarded,
+        calories_fire_awarded: caloriesGoalMet && !existing?.calories_fire_awarded,
+      };
+      
       if (existing) {
-        return base44.entities.DailyCheckIn.update(existing.id, data);
+        return base44.entities.DailyCheckIn.update(existing.id, checkInData);
       }
-      return base44.entities.DailyCheckIn.create(data);
+      return base44.entities.DailyCheckIn.create(checkInData);
     },
     onSuccess: async (newCheckIn) => {
       queryClient.invalidateQueries(["checkIns"]);
@@ -82,11 +96,46 @@ export default function Home() {
         // FREE PLAN: Cap streak at 3 days
         const finalStreak = (!profile.is_premium && newStreak > 3) ? 3 : newStreak;
 
-        await base44.entities.UserProfile.update(profile.id, {
+        const profileUpdates = {
           current_streak: finalStreak,
           longest_streak: longestStreak,
           total_checkins: totalCheckins,
-        });
+        };
+
+        // Auto-progression for steps goal
+        if (newCheckIn.steps_goal_met && newCheckIn.steps_fire_awarded) {
+          const currentGoal = profile.steps_goal || 8000;
+          let newGoal = currentGoal;
+          
+          if (currentGoal < 12000) {
+            newGoal = currentGoal + 1000;
+          } else if (currentGoal < 16000) {
+            newGoal = currentGoal + 1500;
+          }
+          
+          if (newGoal !== currentGoal) {
+            profileUpdates.steps_goal = newGoal;
+            toast.success(`${t("new_steps_goal")}: ${newGoal.toLocaleString()}`);
+          }
+          
+          toast.success(t("steps_goal_achieved"));
+        }
+
+        // Auto-progression for calories goal (if enabled)
+        if (newCheckIn.calories_goal_met && newCheckIn.calories_fire_awarded && profile.auto_adjust_calories_goal && profile.calories_goal) {
+          const currentGoal = profile.calories_goal;
+          const minFloor = 1400;
+          const newGoal = Math.max(currentGoal - 50, minFloor);
+          
+          if (newGoal !== currentGoal) {
+            profileUpdates.calories_goal = newGoal;
+            toast.success(`${t("new_calories_goal")}: ${newGoal}`);
+          }
+          
+          toast.success(t("calories_goal_achieved"));
+        }
+
+        await base44.entities.UserProfile.update(profile.id, profileUpdates);
 
         // Show first streak modal
         if (totalCheckins === 1) {
