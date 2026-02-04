@@ -1,15 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Flame, Users, TrendingUp, Award, X } from "lucide-react";
+import { Flame, Users, TrendingUp, Award, X, Check, Sparkles, Trophy, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 
-const features = [
-  { icon: Flame, text: "Unlimited streaks" },
-  { icon: Users, text: "Groups & team challenges" },
-  { icon: TrendingUp, text: "Full habit tracking" },
-  { icon: Award, text: "Rewards & rankings" },
+const freeFeatures = [
+  "Daily check-ins",
+  "Individual use only",
+  "Basic daily progress",
+  "Streak limited to 3 days",
+  "Manual tracking only"
+];
+
+const freeLimitations = [
+  "Streak resets after 3 days",
+  "No groups or friends",
+  "No rankings or challenges",
+  "No long-term history",
+  "No rewards progression",
+  "No step goal progression",
+  "No calorie goal progression",
+  "No AI Coaching"
+];
+
+const premiumFeatures = [
+  "Unlimited streaks",
+  "Daily rewards for consistency",
+  "Rewards for step goals",
+  "Rewards for calorie goals",
+  "Automatic progression of step goals",
+  "Optional automatic adjustment of calorie goals",
+  "Groups with friends or teams",
+  "Rankings and challenges",
+  "Full progress history",
+  "Rewards and achievements",
+  "AI Coaching"
 ];
 
 export default function Paywall() {
@@ -57,52 +83,99 @@ export default function Paywall() {
 
         {/* Hero */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <motion.div
-            className="inline-block mb-6"
-            animate={{ 
-              rotate: [-5, 5, -5],
-              scale: [1, 1.05, 1]
-            }}
-            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-          >
-            <Flame size={72} className="text-teal-300 drop-shadow-lg" fill="currentColor" />
-          </motion.div>
-          <h1 className="text-4xl font-black text-white mb-3">
-            Keep your streak alive
+          <h1 className="text-3xl font-black text-white mb-2">
+            Choose how far you want to go with Balancen
           </h1>
-          <p className="text-xl text-teal-200">
-            Balancen works best when consistency becomes a habit.
+          <p className="text-lg text-teal-200">
+            Free lets you try. Premium lets you stay consistent.
           </p>
         </motion.div>
 
-        {/* Features */}
+        {/* Plan Comparison */}
         <motion.div
-          className="space-y-3 mb-10"
+          className="grid gap-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          {features.map((feature, i) => {
-            const Icon = feature.icon;
-            return (
-              <motion.div
-                key={i}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 + i * 0.05 }}
-              >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <Icon size={24} className="text-white" />
+          {/* Free Plan */}
+          <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="px-3 py-1 bg-slate-500/30 rounded-full">
+                <span className="text-white text-sm font-semibold">Free</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <p className="text-white/80 text-sm font-semibold mb-2">Includes:</p>
+              {freeFeatures.map((feature, i) => (
+                <div key={i} className="flex items-start gap-2 text-white/70 text-sm">
+                  <Check size={16} className="text-teal-400 mt-0.5 flex-shrink-0" />
+                  <span>{feature}</span>
                 </div>
-                <p className="text-white text-base font-medium">{feature.text}</p>
-              </motion.div>
-            );
-          })}
+              ))}
+            </div>
+
+            <div className="space-y-2 mb-3">
+              <p className="text-white/80 text-sm font-semibold mb-2">Not included:</p>
+              {freeLimitations.map((limit, i) => (
+                <div key={i} className="flex items-start gap-2 text-white/50 text-sm">
+                  <X size={16} className="text-red-400/60 mt-0.5 flex-shrink-0" />
+                  <span>{limit}</span>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-white/40 text-xs italic">
+              Free is designed to let you try Balancen, not to build long-term habits.
+            </p>
+          </div>
+
+          {/* Premium Plan */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl border-2 border-amber-400/50 rounded-3xl p-5">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-amber-400/30 to-orange-400/30 rounded-full blur-2xl" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
+                  <span className="text-white text-sm font-bold">Premium</span>
+                </div>
+                <Crown size={18} className="text-amber-300" />
+              </div>
+
+              <div className="space-y-2 mb-4">
+                <p className="text-white text-sm font-semibold mb-2">Full Experience:</p>
+                {premiumFeatures.map((feature, i) => (
+                  <div key={i} className="flex items-start gap-2 text-white text-sm">
+                    <Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
+                    <span>{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* AI Coaching Explanation */}
+              <div className="bg-purple-500/20 border border-purple-400/30 rounded-xl p-4 mb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles size={16} className="text-purple-300" />
+                  <p className="text-white text-sm font-semibold">AI Coaching helps you:</p>
+                </div>
+                <ul className="space-y-1 text-white/90 text-xs">
+                  <li>• Review your daily activity and goals</li>
+                  <li>• Give simple recommendations</li>
+                  <li>• Help you adjust habits over time</li>
+                  <li>• Support long-term consistency</li>
+                </ul>
+              </div>
+
+              <p className="text-emerald-200 text-sm font-medium italic">
+                Premium is designed to help you stay consistent and improve over time.
+              </p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Region Selector */}
@@ -134,33 +207,37 @@ export default function Paywall() {
           </button>
         </motion.div>
 
-        {/* Plans */}
+        {/* Pricing */}
         <motion.div
-          className="flex gap-4 mb-8"
+          className="mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          {Object.entries(plans[region]).map(([key, plan]) => (
-            <button
-              key={key}
-              onClick={() => setSelectedPlan(key)}
-              className={`flex-1 relative overflow-hidden rounded-2xl p-5 transition-all ${
-                selectedPlan === key
-                  ? "bg-white/20 border-2 border-teal-400 shadow-xl shadow-teal-500/50 scale-105"
-                  : "bg-white/10 border-2 border-white/20"
-              }`}
-            >
-              {plan.save && (
-                <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                  {plan.save}
-                </div>
-              )}
-              <p className="text-white/80 text-sm mb-1 font-medium">{plan.label}</p>
-              <p className="text-3xl font-black text-white">{plan.currency}{plan.price}</p>
-              <p className="text-white/60 text-xs mt-1">/ {plan.period}</p>
-            </button>
-          ))}
+          <h3 className="text-white font-semibold text-lg mb-3 text-center">Premium Pricing</h3>
+          
+          <div className="flex gap-4">
+            {Object.entries(plans[region]).map(([key, plan]) => (
+              <button
+                key={key}
+                onClick={() => setSelectedPlan(key)}
+                className={`flex-1 relative overflow-hidden rounded-2xl p-5 transition-all ${
+                  selectedPlan === key
+                    ? "bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-2 border-amber-400 shadow-xl scale-105"
+                    : "bg-white/10 border-2 border-white/20"
+                }`}
+              >
+                {plan.save && (
+                  <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                    Best value
+                  </div>
+                )}
+                <p className="text-white/80 text-sm mb-1 font-medium">{plan.label}</p>
+                <p className="text-3xl font-black text-white">{plan.currency}{plan.price}</p>
+                <p className="text-white/60 text-xs mt-1">/ {plan.period}</p>
+              </button>
+            ))}
+          </div>
         </motion.div>
 
         {/* CTA */}
@@ -172,16 +249,17 @@ export default function Paywall() {
         >
           <Button
             onClick={handleContinue}
-            className="w-full py-7 rounded-2xl bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-500 hover:to-emerald-600 text-white font-bold text-lg shadow-2xl shadow-teal-500/50"
+            className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50"
           >
-            Continue with Balancen
+            <Crown size={20} className="mr-2" />
+            Upgrade to Premium
           </Button>
           
           <button
             onClick={handleSkip}
-            className="w-full py-4 text-white/60 hover:text-white/80 font-medium transition-colors"
+            className="w-full py-4 text-white/50 hover:text-white/70 text-sm transition-colors"
           >
-            Not now
+            Continue with Free (streak will reset)
           </button>
 
           <p className="text-center text-white/50 text-sm">
