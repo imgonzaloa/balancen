@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { Flame, Camera, Users, Trophy, Star, Zap, Award, Target, Crown, Medal } from "lucide-react";
 
