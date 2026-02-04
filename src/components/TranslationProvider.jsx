@@ -211,7 +211,7 @@ export function TranslationProvider({ children }) {
   };
 
   return (
-    <TranslationContext.Provider value={{ t, lang }}>
+    <TranslationContext.Provider value={{ t, lang }} key={lang}>
       {children}
     </TranslationContext.Provider>
   );
