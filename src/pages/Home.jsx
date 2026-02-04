@@ -27,23 +27,31 @@ export default function Home() {
   const [hasShownPaywall, setHasShownPaywall] = useState(false);
 
   useEffect(() => {
-    base44.auth.me().then(setUser);
+    // Force fresh user data on mount
+    base44.auth.me().then(setUser).catch(() => setUser(null));
+    
+    // Invalidate all queries on mount to force fresh data
+    queryClient.invalidateQueries();
   }, []);
 
   const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.email],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
       return profiles[0] || null;
     },
     enabled: !!user?.email,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const today = new Date().toISOString().split("T")[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
 
   const { data: checkIns = [] } = useQuery({
-    queryKey: ["checkIns"],
+    queryKey: ["checkIns", user?.email],
     queryFn: async () => {
       return base44.entities.DailyCheckIn.filter(
         { created_by: user?.email },
@@ -52,10 +60,13 @@ export default function Home() {
       );
     },
     enabled: !!user?.email,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnMount: "always",
   });
 
   const { data: todayMeals = [] } = useQuery({
-    queryKey: ["meals", today],
+    queryKey: ["meals", today, user?.email],
     queryFn: async () => {
       return base44.entities.MealLog.filter(
         { created_by: user?.email, date: today },
@@ -63,6 +74,8 @@ export default function Home() {
       );
     },
     enabled: !!user?.email,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
   const todayCheckIn = checkIns.find(c => c.date === today);
   const yesterdayCheckIn = checkIns.find(c => c.date === yesterday);

@@ -191,6 +191,9 @@ export function TranslationProvider({ children }) {
       return profiles[0] || null;
     },
     enabled: !!user?.email,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnMount: "always",
   });
 
   // Initialize and sync language from profile
