@@ -358,29 +358,29 @@ export default function Home() {
 
         {/* Quick Actions */}
         <motion.div
-          className="flex gap-3 mt-6"
+          className="grid grid-cols-2 gap-3 mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
           <Link
             to={createPageUrl("Groups")}
-            className="flex-1 rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
+            className="rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
           >
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg">
               <Users size={22} className="text-white" />
             </div>
             <span className="font-semibold text-white">{t("groups")}</span>
-            </Link>
+          </Link>
 
-            <Link
-            to={createPageUrl("Badges")}
-            className="flex-1 rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
-            >
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-              <Award size={22} className="text-white" />
+          <Link
+            to={createPageUrl("Friends")}
+            className="rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg">
+              <Users size={22} className="text-white" />
             </div>
-            <span className="font-semibold text-white">{t("badges")}</span>
+            <span className="font-semibold text-white">{t("friends")}</span>
           </Link>
         </motion.div>
       </div>

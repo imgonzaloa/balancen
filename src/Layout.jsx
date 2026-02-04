@@ -8,7 +8,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
   { name: "Groups", icon: Users, key: "groups" },
-  { name: "Badges", icon: Award, key: "badges" },
+  { name: "Friends", icon: Users, key: "friends" },
   { name: "Profile", icon: User, key: "profile" },
 ];
 

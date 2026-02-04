@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Copy, Check, Crown, Flame, Circle } from "lucide-react";
+import { ChevronLeft, Copy, Check, Crown, Flame, Circle, Trophy, Target, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
@@ -33,13 +33,19 @@ export default function GroupDetail() {
     enabled: !!groupId,
   });
 
+  const { data: challenges = [] } = useQuery({
+    queryKey: ["challenges", groupId],
+    queryFn: () => base44.entities.Challenge.filter({ group_id: groupId, active: true }),
+    enabled: !!groupId,
+  });
+
   const sortedMembers = [...members].sort((a, b) => b.current_streak - a.current_streak);
 
   const copyCode = () => {
     if (!group) return;
     navigator.clipboard.writeText(group.invite_code);
     setCopiedCode(true);
-    toast.success("Código copiado");
+    toast.success("Code copied");
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
@@ -75,7 +81,7 @@ export default function GroupDetail() {
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-indigo-200 text-sm">Miembros</p>
+              <p className="text-indigo-200 text-sm">Members</p>
               <p className="text-3xl font-bold">{members.length}</p>
             </div>
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-bold">
@@ -85,7 +91,7 @@ export default function GroupDetail() {
           
           <div className="flex items-center gap-3 bg-white/20 rounded-xl p-3">
             <div className="flex-1">
-              <p className="text-xs text-indigo-200">Código de invitación</p>
+              <p className="text-xs text-indigo-200">Invite Code</p>
               <p className="text-lg font-bold tracking-widest">{group.invite_code}</p>
             </div>
             <button
@@ -101,14 +107,60 @@ export default function GroupDetail() {
           </div>
         </motion.div>
 
+        {/* Active Challenges */}
+        {challenges.length > 0 && (
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <h2 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
+              <Trophy size={20} className="text-amber-500" />
+              Active Challenges
+            </h2>
+            
+            <div className="space-y-3">
+              {challenges.map((challenge) => (
+                <div
+                  key={challenge.id}
+                  className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-bold text-slate-800">{challenge.name}</h3>
+                      <p className="text-sm text-slate-500">{challenge.description}</p>
+                    </div>
+                    <div className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
+                      {challenge.type}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1 text-slate-600">
+                      <Target size={14} />
+                      <span>Goal: {challenge.goal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-600">
+                      <TrendingUp size={14} />
+                      <span>Ends: {new Date(challenge.end_date).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Leaderboard */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.2 }}
         >
-          <h2 className="text-lg font-semibold text-slate-700 mb-4">
-            Ranking de consistencia
+          <h2 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <Flame size={20} className="text-orange-500" />
+            Consistency Ranking
           </h2>
           
           <div className="space-y-3">
@@ -146,7 +198,7 @@ export default function GroupDetail() {
                     <div className="flex items-center gap-2">
                       <span className={`font-semibold ${isCurrentUser ? "text-indigo-700" : "text-slate-700"}`}>
                         {member.display_name}
-                        {isCurrentUser && " (tú)"}
+                        {isCurrentUser && " (you)"}
                       </span>
                       {member.role === "admin" && (
                         <Crown size={14} className="text-amber-500" />
@@ -156,12 +208,12 @@ export default function GroupDetail() {
                       {member.checked_in_today ? (
                         <span className="flex items-center gap-1 text-emerald-600">
                           <Circle size={8} className="fill-emerald-500" />
-                          Hoy ✓
+                          Today ✓
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-slate-400">
                           <Circle size={8} />
-                          Sin check-in
+                          No check-in
                         </span>
                       )}
                     </div>
