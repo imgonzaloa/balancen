@@ -4,15 +4,13 @@ Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   
   try {
-    const secrets = await base44.secrets.get([
-      'STRIPE_PUBLISHABLE_KEY',
-      'STRIPE_MONTHLY_PRICE_ID_EUR',
-      'STRIPE_YEARLY_PRICE_ID_EUR',
-      'STRIPE_MONTHLY_PRICE_ID_USD_US',
-      'STRIPE_YEARLY_PRICE_ID_USD_US',
-      'STRIPE_MONTHLY_PRICE_ID_USD_LATAM',
-      'STRIPE_YEARLY_PRICE_ID_USD_LATAM',
-    ]);
+    const publishableKey = Deno.env.get('STRIPE_PUBLISHABLE_KEY');
+    const monthlyEUR = Deno.env.get('STRIPE_MONTHLY_PRICE_ID_EUR');
+    const yearlyEUR = Deno.env.get('STRIPE_YEARLY_PRICE_ID_EUR');
+    const monthlyUSD_US = Deno.env.get('STRIPE_MONTHLY_PRICE_ID_USD_US');
+    const yearlyUSD_US = Deno.env.get('STRIPE_YEARLY_PRICE_ID_USD_US');
+    const monthlyUSD_LATAM = Deno.env.get('STRIPE_MONTHLY_PRICE_ID_USD_LATAM');
+    const yearlyUSD_LATAM = Deno.env.get('STRIPE_YEARLY_PRICE_ID_USD_LATAM');
 
     // Get user's country from IP geolocation
     const country = req.headers.get('cf-ipcountry') || 'US';
