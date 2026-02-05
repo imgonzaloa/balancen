@@ -35,12 +35,12 @@ export default function Premium() {
       .catch(err => {
         console.error('Failed to load pricing:', err);
         // Fallback to default EU pricing
-        setPricing({
-          region: 'EU',
-          currency: '€',
-          prices: { monthly: 6.99, yearly: 49.99 },
-          priceIds: { monthly: 'price_demo', yearly: 'price_demo' }
-        });
+            setPricing({
+              region: 'EU',
+              currency: '€',
+              prices: { monthly: 6.99, yearly: 49.99 },
+              priceIds: { monthly: Deno.env.get('STRIPE_MONTHLY_PRICE_ID_EUR'), yearly: Deno.env.get('STRIPE_YEARLY_PRICE_ID_EUR') }
+            });
       });
   }, []);
 
