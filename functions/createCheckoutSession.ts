@@ -12,9 +12,16 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { priceId, planType } = body;
+            const { priceId, planType } = body;
 
-    const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
+            console.log('Checkout request received:', { priceId, planType });
+
+            if (!priceId) {
+              console.error('Missing priceId');
+              return Response.json({ error: 'Missing price ID' }, { status: 400 });
+            }
+
+            const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!secretKey) {
       return Response.json({ error: 'Stripe secret key not configured' }, { status: 500 });
     }
