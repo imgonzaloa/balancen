@@ -24,6 +24,7 @@ import { UIVersionManager } from "@/components/UIVersionManager";
 import FriendsList from "@/components/home/FriendsList";
 import SocialCompletionStatus from "@/components/home/SocialCompletionStatus";
 import SocialActivityFeed from "@/components/home/SocialActivityFeed";
+import DailyTaskChecklist from "@/components/home/DailyTaskChecklist";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -85,6 +86,54 @@ export default function Home() {
   const todayCheckIn = checkIns.find(c => c.date === today);
   const yesterdayCheckIn = checkIns.find(c => c.date === yesterday);
 
+  // Award fire on app open (once per day)
+  useEffect(() => {
+    const awardAppOpenFire = async () => {
+      if (!user || !profile) return;
+
+      const existing = checkIns.find(c => c.date === today);
+      if (existing?.app_open_fire_awarded) return;
+
+      // Award +1 fire for opening app
+      const checkInData = {
+        date: today,
+        completed: false,
+        app_open_fire_awarded: true
+      };
+
+      if (existing) {
+        await base44.entities.DailyCheckIn.update(existing.id, checkInData);
+      } else {
+        await base44.entities.DailyCheckIn.create(checkInData);
+      }
+
+      // Update fire_total
+      await base44.entities.UserProfile.update(profile.id, {
+        fire_total: (profile.fire_total || 0) + 1
+      });
+
+      toast.success("🔥 +1 fire for opening app today!");
+      queryClient.invalidateQueries(["checkIns"]);
+      queryClient.invalidateQueries(["profile"]);
+    };
+
+    awardAppOpenFire();
+  }, [user?.email, profile?.id, today]);
+
+  const handleTaskAction = async (taskType) => {
+    const existing = checkIns.find(c => c.date === today);
+
+    if (taskType === "checkin") {
+      document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (taskType === "meal_photo") {
+      document.getElementById('calorie-tracker')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (taskType === "steps") {
+      document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (taskType === "calories") {
+      document.getElementById('calorie-tracker')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const createCheckInMutation = useMutation({
     mutationFn: async (data) => {
       const existing = checkIns.find(c => c.date === data.date);
@@ -99,6 +148,8 @@ export default function Home() {
         calories_goal_met: caloriesGoalMet || false,
         steps_fire_awarded: stepsGoalMet && !existing?.steps_fire_awarded,
         calories_fire_awarded: caloriesGoalMet && !existing?.calories_fire_awarded,
+        checkin_fire_awarded: !existing?.checkin_fire_awarded,
+        meal_photo_fire_awarded: data.food_photo_url && !existing?.meal_photo_fire_awarded
       };
       
       if (existing) {
@@ -109,7 +160,82 @@ export default function Home() {
     onSuccess: async (newCheckIn) => {
       queryClient.invalidateQueries(["checkIns"]);
 
-      // Update streak
+      // Calculate fire rewards
+      let fireIncrement = 0;
+      const messages = [];
+
+      // +2 fire for check-in completion
+      if (newCheckIn.checkin_fire_awarded) {
+        fireIncrement += 2;
+        messages.push("🔥 +2 fire for check-in!");
+      }
+
+      // +2 fire for meal photo
+      if (newCheckIn.meal_photo_fire_awarded) {
+        fireIncrement += 2;
+        messages.push("🔥 +2 fire for meal photo!");
+      }
+
+      // +3 fire for steps goal
+      if (newCheckIn.steps_fire_awarded) {
+        fireIncrement += 3;
+        messages.push("🔥 +3 fire for steps goal!");
+
+        // Auto-progression for steps goal
+        const currentGoal = profile.steps_goal || 8000;
+        let newGoal = currentGoal;
+
+        if (currentGoal < 12000) {
+          newGoal = currentGoal + 1000;
+        } else if (currentGoal < 16000) {
+          newGoal = currentGoal + 1500;
+        }
+
+        if (newGoal !== currentGoal && profile.is_premium) {
+          await base44.entities.UserProfile.update(profile.id, {
+            steps_goal: newGoal
+          });
+          toast.success(`${t("new_steps_goal")}: ${newGoal.toLocaleString()}`);
+        }
+      }
+
+      // +3 fire for calories goal
+      if (newCheckIn.calories_fire_awarded) {
+        fireIncrement += 3;
+        messages.push("🔥 +3 fire for calorie goal!");
+
+        // Auto-progression for calories goal
+        if (profile.auto_adjust_calories_goal && profile.calories_goal) {
+          const currentGoal = profile.calories_goal;
+          const minFloor = 1400;
+          const newGoal = Math.max(currentGoal - 50, minFloor);
+
+          if (newGoal !== currentGoal && profile.is_premium) {
+            await base44.entities.UserProfile.update(profile.id, {
+              calories_goal: newGoal
+            });
+            toast.success(`${t("new_calories_goal")}: ${newGoal}`);
+          }
+        }
+      }
+
+      // Check if all tasks completed for bonus
+      const allTasksComplete = 
+        newCheckIn.app_open_fire_awarded &&
+        newCheckIn.checkin_fire_awarded &&
+        newCheckIn.meal_photo_fire_awarded &&
+        newCheckIn.steps_fire_awarded &&
+        (!profile?.calories_goal || newCheckIn.calories_fire_awarded);
+
+      if (allTasksComplete && !newCheckIn.all_tasks_fire_awarded) {
+        fireIncrement += 5;
+        messages.push("🔥 +5 BONUS for completing ALL tasks!");
+        await base44.entities.DailyCheckIn.update(newCheckIn.id, {
+          all_tasks_fire_awarded: true
+        });
+      }
+
+      // Update streak and fire
       if (profile) {
         const newStreak = profile.current_streak + 1;
         const longestStreak = Math.max(profile.longest_streak, newStreak);
@@ -118,56 +244,15 @@ export default function Home() {
         // FREE PLAN: Cap streak at 3 days
         const finalStreak = (!profile.is_premium && newStreak > 3) ? 3 : newStreak;
 
-        const profileUpdates = {
+        await base44.entities.UserProfile.update(profile.id, {
           current_streak: finalStreak,
           longest_streak: longestStreak,
           total_checkins: totalCheckins,
-        };
+          fire_total: (profile.fire_total || 0) + fireIncrement
+        });
 
-        // Update fire_total based on achievements
-        let fireIncrement = 1; // Base fire for consistency
-
-        // Auto-progression for steps goal
-        if (newCheckIn.steps_goal_met && newCheckIn.steps_fire_awarded) {
-          fireIncrement += 1; // +1 fire for steps goal
-
-          const currentGoal = profile.steps_goal || 8000;
-          let newGoal = currentGoal;
-
-          if (currentGoal < 12000) {
-            newGoal = currentGoal + 1000;
-          } else if (currentGoal < 16000) {
-            newGoal = currentGoal + 1500;
-          }
-
-          if (newGoal !== currentGoal && profile.is_premium) {
-            profileUpdates.steps_goal = newGoal;
-            toast.success(`${t("new_steps_goal")}: ${newGoal.toLocaleString()}`);
-          }
-
-          toast.success(t("steps_goal_achieved"));
-        }
-
-        // Auto-progression for calories goal (if enabled)
-        if (newCheckIn.calories_goal_met && newCheckIn.calories_fire_awarded && profile.auto_adjust_calories_goal && profile.calories_goal) {
-          fireIncrement += 1; // +1 fire for calories goal
-
-          const currentGoal = profile.calories_goal;
-          const minFloor = 1400;
-          const newGoal = Math.max(currentGoal - 50, minFloor);
-
-          if (newGoal !== currentGoal && profile.is_premium) {
-            profileUpdates.calories_goal = newGoal;
-            toast.success(`${t("new_calories_goal")}: ${newGoal}`);
-          }
-
-          toast.success(t("calories_goal_achieved"));
-        }
-
-        // Update fire_total
-        profileUpdates.fire_total = (profile.fire_total || 0) + fireIncrement;
-
-        await base44.entities.UserProfile.update(profile.id, profileUpdates);
+        // Show messages
+        messages.forEach(msg => toast.success(msg));
 
         // Show first streak modal
         if (totalCheckins === 1) {
@@ -181,7 +266,7 @@ export default function Home() {
           }, 2000);
         }
 
-        // Check for badges
+        // Badges
         const streakMilestones = [3, 7, 14, 30, 60, 100];
         for (const milestone of streakMilestones) {
           if (newStreak === milestone) {
@@ -194,7 +279,6 @@ export default function Home() {
           }
         }
 
-        // First check-in badge
         if (totalCheckins === 1) {
           await base44.entities.Badge.create({
             badge_id: `first_checkin_${user.email}`,
@@ -204,7 +288,6 @@ export default function Home() {
           });
         }
 
-        // First photo badge
         if (newCheckIn.food_photo_url) {
           const existingPhotoBadge = await base44.entities.Badge.filter({
             user_email: user.email,
@@ -223,9 +306,9 @@ export default function Home() {
         queryClient.invalidateQueries(["profile"]);
         queryClient.invalidateQueries(["friends"]);
         queryClient.invalidateQueries(["friendsStatus"]);
-        }
-        },
-        });
+      }
+    },
+  });
 
         // Redirect to onboarding if no profile
         if (!profileLoading && !profile && user) {
@@ -319,66 +402,58 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Mission Section */}
-        {!todayCheckIn && (
+        {/* Daily Task Checklist */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+        >
+          <DailyTaskChecklist 
+            todayCheckIn={todayCheckIn}
+            todayMeals={todayMeals}
+            profile={profile}
+            onTaskClick={handleTaskAction}
+          />
+        </motion.div>
+
+        {/* Streak Risk Warning */}
+        {!todayCheckIn?.completed && (
+          <motion.div 
+            className="flex items-center gap-2 mb-4 bg-red-500/20 border border-red-500/50 rounded-xl px-4 py-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0, scale: [1, 1.02, 1] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+          >
+            <span className="text-2xl">🔥</span>
+            <div>
+              <p className="text-red-300 font-bold text-sm">Your {profile?.current_streak || 0} day streak is at risk!</p>
+              <p className="text-red-200/80 text-xs">Complete before midnight or lose it all</p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Future Anticipation */}
+        <motion.div
+          className="text-center mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <p className="text-xs text-orange-200 font-semibold">
+            🔥 {3 - (profile?.current_streak || 0) % 3} more days to unlock DOUBLE FIRE bonus
+          </p>
+        </motion.div>
+
+        {/* Social Completion & Competition */}
+        {!todayCheckIn?.completed && (
           <motion.div
-            className="mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
+            transition={{ delay: 0.12 }}
           >
-            <h2 className="text-2xl font-bold text-white mb-1">Today's mission 🔥</h2>
-            <p className="text-teal-200 text-sm font-medium mb-2">Keep your streak alive</p>
-            
-            {/* Streak Risk Warning */}
-            <motion.div 
-              className="flex items-center gap-2 mb-4 bg-red-500/20 border border-red-500/50 rounded-xl px-4 py-3"
-              animate={{ scale: [1, 1.02, 1] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-            >
-              <span className="text-2xl">🔥</span>
-              <div>
-                <p className="text-red-300 font-bold text-sm">Your {profile?.current_streak || 0} day streak is at risk!</p>
-                <p className="text-red-200/80 text-xs">Complete before midnight or lose it all</p>
-              </div>
-            </motion.div>
-            
-            {/* Primary CTA */}
-            <motion.div
-              animate={{ 
-                scale: [1, 1.02, 1],
-                boxShadow: [
-                  "0 10px 40px rgba(251, 146, 60, 0.3)",
-                  "0 15px 50px rgba(251, 146, 60, 0.5)",
-                  "0 10px 40px rgba(251, 146, 60, 0.3)"
-                ]
-              }}
-              transition={{ repeat: Infinity, duration: 2 }}
-            >
-              <Button
-                onClick={() => document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg shadow-2xl mb-2 border-2 border-orange-300/50"
-              >
-                COMPLETE TODAY
-              </Button>
-            </motion.div>
-            
-            {/* Progress Indicator */}
-            <div className="text-center mb-3">
-              <p className="text-xs text-orange-200 font-semibold">
-                🔥 Today progress: 0/3 tasks completed
-              </p>
-            </div>
-            
-            {/* Future Anticipation Trigger */}
-            <p className="text-center text-xs text-orange-200 font-semibold mb-4">
-              🔥 {3 - (profile?.current_streak || 0) % 3} more days to unlock DOUBLE FIRE bonus
-            </p>
-
-            {/* Social Completion Indicators */}
             <SocialCompletionStatus user={user} />
             
-            {/* Competition Trigger */}
             <motion.div
               className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-3 text-center mt-3"
               animate={{ scale: [1, 1.01, 1] }}
@@ -389,7 +464,6 @@ export default function Home() {
               </p>
             </motion.div>
             
-            {/* Social Activity Feed */}
             <SocialActivityFeed user={user} />
           </motion.div>
         )}
@@ -440,6 +514,7 @@ export default function Home() {
 
         {/* Calorie Tracker - Always visible */}
         <motion.div
+          id="calorie-tracker"
           className="mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -449,7 +524,23 @@ export default function Home() {
             meals={todayMeals}
             date={today}
             caloriesGoal={profile?.calories_goal}
-            onMealAdded={() => queryClient.invalidateQueries(["meals", today])}
+            onMealAdded={async () => {
+              queryClient.invalidateQueries(["meals", today]);
+              
+              // Award meal photo fire if not already awarded
+              const existing = checkIns.find(c => c.date === today);
+              if (existing && !existing.meal_photo_fire_awarded) {
+                await base44.entities.DailyCheckIn.update(existing.id, {
+                  meal_photo_fire_awarded: true
+                });
+                await base44.entities.UserProfile.update(profile.id, {
+                  fire_total: (profile.fire_total || 0) + 2
+                });
+                toast.success("🔥 +2 fire for meal photo!");
+                queryClient.invalidateQueries(["checkIns"]);
+                queryClient.invalidateQueries(["profile"]);
+              }
+            }}
           />
         </motion.div>
 
