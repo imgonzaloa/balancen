@@ -234,19 +234,22 @@ export default function Paywall() {
             className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50"
           >
             <Crown size={20} className="mr-2" />
-            Upgrade to Premium
+            Start 7-Day Free Trial
           </Button>
+          
+          <p className="text-center text-xs text-emerald-200 font-semibold">
+            💳 Card required • Billing starts after trial
+          </p>
+          <p className="text-center text-xs text-white/60">
+            Cancel anytime before trial ends
+          </p>
           
           <button
             onClick={handleSkip}
-            className="w-full py-4 text-white/50 hover:text-white/70 text-sm transition-colors"
+            className="w-full py-4 text-white/50 hover:text-white/70 text-sm transition-colors mt-4"
           >
-            Continue with Free (streak will reset)
+            Continue with Free (limited features)
           </button>
-
-          <p className="text-center text-white/50 text-sm">
-            Cancel anytime.
-          </p>
         </motion.div>
       </div>
     </div>
