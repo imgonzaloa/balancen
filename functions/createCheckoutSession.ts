@@ -21,8 +21,21 @@ Deno.serve(async (req) => {
     const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
     const profile = profiles[0];
 
+    // Create or get customer
+    let customerId = profile?.stripe_customer_id;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.full_name,
+        metadata: {
+          user_id: user.id,
+        },
+      });
+      customerId = customer.id;
+    }
+
     const session = await stripe.checkout.sessions.create({
-      customer_email: user.email,
+      customer: customerId,
       mode: 'subscription',
       payment_method_collection: 'always',
       line_items: [
