@@ -15,9 +15,9 @@ Deno.serve(async (req) => {
 
           const body = await req.json();
                   console.log('Request body:', body);
-                  const { priceId, planType, selectedPlan } = body;
+                  const { priceId, planType, selectedPlan, region } = body;
 
-          console.log('Checkout request received:', { priceId, planType, selectedPlan });
+          console.log('Checkout request received:', { priceId, planType, selectedPlan, region });
 
             const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
                       if (!secretKey) {
@@ -29,9 +29,9 @@ Deno.serve(async (req) => {
                       });
 
                       // Get the correct price ID from environment variables
-                      const region = planType?.includes('eur') ? 'EUR' : planType?.includes('latam') ? 'USD_LATAM' : 'USD_US';
+                      const finalRegion = region || 'USD_US';
                       const priceType = selectedPlan === 'yearly' ? 'YEARLY' : 'MONTHLY';
-                      const envKey = `STRIPE_${priceType}_PRICE_ID_${region}`;
+                      const envKey = `STRIPE_${priceType}_PRICE_ID_${finalRegion}`;
                       const finalPriceId = priceId || Deno.env.get(envKey);
 
                       if (!finalPriceId) {

@@ -70,9 +70,10 @@ export default function Premium() {
       }
 
       const response = await base44.functions.invoke('createCheckoutSession', {
-        planType: selectedPlan,
-        selectedPlan: selectedPlan,
-      });
+            planType: selectedPlan,
+            selectedPlan: selectedPlan,
+            region: pricing?.region || 'USD_US',
+          });
 
       window.location.href = response.data.url;
     } catch (error) {
