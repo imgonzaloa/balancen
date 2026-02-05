@@ -20,6 +20,7 @@ import ChallengeSuggestions from "@/components/ai/ChallengeSuggestions";
 import AIPremiumUpsell from "@/components/ai/AIPremiumUpsell";
 import { useTranslation } from "@/components/TranslationProvider";
 import { UIVersionManager } from "@/components/UIVersionManager";
+import SocialHeader from "@/components/home/SocialHeader";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -120,38 +121,48 @@ export default function Home() {
           total_checkins: totalCheckins,
         };
 
+        // Update fire_total based on achievements
+        let fireIncrement = 1; // Base fire for consistency
+
         // Auto-progression for steps goal
         if (newCheckIn.steps_goal_met && newCheckIn.steps_fire_awarded) {
+          fireIncrement += 1; // +1 fire for steps goal
+
           const currentGoal = profile.steps_goal || 8000;
           let newGoal = currentGoal;
-          
+
           if (currentGoal < 12000) {
             newGoal = currentGoal + 1000;
           } else if (currentGoal < 16000) {
             newGoal = currentGoal + 1500;
           }
-          
-          if (newGoal !== currentGoal) {
+
+          if (newGoal !== currentGoal && profile.is_premium) {
             profileUpdates.steps_goal = newGoal;
             toast.success(`${t("new_steps_goal")}: ${newGoal.toLocaleString()}`);
           }
-          
+
           toast.success(t("steps_goal_achieved"));
         }
 
         // Auto-progression for calories goal (if enabled)
         if (newCheckIn.calories_goal_met && newCheckIn.calories_fire_awarded && profile.auto_adjust_calories_goal && profile.calories_goal) {
+          fireIncrement += 1; // +1 fire for calories goal
+
           const currentGoal = profile.calories_goal;
           const minFloor = 1400;
           const newGoal = Math.max(currentGoal - 50, minFloor);
-          
-          if (newGoal !== currentGoal) {
+
+          if (newGoal !== currentGoal && profile.is_premium) {
             profileUpdates.calories_goal = newGoal;
             toast.success(`${t("new_calories_goal")}: ${newGoal}`);
           }
-          
+
           toast.success(t("calories_goal_achieved"));
         }
+
+        // Update fire_total
+        profileUpdates.fire_total = (profile.fire_total || 0) + fireIncrement;
 
         await base44.entities.UserProfile.update(profile.id, profileUpdates);
 
@@ -241,7 +252,7 @@ export default function Home() {
       <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
         {/* Header */}
         <motion.div 
-          className="flex justify-between items-start mb-8"
+          className="flex justify-between items-start mb-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -251,8 +262,17 @@ export default function Home() {
               {profile?.display_name || user?.full_name?.split(" ")[0] || "Usuario"}
             </h1>
           </div>
-          
+
           <StreakFire streak={profile?.current_streak || 0} />
+        </motion.div>
+
+        {/* Social Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+        >
+          <SocialHeader currentUser={user} />
         </motion.div>
 
         {/* Today's Rewards */}

@@ -7,35 +7,33 @@ import { createPageUrl } from "@/utils";
 
 const freeFeatures = [
   "Daily check-ins",
-  "Individual use only",
-  "Basic daily progress",
-  "Streak limited to 3 days",
-  "Manual tracking only"
+  "Basic fire tracking",
+  "Manual tracking",
+  "1 group maximum",
+  "Basic stats"
 ];
 
 const freeLimitations = [
-  "Streak resets after 3 days",
-  "No groups or friends",
-  "No rankings or challenges",
-  "No long-term history",
-  "No rewards progression",
-  "No step goal progression",
-  "No calorie goal progression",
-  "No AI Coaching"
+  "Streak capped at 3 days",
+  "Limited fire system",
+  "No automatic goals",
+  "No AI coaching",
+  "No advanced analytics",
+  "No progressive challenges",
+  "Limited social features"
 ];
 
 const premiumFeatures = [
-  "Unlimited streaks",
-  "Daily rewards for consistency",
-  "Rewards for step goals",
-  "Rewards for calorie goals",
-  "Automatic progression of step goals",
-  "Optional automatic adjustment of calorie goals",
-  "Groups with friends or teams",
-  "Rankings and challenges",
-  "Full progress history",
-  "Rewards and achievements",
-  "AI Coaching"
+  "Unlimited streaks & fire 🔥",
+  "3 fire metrics (Consistency + Steps + Calories)",
+  "Automatic goal progression",
+  "AI Coaching with personalized tips",
+  "Advanced analytics & insights",
+  "Unlimited groups",
+  "Social leaderboards",
+  "Priority device sync",
+  "Full history & export",
+  "Progressive challenges"
 ];
 
 // Auto-detect region based on timezone
