@@ -48,9 +48,28 @@ export default function Paywall() {
   useEffect(() => {
     base44.auth.me().then(setUser);
     
-    base44.functions.getStripePublishableKey({})
-      .then(config => setPricing(config))
-      .catch(err => console.error('Failed to load pricing:', err));
+    if (base44.functions?.getStripePublishableKey) {
+      base44.functions.getStripePublishableKey({})
+        .then(config => setPricing(config))
+        .catch(err => {
+          console.error('Failed to load pricing:', err);
+          // Fallback to default EU pricing
+          setPricing({
+            region: 'EU',
+            currency: '€',
+            prices: { monthly: 6.99, yearly: 49.99 },
+            priceIds: { monthly: 'price_demo', yearly: 'price_demo' }
+          });
+        });
+    } else {
+      // Fallback if backend functions not enabled
+      setPricing({
+        region: 'EU',
+        currency: '€',
+        prices: { monthly: 6.99, yearly: 49.99 },
+        priceIds: { monthly: 'price_demo', yearly: 'price_demo' }
+      });
+    }
   }, []);
 
   const handleSkip = () => {
@@ -65,6 +84,11 @@ export default function Paywall() {
 
     if (!pricing) {
       toast.error("Payment system not configured");
+      return;
+    }
+
+    if (!base44.functions?.createCheckoutSession) {
+      toast.error("Backend functions not enabled. Please enable backend functions in app settings.");
       return;
     }
 
