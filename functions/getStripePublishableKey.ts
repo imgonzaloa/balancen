@@ -25,24 +25,24 @@ Deno.serve(async (req) => {
       currency = '€';
       prices = { monthly: 6.99, yearly: 49.99 };
       priceIds = {
-        monthly: secrets.STRIPE_MONTHLY_PRICE_ID_EUR,
-        yearly: secrets.STRIPE_YEARLY_PRICE_ID_EUR
+        monthly: monthlyEUR,
+        yearly: yearlyEUR
       };
     } else if (latinAmericaCountries.includes(country)) {
       region = 'LATAM';
       currency = '$';
       prices = { monthly: 3.99, yearly: 25.99 };
       priceIds = {
-        monthly: secrets.STRIPE_MONTHLY_PRICE_ID_USD_LATAM,
-        yearly: secrets.STRIPE_YEARLY_PRICE_ID_USD_LATAM
+        monthly: monthlyUSD_LATAM,
+        yearly: yearlyUSD_LATAM
       };
     } else {
       region = 'US';
       currency = '$';
       prices = { monthly: 7.99, yearly: 59.99 };
       priceIds = {
-        monthly: secrets.STRIPE_MONTHLY_PRICE_ID_USD_US,
-        yearly: secrets.STRIPE_YEARLY_PRICE_ID_USD_US
+        monthly: monthlyUSD_US,
+        yearly: yearlyUSD_US
       };
     }
     
