@@ -93,22 +93,24 @@ export default function SocialHeader({ currentUser, currentUserProfile }) {
 
   return (
     <div className="mb-5 -mx-5 px-5 overflow-visible">
+      {/* SOCIAL STORIES ROW */}
       <div 
-        className="flex items-start gap-3 overflow-x-auto overflow-y-visible pb-3 pt-1" 
+        className="flex items-start gap-3 overflow-x-auto overflow-y-visible pb-3 pt-2" 
         style={{ 
           scrollbarWidth: 'none', 
           msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         {/* Current User */}
         <motion.div 
-          className="flex-shrink-0 flex flex-col items-center w-[68px]"
+          className="flex-shrink-0 flex flex-col items-center w-[70px]"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
         >
           <div className="relative mb-2">
-            {/* Glow effect for current user */}
-            <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-teal-400 to-emerald-400 blur-md opacity-60 animate-pulse" />
+            {/* Glow effect for current user - UPDATED */}
+            <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-teal-400 to-emerald-400 blur-lg opacity-70 animate-pulse" />
             
             {/* Top indicator for highest streak */}
             {currentUserIsTop && (
@@ -130,10 +132,10 @@ export default function SocialHeader({ currentUser, currentUserProfile }) {
               <img
                 src={currentUserProfile.profile_photo || currentUserProfile.avatar_url}
                 alt="You"
-                className="relative w-16 h-16 rounded-full object-cover border-2 border-teal-400 shadow-xl"
+                className="relative w-[68px] h-[68px] rounded-full object-cover border-3 border-teal-400 shadow-2xl"
               />
             ) : (
-              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-lg font-bold border-2 border-teal-400 shadow-xl">
+              <div className="relative w-[68px] h-[68px] rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold border-3 border-teal-400 shadow-2xl">
                 {currentUserProfile?.display_name?.charAt(0) || "?"}
               </div>
             )}
