@@ -6,6 +6,7 @@ import { Users, Award, Settings, Flame, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { Button } from "@/components/ui/button";
 
 import StreakFire from "@/components/ui/StreakFire";
 import QuickCheckIn from "@/components/home/QuickCheckIn";
