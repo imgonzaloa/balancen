@@ -50,10 +50,20 @@ export default function Premium() {
     }
 
     setLoading(true);
-    
+
     try {
       const priceId = pricing.priceIds[selectedPlan];
-      
+      console.log('Premium page - pricing data:', pricing);
+      console.log('Premium page - selected plan:', selectedPlan);
+      console.log('Premium page - priceId:', priceId);
+
+      if (!priceId) {
+        console.error('Price ID is undefined');
+        toast.error("Price not available. Please refresh the page.");
+        setLoading(false);
+        return;
+      }
+
       const response = await base44.functions.invoke('createCheckoutSession', {
         priceId: priceId,
         planType: selectedPlan,
