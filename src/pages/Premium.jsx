@@ -27,11 +27,16 @@ export default function Premium() {
   const [pricing, setPricing] = useState(null);
 
   useEffect(() => {
+    console.log('Premium useEffect started');
     base44.auth.me().then(setUser);
-    
+
     // Load regional pricing automatically
     base44.functions.invoke('getStripePublishableKey', {})
-      .then(response => setPricing(response.data))
+      .then(response => {
+        console.log('getStripePublishableKey response:', response);
+        console.log('response.data:', response.data);
+        setPricing(response.data);
+      })
       .catch(err => {
         console.error('Failed to load pricing:', err);
         toast.error('Payment system temporarily unavailable');
