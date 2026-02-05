@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk';
 import Stripe from 'npm:stripe@17.5.0';
 
+// Redeploy to reload secrets
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   
