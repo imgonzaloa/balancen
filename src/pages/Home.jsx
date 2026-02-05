@@ -272,7 +272,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
-          <FriendsList currentUser={user} />
+          <FriendsList currentUser={user} profile={profile} />
         </motion.div>
 
         {/* Today's Rewards */}
@@ -314,8 +314,41 @@ export default function Home() {
           </motion.div>
         )}
 
+        {/* Mission Section */}
+        {!todayCheckIn && (
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+          >
+            <h2 className="text-2xl font-bold text-white mb-1">Today's mission 🔥</h2>
+            <p className="text-teal-200 text-sm font-medium mb-4">Keep your streak alive</p>
+            
+            {/* Primary CTA */}
+            <Button
+              onClick={() => document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg shadow-xl mb-4"
+            >
+              COMPLETE TODAY
+            </Button>
+
+            {/* Social Completion Indicators */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+              <p className="text-xs text-teal-300 font-semibold mb-2">Today's Activity</p>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-sm text-white/80">
+                  <span className="text-red-400">⚠</span>
+                  <span>You haven't completed yet</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Main Check-in Card */}
         <motion.div
+          id="checkin-card"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -325,8 +358,23 @@ export default function Home() {
             todayCheckIn={todayCheckIn}
             yesterdayCheckIn={yesterdayCheckIn}
             profile={profile}
+            showFireReward={true}
           />
         </motion.div>
+
+        {/* Future Anticipation */}
+        {todayCheckIn && (
+          <motion.div
+            className="mt-4 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <p className="text-sm text-amber-300 font-semibold">
+              ⚡ Tomorrow: Double fire bonus
+            </p>
+          </motion.div>
+        )}
 
         {/* Calorie Tracker - Always visible */}
         <motion.div

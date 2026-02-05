@@ -10,7 +10,7 @@ import StepsCounter from "@/components/home/StepsCounter";
 import WeightTracker from "@/components/home/WeightTracker";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yesterdayCheckIn }) {
+export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yesterdayCheckIn, showFireReward }) {
   const { t } = useTranslation();
   const [step, setStep] = useState(todayCheckIn ? "done" : "main");
   const [foodRating, setFoodRating] = useState(todayCheckIn?.food_rating || null);
@@ -71,11 +71,49 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
     };
 
     await onComplete(checkInData);
-    setStep("done");
+    setStep("reward");
+    setTimeout(() => setStep("done"), 2000);
     setSaving(false);
   };
 
   const canSubmit = foodRating !== null || movedToday !== null;
+
+  // Fire Reward Animation
+  if (step === "reward" && showFireReward) {
+    return (
+      <motion.div 
+        className="relative overflow-hidden rounded-3xl p-12 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 shadow-2xl flex flex-col items-center justify-center"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 1.2 }}
+      >
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: [0, 1.2, 1], rotate: 0 }}
+          transition={{ duration: 0.6, ease: "backOut" }}
+          className="text-8xl mb-4"
+        >
+          🔥
+        </motion.div>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-3xl font-black text-white"
+        >
+          +1 FIRE
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="text-white/80 font-medium mt-2"
+        >
+          Streak maintained!
+        </motion.p>
+      </motion.div>
+    );
+  }
 
   if (step === "done" || todayCheckIn) {
     return (

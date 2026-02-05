@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import FriendDetailModal from "./FriendDetailModal";
 
-export default function FriendsList({ currentUser }) {
+export default function FriendsList({ currentUser, profile }) {
   const [selectedFriend, setSelectedFriend] = useState(null);
 
   const { data: friends = [] } = useQuery({
@@ -18,14 +18,7 @@ export default function FriendsList({ currentUser }) {
     enabled: !!currentUser?.email,
   });
 
-  const { data: profile } = useQuery({
-    queryKey: ["profile", currentUser?.email],
-    queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser?.email });
-      return profiles[0] || null;
-    },
-    enabled: !!currentUser?.email,
-  });
+
 
   // Find top friend
   const topFriend = friends.length > 0 ? friends.reduce((max, f) => f.fire_count > max.fire_count ? f : max, friends[0]) : null;
