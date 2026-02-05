@@ -33,33 +33,37 @@ export default function FriendsList({ currentUser }) {
             div::-webkit-scrollbar { display: none; }
           `}</style>
 
-          {/* Friends */}
+          {/* Friends Repeater */}
           {friends.map((friend, idx) => (
             <motion.button
               key={friend.id}
               onClick={() => setSelectedFriend(friend)}
-              className="flex-shrink-0 flex flex-col items-center w-[72px] focus:outline-none"
+              className="flex-shrink-0 flex flex-col items-center w-[72px] focus:outline-none overflow-visible"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="relative mb-2 overflow-visible">
-                {/* Avatar */}
+              <div className="relative mb-2 w-16 h-16 overflow-visible">
+                {/* Avatar - Perfect Circle */}
                 {friend.avatar_url ? (
                   <img
                     src={friend.avatar_url}
                     alt={friend.display_name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-white/30 shadow-lg"
+                    className="absolute inset-0 w-full h-full rounded-full object-cover border-2 border-white/30 shadow-lg"
+                    style={{ clipPath: 'circle(50%)' }}
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold border-2 border-white/30 shadow-lg">
+                  <div 
+                    className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold border-2 border-white/30 shadow-lg"
+                    style={{ clipPath: 'circle(50%)' }}
+                  >
                     {friend.display_name.charAt(0).toUpperCase()}
                   </div>
                 )}
 
                 {/* Fire Badge */}
-                <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-2 py-0.5 shadow-lg border-2 border-slate-900 flex items-center gap-1">
+                <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-2 py-0.5 shadow-lg border-2 border-slate-900 flex items-center gap-1 z-10">
                   <Flame size={12} className="text-white" fill="currentColor" />
                   <span className="text-xs font-bold text-white">{friend.fire_count}</span>
                 </div>
