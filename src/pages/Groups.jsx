@@ -150,23 +150,29 @@ export default function Groups() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
-      <div className="max-w-lg mx-auto px-4 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+
+      <div className="max-w-lg mx-auto px-5 pb-24 relative z-10">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-b from-indigo-50 to-indigo-50/80 backdrop-blur-sm pt-6 pb-4 z-10">
+        <div className="pt-6 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 to={createPageUrl("Home")}
-                className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"
+                className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
               >
-                <ChevronLeft size={20} className="text-slate-600" />
+                <ChevronLeft size={20} className="text-white" />
               </Link>
-              <h1 className="text-xl font-bold text-slate-800">Mis grupos</h1>
+              <h1 className="text-2xl font-bold text-white">Mis grupos</h1>
             </div>
             <Button
               onClick={() => handleGroupAction(() => setShowCreate(true))}
-              className="rounded-xl bg-indigo-500 hover:bg-indigo-600"
+              className="rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 border-0 shadow-lg"
             >
               <Plus size={18} className="mr-1" />
               Crear
@@ -177,31 +183,31 @@ export default function Groups() {
         {/* Empty State */}
         {groups.length === 0 && (
           <motion.div
-            className="text-center py-16"
+            className="text-center py-16 mt-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-4">
-              <Users size={40} className="text-indigo-400" />
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-500/30 to-emerald-500/30 backdrop-blur-xl border border-white/20 flex items-center justify-center mx-auto mb-6">
+              <Users size={48} className="text-teal-200" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-700 mb-2">
+            <h3 className="text-xl font-bold text-white mb-2">
               Aún no tienes grupos
             </h3>
-            <p className="text-slate-500 mb-6">
+            <p className="text-teal-200 mb-8">
               Crea uno o únete con un código
             </p>
             <div className="flex gap-3 justify-center">
               <Button
                 onClick={() => handleGroupAction(() => setShowCreate(true))}
-                className="rounded-xl bg-indigo-500 hover:bg-indigo-600"
+                className="rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 border-0 shadow-xl px-6 py-6"
               >
-                <Plus size={18} className="mr-1" />
+                <Plus size={18} className="mr-2" />
                 Crear grupo
               </Button>
               <Button
                 onClick={() => handleGroupAction(() => setShowJoin(true))}
                 variant="outline"
-                className="rounded-xl"
+                className="rounded-2xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 px-6 py-6"
               >
                 Unirme
               </Button>
@@ -210,7 +216,7 @@ export default function Groups() {
         )}
 
         {/* Groups List */}
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4 mt-6">
           {groups.map((group, i) => {
             const membership = memberships.find(m => m.group_id === group.id);
             
@@ -223,21 +229,21 @@ export default function Groups() {
               >
                 <Link
                   to={createPageUrl(`GroupDetail?id=${group.id}`)}
-                  className="block bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+                  className="block bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 hover:bg-white/15 transition-all shadow-xl"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xl font-bold">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
                         {group.name.charAt(0)}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-slate-800">{group.name}</h3>
+                          <h3 className="font-bold text-white">{group.name}</h3>
                           {membership?.role === "admin" && (
-                            <Crown size={14} className="text-amber-500" />
+                            <Crown size={16} className="text-amber-400" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-teal-200">
                           {group.member_count} {group.member_count === 1 ? "miembro" : "miembros"}
                         </p>
                       </div>
@@ -248,15 +254,15 @@ export default function Groups() {
                           e.preventDefault();
                           copyCode(group.invite_code);
                         }}
-                        className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                        className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
                       >
                         {copiedCode === group.invite_code ? (
-                          <Check size={18} className="text-green-500" />
+                          <Check size={18} className="text-emerald-400" />
                         ) : (
-                          <Copy size={18} className="text-slate-400" />
+                          <Copy size={18} className="text-white/60" />
                         )}
                       </button>
-                      <ArrowRight size={18} className="text-slate-300" />
+                      <ArrowRight size={18} className="text-white/40" />
                     </div>
                   </div>
                 </Link>
@@ -276,7 +282,7 @@ export default function Groups() {
             <Button
               onClick={() => handleGroupAction(() => setShowJoin(true))}
               variant="outline"
-              className="w-full rounded-xl py-6"
+              className="w-full rounded-2xl py-6 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
             >
               Unirme con código
             </Button>
@@ -285,21 +291,21 @@ export default function Groups() {
 
         {/* Create Dialog */}
         <Dialog open={showCreate} onOpenChange={setShowCreate}>
-          <DialogContent className="rounded-3xl">
+          <DialogContent className="rounded-3xl bg-slate-900 border-slate-700 text-white">
             <DialogHeader>
-              <DialogTitle>Crear grupo</DialogTitle>
+              <DialogTitle className="text-white">Crear grupo</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <Input
                 placeholder="Nombre del grupo"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                className="rounded-xl py-6"
+                className="rounded-xl py-6 bg-white/10 border-white/20 text-white placeholder:text-white/50"
               />
               <Button
                 onClick={() => createGroupMutation.mutate(newGroupName)}
                 disabled={!newGroupName.trim() || createGroupMutation.isPending}
-                className="w-full rounded-xl py-6 bg-indigo-500 hover:bg-indigo-600"
+                className="w-full rounded-xl py-6 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 border-0"
               >
                 {createGroupMutation.isPending ? "Creando..." : "Crear grupo"}
               </Button>
@@ -309,22 +315,22 @@ export default function Groups() {
 
         {/* Join Dialog */}
         <Dialog open={showJoin} onOpenChange={setShowJoin}>
-          <DialogContent className="rounded-3xl">
+          <DialogContent className="rounded-3xl bg-slate-900 border-slate-700 text-white">
             <DialogHeader>
-              <DialogTitle>Unirse a grupo</DialogTitle>
+              <DialogTitle className="text-white">Unirse a grupo</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <Input
                 placeholder="Código de invitación"
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                className="rounded-xl py-6 text-center text-lg tracking-widest"
+                className="rounded-xl py-6 text-center text-lg tracking-widest bg-white/10 border-white/20 text-white placeholder:text-white/50"
                 maxLength={6}
               />
               <Button
                 onClick={() => joinGroupMutation.mutate(joinCode)}
                 disabled={joinCode.length < 6 || joinGroupMutation.isPending}
-                className="w-full rounded-xl py-6 bg-indigo-500 hover:bg-indigo-600"
+                className="w-full rounded-xl py-6 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 border-0"
               >
                 {joinGroupMutation.isPending ? "Uniéndose..." : "Unirme"}
               </Button>
