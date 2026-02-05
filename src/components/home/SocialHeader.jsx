@@ -93,35 +93,35 @@ export default function SocialHeader({ currentUser, currentUserProfile }) {
   const sortedProfiles = [...uniqueProfiles].sort((a, b) => (b.fire_total || 0) - (a.fire_total || 0));
 
   return (
-    <div className="mb-6 -mx-5 px-5">
-      <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="mb-5 -mx-5 px-5">
+      <div className="flex items-start gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Current User */}
         <motion.div 
-          className="flex-shrink-0"
+          className="flex-shrink-0 flex flex-col items-center"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
         >
           <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-teal-400 to-emerald-500 blur-md opacity-60 animate-pulse" />
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-teal-400 to-emerald-400 blur opacity-75" />
             {currentUserProfile?.profile_photo || currentUserProfile?.avatar_url ? (
               <img
                 src={currentUserProfile.profile_photo || currentUserProfile.avatar_url}
                 alt="You"
-                className="relative w-20 h-20 rounded-full object-cover border-3 border-teal-400 shadow-xl ring-2 ring-teal-400/50"
+                className="relative w-16 h-16 rounded-full object-cover border-2 border-teal-400 shadow-lg"
               />
             ) : (
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold border-3 border-teal-400 shadow-xl ring-2 ring-teal-400/50">
+              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-lg font-bold border-2 border-teal-400 shadow-lg">
                 {currentUserProfile?.display_name?.charAt(0) || "?"}
               </div>
             )}
             
             {/* Fire Badge */}
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-2.5 py-1 flex items-center gap-1 shadow-lg border-2 border-slate-900">
-              <Flame size={12} className="text-white" />
-              <span className="text-white text-xs font-bold">{currentUserProfile?.fire_total || 0}</span>
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-1.5 py-0.5 flex items-center gap-0.5 shadow-lg border border-slate-900">
+              <Flame size={10} className="text-white" />
+              <span className="text-white text-[10px] font-bold">{currentUserProfile?.fire_total || 0}</span>
             </div>
           </div>
-          <p className="text-teal-300 text-xs text-center mt-2 font-bold">You</p>
+          <p className="text-teal-300 text-[10px] text-center mt-1.5 font-semibold max-w-[64px] truncate">You</p>
         </motion.div>
 
         {/* Friends/Group Members */}
@@ -131,7 +131,7 @@ export default function SocialHeader({ currentUser, currentUserProfile }) {
           return (
             <motion.div
               key={profile.id}
-              className="flex-shrink-0"
+              className="flex-shrink-0 flex flex-col items-center"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: (index + 1) * 0.05 }}
@@ -139,7 +139,7 @@ export default function SocialHeader({ currentUser, currentUserProfile }) {
               <div className="relative">
                 {/* Status Overlay */}
                 {showStatus && (
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap shadow-lg z-10 max-w-[70px] truncate font-medium">
+                  <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-md z-10 max-w-[64px] truncate font-medium">
                     {profile.status_emoji} {profile.status_text}
                   </div>
                 )}
@@ -149,23 +149,23 @@ export default function SocialHeader({ currentUser, currentUserProfile }) {
                   <img
                     src={profile.profile_photo || profile.avatar_url}
                     alt={profile.display_name}
-                    className="w-[72px] h-[72px] rounded-full object-cover border-2 border-white/40 shadow-xl"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-white/30 shadow-lg"
                   />
                 ) : (
-                  <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white text-lg font-bold border-2 border-white/40 shadow-xl">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white text-lg font-bold border-2 border-white/30 shadow-lg">
                     {profile.display_name?.charAt(0) || "?"}
                   </div>
                 )}
                 
                 {/* Fire Badge */}
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-2 py-0.5 flex items-center gap-0.5 shadow-lg border-2 border-slate-900">
-                  <Flame size={11} className="text-white" />
-                  <span className="text-white text-xs font-bold">{profile.fire_total || 0}</span>
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-1.5 py-0.5 flex items-center gap-0.5 shadow-lg border border-slate-900">
+                  <Flame size={10} className="text-white" />
+                  <span className="text-white text-[10px] font-bold">{profile.fire_total || 0}</span>
                 </div>
               </div>
               
               {/* Name */}
-              <p className="text-white/90 text-xs text-center mt-2 truncate max-w-[72px] font-medium">
+              <p className="text-white/80 text-[10px] text-center mt-1.5 truncate max-w-[64px] font-medium">
                 {profile.display_name?.split(" ")[0]}
               </p>
             </motion.div>
@@ -182,10 +182,10 @@ export default function SocialHeader({ currentUser, currentUserProfile }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 border-white/40 flex items-center justify-center transition-all shadow-xl">
-              <Plus size={32} className="text-white" />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 border-white/40 flex items-center justify-center shadow-lg">
+              <Plus size={28} className="text-white" />
             </div>
-            <p className="text-white text-xs text-center mt-2 font-bold">Invite</p>
+            <p className="text-white text-[10px] text-center mt-1.5 font-semibold">Invite</p>
           </motion.div>
         </Link>
         </div>
