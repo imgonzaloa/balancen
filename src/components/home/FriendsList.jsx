@@ -18,6 +18,9 @@ export default function FriendsList({ currentUser }) {
     enabled: !!currentUser?.email,
   });
 
+  // Find top friend
+  const topFriend = friends.length > 0 ? friends.reduce((max, f) => f.fire_count > max.fire_count ? f : max, friends[0]) : null;
+
   return (
     <>
       <div className="mb-6 overflow-visible">
@@ -34,33 +37,40 @@ export default function FriendsList({ currentUser }) {
           `}</style>
 
           {/* Friends Repeater */}
-          {friends.map((friend, idx) => (
-            <motion.button
-              key={friend.id}
-              onClick={() => setSelectedFriend(friend)}
-              className="flex-shrink-0 flex flex-col items-center w-[72px] focus:outline-none overflow-visible"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <div className="relative mb-2 w-16 h-16 overflow-visible">
-                {/* Avatar - Perfect Circle */}
-                {friend.avatar_url ? (
-                  <img
-                    src={friend.avatar_url}
-                    alt={friend.display_name}
-                    className="absolute inset-0 w-full h-full rounded-full object-cover border-2 border-white/30 shadow-lg"
-                    style={{ clipPath: 'circle(50%)' }}
-                  />
-                ) : (
-                  <div 
-                    className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold border-2 border-white/30 shadow-lg"
-                    style={{ clipPath: 'circle(50%)' }}
-                  >
-                    {friend.display_name.charAt(0).toUpperCase()}
-                  </div>
-                )}
+          {friends.map((friend, idx) => {
+            const isTopUser = topFriend && friend.id === topFriend.id;
+            return (
+              <motion.button
+                key={friend.id}
+                onClick={() => setSelectedFriend(friend)}
+                className="flex-shrink-0 flex flex-col items-center w-[72px] focus:outline-none overflow-visible"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className="relative mb-2 w-16 h-16 overflow-visible">
+                  {/* Top User Glow */}
+                  {isTopUser && (
+                    <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 blur-md opacity-70 animate-pulse" />
+                  )}
+                  
+                  {/* Avatar - Perfect Circle */}
+                  {friend.avatar_url ? (
+                    <img
+                      src={friend.avatar_url}
+                      alt={friend.display_name}
+                      className={`absolute inset-0 w-full h-full rounded-full object-cover shadow-lg ${isTopUser ? 'border-3 border-amber-400' : 'border-2 border-white/30'}`}
+                      style={{ clipPath: 'circle(50%)' }}
+                    />
+                  ) : (
+                    <div 
+                      className={`absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold shadow-lg ${isTopUser ? 'border-3 border-amber-400' : 'border-2 border-white/30'}`}
+                      style={{ clipPath: 'circle(50%)' }}
+                    >
+                      {friend.display_name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
 
                 {/* Fire Badge */}
                 <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-2 py-0.5 shadow-lg border-2 border-slate-900 flex items-center gap-1 z-10">
@@ -70,11 +80,12 @@ export default function FriendsList({ currentUser }) {
               </div>
 
               {/* Name */}
-              <p className="text-xs font-medium text-white text-center leading-tight line-clamp-2 w-full">
+              <p className={`text-xs font-medium text-center leading-tight line-clamp-2 w-full ${isTopUser ? 'text-amber-300 font-bold' : 'text-white'}`}>
                 {friend.display_name}
               </p>
             </motion.button>
-          ))}
+          );
+        })}
 
           {/* Invite Button */}
           <Link
@@ -91,6 +102,18 @@ export default function FriendsList({ currentUser }) {
             <p className="text-xs font-medium text-white/60 text-center">Invite</p>
           </Link>
         </div>
+
+        {/* Dynamic Comparison Text */}
+        {topFriend && (
+          <motion.p
+            className="text-sm text-teal-200 font-medium mt-2 px-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            🔥 {topFriend.display_name} is leading today with {topFriend.fire_count} fire
+          </motion.p>
+        )}
       </div>
 
       {/* Friend Detail Modal */}
