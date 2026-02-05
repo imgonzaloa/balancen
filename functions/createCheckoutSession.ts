@@ -17,12 +17,7 @@ Deno.serve(async (req) => {
                   console.log('Request body:', body);
                   const { priceId, planType, selectedPlan } = body;
 
-          console.log('Checkout request received:', { priceId, planType });
-
-          if (!priceId) {
-            console.error('Missing priceId');
-            return Response.json({ error: 'Missing price ID' }, { status: 400 });
-          }
+          console.log('Checkout request received:', { priceId, planType, selectedPlan });
 
             const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
                       if (!secretKey) {
