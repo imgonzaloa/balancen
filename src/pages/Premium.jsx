@@ -70,8 +70,8 @@ export default function Premium() {
       }
 
       const response = await base44.functions.invoke('createCheckoutSession', {
-        priceId: priceId,
         planType: selectedPlan,
+        selectedPlan: selectedPlan,
       });
 
       window.location.href = response.data.url;
