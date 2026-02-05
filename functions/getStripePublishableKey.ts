@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     let region, currency, prices, priceIds;
     
     if (europeanCountries.includes(country)) {
-      region = 'EU';
+      region = 'EUR';
       currency = '€';
       prices = { monthly: 6.99, yearly: 49.99 };
       priceIds = {
@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
         yearly: yearlyEUR
       };
     } else if (latinAmericaCountries.includes(country)) {
-      region = 'LATAM';
+      region = 'USD_LATAM';
       currency = '$';
       prices = { monthly: 3.99, yearly: 25.99 };
       priceIds = {
@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
         yearly: yearlyUSD_LATAM
       };
     } else {
-      region = 'US';
+      region = 'USD_US';
       currency = '$';
       prices = { monthly: 7.99, yearly: 59.99 };
       priceIds = {
