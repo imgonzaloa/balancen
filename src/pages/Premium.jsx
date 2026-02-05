@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap, Flame, Target, Shield } from "lucide-react";
+import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap, Flame, Target, Shield, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/components/TranslationProvider";
+import { toast } from "sonner";
 
 const featuresData = [
   { icon: Flame, key: "fire_system", label: "3 Fire Metrics System" },
@@ -35,19 +36,56 @@ export default function Premium() {
   const [user, setUser] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [region] = useState(detectRegion());
+  const [loading, setLoading] = useState(false);
+  const [stripeConfig, setStripeConfig] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser);
+    
+    // Load Stripe config
+    base44.functions.getStripePublishableKey({})
+      .then(config => setStripeConfig(config))
+      .catch(err => console.error('Failed to load Stripe config:', err));
   }, []);
 
   const plans = {
     EU: {
-      monthly: { price: 6.99, currency: "€" },
-      yearly: { price: 49.99, currency: "€" },
+      monthly: { price: 6.99, currency: "€", priceId: stripeConfig?.monthlyPriceId },
+      yearly: { price: 49.99, currency: "€", priceId: stripeConfig?.yearlyPriceId },
     },
     LATAM: {
-      monthly: { price: 3.99, currency: "$" },
-      yearly: { price: 29.99, currency: "$" },
+      monthly: { price: 3.99, currency: "$", priceId: stripeConfig?.monthlyPriceId },
+      yearly: { price: 29.99, currency: "$", priceId: stripeConfig?.yearlyPriceId },
+    }
+  };
+
+  const handleStartTrial = async () => {
+    if (!user) {
+      toast.error("Please log in to continue");
+      return;
+    }
+
+    if (!stripeConfig) {
+      toast.error("Payment system not configured");
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const selectedPlanData = plans[region][selectedPlan];
+      
+      const { url } = await base44.functions.createCheckoutSession({
+        priceId: selectedPlanData.priceId,
+        planType: selectedPlan,
+      });
+
+      // Redirect to Stripe Checkout
+      window.location.href = url;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error("Failed to start checkout. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -159,14 +197,27 @@ export default function Premium() {
           transition={{ delay: 0.6 }}
         >
           <Button
-            onClick={() => alert("Payment integration coming soon. This is a demo.")}
-            className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50"
+            onClick={handleStartTrial}
+            disabled={loading || !stripeConfig}
+            className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50 disabled:opacity-50"
           >
-            <Crown size={24} className="mr-2" />
-            {t("start_trial")}
+            {loading ? (
+              <>
+                <Loader2 size={24} className="mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Crown size={24} className="mr-2" />
+                Start 7-Day Free Trial
+              </>
+            )}
           </Button>
-          <p className="text-center text-white/60 text-xs mt-4">
-            {t("cancel_anytime")}
+          <p className="text-center text-emerald-200 text-xs font-semibold mt-3">
+            💳 Card required • Billing starts after 7 days
+          </p>
+          <p className="text-center text-white/60 text-xs mt-1">
+            Cancel anytime before trial ends
           </p>
         </motion.div>
       </div>

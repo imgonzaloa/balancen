@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Flame, Users, TrendingUp, Award, X, Check, Sparkles, Trophy, Crown } from "lucide-react";
+import { Flame, Users, TrendingUp, Award, X, Check, Sparkles, Trophy, Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 const freeFeatures = [
   "Daily check-ins",
@@ -53,15 +54,26 @@ const detectRegion = () => {
 export default function Paywall() {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [region] = useState(detectRegion());
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [stripeConfig, setStripeConfig] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(setUser);
+    
+    base44.functions.getStripePublishableKey({})
+      .then(config => setStripeConfig(config))
+      .catch(err => console.error('Failed to load Stripe config:', err));
+  }, []);
 
   const plans = {
     EU: {
-      monthly: { price: 6.99, label: "Monthly", period: "month", currency: "€" },
-      yearly: { price: 49.99, label: "Yearly", period: "year", save: "Save over 40%", currency: "€" },
+      monthly: { price: 6.99, label: "Monthly", period: "month", currency: "€", priceId: stripeConfig?.monthlyPriceId },
+      yearly: { price: 49.99, label: "Yearly", period: "year", save: "Save over 40%", currency: "€", priceId: stripeConfig?.yearlyPriceId },
     },
     LATAM: {
-      monthly: { price: 3.99, label: "Monthly", period: "month", currency: "$" },
-      yearly: { price: 29.99, label: "Yearly", period: "year", save: "Save over 40%", currency: "$" },
+      monthly: { price: 3.99, label: "Monthly", period: "month", currency: "$", priceId: stripeConfig?.monthlyPriceId },
+      yearly: { price: 29.99, label: "Yearly", period: "year", save: "Save over 40%", currency: "$", priceId: stripeConfig?.yearlyPriceId },
     }
   };
 
@@ -69,9 +81,33 @@ export default function Paywall() {
     window.location.href = createPageUrl("Home");
   };
 
-  const handleContinue = () => {
-    alert("Payment integration coming soon. This is a demo.");
-    window.location.href = createPageUrl("Home");
+  const handleContinue = async () => {
+    if (!user) {
+      toast.error("Please log in to continue");
+      return;
+    }
+
+    if (!stripeConfig) {
+      toast.error("Payment system not configured");
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const selectedPlanData = plans[region][selectedPlan];
+      
+      const { url } = await base44.functions.createCheckoutSession({
+        priceId: selectedPlanData.priceId,
+        planType: selectedPlan,
+      });
+
+      window.location.href = url;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error("Failed to start checkout. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -231,16 +267,26 @@ export default function Paywall() {
         >
           <Button
             onClick={handleContinue}
-            className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50"
+            disabled={loading || !stripeConfig}
+            className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50 disabled:opacity-50"
           >
-            <Crown size={20} className="mr-2" />
-            Start 7-Day Free Trial
+            {loading ? (
+              <>
+                <Loader2 size={20} className="mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Crown size={20} className="mr-2" />
+                Start 7-Day Free Trial
+              </>
+            )}
           </Button>
           
-          <p className="text-center text-xs text-emerald-200 font-semibold">
-            💳 Card required • Billing starts after trial
+          <p className="text-center text-xs text-emerald-200 font-semibold mt-3">
+            💳 Card required • Billing starts after 7 days
           </p>
-          <p className="text-center text-xs text-white/60">
+          <p className="text-center text-xs text-white/60 mt-1">
             Cancel anytime before trial ends
           </p>
           
