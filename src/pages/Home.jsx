@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Users, Award, Settings, Flame } from "lucide-react";
+import { Users, Award, Settings, Flame, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -21,6 +21,7 @@ import AIPremiumUpsell from "@/components/ai/AIPremiumUpsell";
 import { useTranslation } from "@/components/TranslationProvider";
 import { UIVersionManager } from "@/components/UIVersionManager";
 import FriendsList from "@/components/home/FriendsList";
+import SocialCompletionStatus from "@/components/home/SocialCompletionStatus";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -218,15 +219,17 @@ export default function Home() {
         }
 
         queryClient.invalidateQueries(["profile"]);
-      }
-    },
-  });
+        queryClient.invalidateQueries(["friends"]);
+        queryClient.invalidateQueries(["friendsStatus"]);
+        }
+        },
+        });
 
-  // Redirect to onboarding if no profile
-  if (!profileLoading && !profile && user) {
-    window.location.href = createPageUrl("Onboarding");
-    return null;
-  }
+        // Redirect to onboarding if no profile
+        if (!profileLoading && !profile && user) {
+        window.location.href = createPageUrl("Onboarding");
+        return null;
+        }
 
   const { t } = useTranslation();
 
@@ -323,26 +326,31 @@ export default function Home() {
             transition={{ delay: 0.08 }}
           >
             <h2 className="text-2xl font-bold text-white mb-1">Today's mission 🔥</h2>
-            <p className="text-teal-200 text-sm font-medium mb-4">Keep your streak alive</p>
+            <p className="text-teal-200 text-sm font-medium mb-2">Keep your streak alive</p>
+            
+            {/* Streak Risk Warning */}
+            <motion.div 
+              className="flex items-center gap-2 mb-4 bg-red-500/20 border border-red-500/50 rounded-xl px-4 py-3"
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            >
+              <span className="text-2xl">🔥</span>
+              <div>
+                <p className="text-red-300 font-bold text-sm">Your {profile?.current_streak || 0} day streak is at risk!</p>
+                <p className="text-red-200/80 text-xs">Complete before midnight or lose it all</p>
+              </div>
+            </motion.div>
             
             {/* Primary CTA */}
             <Button
               onClick={() => document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' })}
-              className="w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg shadow-xl mb-4"
+              className="w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg shadow-xl mb-4 animate-pulse"
             >
               COMPLETE TODAY
             </Button>
 
             {/* Social Completion Indicators */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-              <p className="text-xs text-teal-300 font-semibold mb-2">Today's Activity</p>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2 text-sm text-white/80">
-                  <span className="text-red-400">⚠</span>
-                  <span>You haven't completed yet</span>
-                </div>
-              </div>
-            </div>
+            <SocialCompletionStatus user={user} />
           </motion.div>
         )}
 
@@ -362,15 +370,24 @@ export default function Home() {
           />
         </motion.div>
 
-        {/* Future Anticipation */}
+        {/* Future Anticipation & Ranking */}
         {todayCheckIn && (
           <motion.div
-            className="mt-4 text-center"
+            className="mt-4 space-y-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <p className="text-sm text-amber-300 font-semibold">
+            <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-2xl p-4 text-center backdrop-blur-sm">
+              <p className="text-amber-300 font-bold mb-1 flex items-center justify-center gap-2">
+                <TrendingUp size={16} />
+                You're #{profile?.current_streak || 1} in your friend group!
+              </p>
+              <p className="text-amber-200/80 text-xs">
+                Keep it up to stay on top
+              </p>
+            </div>
+            <p className="text-center text-sm text-amber-300 font-semibold">
               ⚡ Tomorrow: Double fire bonus
             </p>
           </motion.div>
