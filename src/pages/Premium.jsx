@@ -70,6 +70,7 @@ export default function Premium() {
       }
 
       const response = await base44.functions.invoke('createCheckoutSession', {
+            priceId,
             planType: selectedPlan,
             selectedPlan: selectedPlan,
             region: pricing?.region || 'USD_US',
