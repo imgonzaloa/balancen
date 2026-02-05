@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     }
     
     return Response.json({
-      publishableKey: secrets.STRIPE_PUBLISHABLE_KEY,
+      publishableKey,
       region,
       currency,
       prices,
