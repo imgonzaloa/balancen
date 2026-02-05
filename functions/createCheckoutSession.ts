@@ -13,7 +13,12 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { priceId, planType } = body;
 
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'), {
+    const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
+    if (!secretKey) {
+      return Response.json({ error: 'Stripe secret key not configured' }, { status: 500 });
+    }
+
+    const stripe = new Stripe(secretKey, {
       apiVersion: '2023-10-16',
     });
 
