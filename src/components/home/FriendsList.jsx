@@ -18,8 +18,31 @@ export default function FriendsList({ currentUser }) {
     enabled: !!currentUser?.email,
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ["profile", currentUser?.email],
+    queryFn: async () => {
+      const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser?.email });
+      return profiles[0] || null;
+    },
+    enabled: !!currentUser?.email,
+  });
+
   // Find top friend
   const topFriend = friends.length > 0 ? friends.reduce((max, f) => f.fire_count > max.fire_count ? f : max, friends[0]) : null;
+  
+  // Current user fire count
+  const userFireCount = profile?.fire_total || 0;
+  
+  // Sort friends by fire count descending
+  const sortedFriends = [...friends].sort((a, b) => b.fire_count - a.fire_count);
+  
+  // Find next user to pass (first user above current user)
+  const nextUser = sortedFriends.find(f => f.fire_count > userFireCount);
+  
+  // Calculate differences
+  const differenceToNext = nextUser ? nextUser.fire_count - userFireCount : 0;
+  const differenceToLeader = topFriend ? topFriend.fire_count - userFireCount : 0;
+  const isUserLeading = userFireCount > 0 && (!topFriend || userFireCount >= topFriend.fire_count);
 
   return (
     <>
@@ -49,23 +72,18 @@ export default function FriendsList({ currentUser }) {
                 transition={{ delay: idx * 0.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="relative mb-2 w-16 h-16 overflow-visible">
-                  {/* Top User Glow */}
-                  {isTopUser && (
-                    <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 blur-md opacity-70 animate-pulse" />
-                  )}
-                  
+                <div className="relative mb-2 w-16 h-16">
                   {/* Avatar - Perfect Circle */}
                   {friend.avatar_url ? (
                     <img
                       src={friend.avatar_url}
                       alt={friend.display_name}
-                      className={`absolute inset-0 w-full h-full rounded-full object-cover shadow-lg ${isTopUser ? 'border-3 border-amber-400' : 'border-2 border-white/30'}`}
+                      className={`w-full h-full rounded-full object-cover ${isTopUser ? 'border-3 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)]' : 'border-2 border-white/30 shadow-lg'}`}
                       style={{ clipPath: 'circle(50%)' }}
                     />
                   ) : (
                     <div 
-                      className={`absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold shadow-lg ${isTopUser ? 'border-3 border-amber-400' : 'border-2 border-white/30'}`}
+                      className={`w-full h-full rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xl font-bold ${isTopUser ? 'border-3 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)]' : 'border-2 border-white/30 shadow-lg'}`}
                       style={{ clipPath: 'circle(50%)' }}
                     >
                       {friend.display_name.charAt(0).toUpperCase()}
@@ -105,14 +123,32 @@ export default function FriendsList({ currentUser }) {
 
         {/* Dynamic Comparison Text */}
         {topFriend && (
-          <motion.p
-            className="text-sm text-teal-200 font-medium mt-2 px-5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            🔥 {topFriend.display_name} is leading today with {topFriend.fire_count} fire
-          </motion.p>
+          <div className="mt-2 px-5 space-y-1">
+            <motion.p
+              className="text-sm text-teal-200 font-medium"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              🔥 {topFriend.display_name} is leading today with {topFriend.fire_count} fire
+            </motion.p>
+            
+            {/* Personalized Progress */}
+            <motion.p
+              className="text-xs text-teal-300/80 italic"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              {isUserLeading ? (
+                "You are leading. Keep your streak alive 🔥"
+              ) : nextUser && differenceToNext > 0 ? (
+                `You need +${differenceToNext} fire to pass ${nextUser.display_name}`
+              ) : differenceToLeader > 0 ? (
+                `You are ${differenceToLeader} behind the leader`
+              ) : null}
+            </motion.p>
+          </div>
         )}
       </div>
 
