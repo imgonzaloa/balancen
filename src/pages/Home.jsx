@@ -23,6 +23,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { UIVersionManager } from "@/components/UIVersionManager";
 import FriendsList from "@/components/home/FriendsList";
 import SocialCompletionStatus from "@/components/home/SocialCompletionStatus";
+import SocialActivityFeed from "@/components/home/SocialActivityFeed";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -356,11 +357,18 @@ export default function Home() {
             >
               <Button
                 onClick={() => document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg shadow-2xl mb-3 border-2 border-orange-300/50"
+                className="w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg shadow-2xl mb-2 border-2 border-orange-300/50"
               >
                 COMPLETE TODAY
               </Button>
             </motion.div>
+            
+            {/* Progress Indicator */}
+            <div className="text-center mb-3">
+              <p className="text-xs text-orange-200 font-semibold">
+                🔥 Today progress: 0/3 tasks completed
+              </p>
+            </div>
             
             {/* Future Anticipation Trigger */}
             <p className="text-center text-xs text-orange-200 font-semibold mb-4">
@@ -377,9 +385,12 @@ export default function Home() {
               transition={{ repeat: Infinity, duration: 3 }}
             >
               <p className="text-purple-200 font-bold text-sm">
-                ⚡ Complete now to jump ahead
+                🔥 Complete now and jump ahead instantly
               </p>
             </motion.div>
+            
+            {/* Social Activity Feed */}
+            <SocialActivityFeed user={user} />
           </motion.div>
         )}
 
