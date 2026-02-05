@@ -44,8 +44,8 @@ Deno.serve(async (req) => {
         user_id: user.id,
         plan_type: planType,
       },
-      success_url: `${req.headers.get('origin')}/Home?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get('origin')}/Premium`,
+      success_url: `https://${req.headers.get('host')}/Home?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://${req.headers.get('host')}/Premium`,
       allow_promotion_codes: true,
     });
 
