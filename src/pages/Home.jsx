@@ -20,7 +20,7 @@ import ChallengeSuggestions from "@/components/ai/ChallengeSuggestions";
 import AIPremiumUpsell from "@/components/ai/AIPremiumUpsell";
 import { useTranslation } from "@/components/TranslationProvider";
 import { UIVersionManager } from "@/components/UIVersionManager";
-import SocialHeader from "@/components/home/SocialHeader";
+import FriendsList from "@/components/home/FriendsList";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -266,13 +266,13 @@ export default function Home() {
           <StreakFire streak={profile?.current_streak || 0} />
         </motion.div>
 
-        {/* Social Header */}
+        {/* Friends List */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
-          <SocialHeader currentUser={user} currentUserProfile={profile} />
+          <FriendsList currentUser={user} />
         </motion.div>
 
         {/* Today's Rewards */}
