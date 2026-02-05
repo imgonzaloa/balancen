@@ -99,9 +99,12 @@ export default function SocialCompletionStatus({ user }) {
             )}
             <span className="text-sm text-white/80 flex-1">{friend.name}</span>
             {friend.completed ? (
-              <CheckCircle size={16} className="text-emerald-400" />
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-emerald-400 font-medium">completed</span>
+                <CheckCircle size={14} className="text-emerald-400" />
+              </div>
             ) : (
-              <div className="w-4 h-4 rounded-full border-2 border-white/20" />
+              <span className="text-xs text-orange-300 font-medium">pending</span>
             )}
           </motion.div>
         ))}
@@ -117,7 +120,10 @@ export default function SocialCompletionStatus({ user }) {
             You
           </div>
           <span className="text-sm text-white/80 flex-1 font-semibold">You</span>
-          <AlertCircle size={16} className="text-red-400" />
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-red-400 font-bold">pending</span>
+            <AlertCircle size={14} className="text-red-400" />
+          </div>
         </motion.div>
       </div>
     </div>

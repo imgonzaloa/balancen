@@ -343,15 +343,43 @@ export default function Home() {
             </motion.div>
             
             {/* Primary CTA */}
-            <Button
-              onClick={() => document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' })}
-              className="w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg shadow-xl mb-4 animate-pulse"
+            <motion.div
+              animate={{ 
+                scale: [1, 1.02, 1],
+                boxShadow: [
+                  "0 10px 40px rgba(251, 146, 60, 0.3)",
+                  "0 15px 50px rgba(251, 146, 60, 0.5)",
+                  "0 10px 40px rgba(251, 146, 60, 0.3)"
+                ]
+              }}
+              transition={{ repeat: Infinity, duration: 2 }}
             >
-              COMPLETE TODAY
-            </Button>
+              <Button
+                onClick={() => document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' })}
+                className="w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg shadow-2xl mb-3 border-2 border-orange-300/50"
+              >
+                COMPLETE TODAY
+              </Button>
+            </motion.div>
+            
+            {/* Future Anticipation Trigger */}
+            <p className="text-center text-xs text-orange-200 font-semibold mb-4">
+              🔥 {3 - (profile?.current_streak || 0) % 3} more days to unlock DOUBLE FIRE bonus
+            </p>
 
             {/* Social Completion Indicators */}
             <SocialCompletionStatus user={user} />
+            
+            {/* Competition Trigger */}
+            <motion.div
+              className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-3 text-center mt-3"
+              animate={{ scale: [1, 1.01, 1] }}
+              transition={{ repeat: Infinity, duration: 3 }}
+            >
+              <p className="text-purple-200 font-bold text-sm">
+                ⚡ Complete now to jump ahead
+              </p>
+            </motion.div>
           </motion.div>
         )}
 
@@ -379,7 +407,12 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-2xl p-4 text-center backdrop-blur-sm">
+            <motion.div 
+              className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-2xl p-4 text-center backdrop-blur-sm"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, type: "spring" }}
+            >
               <p className="text-amber-300 font-bold mb-1 flex items-center justify-center gap-2">
                 <TrendingUp size={16} />
                 You're #{profile?.current_streak || 1} in your friend group!
@@ -387,7 +420,7 @@ export default function Home() {
               <p className="text-amber-200/80 text-xs">
                 Keep it up to stay on top
               </p>
-            </div>
+            </motion.div>
             <p className="text-center text-sm text-amber-300 font-semibold">
               ⚡ Tomorrow: Double fire bonus
             </p>

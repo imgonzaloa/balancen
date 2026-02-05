@@ -84,13 +84,26 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
       <motion.div 
         className="relative overflow-hidden rounded-3xl p-12 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 shadow-2xl flex flex-col items-center justify-center"
         initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
+        animate={{ 
+          opacity: 1, 
+          scale: 1,
+          boxShadow: [
+            "0 0 0 0 rgba(251, 146, 60, 0.7)",
+            "0 0 0 40px rgba(251, 146, 60, 0)",
+            "0 0 0 0 rgba(251, 146, 60, 0)"
+          ]
+        }}
         exit={{ opacity: 0, scale: 1.2 }}
+        transition={{ duration: 0.5 }}
       >
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: [0, 1.2, 1], rotate: 0 }}
-          transition={{ duration: 0.6, ease: "backOut" }}
+          animate={{ 
+            scale: [0, 1.4, 1.2, 1], 
+            rotate: [0, 20, -20, 0],
+            filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"]
+          }}
+          transition={{ duration: 0.8, ease: "backOut" }}
           className="text-8xl mb-4"
         >
           🔥
@@ -111,6 +124,14 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
         >
           Streak maintained!
         </motion.p>
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.7, type: "spring", bounce: 0.5 }}
+          className="mt-4 bg-white/20 rounded-full px-4 py-2"
+        >
+          <p className="text-sm text-white font-bold">🎯 Ranking updated!</p>
+        </motion.div>
       </motion.div>
     );
   }
