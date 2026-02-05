@@ -1,43 +1,37 @@
-/**
- * Handle Stripe webhook events
- * Updates user subscription status in real-time
- * 
- * Events handled:
- * - checkout.session.completed: Trial started (card captured)
- * - customer.subscription.created: Subscription created
- * - customer.subscription.updated: Subscription status changed
- * - customer.subscription.deleted: Subscription canceled
- * - invoice.payment_succeeded: Payment successful
- * - invoice.payment_failed: Payment failed
- */
+import { createClientFromRequest } from 'npm:@base44/sdk';
+import Stripe from 'npm:stripe@17.5.0';
 
-export default async function handleStripeWebhook(event, { secrets, base44 }) {
-  const stripe = require('stripe')(secrets.STRIPE_SECRET_KEY);
-  
-  // Verify webhook signature
-  const signature = event.headers['stripe-signature'];
-  let stripeEvent;
+Deno.serve(async (req) => {
+  const base44 = createClientFromRequest(req);
   
   try {
-    stripeEvent = stripe.webhooks.constructEvent(
-      event.body,
-      signature,
-      secrets.STRIPE_WEBHOOK_SECRET
-    );
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
-    return { error: 'Invalid signature' };
-  }
+    const secrets = await base44.secrets.get(['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET']);
+    const stripe = new Stripe(secrets.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-10-16',
+    });
 
-  const eventType = stripeEvent.type;
-  const data = stripeEvent.data.object;
+    const signature = req.headers.get('stripe-signature');
+    const body = await req.text();
 
-  console.log(`Processing webhook: ${eventType}`);
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        body,
+        signature,
+        secrets.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err.message);
+      return Response.json({ error: 'Invalid signature' }, { status: 400 });
+    }
 
-  try {
+    const eventType = event.type;
+    const data = event.data.object;
+
+    console.log(`Processing webhook: ${eventType}`);
+
     switch (eventType) {
       case 'checkout.session.completed': {
-        // User completed checkout - trial started with card on file
         const customerEmail = data.customer_email || data.customer_details?.email;
         const subscriptionId = data.subscription;
         
@@ -61,7 +55,6 @@ export default async function handleStripeWebhook(event, { secrets, base44 }) {
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
-        // Subscription status changed
         const subscription = data;
         const customerEmail = subscription.metadata?.user_email;
         
@@ -71,7 +64,7 @@ export default async function handleStripeWebhook(event, { secrets, base44 }) {
           });
           
           if (profiles.length > 0) {
-            const status = subscription.status; // trialing, active, past_due, canceled, unpaid
+            const status = subscription.status;
             const isPremium = ['trialing', 'active'].includes(status);
             
             const updateData = {
@@ -81,7 +74,6 @@ export default async function handleStripeWebhook(event, { secrets, base44 }) {
               stripe_customer_id: subscription.customer,
             };
 
-            // Set expiration date if canceled or past_due
             if (subscription.cancel_at) {
               updateData.premium_expires = new Date(subscription.cancel_at * 1000).toISOString().split('T')[0];
             } else if (subscription.current_period_end) {
@@ -96,7 +88,6 @@ export default async function handleStripeWebhook(event, { secrets, base44 }) {
       }
 
       case 'customer.subscription.deleted': {
-        // Subscription canceled/expired
         const subscription = data;
         const customerEmail = subscription.metadata?.user_email;
         
@@ -118,7 +109,6 @@ export default async function handleStripeWebhook(event, { secrets, base44 }) {
       }
 
       case 'invoice.payment_succeeded': {
-        // Payment successful - ensure premium active
         const invoice = data;
         const subscriptionId = invoice.subscription;
         
@@ -145,7 +135,6 @@ export default async function handleStripeWebhook(event, { secrets, base44 }) {
       }
 
       case 'invoice.payment_failed': {
-        // Payment failed - mark as past_due
         const invoice = data;
         const subscriptionId = invoice.subscription;
         
@@ -173,9 +162,9 @@ export default async function handleStripeWebhook(event, { secrets, base44 }) {
         console.log(`Unhandled event type: ${eventType}`);
     }
 
-    return { received: true };
+    return Response.json({ received: true });
   } catch (error) {
     console.error('Webhook processing error:', error);
-    return { error: error.message };
+    return Response.json({ error: error.message }, { status: 500 });
   }
-}
+});

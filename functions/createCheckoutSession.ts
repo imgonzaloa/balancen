@@ -1,25 +1,31 @@
-/**
- * Create Stripe Checkout Session with card-required trial
- * 
- * Usage: POST with { priceId: "price_xxx", planType: "monthly" | "yearly" }
- */
+import { createClientFromRequest } from 'npm:@base44/sdk';
+import Stripe from 'npm:stripe@17.5.0';
 
-export default async function createCheckoutSession({ priceId, planType }, { user, secrets, base44 }) {
-  if (!user) {
-    throw new Error("Authentication required");
-  }
-
-  const stripe = require('stripe')(secrets.STRIPE_SECRET_KEY);
+Deno.serve(async (req) => {
+  const base44 = createClientFromRequest(req);
   
-  // Get user profile
-  const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-  const profile = profiles[0];
-
   try {
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { priceId, planType } = body;
+
+    const secrets = await base44.secrets.get(['STRIPE_SECRET_KEY']);
+    const stripe = new Stripe(secrets.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-10-16',
+    });
+
+    // Get user profile
+    const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+    const profile = profiles[0];
+
     const session = await stripe.checkout.sessions.create({
       customer_email: user.email,
       mode: 'subscription',
-      payment_method_collection: 'always', // CARD REQUIRED BEFORE TRIAL
+      payment_method_collection: 'always',
       line_items: [
         {
           price: priceId,
@@ -27,7 +33,7 @@ export default async function createCheckoutSession({ priceId, planType }, { use
         },
       ],
       subscription_data: {
-        trial_period_days: 7, // 7-day trial
+        trial_period_days: 7,
         metadata: {
           user_email: user.email,
           user_id: user.id,
@@ -39,17 +45,17 @@ export default async function createCheckoutSession({ priceId, planType }, { use
         user_id: user.id,
         plan_type: planType,
       },
-      success_url: `${process.env.APP_URL || 'http://localhost:3000'}/Home?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.APP_URL || 'http://localhost:3000'}/Premium`,
+      success_url: `${req.headers.get('origin')}/Home?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get('origin')}/Premium`,
       allow_promotion_codes: true,
     });
 
-    return {
+    return Response.json({
       sessionId: session.id,
       url: session.url,
-    };
+    });
   } catch (error) {
     console.error('Stripe checkout error:', error);
-    throw new Error(`Failed to create checkout session: ${error.message}`);
+    return Response.json({ error: error.message }, { status: 500 });
   }
-}
+});
