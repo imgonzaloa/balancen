@@ -17,25 +17,8 @@ Deno.serve(async (req) => {
       apiVersion: '2023-10-16',
     });
 
-    // Get user profile
-    const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-    const profile = profiles[0];
-
-    // Create or get customer
-    let customerId = profile?.stripe_customer_id;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        name: user.full_name,
-        metadata: {
-          user_id: user.id,
-        },
-      });
-      customerId = customer.id;
-    }
-
     const session = await stripe.checkout.sessions.create({
-      customer: customerId,
+      customer_email: user.email,
       mode: 'subscription',
       payment_method_collection: 'always',
       line_items: [
