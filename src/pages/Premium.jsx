@@ -17,47 +17,23 @@ const featuresData = [
   { icon: Shield, key: "priority_sync", label: "Priority Device Sync" },
 ];
 
-// Auto-detect region based on timezone
-const detectRegion = () => {
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const latinAmericaZones = [
-    'America/Mexico_City', 'America/Buenos_Aires', 'America/Bogota', 
-    'America/Lima', 'America/Santiago', 'America/Caracas', 'America/Sao_Paulo',
-    'America/Montevideo', 'America/La_Paz', 'America/Asuncion', 'America/Quito',
-    'America/Panama', 'America/Costa_Rica', 'America/Guatemala', 'America/Tegucigalpa',
-    'America/Managua', 'America/San_Salvador', 'America/Havana', 'America/Santo_Domingo'
-  ];
-  
-  return latinAmericaZones.some(zone => timezone.includes(zone)) ? "LATAM" : "EU";
-};
+
 
 export default function Premium() {
   const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState("yearly");
-  const [region] = useState(detectRegion());
   const [loading, setLoading] = useState(false);
-  const [stripeConfig, setStripeConfig] = useState(null);
+  const [pricing, setPricing] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser);
     
-    // Load Stripe config
+    // Load regional pricing automatically
     base44.functions.getStripePublishableKey({})
-      .then(config => setStripeConfig(config))
-      .catch(err => console.error('Failed to load Stripe config:', err));
+      .then(config => setPricing(config))
+      .catch(err => console.error('Failed to load pricing:', err));
   }, []);
-
-  const plans = {
-    EU: {
-      monthly: { price: 6.99, currency: "€", priceId: stripeConfig?.monthlyPriceId },
-      yearly: { price: 49.99, currency: "€", priceId: stripeConfig?.yearlyPriceId },
-    },
-    LATAM: {
-      monthly: { price: 3.99, currency: "$", priceId: stripeConfig?.monthlyPriceId },
-      yearly: { price: 29.99, currency: "$", priceId: stripeConfig?.yearlyPriceId },
-    }
-  };
 
   const handleStartTrial = async () => {
     if (!user) {
@@ -65,7 +41,7 @@ export default function Premium() {
       return;
     }
 
-    if (!stripeConfig) {
+    if (!pricing) {
       toast.error("Payment system not configured");
       return;
     }
@@ -73,14 +49,13 @@ export default function Premium() {
     setLoading(true);
     
     try {
-      const selectedPlanData = plans[region][selectedPlan];
+      const priceId = pricing.priceIds[selectedPlan];
       
       const { url } = await base44.functions.createCheckoutSession({
-        priceId: selectedPlanData.priceId,
+        priceId: priceId,
         planType: selectedPlan,
       });
 
-      // Redirect to Stripe Checkout
       window.location.href = url;
     } catch (error) {
       console.error('Checkout error:', error);
@@ -135,33 +110,35 @@ export default function Premium() {
         </motion.div>
 
         {/* Plan Selection */}
-        <motion.div
-          className="flex gap-4 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          {Object.entries(plans[region]).map(([key, plan]) => (
-            <button
-              key={key}
-              onClick={() => setSelectedPlan(key)}
-              className={`flex-1 relative overflow-hidden rounded-2xl p-5 transition-all ${
-                selectedPlan === key
-                  ? "bg-white/20 border-2 border-amber-400 shadow-lg shadow-amber-500/50"
-                  : "bg-white/10 border-2 border-white/20"
-              }`}
-            >
-              {key === "yearly" && (
-                <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                  {t("best_value")}
-                </div>
-              )}
-              <p className="text-white/80 text-sm mb-1">{t(key)}</p>
-              <p className="text-3xl font-black text-white">{plan.currency}{plan.price}</p>
-              <p className="text-white/60 text-xs mt-1">/ {t(key === "yearly" ? "year" : "month")}</p>
-            </button>
-          ))}
-        </motion.div>
+        {pricing && (
+          <motion.div
+            className="flex gap-4 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            {['monthly', 'yearly'].map((key) => (
+              <button
+                key={key}
+                onClick={() => setSelectedPlan(key)}
+                className={`flex-1 relative overflow-hidden rounded-2xl p-5 transition-all ${
+                  selectedPlan === key
+                    ? "bg-white/20 border-2 border-amber-400 shadow-lg shadow-amber-500/50"
+                    : "bg-white/10 border-2 border-white/20"
+                }`}
+              >
+                {key === "yearly" && (
+                  <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                    {t("best_value")}
+                  </div>
+                )}
+                <p className="text-white/80 text-sm mb-1">{t(key)}</p>
+                <p className="text-3xl font-black text-white">{pricing.currency}{pricing.prices[key]}</p>
+                <p className="text-white/60 text-xs mt-1">/ {t(key === "yearly" ? "year" : "month")}</p>
+              </button>
+            ))}
+          </motion.div>
+        )}
 
         {/* Features */}
         <motion.div
@@ -198,7 +175,7 @@ export default function Premium() {
         >
           <Button
             onClick={handleStartTrial}
-            disabled={loading || !stripeConfig}
+            disabled={loading || !pricing}
             className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50 disabled:opacity-50"
           >
             {loading ? (
