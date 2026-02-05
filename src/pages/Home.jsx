@@ -88,6 +88,38 @@ export default function Home() {
 
 
 
+  // Award app open fire on mount
+  useEffect(() => {
+    const awardAppOpenFire = async () => {
+      if (!user || !profile) return;
+
+      const existing = checkIns.find(c => c.date === today);
+      if (existing?.app_open_fire_awarded) return;
+
+      const checkInData = {
+        date: today,
+        completed: false,
+        app_open_fire_awarded: true
+      };
+
+      if (existing) {
+        await base44.entities.DailyCheckIn.update(existing.id, checkInData);
+      } else {
+        await base44.entities.DailyCheckIn.create(checkInData);
+      }
+
+      await base44.entities.UserProfile.update(profile.id, {
+        fire_total: (profile.fire_total || 0) + 1
+      });
+
+      toast.success("🔥 +1 fire for opening app!");
+      queryClient.invalidateQueries(["checkIns"]);
+      queryClient.invalidateQueries(["profile"]);
+    };
+
+    awardAppOpenFire();
+  }, [user?.email, profile?.id]);
+
   const handleTaskAction = async (taskType) => {
     const existing = checkIns.find(c => c.date === today);
 
@@ -138,6 +170,12 @@ export default function Home() {
         messages.push("🔥 +2 fire for check-in!");
       }
 
+      // +2 fire for meal photo
+      if (newCheckIn.meal_photo_fire_awarded) {
+        fireIncrement += 2;
+        messages.push("🔥 +2 fire for meal photo!");
+      }
+
       // +3 fire for steps goal
       if (newCheckIn.steps_fire_awarded) {
         fireIncrement += 3;
@@ -161,10 +199,10 @@ export default function Home() {
         }
       }
 
-      // +2 fire for calories goal
+      // +3 fire for calories goal
       if (newCheckIn.calories_fire_awarded) {
-        fireIncrement += 2;
-        messages.push("🔥 +2 fire for calorie goal!");
+        fireIncrement += 3;
+        messages.push("🔥 +3 fire for calorie goal!");
 
         // Auto-progression for calories goal
         if (profile.auto_adjust_calories_goal && profile.calories_goal) {
@@ -179,21 +217,6 @@ export default function Home() {
             toast.success(`${t("new_calories_goal")}: ${newGoal}`);
           }
         }
-      }
-
-      // Check if all tasks completed for bonus
-      const allTasksComplete = 
-        newCheckIn.checkin_fire_awarded &&
-        newCheckIn.meal_photo_fire_awarded &&
-        newCheckIn.steps_fire_awarded &&
-        (!profile?.calories_goal || newCheckIn.calories_fire_awarded);
-
-      if (allTasksComplete && !newCheckIn.all_tasks_fire_awarded) {
-        fireIncrement += 5;
-        messages.push("🔥 +5 BONUS for completing ALL tasks!");
-        await base44.entities.DailyCheckIn.update(newCheckIn.id, {
-          all_tasks_fire_awarded: true
-        });
       }
 
       // Update streak and fire
@@ -330,21 +353,21 @@ export default function Home() {
           />
         </motion.div>
 
-        {/* Streak Risk Warning */}
-        {!todayCheckIn?.all_tasks_fire_awarded && (
-          <motion.div 
-            className="flex items-center gap-2 mb-4 bg-red-500/20 border border-red-500/50 rounded-xl px-4 py-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0, scale: [1, 1.02, 1] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-          >
-            <span className="text-2xl">⚠️</span>
-            <div>
-              <p className="text-red-300 font-bold text-sm">Your {profile?.current_streak || 0} day streak is at risk!</p>
-              <p className="text-red-200/80 text-xs">Complete all actions before midnight</p>
-            </div>
-          </motion.div>
-        )}
+        {/* Streak Risk Warning - Always Show Until All Complete */}
+        <motion.div 
+          className="flex items-center gap-2 mb-4 bg-red-500/20 border border-red-500/50 rounded-xl px-4 py-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0, scale: [1, 1.02, 1] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="text-red-300 font-bold text-sm">
+              {profile?.current_streak || 0} day streak at risk!
+            </p>
+            <p className="text-red-200/80 text-xs">Complete before midnight or lose it all</p>
+          </div>
+        </motion.div>
 
         {/* Social Pressure - Who Completed Today */}
         <motion.div
@@ -432,8 +455,20 @@ export default function Home() {
             onMealAdded={async () => {
               queryClient.invalidateQueries(["meals", today]);
               
-              // Meal photos are tracked via CalorieTracker, fire awarded via check-in
-              queryClient.invalidateQueries(["checkIns"]);
+              // Award meal photo fire if first photo of the day
+              const existing = checkIns.find(c => c.date === today);
+              if (existing && !existing.meal_photo_fire_awarded && todayMeals.length === 0) {
+                await base44.entities.DailyCheckIn.update(existing.id, {
+                  meal_photo_fire_awarded: true
+                });
+                await base44.entities.UserProfile.update(profile.id, {
+                  fire_total: (profile.fire_total || 0) + 2
+                });
+                toast.success("🔥 +2 fire for meal photo!");
+                queryClient.invalidateQueries(["checkIns"]);
+                queryClient.invalidateQueries(["profile"]);
+              }
+              queryClient.invalidateQueries(["meals", today]);
             }}
           />
         </motion.div>

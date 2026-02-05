@@ -14,6 +14,14 @@ export default function DailyTaskChecklist({
 
   const tasks = [
     {
+      id: "app_open",
+      title: "Open app",
+      fire: 1,
+      completed: todayCheckIn?.app_open_fire_awarded || false,
+      icon: Flame,
+      autoComplete: true
+    },
+    {
       id: "checkin",
       title: "Complete check-in",
       fire: 2,
@@ -43,7 +51,7 @@ export default function DailyTaskChecklist({
     tasks.push({
       id: "calories",
       title: `Stay under ${caloriesGoal} cal`,
-      fire: 2,
+      fire: 3,
       completed: todayCheckIn?.calories_fire_awarded || false,
       action: () => onTaskClick("calories"),
       icon: Target
@@ -54,7 +62,7 @@ export default function DailyTaskChecklist({
   const totalCount = tasks.length;
   const allCompleted = completedCount === totalCount;
 
-  const totalFire = tasks.reduce((sum, t) => sum + (t.completed ? t.fire : 0), 0) + (allCompleted && todayCheckIn?.all_tasks_fire_awarded ? 5 : 0);
+  const totalFire = tasks.reduce((sum, t) => sum + (t.completed ? t.fire : 0), 0);
 
   return (
     <div className="space-y-3">
@@ -85,10 +93,10 @@ export default function DailyTaskChecklist({
           </span>
         </div>
         
-        <p className="text-teal-200 text-xs">
-          {completedCount === 0 ? "Start your day right" : 
-           completedCount === totalCount ? "🎉 All tasks completed!" :
-           `Only ${totalCount - completedCount} action${totalCount - completedCount > 1 ? 's' : ''} left`}
+        <p className="text-teal-200 text-xs font-medium">
+          {completedCount === 0 ? "⚠️ Start now or lose your streak" : 
+           completedCount === totalCount ? "🎉 Mission complete!" :
+           `⚠️ ${totalCount - completedCount} task${totalCount - completedCount > 1 ? 's' : ''} remaining - complete before midnight`}
         </p>
       </div>
 
@@ -109,6 +117,7 @@ export default function DailyTaskChecklist({
               transition={{ delay: idx * 0.05 }}
               onClick={!task.completed && task.action ? task.action : undefined}
               whileTap={!task.completed && task.action ? { scale: 0.98 } : {}}
+              whileHover={!task.completed && task.action ? { scale: 1.02 } : {}}
             >
               {task.completed ? (
                 <CheckCircle size={24} className="text-emerald-400 flex-shrink-0" />
@@ -133,27 +142,7 @@ export default function DailyTaskChecklist({
         })}
       </div>
 
-      {/* Daily Mission Bonus */}
-      <motion.div
-        className={`rounded-2xl p-4 text-center border-2 ${
-          allCompleted && todayCheckIn?.all_tasks_fire_awarded
-            ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-400"
-            : "bg-white/5 border-white/20"
-        }`}
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <Flame size={20} className={allCompleted && todayCheckIn?.all_tasks_fire_awarded ? "text-purple-400" : "text-white/40"} />
-          <span className={`font-bold ${allCompleted && todayCheckIn?.all_tasks_fire_awarded ? "text-purple-300" : "text-white/60"}`}>
-            Daily Mission Bonus
-          </span>
-        </div>
-        <p className={`text-2xl font-bold ${allCompleted && todayCheckIn?.all_tasks_fire_awarded ? "text-purple-300" : "text-white/40"}`}>
-          {allCompleted && todayCheckIn?.all_tasks_fire_awarded ? "✓ " : ""}+5 FIRE
-        </p>
-      </motion.div>
+
     </div>
   );
 }
