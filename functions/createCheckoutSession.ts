@@ -14,8 +14,8 @@ Deno.serve(async (req) => {
           }
 
           const body = await req.json();
-          console.log('Request body:', body);
-          const { priceId, planType } = body;
+                  console.log('Request body:', body);
+                  const { priceId, planType, selectedPlan } = body;
 
           console.log('Checkout request received:', { priceId, planType });
 
