@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap } from "lucide-react";
+import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap, Flame, Target, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/components/TranslationProvider";
 
 const featuresData = [
-  { icon: Sparkles, key: "advanced_ai" },
-  { icon: Heart, key: "recovery_analysis" },
-  { icon: TrendingUp, key: "progressive_overload" },
-  { icon: Users, key: "exclusive_challenges" },
-  { icon: Zap, key: "data_export" },
-  { icon: Check, key: "no_ads" },
+  { icon: Flame, key: "fire_system", label: "3 Fire Metrics System" },
+  { icon: Sparkles, key: "advanced_ai", label: "AI Coaching" },
+  { icon: TrendingUp, key: "progressive_overload", label: "Auto Goal Progression" },
+  { icon: Users, key: "exclusive_challenges", label: "Unlimited Groups" },
+  { icon: Target, key: "analytics", label: "Advanced Analytics" },
+  { icon: Shield, key: "priority_sync", label: "Priority Device Sync" },
 ];
 
 // Auto-detect region based on timezone
@@ -146,7 +146,7 @@ export default function Premium() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
                   <Icon size={20} className="text-white" />
                 </div>
-                <p className="text-white text-sm font-medium">{t(feature.key)}</p>
+                <p className="text-white text-sm font-medium">{feature.label}</p>
               </motion.div>
             );
           })}
