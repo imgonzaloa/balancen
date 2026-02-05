@@ -86,39 +86,7 @@ export default function Home() {
   const todayCheckIn = checkIns.find(c => c.date === today);
   const yesterdayCheckIn = checkIns.find(c => c.date === yesterday);
 
-  // Award fire on app open (once per day)
-  useEffect(() => {
-    const awardAppOpenFire = async () => {
-      if (!user || !profile) return;
 
-      const existing = checkIns.find(c => c.date === today);
-      if (existing?.app_open_fire_awarded) return;
-
-      // Award +1 fire for opening app
-      const checkInData = {
-        date: today,
-        completed: false,
-        app_open_fire_awarded: true
-      };
-
-      if (existing) {
-        await base44.entities.DailyCheckIn.update(existing.id, checkInData);
-      } else {
-        await base44.entities.DailyCheckIn.create(checkInData);
-      }
-
-      // Update fire_total
-      await base44.entities.UserProfile.update(profile.id, {
-        fire_total: (profile.fire_total || 0) + 1
-      });
-
-      toast.success("🔥 +1 fire for opening app today!");
-      queryClient.invalidateQueries(["checkIns"]);
-      queryClient.invalidateQueries(["profile"]);
-    };
-
-    awardAppOpenFire();
-  }, [user?.email, profile?.id, today]);
 
   const handleTaskAction = async (taskType) => {
     const existing = checkIns.find(c => c.date === today);
@@ -170,12 +138,6 @@ export default function Home() {
         messages.push("🔥 +2 fire for check-in!");
       }
 
-      // +2 fire for meal photo
-      if (newCheckIn.meal_photo_fire_awarded) {
-        fireIncrement += 2;
-        messages.push("🔥 +2 fire for meal photo!");
-      }
-
       // +3 fire for steps goal
       if (newCheckIn.steps_fire_awarded) {
         fireIncrement += 3;
@@ -199,10 +161,10 @@ export default function Home() {
         }
       }
 
-      // +3 fire for calories goal
+      // +2 fire for calories goal
       if (newCheckIn.calories_fire_awarded) {
-        fireIncrement += 3;
-        messages.push("🔥 +3 fire for calorie goal!");
+        fireIncrement += 2;
+        messages.push("🔥 +2 fire for calorie goal!");
 
         // Auto-progression for calories goal
         if (profile.auto_adjust_calories_goal && profile.calories_goal) {
@@ -221,7 +183,6 @@ export default function Home() {
 
       // Check if all tasks completed for bonus
       const allTasksComplete = 
-        newCheckIn.app_open_fire_awarded &&
         newCheckIn.checkin_fire_awarded &&
         newCheckIn.meal_photo_fire_awarded &&
         newCheckIn.steps_fire_awarded &&
@@ -354,60 +315,12 @@ export default function Home() {
           <StreakFire streak={profile?.current_streak || 0} />
         </motion.div>
 
-        {/* Friends List */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-        >
-          <FriendsList currentUser={user} profile={profile} />
-        </motion.div>
-
-        {/* Today's Rewards */}
-        {todayCheckIn && (
-          <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-          >
-            <p className="text-teal-200 text-sm font-medium mb-3">{t("today_rewards")}</p>
-            <div className="flex gap-3">
-              <div className={`flex-1 rounded-2xl p-4 border-2 ${todayCheckIn.completed ? 'bg-emerald-500/20 border-emerald-400' : 'bg-white/5 border-white/10'}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Flame size={18} className={todayCheckIn.completed ? "text-emerald-300" : "text-slate-400"} />
-                  <span className="text-xs text-white font-medium">{t("consistency_fire")}</span>
-                </div>
-                <p className="text-2xl font-bold text-white">{todayCheckIn.completed ? "✓" : "—"}</p>
-              </div>
-
-              <div className={`flex-1 rounded-2xl p-4 border-2 ${todayCheckIn.steps_goal_met ? 'bg-teal-500/20 border-teal-400' : 'bg-white/5 border-white/10'}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Flame size={18} className={todayCheckIn.steps_goal_met ? "text-teal-300" : "text-slate-400"} />
-                  <span className="text-xs text-white font-medium">{t("steps_fire")}</span>
-                </div>
-                <p className="text-2xl font-bold text-white">{todayCheckIn.steps_goal_met ? "✓" : "—"}</p>
-              </div>
-
-              {profile?.calories_goal && (
-                <div className={`flex-1 rounded-2xl p-4 border-2 ${todayCheckIn.calories_goal_met ? 'bg-orange-500/20 border-orange-400' : 'bg-white/5 border-white/10'}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Flame size={18} className={todayCheckIn.calories_goal_met ? "text-orange-300" : "text-slate-400"} />
-                    <span className="text-xs text-white font-medium">{t("calories_fire")}</span>
-                  </div>
-                  <p className="text-2xl font-bold text-white">{todayCheckIn.calories_goal_met ? "✓" : "—"}</p>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Daily Task Checklist */}
+        {/* Daily Mission - PRIMARY FOCUS */}
         <motion.div
           className="mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
+          transition={{ delay: 0.05 }}
         >
           <DailyTaskChecklist 
             todayCheckIn={todayCheckIn}
@@ -418,55 +331,47 @@ export default function Home() {
         </motion.div>
 
         {/* Streak Risk Warning */}
-        {!todayCheckIn?.completed && (
+        {!todayCheckIn?.all_tasks_fire_awarded && (
           <motion.div 
             className="flex items-center gap-2 mb-4 bg-red-500/20 border border-red-500/50 rounded-xl px-4 py-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0, scale: [1, 1.02, 1] }}
             transition={{ repeat: Infinity, duration: 2 }}
           >
-            <span className="text-2xl">🔥</span>
+            <span className="text-2xl">⚠️</span>
             <div>
               <p className="text-red-300 font-bold text-sm">Your {profile?.current_streak || 0} day streak is at risk!</p>
-              <p className="text-red-200/80 text-xs">Complete before midnight or lose it all</p>
+              <p className="text-red-200/80 text-xs">Complete all actions before midnight</p>
             </div>
           </motion.div>
         )}
 
-        {/* Future Anticipation */}
+        {/* Social Pressure - Who Completed Today */}
         <motion.div
-          className="text-center mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+        >
+          <SocialCompletionStatus user={user} profile={profile} todayCheckIn={todayCheckIn} />
+        </motion.div>
+
+        {/* Progressive Reward Preview */}
+        <motion.div
+          className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-2xl p-4 text-center mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <p className="text-xs text-orange-200 font-semibold">
+          <p className="text-amber-300 font-bold text-sm mb-1">
             🔥 {3 - (profile?.current_streak || 0) % 3} more days to unlock DOUBLE FIRE bonus
+          </p>
+          <p className="text-amber-200/70 text-xs">
+            Keep your streak alive to unlock exclusive rewards
           </p>
         </motion.div>
 
-        {/* Social Completion & Competition */}
-        {!todayCheckIn?.completed && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 }}
-          >
-            <SocialCompletionStatus user={user} />
-            
-            <motion.div
-              className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-3 text-center mt-3"
-              animate={{ scale: [1, 1.01, 1] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-            >
-              <p className="text-purple-200 font-bold text-sm">
-                🔥 Complete now and jump ahead instantly
-              </p>
-            </motion.div>
-            
-            <SocialActivityFeed user={user} />
-          </motion.div>
-        )}
+        {/* Social Activity Feed */}
+        <SocialActivityFeed user={user} />
 
         {/* Main Check-in Card */}
         <motion.div
@@ -527,19 +432,8 @@ export default function Home() {
             onMealAdded={async () => {
               queryClient.invalidateQueries(["meals", today]);
               
-              // Award meal photo fire if not already awarded
-              const existing = checkIns.find(c => c.date === today);
-              if (existing && !existing.meal_photo_fire_awarded) {
-                await base44.entities.DailyCheckIn.update(existing.id, {
-                  meal_photo_fire_awarded: true
-                });
-                await base44.entities.UserProfile.update(profile.id, {
-                  fire_total: (profile.fire_total || 0) + 2
-                });
-                toast.success("🔥 +2 fire for meal photo!");
-                queryClient.invalidateQueries(["checkIns"]);
-                queryClient.invalidateQueries(["profile"]);
-              }
+              // Meal photos are tracked via CalorieTracker, fire awarded via check-in
+              queryClient.invalidateQueries(["checkIns"]);
             }}
           />
         </motion.div>

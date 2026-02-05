@@ -14,14 +14,6 @@ export default function DailyTaskChecklist({
 
   const tasks = [
     {
-      id: "app_open",
-      title: "Open app",
-      fire: 1,
-      completed: todayCheckIn?.app_open_fire_awarded || false,
-      autoComplete: true,
-      icon: Flame
-    },
-    {
       id: "checkin",
       title: "Complete check-in",
       fire: 2,
@@ -51,7 +43,7 @@ export default function DailyTaskChecklist({
     tasks.push({
       id: "calories",
       title: `Stay under ${caloriesGoal} cal`,
-      fire: 3,
+      fire: 2,
       completed: todayCheckIn?.calories_fire_awarded || false,
       action: () => onTaskClick("calories"),
       icon: Target
@@ -62,17 +54,42 @@ export default function DailyTaskChecklist({
   const totalCount = tasks.length;
   const allCompleted = completedCount === totalCount;
 
+  const totalFire = tasks.reduce((sum, t) => sum + (t.completed ? t.fire : 0), 0) + (allCompleted && todayCheckIn?.all_tasks_fire_awarded ? 5 : 0);
+
   return (
     <div className="space-y-3">
       {/* Progress Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-white font-bold text-lg">Today's Mission</h3>
-        <div className="flex items-center gap-2">
-          <span className="text-orange-300 text-sm font-semibold">
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-white font-bold text-2xl">Today's Mission 🔥</h2>
+          <div className="flex items-center gap-2 bg-orange-500/20 px-3 py-1.5 rounded-full border border-orange-400/30">
+            <Flame size={18} className="text-orange-400" />
+            <span className="text-orange-300 font-bold text-sm">
+              {totalFire} fire
+            </span>
+          </div>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="flex items-center gap-2 mb-1">
+          <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${(completedCount / totalCount) * 100}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            />
+          </div>
+          <span className="text-orange-300 text-sm font-bold whitespace-nowrap">
             {completedCount}/{totalCount}
           </span>
-          <Flame size={18} className="text-orange-400" />
         </div>
+        
+        <p className="text-teal-200 text-xs">
+          {completedCount === 0 ? "Start your day right" : 
+           completedCount === totalCount ? "🎉 All tasks completed!" :
+           `Only ${totalCount - completedCount} action${totalCount - completedCount > 1 ? 's' : ''} left`}
+        </p>
       </div>
 
       {/* Task List */}
@@ -116,32 +133,27 @@ export default function DailyTaskChecklist({
         })}
       </div>
 
-      {/* All Tasks Bonus */}
-      {allCompleted && todayCheckIn?.all_tasks_fire_awarded && (
-        <motion.div
-          className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-2 border-purple-400 rounded-2xl p-4 text-center"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-        >
-          <p className="text-purple-300 font-bold flex items-center justify-center gap-2">
-            <Flame size={20} className="text-purple-400" />
-            ALL TASKS BONUS +5 FIRE
-          </p>
-        </motion.div>
-      )}
-
-      {/* Remaining Actions */}
-      {!allCompleted && (
-        <motion.div
-          className="text-center py-2"
-          animate={{ scale: [1, 1.02, 1] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          <p className="text-orange-300 font-semibold text-sm">
-            🔥 Only {totalCount - completedCount} action{totalCount - completedCount > 1 ? 's' : ''} left to complete today
-          </p>
-        </motion.div>
-      )}
+      {/* Daily Mission Bonus */}
+      <motion.div
+        className={`rounded-2xl p-4 text-center border-2 ${
+          allCompleted && todayCheckIn?.all_tasks_fire_awarded
+            ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-400"
+            : "bg-white/5 border-white/20"
+        }`}
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <Flame size={20} className={allCompleted && todayCheckIn?.all_tasks_fire_awarded ? "text-purple-400" : "text-white/40"} />
+          <span className={`font-bold ${allCompleted && todayCheckIn?.all_tasks_fire_awarded ? "text-purple-300" : "text-white/60"}`}>
+            Daily Mission Bonus
+          </span>
+        </div>
+        <p className={`text-2xl font-bold ${allCompleted && todayCheckIn?.all_tasks_fire_awarded ? "text-purple-300" : "text-white/40"}`}>
+          {allCompleted && todayCheckIn?.all_tasks_fire_awarded ? "✓ " : ""}+5 FIRE
+        </p>
+      </motion.div>
     </div>
   );
 }
