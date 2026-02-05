@@ -63,11 +63,13 @@ Deno.serve(async (req) => {
       url: session.url,
     });
   } catch (error) {
-    console.error('Stripe checkout error:', error);
-    console.error('Error details:', error.toString());
-    return Response.json({ 
-      error: error.message,
-      details: error.toString()
-    }, { status: 500 });
-  }
+        console.error('Stripe checkout error:', error);
+        console.error('Error details:', error.toString());
+        console.error('Full error:', JSON.stringify(error));
+        return Response.json({ 
+          error: error.message,
+          details: error.toString(),
+          stack: error.stack
+        }, { status: 500 });
+      }
 });
