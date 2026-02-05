@@ -93,6 +93,9 @@ export default function SocialHeader({ currentUser, currentUserProfile }) {
 
   return (
     <div className="mb-5 -mx-5 px-5 overflow-visible">
+      {/* TEST INDICATOR - REMOVE AFTER CONFIRMING */}
+      <div className="text-amber-400 text-xs mb-2 font-bold">🔥 SOCIAL ROW ACTIVE (v2.0)</div>
+      
       {/* SOCIAL STORIES ROW */}
       <div 
         className="flex items-start gap-3 overflow-x-auto overflow-y-visible pb-3 pt-2" 
