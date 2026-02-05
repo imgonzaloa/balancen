@@ -272,7 +272,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
-          <SocialHeader currentUser={user} />
+          <SocialHeader currentUser={user} currentUserProfile={profile} />
         </motion.div>
 
         {/* Today's Rewards */}
