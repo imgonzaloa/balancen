@@ -25,24 +25,37 @@ Deno.serve(async (req) => {
           }
 
             const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!secretKey) {
-      return Response.json({ error: 'Stripe secret key not configured' }, { status: 500 });
-    }
+                      if (!secretKey) {
+                        return Response.json({ error: 'Stripe secret key not configured' }, { status: 500 });
+                      }
 
-    const stripe = new Stripe(secretKey, {
-      apiVersion: '2023-10-16',
-    });
+                      const stripe = new Stripe(secretKey, {
+                        apiVersion: '2023-10-16',
+                      });
 
-    const session = await stripe.checkout.sessions.create({
-      customer_email: user.email,
-      mode: 'subscription',
-      payment_method_collection: 'always',
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+                      // Get the correct price ID from environment variables
+                      const region = planType?.includes('eur') ? 'EUR' : planType?.includes('latam') ? 'USD_LATAM' : 'USD_US';
+                      const priceType = selectedPlan === 'yearly' ? 'YEARLY' : 'MONTHLY';
+                      const envKey = `STRIPE_${priceType}_PRICE_ID_${region}`;
+                      const finalPriceId = priceId || Deno.env.get(envKey);
+
+                      if (!finalPriceId) {
+                        console.error(`Price ID not found: ${envKey}`);
+                        return Response.json({ error: 'Price configuration error' }, { status: 500 });
+                      }
+
+                      console.log('Using price ID:', finalPriceId);
+
+                      const session = await stripe.checkout.sessions.create({
+                        customer_email: user.email,
+                        mode: 'subscription',
+                        payment_method_collection: 'always',
+                        line_items: [
+                          {
+                            price: finalPriceId,
+                            quantity: 1,
+                          },
+                        ],
       subscription_data: {
         trial_period_days: 7,
         metadata: {
