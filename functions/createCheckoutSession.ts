@@ -13,8 +13,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { priceId, planType } = body;
 
-    const secrets = await base44.secrets.get(['STRIPE_SECRET_KEY']);
-    const stripe = new Stripe(secrets.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'), {
       apiVersion: '2023-10-16',
     });
 
