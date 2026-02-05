@@ -3,23 +3,26 @@ import Stripe from 'npm:stripe@17.5.0';
 
 // Redeploy to reload secrets
 Deno.serve(async (req) => {
-  const base44 = createClientFromRequest(req);
-  
-  try {
-    const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Authentication required' }, { status: 401 });
-    }
+        console.log('=== Checkout function started ===');
+        const base44 = createClientFromRequest(req);
 
-    const body = await req.json();
-            const { priceId, planType } = body;
+        try {
+          const user = await base44.auth.me();
+          console.log('User authenticated:', user?.email);
+          if (!user) {
+            return Response.json({ error: 'Authentication required' }, { status: 401 });
+          }
 
-            console.log('Checkout request received:', { priceId, planType });
+          const body = await req.json();
+          console.log('Request body:', body);
+          const { priceId, planType } = body;
 
-            if (!priceId) {
-              console.error('Missing priceId');
-              return Response.json({ error: 'Missing price ID' }, { status: 400 });
-            }
+          console.log('Checkout request received:', { priceId, planType });
+
+          if (!priceId) {
+            console.error('Missing priceId');
+            return Response.json({ error: 'Missing price ID' }, { status: 400 });
+          }
 
             const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!secretKey) {
