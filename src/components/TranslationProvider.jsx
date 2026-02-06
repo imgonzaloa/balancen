@@ -209,8 +209,9 @@ const TranslationContext = createContext();
 
 export function TranslationProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [currentLang, setCurrentLang] = useState("en");
-  const [setLang, setSetLang] = useState(null);
+  const [currentLang, setCurrentLang] = useState(() => {
+    return localStorage.getItem("appLanguage") || "en";
+  });
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -226,15 +227,17 @@ export function TranslationProvider({ children }) {
   });
 
   useEffect(() => {
-    if (profile?.language) {
+    if (profile?.language && profile.language !== currentLang) {
       setCurrentLang(profile.language);
+      localStorage.setItem("appLanguage", profile.language);
     }
   }, [profile?.language]);
 
-  const changeLanguage = async (newLang) => {
+  const changeLanguage = (newLang) => {
     setCurrentLang(newLang);
+    localStorage.setItem("appLanguage", newLang);
     if (profile?.id) {
-      await base44.entities.UserProfile.update(profile.id, { language: newLang });
+      base44.entities.UserProfile.update(profile.id, { language: newLang });
     }
   };
 
