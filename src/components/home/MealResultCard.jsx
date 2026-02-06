@@ -19,35 +19,29 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
   const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
-    // Handle data URL from camera capture (instant display)
-    if (file && typeof file === 'string' && file.startsWith('data:image')) {
-      setImagePreview(file);
-      analyzePhotoFromDataUrl(file);
-    } else if (file) {
-      // Handle File object
+    // Handle File object from camera capture or file upload
+    if (file && file instanceof File) {
       setImagePreview(URL.createObjectURL(file));
       analyzePhoto();
+    } else if (file && typeof file === 'string' && file.startsWith('data:image')) {
+      // Legacy: handle dataURL (convert to File)
+      setImagePreview(file);
+      const fileObj = dataURLtoFile(file, "meal.jpg");
+      analyzePhotoFile(fileObj);
     }
   }, [file]);
 
-  const analyzePhotoFromDataUrl = async (dataUrl) => {
-    try {
-      setAnalyzing(true);
-      
-      // Convert data URL to blob
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-      
-      // Upload blob as file
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
-      
-      await performAnalysis(file_url);
-      setAnalyzing(false);
-    } catch (err) {
-      console.error("Analysis error:", err);
-      setError(err.message);
-      setAnalyzing(false);
+  const dataURLtoFile = (dataURL, filename) => {
+    const arr = dataURL.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
     }
+    const blob = new Blob([u8arr], { type: mime });
+    return new File([blob], filename, { type: mime });
   };
 
   const performAnalysis = async (fileUrl) => {
