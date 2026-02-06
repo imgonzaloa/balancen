@@ -83,7 +83,7 @@ export default function Home() {
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
-          {t("loading") || "Loading"}...
+          {t("loading")}...
         </motion.div>
       </div>
     );
