@@ -227,11 +227,13 @@ export function TranslationProvider({ children }) {
   // Set language from profile once loaded
   useEffect(() => {
     if (profile && !isLoading) {
-      const lang = profile.language === "es" ? "es" : "en";
-      setCurrentLang(lang);
-      localStorage.setItem("app_language", lang);
+      const lang = (profile.language === "es") ? "es" : "en";
+      if (currentLang !== lang) {
+        setCurrentLang(lang);
+        localStorage.setItem("app_language", lang);
+      }
     }
-  }, [profile, isLoading]);
+  }, [profile, isLoading, currentLang]);
 
   const t = (key) => {
     return translations[currentLang]?.[key] || translations.en[key] || key;

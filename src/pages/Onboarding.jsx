@@ -89,6 +89,7 @@ export default function Onboarding() {
     
     await base44.entities.UserProfile.create({
       display_name: user?.full_name?.split(" ")[0] || "User",
+      language: "en",
       main_goal: selections.main_goal,
       usage_mode: selections.usage_mode,
       intensity_level: selections.intensity_level,
