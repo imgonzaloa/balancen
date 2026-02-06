@@ -209,7 +209,11 @@ const TranslationContext = createContext();
 
 export function TranslationProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [currentLang, setCurrentLang] = useState("en");
+  const [currentLang, setCurrentLang] = useState(() => {
+    // Initialize from localStorage or default to "en"
+    const stored = localStorage.getItem("app_language");
+    return (stored === "es") ? "es" : "en";
+  });
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -224,10 +228,12 @@ export function TranslationProvider({ children }) {
     enabled: !!user?.email,
   });
 
-  // Update language when profile changes
+  // Sync language: profile takes priority, then localStorage
   useEffect(() => {
     if (profile?.language) {
-      setCurrentLang(profile.language === "es" ? "es" : "en");
+      const lang = profile.language === "es" ? "es" : "en";
+      setCurrentLang(lang);
+      localStorage.setItem("app_language", lang);
     }
   }, [profile?.language]);
 
