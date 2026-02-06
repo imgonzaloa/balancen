@@ -208,22 +208,8 @@ const translations = {
 const TranslationContext = createContext();
 
 export function TranslationProvider({ children }) {
-  const [user, setUser] = useState(null);
   const [currentLang, setCurrentLang] = useState(() => {
     return localStorage.getItem("appLanguage") || "en";
-  });
-
-  useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
-
-  const { data: profile } = useQuery({
-    queryKey: ["profile", user?.email],
-    queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
-      return profiles[0] || null;
-    },
-    enabled: !!user?.email,
   });
 
   const changeLanguage = (newLang) => {
