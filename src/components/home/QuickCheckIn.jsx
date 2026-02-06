@@ -122,7 +122,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
           transition={{ delay: 0.5 }}
           className="text-white/80 font-medium mt-2"
         >
-          Streak maintained!
+          {t("keep_it_up")}!
         </motion.p>
         <motion.div
           initial={{ scale: 0 }}
@@ -130,7 +130,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
           transition={{ delay: 0.7, type: "spring", bounce: 0.5 }}
           className="mt-4 bg-white/20 rounded-full px-4 py-2"
         >
-          <p className="text-sm text-white font-bold">🎯 Ranking updated!</p>
+          <p className="text-sm text-white font-bold">🎯 {t("keep_it_up")}!</p>
         </motion.div>
       </motion.div>
     );
@@ -174,19 +174,19 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
           
           {(todayCheckIn?.estimated_calories || estimatedCal) && (
             <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
-              Estimated calories: ~{todayCheckIn?.estimated_calories || estimatedCal} kcal
+              {t("estimated_calories")}: ~{todayCheckIn?.estimated_calories || estimatedCal} kcal
             </div>
           )}
           
           {(todayCheckIn?.steps || steps > 0) && (
             <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
-              Steps: {(todayCheckIn?.steps || steps).toLocaleString()} 🚶
+              {t("steps")}: {(todayCheckIn?.steps || steps).toLocaleString()} 🚶
             </div>
           )}
           
           {(todayCheckIn?.weight || weight) && (
             <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
-              Weight: {(todayCheckIn?.weight || weight).toFixed(1)} kg
+              {t("weight_kg")}: {(todayCheckIn?.weight || weight).toFixed(1)} kg
             </div>
           )}
         </div>
@@ -267,7 +267,7 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
                 <Camera size={20} className="mr-2 text-teal-500" />
               )}
               <span className="text-slate-600">
-                {uploading ? "Uploading..." : "Take photo"}
+                {uploading ? t("uploading") : t("take_photo")}
               </span>
             </Button>
           )}

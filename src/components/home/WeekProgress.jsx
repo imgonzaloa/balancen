@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
 
 const days = ["L", "M", "X", "J", "V", "S", "D"];
 
 export default function WeekProgress({ checkIns = [] }) {
+  const { t } = useTranslation();
   const today = new Date();
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay() + 1);
@@ -25,8 +27,8 @@ export default function WeekProgress({ checkIns = [] }) {
     <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl">
       <div className="absolute -top-10 -left-10 w-32 h-32 bg-gradient-to-br from-emerald-400/30 to-teal-400/30 rounded-full blur-2xl" />
       <div className="flex justify-between items-center mb-4 relative z-10">
-        <h4 className="font-bold text-white text-lg">Esta semana</h4>
-        <span className="text-sm bg-gradient-to-r from-teal-200 to-emerald-200 bg-clip-text text-transparent font-bold">{completedCount}/7 días</span>
+        <h4 className="font-bold text-white text-lg">{t("this_week_text")}</h4>
+        <span className="text-sm bg-gradient-to-r from-teal-200 to-emerald-200 bg-clip-text text-transparent font-bold">{completedCount}/7 {t("days")}</span>
       </div>
       
       <div className="flex justify-between gap-2 relative z-10">

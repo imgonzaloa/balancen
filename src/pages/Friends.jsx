@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Friends() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [friendEmail, setFriendEmail] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -79,12 +81,12 @@ export default function Friends() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["friendsSent"]);
-      toast.success("Friend request sent!");
+      toast.success(t("friend_request_sent"));
       setFriendEmail("");
       setShowAddDialog(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Error sending request");
+      toast.error(error.message || t("error_sending_request"));
     },
   });
 
@@ -94,7 +96,7 @@ export default function Friends() {
     onSuccess: () => {
       queryClient.invalidateQueries(["friendsReceived"]);
       queryClient.invalidateQueries(["friendsSent"]);
-      toast.success("Request updated");
+      toast.success(t("request_updated"));
     },
   });
 
@@ -109,24 +111,24 @@ export default function Friends() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-1">Friends</h1>
-            <p className="text-teal-200 text-sm">Connect and share progress</p>
+            <h1 className="text-3xl font-bold text-white mb-1">{t("friends_title")}</h1>
+            <p className="text-teal-200 text-sm">{t("connect_and_share")}</p>
           </div>
 
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
               <Button className="bg-teal-500 hover:bg-teal-600 rounded-2xl">
                 <UserPlus size={20} className="mr-2" />
-                Add Friend
+                {t("add_friend")}
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-slate-900 border-slate-700">
               <DialogHeader>
-                <DialogTitle className="text-white">Add Friend</DialogTitle>
+                <DialogTitle className="text-white">{t("add_friend")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <Input
-                  placeholder="Friend's email"
+                  placeholder={t("friend_email")}
                   value={friendEmail}
                   onChange={(e) => setFriendEmail(e.target.value)}
                   className="bg-slate-800 border-slate-700 text-white"
@@ -136,7 +138,7 @@ export default function Friends() {
                   disabled={!friendEmail || sendRequestMutation.isPending}
                   className="w-full bg-teal-500 hover:bg-teal-600"
                 >
-                  Send Request
+                  {t("send_request")}
                 </Button>
               </div>
             </DialogContent>
@@ -150,7 +152,7 @@ export default function Friends() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h2 className="text-lg font-semibold text-white mb-3">Pending Requests</h2>
+            <h2 className="text-lg font-semibold text-white mb-3">{t("pending_requests")}</h2>
             <div className="space-y-3">
               {pendingRequests.map((request) => (
                 <div
@@ -159,7 +161,7 @@ export default function Friends() {
                 >
                   <div>
                     <p className="text-white font-medium">{request.user_email}</p>
-                    <p className="text-teal-200 text-sm">wants to connect</p>
+                    <p className="text-teal-200 text-sm">{t("wants_to_connect")}</p>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -189,14 +191,14 @@ export default function Friends() {
         >
           <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <Users size={20} />
-            My Friends ({friendProfiles.length})
+            {t("my_friends")} ({friendProfiles.length})
           </h2>
 
           {friendProfiles.length === 0 ? (
             <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center">
               <Users size={48} className="text-white/40 mx-auto mb-3" />
-              <p className="text-white/60 mb-2">No friends yet</p>
-              <p className="text-white/40 text-sm">Add friends to share your progress!</p>
+              <p className="text-white/60 mb-2">{t("no_friends_yet")}</p>
+              <p className="text-white/40 text-sm">{t("add_friends_to_share")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -218,11 +220,11 @@ export default function Friends() {
                       <div className="flex items-center gap-3 text-sm mt-1">
                         <span className="flex items-center gap-1 text-orange-300">
                           <Flame size={14} />
-                          {friendProfile.current_streak} day streak
+                          {friendProfile.current_streak} {t("day_streak")}
                         </span>
                         <span className="flex items-center gap-1 text-emerald-300">
                           <TrendingUp size={14} />
-                          {friendProfile.total_checkins} check-ins
+                          {friendProfile.total_checkins} {t("checkins")}
                         </span>
                       </div>
                     </div>

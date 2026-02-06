@@ -3,8 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, TrendingUp } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function SocialActivityFeed({ user }) {
+  const { t } = useTranslation();
   const [activities, setActivities] = useState([]);
 
   // Fetch recent friend activities
@@ -42,8 +44,8 @@ export default function SocialActivityFeed({ user }) {
       return todayFriendCheckIns.map(checkIn => {
         const friend = friendsList.find(f => f.friend_user_id === checkIn.created_by);
         return {
-          name: friend?.display_name || "Someone",
-          action: "just completed today's mission",
+          name: friend?.display_name || t("someone"),
+          action: t("just_completed_mission"),
           timestamp: new Date(checkIn.updated_date).getTime()
         };
       }).slice(0, 3);
@@ -65,7 +67,7 @@ export default function SocialActivityFeed({ user }) {
         {
           id: `fire-${idx}`,
           name: checkIn.name,
-          action: "gained +1 fire",
+          action: t("gained_fire"),
           icon: "fire"
         }
       ]);
@@ -82,7 +84,7 @@ export default function SocialActivityFeed({ user }) {
       animate={{ opacity: 1, height: "auto" }}
       transition={{ duration: 0.3 }}
     >
-      <p className="text-xs text-teal-300 font-semibold mb-2">Live Activity</p>
+      <p className="text-xs text-teal-300 font-semibold mb-2">{t("live_activity")}</p>
       <div className="space-y-2">
         <AnimatePresence>
           {activities.map((activity, idx) => (

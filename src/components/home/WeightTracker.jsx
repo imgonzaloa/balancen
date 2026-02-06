@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Scale, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function WeightTracker({ 
   currentWeight, 
@@ -9,6 +10,7 @@ export default function WeightTracker({
   showInput = false, 
   onChange 
 }) {
+  const { t } = useTranslation();
   const weightChange = currentWeight && previousWeight 
     ? currentWeight - previousWeight 
     : null;
@@ -33,10 +35,10 @@ export default function WeightTracker({
             <Scale size={22} className="text-white" />
           </div>
           <div>
-            <p className="text-sm text-white font-semibold">Peso actual</p>
+            <p className="text-sm text-white font-semibold">{t("current_weight_text")}</p>
             {totalChange !== null && (
               <p className="text-xs text-purple-200">
-                {totalChange > 0 ? "+" : ""}{totalChange.toFixed(1)} kg desde inicio
+                {totalChange > 0 ? "+" : ""}{totalChange.toFixed(1)} kg {t("since_start_text")}
               </p>
             )}
           </div>
@@ -69,7 +71,7 @@ export default function WeightTracker({
 
       {!showInput && !currentWeight && (
         <div className="text-center py-2 relative z-10">
-          <p className="text-sm text-purple-200">No registrado hoy</p>
+          <p className="text-sm text-purple-200">{t("not_logged_today")}</p>
         </div>
       )}
 
@@ -90,7 +92,7 @@ export default function WeightTracker({
           {trend === "up" && <TrendingUp size={18} />}
           {trend === "stable" && <Minus size={18} />}
           <span className="text-sm font-bold">
-            {weightChange > 0 ? "+" : ""}{weightChange.toFixed(1)} kg vs ayer
+            {weightChange > 0 ? "+" : ""}{weightChange.toFixed(1)} kg {t("vs_yesterday_text")}
           </span>
         </motion.div>
       )}

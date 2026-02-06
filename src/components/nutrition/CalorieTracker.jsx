@@ -73,9 +73,9 @@ export default function CalorieTracker({ meals = [], onMealAdded, date, calories
       });
 
       onMealAdded?.(meal);
-      toast.success(`${analysis.calories || 0} kcal added`);
+      toast.success(`${analysis.calories || 0} ${t("kcal_added")}`);
     } catch (error) {
-      toast.error("Error processing photo");
+      toast.error(t("error_processing_photo"));
       console.error(error);
     } finally {
       setUploading(false);
@@ -87,9 +87,9 @@ export default function CalorieTracker({ meals = [], onMealAdded, date, calories
     try {
       await base44.entities.MealLog.delete(mealId);
       onMealAdded?.();
-      toast.success("Meal deleted");
+      toast.success(t("meal_deleted"));
     } catch (error) {
-      toast.error("Error deleting meal");
+      toast.error(t("error_deleting_meal"));
     }
   };
 
