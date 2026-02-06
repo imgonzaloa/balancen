@@ -81,8 +81,8 @@ export default function Settings() {
             <div className="flex items-center gap-3 relative z-10">
               <Crown size={32} className="text-white" />
               <div>
-                <p className="text-white font-bold text-lg">Premium Active</p>
-                <p className="text-amber-100 text-sm">All features unlocked</p>
+                <p className="text-white font-bold text-lg">{t('premium_active')}</p>
+                <p className="text-amber-100 text-sm">{t('all_features_unlocked')}</p>
               </div>
             </div>
           </motion.div>
@@ -100,8 +100,8 @@ export default function Settings() {
                     <Crown size={24} className="text-white" />
                   </div>
                   <div>
-                    <p className="text-white font-bold">Upgrade to Premium</p>
-                    <p className="text-teal-200 text-sm">Unlock all features</p>
+                    <p className="text-white font-bold">{t('upgrade_to_premium_title')}</p>
+                    <p className="text-teal-200 text-sm">{t('unlock_all_features')}</p>
                   </div>
                 </div>
                 <ChevronLeft size={20} className="text-white rotate-180" />
@@ -125,8 +125,8 @@ export default function Settings() {
                 <Watch size={20} className="text-blue-300" />
               </div>
               <div className="flex-1">
-                <Label className="text-white font-semibold">Connect device</Label>
-                <p className="text-xs text-white/60">Automatic data sync</p>
+                <Label className="text-white font-semibold">{t('connect_device')}</Label>
+                <p className="text-xs text-white/60">{t('automatic_data_sync')}</p>
               </div>
               <Switch
                 checked={profile?.wearable_connected || false}
@@ -140,13 +140,13 @@ export default function Settings() {
                 animate={{ opacity: 1, height: "auto" }}
                 className="mt-4"
               >
-                <Label className="text-white text-sm mb-2 block">Device type</Label>
+                <Label className="text-white text-sm mb-2 block">{t('device_type')}</Label>
                 <Select
                   value={profile?.wearable_type || ""}
                   onValueChange={(value) => updateMutation.mutate({ wearable_type: value })}
                 >
                   <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                    <SelectValue placeholder="Select" />
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="apple_health">Apple Health</SelectItem>
@@ -157,7 +157,7 @@ export default function Settings() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-white/40 mt-2">
-                  * Manual entry available. Native integration coming soon.
+                  {t('manual_entry_available')}
                 </p>
               </motion.div>
             )}
@@ -177,8 +177,8 @@ export default function Settings() {
                 <Sparkles size={20} className="text-purple-300" />
               </div>
               <div>
-                <Label className="text-white font-semibold">AI Recommendations</Label>
-                <p className="text-xs text-white/60">Personalized tips</p>
+                <Label className="text-white font-semibold">{t('ai_recommendations')}</Label>
+                <p className="text-xs text-white/60">{t('personalized_tips')}</p>
               </div>
             </div>
             <Switch
@@ -201,8 +201,8 @@ export default function Settings() {
                 <Bell size={20} className="text-teal-300" />
               </div>
               <div>
-                <Label className="text-white font-semibold">Notifications</Label>
-                <p className="text-xs text-white/60">Gentle reminders</p>
+                <Label className="text-white font-semibold">{t('notifications')}</Label>
+                <p className="text-xs text-white/60">{t('gentle_reminders')}</p>
               </div>
             </div>
             <Switch defaultChecked={false} />
@@ -224,8 +224,8 @@ export default function Settings() {
                   <UserPlus size={20} className="text-teal-300" />
                 </div>
                 <div>
-                  <Label className="text-white font-semibold">Invite Collaborators</Label>
-                  <p className="text-xs text-white/60">Give free access to others</p>
+                  <Label className="text-white font-semibold">{t('invite_collaborators')}</Label>
+                  <p className="text-xs text-white/60">{t('give_free_access')}</p>
                 </div>
               </div>
               <ChevronLeft size={20} className="text-white rotate-180" />
@@ -248,8 +248,8 @@ export default function Settings() {
                 <Zap size={20} className="text-orange-300" />
               </div>
               <div className="flex-1">
-                <Label className="text-white font-semibold">Goals & Targets</Label>
-                <p className="text-xs text-white/60">Set your daily goals</p>
+                <Label className="text-white font-semibold">{t('goals_targets')}</Label>
+                <p className="text-xs text-white/60">{t('set_daily_goals')}</p>
               </div>
             </div>
 
@@ -280,7 +280,7 @@ export default function Settings() {
               <div className="flex items-center justify-between pt-2">
                 <div>
                   <Label className="text-white text-sm">{t('auto_adjust_calories')}</Label>
-                  <p className="text-xs text-white/60">Reduce by 50 kcal when goal met</p>
+                  <p className="text-xs text-white/60">{t('reduce_50_when_met')}</p>
                 </div>
                 <Switch
                   checked={profile?.auto_adjust_calories_goal || false}
@@ -306,8 +306,8 @@ export default function Settings() {
                 <Globe size={20} className="text-indigo-300" />
               </div>
               <div className="flex-1">
-                <Label className="text-white font-semibold">Language</Label>
-                <p className="text-xs text-white/60">Select your language</p>
+                <Label className="text-white font-semibold">{t('language')}</Label>
+                <p className="text-xs text-white/60">{t('select_language')}</p>
               </div>
             </div>
             
@@ -343,9 +343,9 @@ export default function Settings() {
               <Shield size={20} className="text-emerald-300" />
             </div>
             <div>
-              <Label className="text-white font-semibold">Privacy</Label>
+              <Label className="text-white font-semibold">{t('privacy')}</Label>
               <p className="text-xs text-white/60">
-                Your data is encrypted and secure
+                {t('data_encrypted')}
               </p>
             </div>
           </div>
