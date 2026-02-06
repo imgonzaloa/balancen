@@ -42,16 +42,18 @@ export default function Settings() {
     },
   });
 
-  const handleLanguageChange = async (language) => {
-    console.log("🎯 User selected language:", language);
+  const handleLanguageChange = async (newLang) => {
+    if (newLang !== "en" && newLang !== "es") return;
+    
+    console.log("🎯 User selected language:", newLang);
     
     // 1. Update language in context (triggers immediate re-render)
-    changeLanguage(language);
+    changeLanguage(newLang);
     
     // 2. Save to user profile
     if (profile?.id) {
       try {
-        await base44.entities.UserProfile.update(profile.id, { language });
+        await base44.entities.UserProfile.update(profile.id, { language: newLang });
         console.log("✅ Language saved to profile");
       } catch (error) {
         console.error("❌ Profile save failed:", error);
@@ -59,10 +61,12 @@ export default function Settings() {
     }
     
     // 3. Show success message in NEW language
-    const message = language === "es" 
-      ? "✅ Idioma actualizado" 
-      : "✅ Language updated";
-    toast.success(message);
+    setTimeout(() => {
+      const message = newLang === "es" 
+        ? "✅ Idioma actualizado" 
+        : "✅ Language updated";
+      toast.success(message);
+    }, 100);
   };
 
   const handleToggle = (field, value) => {
@@ -348,13 +352,13 @@ export default function Settings() {
             </Select>
             <div className="mt-3 p-3 rounded-lg bg-black/20 border border-white/10">
               <p className="text-xs text-white/70 font-mono">
-                🌍 {t('language')}: <span className="text-teal-300 font-bold">{lang === "es" ? "Español" : "English"}</span>
+                🎯 State lang: <span className="text-teal-300 font-bold">{lang}</span>
               </p>
               <p className="text-xs text-white/50 font-mono mt-1">
-                💾 localStorage: {localStorage.getItem("app_language") || "none"}
+                💾 Stored balancen_lang: <span className="text-white/80">{localStorage.getItem("balancen_lang") || "none"}</span>
               </p>
               <p className="text-xs text-white/50 font-mono mt-1">
-                🔄 {t('select_language')}
+                📝 t(language): <span className="text-white/80">{t('language')}</span>
               </p>
             </div>
           </div>

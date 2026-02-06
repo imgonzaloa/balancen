@@ -251,46 +251,78 @@ const translations = {
 
 const TranslationContext = createContext();
 
-// Initialize language on app boot - SINGLE SOURCE OF TRUTH
+// SINGLE SOURCE OF TRUTH: "balancen_lang" key
 const getInitialLanguage = () => {
-  const saved = localStorage.getItem("app_language");
+  const stored = localStorage.getItem("balancen_lang");
   
-  // Always prioritize saved preference
-  if (saved === "en" || saved === "es") {
-    console.log("🌍 Loading saved language:", saved);
-    return saved;
+  // If valid language exists, use it
+  if (stored === "en" || stored === "es") {
+    console.log("🌍 Loading saved language from balancen_lang:", stored);
+    return stored;
+  }
+  
+  // Migrate from legacy keys
+  const legacy = localStorage.getItem("app_language") || localStorage.getItem("language");
+  if (legacy === "en" || legacy === "es") {
+    console.log("🔄 Migrating legacy language:", legacy);
+    localStorage.setItem("balancen_lang", legacy);
+    localStorage.removeItem("app_language");
+    localStorage.removeItem("language");
+    localStorage.removeItem("language_override");
+    return legacy;
   }
   
   // Default to English
   console.log("🌍 No saved language, defaulting to English");
-  localStorage.setItem("app_language", "en");
+  localStorage.setItem("balancen_lang", "en");
   return "en";
 };
 
 export function TranslationProvider({ children }) {
-  const [currentLang, setCurrentLang] = useState(getInitialLanguage);
+  const [lang, setLang] = useState(getInitialLanguage);
+
+  // Migration on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("balancen_lang");
+    const legacy = localStorage.getItem("app_language") || localStorage.getItem("language");
+    
+    if (!stored && (legacy === "es" || legacy === "en")) {
+      console.log("🔄 Migrating legacy key to balancen_lang");
+      localStorage.setItem("balancen_lang", legacy);
+      setLang(legacy);
+    }
+    
+    // Clean up old keys
+    localStorage.removeItem("app_language");
+    localStorage.removeItem("language");
+    localStorage.removeItem("language_override");
+  }, []);
 
   const changeLanguage = (newLang) => {
+    if (newLang !== "en" && newLang !== "es") {
+      console.error("❌ Invalid language:", newLang);
+      return;
+    }
+    
     console.log("🔄 Changing language to:", newLang);
-    setCurrentLang(newLang);
-    localStorage.setItem("app_language", newLang);
-    localStorage.setItem("language_override", "true");
-    console.log("✅ Language changed to:", newLang);
+    setLang(newLang);
+    localStorage.setItem("balancen_lang", newLang);
+    console.log("✅ Language changed. State:", newLang, "Storage:", localStorage.getItem("balancen_lang"));
   };
 
   const t = (key) => {
-    const translation = translations[currentLang]?.[key];
+    const translation = translations[lang]?.[key];
     if (!translation) {
-      console.warn(`⚠️ Missing translation: "${key}" in "${currentLang}"`);
+      console.warn(`⚠️ Missing translation: "${key}" in "${lang}"`);
       return translations.en[key] || key;
     }
     return translation;
   };
 
-  console.log("🎨 TranslationProvider active language:", currentLang);
+  console.log("🎨 TranslationProvider - State lang:", lang, "Storage:", localStorage.getItem("balancen_lang"));
 
   return (
-    <TranslationContext.Provider value={{ t, lang: currentLang, changeLanguage }}>
+    <TranslationContext.Provider value={{ t, lang, changeLanguage }}>
       {children}
     </TranslationContext.Provider>
   );
