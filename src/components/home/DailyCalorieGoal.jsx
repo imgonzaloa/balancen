@@ -32,22 +32,22 @@ export default function DailyCalorieGoal({ consumed, goal }) {
 
       {/* Main metrics */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white/10 rounded-2xl p-4 text-center">
-          <p className="text-xs text-white/60 mb-2">{t("consumed") || "Consumed"}</p>
-          <p className="text-3xl font-bold text-white">{Math.round(consumed)}</p>
-          <p className="text-xs text-white/40 mt-1">kcal</p>
+        <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
+          <p className="text-xs text-white/60 mb-3 font-semibold">{t("consumed") || "Consumed"}</p>
+          <p className="text-4xl font-bold text-white leading-none mb-2">{Math.round(consumed)}</p>
+          <p className="text-xs text-white/40">kcal</p>
         </div>
-        <div className="bg-white/10 rounded-2xl p-4 text-center">
-          <p className="text-xs text-white/60 mb-2">{t("remaining") || "Remaining"}</p>
-          <p className={`text-3xl font-bold ${isExceeded ? "text-red-400" : "text-emerald-400"}`}>
+        <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
+          <p className="text-xs text-white/60 mb-3 font-semibold">{t("remaining") || "Remaining"}</p>
+          <p className={`text-4xl font-bold leading-none mb-2 ${isExceeded ? "text-red-400" : "text-emerald-400"}`}>
             {Math.round(remaining)}
           </p>
-          <p className="text-xs text-white/40 mt-1">kcal</p>
+          <p className="text-xs text-white/40">kcal</p>
         </div>
-        <div className="bg-white/10 rounded-2xl p-4 text-center">
-          <p className="text-xs text-white/60 mb-2">{t("goal") || "Goal"}</p>
-          <p className="text-3xl font-bold text-white">{goal}</p>
-          <p className="text-xs text-white/40 mt-1">kcal</p>
+        <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
+          <p className="text-xs text-white/60 mb-3 font-semibold">{t("goal") || "Goal"}</p>
+          <p className="text-4xl font-bold text-white leading-none mb-2">{goal}</p>
+          <p className="text-xs text-white/40">kcal</p>
         </div>
       </div>
 

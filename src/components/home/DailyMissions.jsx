@@ -34,17 +34,17 @@ export default function DailyMissions({ todayMeals, consumed, goal, profile }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 backdrop-blur-xl border border-amber-500/30 rounded-3xl p-6 space-y-4"
+      className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 backdrop-blur-xl border border-amber-500/30 rounded-3xl p-6 space-y-5"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-bold text-white">{t("todays_mission") || "Today's Mission"}</h3>
-          <p className="text-xs text-white/60 mt-1">{completedCount}/{missions.length} completed</p>
+          <p className="text-xs text-white/60 mt-1.5 font-medium">{completedCount}/{missions.length} {t("completed") || "completed"}</p>
         </div>
-        <div className="flex items-center gap-2 bg-amber-500/20 rounded-full px-4 py-2 border border-amber-500/50">
-          <Flame size={18} className="text-amber-400" />
-          <span className="font-bold text-white">+{totalFire}</span>
+        <div className="flex items-center gap-2 bg-amber-500/20 rounded-full px-4 py-2.5 border border-amber-500/50">
+          <Flame size={16} className="text-amber-400" />
+          <span className="font-bold text-white text-sm">+{totalFire}</span>
         </div>
       </div>
 
