@@ -14,15 +14,24 @@ Deno.serve(async (req) => {
           }
 
           const body = await req.json();
-                  console.log('Request body:', body);
-                  const { priceId, planType, selectedPlan, region } = body;
+          console.log('Request body:', body);
+          const { priceId, planType, selectedPlan, region } = body;
 
           console.log('Checkout request received:', { priceId, planType, selectedPlan, region });
 
-            const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
-                      if (!secretKey) {
-                        return Response.json({ error: 'Stripe secret key not configured' }, { status: 500 });
-                      }
+          const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
+          console.log('=== SECRET KEY CHECK ===');
+          console.log('Key exists:', !!secretKey);
+          console.log('Key prefix:', secretKey ? secretKey.substring(0, 8) : 'NONE');
+          
+          if (!secretKey) {
+            return Response.json({ error: 'Stripe secret key not configured' }, { status: 500 });
+          }
+          
+          if (!secretKey.startsWith('sk_')) {
+            console.error('INVALID KEY FORMAT - Expected sk_test_ or sk_live_, got:', secretKey.substring(0, 8));
+            return Response.json({ error: 'Invalid Stripe key format. Please update STRIPE_SECRET_KEY in settings.' }, { status: 500 });
+          }
 
                       const stripe = new Stripe(secretKey, {
                         apiVersion: '2023-10-16',
