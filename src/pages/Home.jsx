@@ -104,11 +104,7 @@ export default function Home() {
   const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
   const caloriesGoal = profile?.calories_goal || 2000;
 
-  const handleMealPhotoSelected = (file) => {
-    setSelectedMealFile(file);
-    setShowMealCapture(false);
-    setShowMealResult(true);
-  };
+
 
   const handleMealSaved = () => {
     setShowMealResult(false);
