@@ -61,6 +61,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import UserManagement from './pages/UserManagement';
 import CameraScreen from './pages/CameraScreen';
+import MealResult from './pages/MealResult';
 import __Layout from './Layout.jsx';
 
 
@@ -79,6 +80,7 @@ export const PAGES = {
     "Settings": Settings,
     "UserManagement": UserManagement,
     "CameraScreen": CameraScreen,
+    "MealResult": MealResult,
 }
 
 export const pagesConfig = {
