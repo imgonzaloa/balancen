@@ -10,12 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
-  const { changeLanguage } = useTranslation();
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -40,13 +38,11 @@ export default function Settings() {
 
   const languageMutation = useMutation({
     mutationFn: async (language) => {
-      changeLanguage(language);
       await base44.entities.UserProfile.update(profile.id, { language });
-      return language;
     },
-    onSuccess: (language) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(["profile"]);
-      toast.success(language === "es" ? "Idioma actualizado" : "Language updated");
+      toast.success("✓");
     },
   });
 

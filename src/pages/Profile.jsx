@@ -14,7 +14,7 @@ import StreakFire from "@/components/ui/StreakFire";
 import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Profile() {
-  const { t, changeLanguage } = useTranslation();
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
@@ -54,13 +54,11 @@ export default function Profile() {
 
   const languageMutation = useMutation({
     mutationFn: async (language) => {
-      changeLanguage(language);
       await base44.entities.UserProfile.update(profile.id, { language });
-      return language;
     },
-    onSuccess: (language) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(["profile"]);
-      toast.success(language === "es" ? "Idioma actualizado" : "Language updated");
+      toast.success("✓");
     },
   });
 

@@ -209,13 +209,13 @@ const TranslationContext = createContext();
 
 export function TranslationProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [currentLang, setCurrentLang] = useState("en"); // Always start with English
+  const [currentLang, setCurrentLang] = useState("en");
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile } = useQuery({
     queryKey: ["profile", user?.email],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
@@ -224,26 +224,18 @@ export function TranslationProvider({ children }) {
     enabled: !!user?.email,
   });
 
-  // Set language from profile once loaded
   useEffect(() => {
-    if (profile && !isLoading) {
-      const lang = (profile.language === "es") ? "es" : "en";
-      setCurrentLang(lang);
-      localStorage.setItem("app_language", lang);
+    if (profile?.language) {
+      setCurrentLang(profile.language);
     }
-  }, [profile, isLoading]);
-
-  const changeLanguage = (newLang) => {
-    setCurrentLang(newLang);
-    localStorage.setItem("app_language", newLang);
-  };
+  }, [profile?.language]);
 
   const t = (key) => {
     return translations[currentLang]?.[key] || translations.en[key] || key;
   };
 
   return (
-    <TranslationContext.Provider value={{ t, lang: currentLang, changeLanguage }}>
+    <TranslationContext.Provider value={{ t, lang: currentLang }}>
       {children}
     </TranslationContext.Provider>
   );
