@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useTranslation as useI18nTranslation } from "react-i18next";
-import "../lib/i18n";
+import "./i18n";
 
 export function TranslationProvider({ children }) {
   return <>{children}</>;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
-import "@/lib/i18n";
+import "@/components/i18n";
 import { motion } from "framer-motion";
 import { ChevronLeft, Watch, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -17,6 +17,10 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
   const { changeLanguage, lang, t } = useTranslation();
+
+  useEffect(() => {
+    base44.auth.me().then(setUser);
+  }, []);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.email],
