@@ -4,6 +4,7 @@ import { Home, Users, Award, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
+import { MealProvider } from "@/components/MealContext";
 import { useState, useEffect } from "react";
 
 const navItemsBase = [
@@ -14,7 +15,7 @@ const navItemsBase = [
 ];
 
 export default function Layout({ children, currentPageName }) {
-  const hideNav = ["Onboarding", "Paywall"].includes(currentPageName);
+  const hideNav = ["Onboarding", "Paywall", "CameraScreen", "MealResult"].includes(currentPageName);
   const { t, lang } = useTranslation();
   const [direction, setDirection] = useState(0);
   const [prevPage, setPrevPage] = useState(currentPageName);
@@ -58,22 +59,23 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-background select-none">
-      <Toaster position="top-center" richColors />
-      
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.main
-          key={currentPageName}
-          custom={direction}
-          variants={pageVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          className={hideNav ? "" : "pb-20"}
-        >
-          {children}
-        </motion.main>
-      </AnimatePresence>
+    <MealProvider>
+      <div className="min-h-screen bg-background select-none">
+        <Toaster position="top-center" richColors />
+        
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.main
+            key={currentPageName}
+            custom={direction}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className={hideNav ? "" : "pb-20"}
+          >
+            {children}
+          </motion.main>
+        </AnimatePresence>
 
       {!hideNav && (
         <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-2xl border-t border-white/10 px-4 py-2 z-50 safe-area-inset-bottom">
@@ -131,6 +133,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </nav>
       )}
-    </div>
+      </div>
+    </MealProvider>
   );
 }
