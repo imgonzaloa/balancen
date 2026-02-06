@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useState, useEffect } from "react";
-import "@/components/i18n";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
