@@ -58,7 +58,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 select-none">
+    <div className="min-h-screen bg-background select-none">
       <Toaster position="top-center" richColors />
       
       <AnimatePresence mode="wait" custom={direction}>
@@ -86,7 +86,15 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.name}
                   to={createPageUrl(item.name)}
+                  onClick={(e) => {
+                    if (isActive) {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
                   className="relative flex flex-col items-center py-2 px-4 touch-manipulation"
+                  aria-label={item.label}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   {isActive && (
                     <motion.div
