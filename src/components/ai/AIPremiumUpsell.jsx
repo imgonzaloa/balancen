@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Sparkles, Crown, TrendingUp, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -7,6 +9,23 @@ import { useTranslation } from "@/components/TranslationProvider";
 
 export default function AIPremiumUpsell() {
   const { t } = useTranslation();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(setUser);
+  }, []);
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.email],
+    queryFn: async () => {
+      const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
+      return profiles[0] || null;
+    },
+    enabled: !!user?.email,
+  });
+
+  // Don't show for owner
+  if (profile?.role === "owner") return null;
   
   return (
     <motion.div
