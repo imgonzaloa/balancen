@@ -355,7 +355,8 @@ const resources = {
       one_task_left_midnight: "1 task left before midnight",
       meals_detected: "meals detected",
       connected: "connected",
-      groups_joined: "groups"
+      groups_joined: "groups",
+      completed: "completed"
       }
       },
   es: {
@@ -692,7 +693,8 @@ const resources = {
       one_task_left_midnight: "1 tarea antes de medianoche",
       meals_detected: "comidas detectadas",
       connected: "conectados",
-      groups_joined: "grupos"
+      groups_joined: "grupos",
+      completed: "completado"
       }
       }
       };
