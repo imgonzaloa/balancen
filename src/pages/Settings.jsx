@@ -42,20 +42,29 @@ export default function Settings() {
     },
   });
 
-  const handleLanguageChange = (language) => {
+  const handleLanguageChange = async (language) => {
     console.log("🎯 Settings - User selected language:", language);
     
-    // Update global language immediately
+    // 1. Update global language state IMMEDIATELY (triggers full UI re-render)
     changeLanguage(language);
     
-    // Save to user profile
+    // 2. Save to user profile (async, doesn't block UI update)
     if (profile?.id) {
-      updateMutation.mutate({ language });
+      try {
+        await base44.entities.UserProfile.update(profile.id, { language });
+        queryClient.invalidateQueries(["profile", user?.email]);
+        console.log("✅ Language saved to user profile");
+      } catch (error) {
+        console.error("❌ Failed to save language to profile:", error);
+      }
     }
     
-    // Show success message in the NEW language
+    // 3. Show success message in the NEW language
     setTimeout(() => {
-      toast.success(language === "es" ? "Idioma actualizado a Español" : "Language updated to English");
+      const successMessage = language === "es" 
+        ? "✅ Idioma actualizado a Español" 
+        : "✅ Language updated to English";
+      toast.success(successMessage);
     }, 100);
   };
 

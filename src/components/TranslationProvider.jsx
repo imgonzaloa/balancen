@@ -251,35 +251,78 @@ const translations = {
 
 const TranslationContext = createContext();
 
+// Initialize language on app boot
+const getInitialLanguage = () => {
+  // 1. Check localStorage first (explicit user preference)
+  const saved = localStorage.getItem("languagePreference");
+  if (saved) {
+    console.log("🌍 Using saved language:", saved);
+    return saved;
+  }
+  
+  // 2. Detect browser language
+  const browserLang = navigator.language || navigator.userLanguage;
+  const detectedLang = browserLang.toLowerCase().startsWith('es') ? 'es' : 'en';
+  console.log("🌍 Browser language detected:", browserLang, "→", detectedLang);
+  
+  // Save detected language
+  localStorage.setItem("languagePreference", detectedLang);
+  return detectedLang;
+};
+
 export function TranslationProvider({ children }) {
-  const [currentLang, setCurrentLang] = useState(() => {
-    const saved = localStorage.getItem("languagePreference");
-    const initial = saved || "en";
-    console.log("🌍 Initial language:", initial);
-    return initial;
-  });
+  const [currentLang, setCurrentLang] = useState(getInitialLanguage);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Sync with user profile on mount
+  useEffect(() => {
+    const syncWithProfile = async () => {
+      try {
+        const user = await base44.auth.me();
+        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+        const profile = profiles[0];
+        
+        if (profile?.language && profile.language !== currentLang) {
+          console.log("🔄 Syncing language from profile:", profile.language);
+          setCurrentLang(profile.language);
+          localStorage.setItem("languagePreference", profile.language);
+        }
+      } catch (error) {
+        console.log("⚠️ Could not sync language with profile:", error.message);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+    
+    syncWithProfile();
+  }, []);
 
   const changeLanguage = (newLang) => {
     console.log("🔄 Changing language to:", newLang);
     
-    // Update state immediately
+    // Update state - this will trigger re-render of all components
     setCurrentLang(newLang);
     
     // Persist to localStorage
     localStorage.setItem("languagePreference", newLang);
     
-    console.log("✅ Language changed - State:", newLang, "Storage:", localStorage.getItem("languagePreference"));
+    console.log("✅ Language changed - Active:", newLang);
   };
 
   const t = (key) => {
-    const translation = translations[currentLang]?.[key] || translations.en[key] || key;
+    // Always use current language, no fallback to English when Spanish is active
+    const translation = translations[currentLang]?.[key];
+    if (!translation) {
+      console.warn(`⚠️ Missing translation for key "${key}" in language "${currentLang}"`);
+      return translations.en[key] || key;
+    }
     return translation;
   };
 
-  console.log("🎨 Rendering with language:", currentLang);
+  console.log("🎨 TranslationProvider rendering - Active language:", currentLang);
 
   return (
-    <TranslationContext.Provider value={{ t, lang: currentLang, changeLanguage }}>
+    <TranslationContext.Provider value={{ t, lang: currentLang, changeLanguage, isInitialized }}>
       {children}
     </TranslationContext.Provider>
   );
