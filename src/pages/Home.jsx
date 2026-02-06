@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import StreakFire from "@/components/ui/StreakFire";
 import QuickCheckIn from "@/components/home/QuickCheckIn";
 import WeekProgress from "@/components/home/WeekProgress";
-import StepsCounter from "@/components/home/StepsCounter";
 import WeightTracker from "@/components/home/WeightTracker";
 import CalorieTracker from "@/components/nutrition/CalorieTracker";
 import FirstStreakModal from "@/components/home/FirstStreakModal";
@@ -118,8 +117,6 @@ export default function Home() {
       document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' });
     } else if (taskType === "meal_photo") {
       document.getElementById('calorie-tracker')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (taskType === "steps") {
-      document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' });
     } else if (taskType === "calories") {
       document.getElementById('calorie-tracker')?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -130,14 +127,11 @@ export default function Home() {
       const existing = checkIns.find(c => c.date === data.date);
       
       // Check goal achievements
-      const stepsGoalMet = profile?.steps_goal && data.steps >= profile.steps_goal;
       const caloriesGoalMet = profile?.calories_goal && todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0) <= profile.calories_goal;
       
       const checkInData = {
         ...data,
-        steps_goal_met: stepsGoalMet || false,
         calories_goal_met: caloriesGoalMet || false,
-        steps_fire_awarded: stepsGoalMet && !existing?.steps_fire_awarded,
         calories_fire_awarded: caloriesGoalMet && !existing?.calories_fire_awarded,
         checkin_fire_awarded: !existing?.checkin_fire_awarded,
         meal_photo_fire_awarded: data.food_photo_url && !existing?.meal_photo_fire_awarded
@@ -165,29 +159,6 @@ export default function Home() {
       if (newCheckIn.meal_photo_fire_awarded) {
         fireIncrement += 2;
         messages.push(`🔥 ${t("fire_for_meal_photo")}`);
-      }
-
-      // +3 fire for steps goal
-      if (newCheckIn.steps_fire_awarded) {
-        fireIncrement += 3;
-        messages.push(`🔥 ${t("fire_for_steps_goal")}`);
-
-        // Auto-progression for steps goal
-        const currentGoal = profile.steps_goal || 8000;
-        let newGoal = currentGoal;
-
-        if (currentGoal < 12000) {
-          newGoal = currentGoal + 1000;
-        } else if (currentGoal < 16000) {
-          newGoal = currentGoal + 1500;
-        }
-
-        if (newGoal !== currentGoal && profile.is_premium) {
-          await base44.entities.UserProfile.update(profile.id, {
-            steps_goal: newGoal
-          });
-          toast.success(`${t("new_steps_goal")}: ${newGoal.toLocaleString()}`);
-        }
       }
 
       // +3 fire for calories goal
@@ -465,27 +436,18 @@ export default function Home() {
         </motion.div>
 
         {/* Today's Stats - Only show after check-in */}
-        {todayCheckIn && (
+        {todayCheckIn?.weight && (
           <motion.div
-            className="grid grid-cols-1 gap-4 mt-6"
+            className="mt-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            {todayCheckIn.steps > 0 && (
-              <StepsCounter 
-                steps={todayCheckIn.steps} 
-                goal={profile?.daily_step_goal || 8000}
-              />
-            )}
-            
-            {todayCheckIn.weight && (
-              <WeightTracker 
-                currentWeight={todayCheckIn.weight}
-                previousWeight={yesterdayCheckIn?.weight}
-                startingWeight={profile?.starting_weight}
-              />
-            )}
+            <WeightTracker 
+              currentWeight={todayCheckIn.weight}
+              previousWeight={yesterdayCheckIn?.weight}
+              startingWeight={profile?.starting_weight}
+            />
           </motion.div>
         )}
 
