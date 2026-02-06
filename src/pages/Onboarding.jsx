@@ -79,6 +79,14 @@ export default function Onboarding() {
 
   const handleComplete = async () => {
     setSaving(true);
+    
+    // Verificar si es colaborador invitado
+    const collaborators = await base44.entities.Collaborator.filter({
+      email: user.email.toLowerCase(),
+      has_registered: false
+    });
+    const isCollaborator = collaborators.length > 0;
+    
     await base44.entities.UserProfile.create({
       display_name: user?.full_name?.split(" ")[0] || "User",
       main_goal: selections.main_goal,
@@ -90,7 +98,16 @@ export default function Onboarding() {
       total_checkins: 0,
       onboarding_completed: true,
       badges: [],
+      is_premium: isCollaborator, // Premium gratis para colaboradores
     });
+    
+    // Marcar colaborador como registrado
+    if (isCollaborator) {
+      await base44.entities.Collaborator.update(collaborators[0].id, {
+        has_registered: true
+      });
+    }
+    
     window.location.href = createPageUrl("Home");
   };
 
