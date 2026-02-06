@@ -11,24 +11,51 @@ export default function MealPhotoCapture({ isOpen, onClose, onPhotoSelected }) {
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const streamRef = useRef(null);
 
-  // Clean up on unmount
   useEffect(() => {
     return () => {
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-      }
+      stopCamera();
     };
   }, []);
+
+  // Add video readiness monitor
+  useEffect(() => {
+    if (!cameraActive || !videoRef.current) return;
+
+    const checkVideoReady = setTimeout(() => {
+      if (videoRef.current?.readyState !== 4) {
+        console.warn("Video not ready, restarting stream");
+        stopCamera();
+        setTimeout(() => startCamera(), 300);
+      }
+    }, 1000);
+
+    return () => clearTimeout(checkVideoReady);
+  }, [cameraActive]);
 
   const startCamera = async () => {
     try {
       setCameraError(null);
+      
+      // Stop any existing stream first
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+        video: {
+          facingMode: "environment"
+        },
+        audio: false
       });
+
+      streamRef.current = stream;
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        // Ensure video plays
+        videoRef.current.play().catch(err => console.error("Play error:", err));
         setCameraActive(true);
         setMode("camera");
       }
@@ -44,7 +71,7 @@ export default function MealPhotoCapture({ isOpen, onClose, onPhotoSelected }) {
   };
 
   const capturePhoto = () => {
-    if (videoRef.current) {
+    if (videoRef.current && videoRef.current.readyState === 4) {
       const canvas = document.createElement("canvas");
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
@@ -59,10 +86,14 @@ export default function MealPhotoCapture({ isOpen, onClose, onPhotoSelected }) {
   };
 
   const stopCamera = () => {
-    if (videoRef.current?.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-      setCameraActive(false);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraActive(false);
   };
 
   const handleFileUpload = (e) => {
@@ -87,148 +118,321 @@ export default function MealPhotoCapture({ isOpen, onClose, onPhotoSelected }) {
 
   if (!isOpen) return null;
 
-  // FULLSCREEN CAMERA - No modal wrapper, direct root element
+  // FULLSCREEN CAMERA - iOS Safari compatible
   if (mode === "camera" && cameraActive) {
     return (
       <div
-        className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center"
-        style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh" }}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 9999,
+          backgroundColor: "#000",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
       >
-        {/* Video - absolutely fills screen */}
+        {/* Video - fill screen, no CSS effects */}
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ position: "absolute", top: 0, left: 0 }}
+          muted
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+            visibility: "visible",
+            opacity: 1
+          }}
         />
 
-        {/* Top bar */}
-        <div className="absolute top-0 inset-x-0 z-10 bg-gradient-to-b from-black/80 to-transparent p-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">{t("meal_analysis")}</h2>
+        {/* Top bar - no blur/animation */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10,
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0))",
+            padding: "1rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between"
+          }}
+        >
+          <h2 style={{ color: "white", fontSize: "1.125rem", fontWeight: "bold", margin: 0 }}>
+            {t("meal_analysis")}
+          </h2>
           <button
             onClick={handleClose}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white"
+            style={{
+              padding: "0.5rem",
+              borderRadius: "0.75rem",
+              backgroundColor: "rgba(255,255,255,0.1)",
+              border: "none",
+              color: "white",
+              cursor: "pointer"
+            }}
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Bottom controls */}
-        <div className="absolute bottom-0 inset-x-0 z-10 bg-gradient-to-t from-black/90 to-transparent p-6 flex gap-3 safe-area-inset-bottom">
-          <Button
+        {/* Bottom controls - no blur/animation */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10,
+            background: "linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0))",
+            padding: "1.5rem",
+            display: "flex",
+            gap: "0.75rem"
+          }}
+        >
+          <button
             onClick={handleClose}
-            variant="outline"
-            className="flex-1 bg-white/10 border-white/20 text-white py-4 rounded-2xl hover:bg-white/20 font-semibold"
+            style={{
+              flex: 1,
+              padding: "1rem",
+              borderRadius: "1rem",
+              backgroundColor: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "white",
+              fontWeight: "600",
+              cursor: "pointer",
+              fontSize: "1rem"
+            }}
           >
             {t("cancel")}
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={capturePhoto}
-            className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white py-4 rounded-2xl font-semibold"
+            style={{
+              flex: 1,
+              padding: "1rem",
+              borderRadius: "1rem",
+              background: "linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))",
+              color: "white",
+              fontWeight: "600",
+              cursor: "pointer",
+              fontSize: "1rem",
+              border: "none"
+            }}
           >
             {t("capture")}
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
-  // MENU - Modal in bottom sheet style
+  // MENU - Modal bottom sheet
   if (!mode) {
     return (
       <div
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 50,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "flex-end",
+          backdropFilter: "blur(4px)"
+        }}
         onClick={handleClose}
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="w-full bg-slate-900 rounded-t-3xl p-6 space-y-4 animate-in slide-in-from-bottom"
+          style={{
+            width: "100%",
+            backgroundColor: "rgb(15 23 42)",
+            borderTopLeftRadius: "1.5rem",
+            borderTopRightRadius: "1.5rem",
+            padding: "1.5rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
+          }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold text-white">{t("add_meal")}</h2>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+            <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "white", margin: 0 }}>
+              {t("add_meal")}
+            </h2>
             <button
               onClick={handleClose}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white"
+              style={{
+                padding: "0.5rem",
+                borderRadius: "0.75rem",
+                backgroundColor: "rgba(255,255,255,0.1)",
+                border: "none",
+                color: "white",
+                cursor: "pointer"
+              }}
             >
               <X size={20} />
             </button>
           </div>
 
-          <Button
+          <button
             onClick={() => startCamera()}
-            className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white py-6 rounded-2xl flex items-center justify-center gap-3 text-lg font-semibold"
+            style={{
+              width: "100%",
+              padding: "1.5rem",
+              borderRadius: "1rem",
+              background: "linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))",
+              color: "white",
+              fontSize: "1.125rem",
+              fontWeight: "600",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.75rem",
+              border: "none",
+              cursor: "pointer"
+            }}
           >
             <Camera size={24} />
             {t("take_photo")}
-          </Button>
+          </button>
 
-          <Button
+          <button
             onClick={() => {
               setMode("upload");
               fileInputRef.current?.click();
             }}
-            variant="outline"
-            className="w-full bg-white/10 border-white/20 text-white py-6 rounded-2xl flex items-center justify-center gap-3 text-lg font-semibold hover:bg-white/20"
+            style={{
+              width: "100%",
+              padding: "1.5rem",
+              borderRadius: "1rem",
+              backgroundColor: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "white",
+              fontSize: "1.125rem",
+              fontWeight: "600",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.75rem",
+              cursor: "pointer"
+            }}
           >
             <Upload size={24} />
             {t("upload_photo")}
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
-  // CAMERA ERROR - Modal fallback
+  // CAMERA ERROR
   if (mode === "camera" && cameraError) {
     return (
       <div
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 50,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "flex-end"
+        }}
         onClick={handleClose}
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="w-full bg-slate-900 rounded-t-3xl p-6 space-y-4 animate-in slide-in-from-bottom"
+          style={{
+            width: "100%",
+            backgroundColor: "rgb(15 23 42)",
+            borderTopLeftRadius: "1.5rem",
+            borderTopRightRadius: "1.5rem",
+            padding: "1.5rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
+          }}
         >
-          <div className="flex items-start gap-3 mb-4">
-            <AlertCircle className="text-red-400 flex-shrink-0 mt-1" size={24} />
+          <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
+            <AlertCircle style={{ color: "rgb(248 113 113)", flexShrink: 0, marginTop: "0.25rem" }} size={24} />
             <div>
-              <h2 className="text-lg font-bold text-white">{t("camera_not_available")}</h2>
-              <p className="text-white/60 text-sm mt-1">{cameraError}</p>
+              <h2 style={{ fontSize: "1.125rem", fontWeight: "bold", color: "white", margin: 0 }}>
+                {t("camera_not_available")}
+              </h2>
+              <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.875rem", marginTop: "0.25rem", margin: 0 }}>
+                {cameraError}
+              </p>
             </div>
           </div>
 
-          <Button
+          <button
             onClick={() => {
               setMode("upload");
               fileInputRef.current?.click();
             }}
-            className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white py-4 rounded-2xl font-semibold"
+            style={{
+              width: "100%",
+              padding: "1rem",
+              borderRadius: "1rem",
+              background: "linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))",
+              color: "white",
+              fontWeight: "600",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
+              border: "none",
+              cursor: "pointer"
+            }}
           >
-            <Upload size={20} className="mr-2" />
+            <Upload size={20} />
             {t("upload_photo")}
-          </Button>
+          </button>
 
-          <Button
+          <button
             onClick={handleClose}
-            variant="outline"
-            className="w-full bg-white/10 border-white/20 text-white py-4 rounded-2xl hover:bg-white/20 font-semibold"
+            style={{
+              width: "100%",
+              padding: "1rem",
+              borderRadius: "1rem",
+              backgroundColor: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "white",
+              fontWeight: "600",
+              cursor: "pointer"
+            }}
           >
             {t("cancel")}
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
-  // Hidden file input
   return (
     <input
       ref={fileInputRef}
       type="file"
       accept="image/*"
       onChange={handleFileUpload}
-      className="hidden"
+      style={{ display: "none" }}
     />
   );
 }
