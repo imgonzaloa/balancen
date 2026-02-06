@@ -63,7 +63,12 @@ export default function Onboarding() {
   const handleComplete = async () => {
     setSaving(true);
     
-    // Verificar si es colaborador invitado
+    const OWNER_EMAIL = "imgonzaloa@gmail.com";
+    
+    // Owner gets premium automatically
+    const isOwner = user.email === OWNER_EMAIL;
+    
+    // Check if invited as collaborator
     const collaborators = await base44.entities.Collaborator.filter({
       email: user.email.toLowerCase(),
       has_registered: false
@@ -80,7 +85,8 @@ export default function Onboarding() {
       total_checkins: 0,
       onboarding_completed: true,
       badges: [],
-      is_premium: isCollaborator,
+      is_premium: isOwner || isCollaborator,
+      premium_status: (isOwner || isCollaborator) ? "active" : undefined,
     });
     
     // Marcar colaborador como registrado
