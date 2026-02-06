@@ -337,7 +337,23 @@ const resources = {
       joined_group: "Joined group!",
       no_groups_yet: "No groups yet",
       create_or_join_group: "Create or join a group to get started!",
-      code_copied: "Code copied!"
+      code_copied: "Code copied!",
+      loading: "Loading",
+      welcome: "Welcome",
+      on_fire: "on fire",
+      total_fire: "total fire",
+      keep_flame_alive: "Keep the flame alive — one meal at a time.",
+      over_goal: "over goal",
+      keep_going: "Keep going!",
+      kcal_left: "kcal left",
+      goal_reached_perfect: "Goal reached! Perfect balance today",
+      goal_exceeded_back_on_track: "Goal exceeded. Back on track tomorrow!",
+      first_meal_label: "Log first meal",
+      stay_goal_label: "Stay within goal",
+      complete_day_label: "Complete daily tracking",
+      tasks_left_midnight: "tasks left before midnight",
+      one_task_left_midnight: "1 task left before midnight",
+      meals_detected: "meals detected"
       }
       },
   es: {
@@ -656,7 +672,23 @@ const resources = {
       joined_group: "¡Grupo creado!",
       no_groups_yet: "Sin grupos aún",
       create_or_join_group: "¡Crea o únete a un grupo para empezar!",
-      code_copied: "¡Código copiado!"
+      code_copied: "¡Código copiado!",
+      loading: "Cargando",
+      welcome: "Bienvenido",
+      on_fire: "en fuego",
+      total_fire: "total fuego",
+      keep_flame_alive: "Mantén la llama viva — una comida a la vez.",
+      over_goal: "sobre la meta",
+      keep_going: "¡Sigue adelante!",
+      kcal_left: "kcal restantes",
+      goal_reached_perfect: "¡Meta alcanzada! Balance perfecto hoy",
+      goal_exceeded_back_on_track: "¡Meta superada! De vuelta al camino mañana",
+      first_meal_label: "Registra primera comida",
+      stay_goal_label: "Mantente dentro de la meta",
+      complete_day_label: "Completa rastreo diario",
+      tasks_left_midnight: "tareas antes de medianoche",
+      one_task_left_midnight: "1 tarea antes de medianoche",
+      meals_detected: "comidas detectadas"
       }
       }
       };
