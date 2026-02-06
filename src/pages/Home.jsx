@@ -25,6 +25,7 @@ import SocialCompletionStatus from "@/components/home/SocialCompletionStatus";
 import SocialActivityFeed from "@/components/home/SocialActivityFeed";
 import DailyTaskChecklist from "@/components/home/DailyTaskChecklist";
 import SetStatusModal from "@/components/groups/SetStatusModal";
+import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -275,6 +276,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+      {/* Owner Role Checker - ensures owner role is assigned */}
+      <OwnerRoleChecker user={user} profile={profile} />
+      
       {/* UI Version Manager - handles migrations */}
       <UIVersionManager user={user} profile={profile} />
       
@@ -494,8 +498,8 @@ export default function Home() {
           <WeekProgress checkIns={checkIns} />
         </motion.div>
 
-        {/* AI Features - Premium Only (hide for owner) */}
-        {profile?.is_premium && profile?.role !== "owner" ? (
+        {/* AI Features - Premium Only (show for premium or owner) */}
+        {(profile?.is_premium || profile?.role === "owner") ? (
           <>
             {/* AI Health Insights */}
             {profile?.ai_recommendations_enabled !== false && checkIns.length >= 3 && (
@@ -533,8 +537,8 @@ export default function Home() {
               </motion.div>
             )}
           </>
-        ) : (
-          checkIns.length >= 2 && profile?.role !== "owner" && (
+        ) : profile?.role !== "owner" && (
+          checkIns.length >= 2 && (
             <motion.div
               className="mt-6"
               initial={{ opacity: 0, y: 20 }}

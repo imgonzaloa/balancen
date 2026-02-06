@@ -78,7 +78,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Premium Status - hide for owner */}
+        {/* Premium Status */}
         {profile?.is_premium && profile?.role !== "owner" ? (
           <motion.div
             className="relative overflow-hidden rounded-3xl p-5 mb-6 bg-gradient-to-br from-amber-500 to-orange-600 shadow-2xl"
@@ -94,7 +94,7 @@ export default function Settings() {
               </div>
             </div>
           </motion.div>
-        ) : profile?.role !== "owner" ? (
+        ) : profile?.role !== "owner" && !profile?.is_premium ? (
           <Link to={createPageUrl("Premium")}>
             <motion.div
               className="relative overflow-hidden rounded-3xl p-5 mb-6 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-all"
@@ -259,7 +259,7 @@ export default function Settings() {
         </motion.div>
 
         {/* ADMIN TOOLS - OWNER ONLY */}
-        {profile?.role === "owner" && (
+        {profile?.role === "owner" && user?.email?.toLowerCase() === "imgonzaloa@gmail.com" && (
           <>
             <motion.div
               className="mt-8 mb-4"

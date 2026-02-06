@@ -31,7 +31,10 @@ export default function InviteCollaborators() {
   });
 
   // OWNER-ONLY ACCESS CHECK
-  if (user && profile && profile.role !== "owner") {
+  const OWNER_EMAIL = "imgonzaloa@gmail.com";
+  const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && profile?.role === "owner";
+  
+  if (user && profile && !isOwner) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 flex items-center justify-center px-5">
         <div className="text-center">
@@ -54,7 +57,10 @@ export default function InviteCollaborators() {
 
   const handleInvite = async () => {
     // Double-check owner permission on action
-    if (profile?.role !== "owner") {
+    const OWNER_EMAIL = "imgonzaloa@gmail.com";
+    const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && profile?.role === "owner";
+    
+    if (!isOwner) {
       toast.error("Access denied");
       return;
     }

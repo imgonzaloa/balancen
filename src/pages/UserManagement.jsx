@@ -31,7 +31,10 @@ export default function UserManagement() {
   });
 
   // OWNER-ONLY ACCESS CHECK
-  if (user && profile && profile.role !== "owner") {
+  const OWNER_EMAIL = "imgonzaloa@gmail.com";
+  const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && profile?.role === "owner";
+  
+  if (user && profile && !isOwner) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center px-5">
         <div className="text-center">
