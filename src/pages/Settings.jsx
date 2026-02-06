@@ -38,10 +38,11 @@ export default function Settings() {
     },
   });
 
-  const handleLanguageChange = async (language) => {
-    await changeLanguage(language);
-    queryClient.invalidateQueries(["profile", user?.email]);
-    toast.success("Language updated");
+  const handleLanguageChange = (language) => {
+    changeLanguage(language);
+    if (profile?.id) {
+      updateMutation.mutate({ language });
+    }
   };
 
   const handleToggle = (field, value) => {

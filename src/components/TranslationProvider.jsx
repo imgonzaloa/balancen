@@ -231,14 +231,11 @@ export function TranslationProvider({ children }) {
       setCurrentLang(profile.language);
       localStorage.setItem("appLanguage", profile.language);
     }
-  }, [profile?.language]);
+  }, [profile?.language, currentLang]);
 
-  const changeLanguage = async (newLang) => {
+  const changeLanguage = (newLang) => {
     setCurrentLang(newLang);
     localStorage.setItem("appLanguage", newLang);
-    if (profile?.id) {
-      await base44.entities.UserProfile.update(profile.id, { language: newLang });
-    }
   };
 
   const t = (key) => {
