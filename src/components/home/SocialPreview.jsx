@@ -28,7 +28,7 @@ export default function SocialPreview({ friendsCount, groupsCount, userStreak })
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">{t("friends") || "Friends"}</p>
-                <p className="text-xs text-teal-200">{friendsCount || 0} connected</p>
+                <p className="text-xs text-teal-200">{friendsCount || 0} {t("connected") || "connected"}</p>
               </div>
             </div>
             <ChevronRight size={20} className="text-white/40" />
@@ -50,7 +50,7 @@ export default function SocialPreview({ friendsCount, groupsCount, userStreak })
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">{t("groups") || "Groups"}</p>
-                <p className="text-xs text-purple-200">{groupsCount || 0} groups</p>
+                <p className="text-xs text-purple-200">{groupsCount || 0} {t("groups_joined") || "groups"}</p>
               </div>
             </div>
             <ChevronRight size={20} className="text-white/40" />
