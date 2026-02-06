@@ -253,19 +253,26 @@ const TranslationContext = createContext();
 
 // Initialize language on app boot - SINGLE SOURCE OF TRUTH
 const getInitialLanguage = () => {
-  // 1. Check localStorage first (explicit user preference)
+  const hasManualOverride = localStorage.getItem("language_override") === "true";
   const saved = localStorage.getItem("app_language");
-  if (saved === "en" || saved === "es") {
-    console.log("🌍 Loading saved language:", saved);
+  
+  // 1. If user manually selected language, ALWAYS use it (no auto-detection)
+  if (hasManualOverride && (saved === "en" || saved === "es")) {
+    console.log("🌍 Manual override active. Using saved language:", saved);
     return saved;
   }
   
-  // 2. Detect browser language
+  // 2. If saved language exists but no override, use it
+  if (saved === "en" || saved === "es") {
+    console.log("🌍 Using saved language:", saved);
+    return saved;
+  }
+  
+  // 3. Auto-detect browser language (only if no preference exists)
   const browserLang = navigator.language || navigator.userLanguage;
   const detected = browserLang.toLowerCase().startsWith('es') ? 'es' : 'en';
-  console.log("🌍 Detected browser language:", detected);
+  console.log("🌍 Auto-detected browser language:", detected);
   
-  // Save detected language
   localStorage.setItem("app_language", detected);
   return detected;
 };

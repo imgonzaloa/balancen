@@ -43,12 +43,15 @@ export default function Settings() {
   });
 
   const handleLanguageChange = async (language) => {
-    console.log("🎯 User selected language:", language);
+    console.log("🎯 User manually selected language:", language);
     
-    // 1. Save to localStorage IMMEDIATELY
+    // 1. Set manual override flag (prevents auto-detection)
+    localStorage.setItem("language_override", "true");
+    
+    // 2. Save language preference
     localStorage.setItem("app_language", language);
     
-    // 2. Save to user profile
+    // 3. Save to user profile
     if (profile?.id) {
       try {
         await base44.entities.UserProfile.update(profile.id, { language });
@@ -58,16 +61,16 @@ export default function Settings() {
       }
     }
     
-    // 3. Update context
+    // 4. Update context
     changeLanguage(language);
     
-    // 4. Show toast and FORCE RELOAD
+    // 5. Show toast and FORCE RELOAD
     const message = language === "es" 
       ? "Idioma actualizado. Recargando..." 
       : "Language updated. Reloading...";
     toast.success(message);
     
-    // 5. Force full app reload to apply language
+    // 6. Force full app reload to apply language
     setTimeout(() => {
       window.location.reload();
     }, 800);
@@ -356,10 +359,10 @@ export default function Settings() {
                 🌍 Active: <span className="text-teal-300 font-bold">{lang}</span>
               </p>
               <p className="text-xs text-white/50 font-mono mt-1">
-                💾 Saved: {localStorage.getItem("app_language") || "none"}
+                💾 Storage: {localStorage.getItem("app_language") || "none"}
               </p>
               <p className="text-xs text-white/50 font-mono mt-1">
-                📚 Available: en, es
+                🔒 Manual: {localStorage.getItem("language_override") === "true" ? "Yes" : "No"}
               </p>
             </div>
           </div>
