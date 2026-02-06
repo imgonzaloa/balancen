@@ -39,7 +39,9 @@ export default function Settings() {
   });
 
   const handleLanguageChange = (language) => {
-    changeLanguage(language);
+    if (typeof changeLanguage === 'function') {
+      changeLanguage(language);
+    }
     if (profile?.id) {
       base44.entities.UserProfile.update(profile.id, { language });
     }
