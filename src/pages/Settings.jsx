@@ -38,12 +38,11 @@ export default function Settings() {
     },
   });
 
-  const handleLanguageChange = async (language) => {
+  const handleLanguageChange = (language) => {
     changeLanguage(language);
     if (profile?.id) {
-      await base44.entities.UserProfile.update(profile.id, { language });
+      base44.entities.UserProfile.update(profile.id, { language });
     }
-    toast.success("Language changed");
   };
 
   const handleToggle = (field, value) => {
