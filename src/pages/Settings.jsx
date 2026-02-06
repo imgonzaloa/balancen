@@ -39,10 +39,12 @@ export default function Settings() {
   const languageMutation = useMutation({
     mutationFn: async (language) => {
       await base44.entities.UserProfile.update(profile.id, { language });
+      return language;
     },
-    onSuccess: () => {
+    onSuccess: (language) => {
       queryClient.invalidateQueries(["profile"]);
-      toast.success("✓");
+      queryClient.invalidateQueries(["profile", user?.email]);
+      toast.success(language === "es" ? "Idioma actualizado" : "Language updated");
     },
   });
 
