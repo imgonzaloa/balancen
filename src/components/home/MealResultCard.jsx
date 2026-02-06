@@ -92,10 +92,10 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
     });
   };
 
-  const analyzePhoto = async () => {
+  const analyzePhotoFile = async (fileObj) => {
     try {
       setAnalyzing(true);
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: fileObj });
       await performAnalysis(file_url);
       setAnalyzing(false);
     } catch (err) {
@@ -103,6 +103,10 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
       setError(err.message);
       setAnalyzing(false);
     }
+  };
+
+  const analyzePhoto = async () => {
+    await analyzePhotoFile(file);
   };
 
   const handleSave = async () => {
