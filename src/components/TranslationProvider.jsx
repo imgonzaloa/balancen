@@ -258,7 +258,8 @@ export function useTranslation() {
     // Fallback if not wrapped in provider
     return { 
       t: (key) => translations.en[key] || key, 
-      lang: "en" 
+      lang: "en",
+      changeLanguage: () => {}
     };
   }
   return context;
