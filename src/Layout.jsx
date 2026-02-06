@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, Users, Award, User } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
+import { useState, useEffect } from "react";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -13,25 +14,63 @@ const navItemsBase = [
 ];
 
 export default function Layout({ children, currentPageName }) {
-  const hideNav = ["Onboarding"].includes(currentPageName);
+  const hideNav = ["Onboarding", "Paywall"].includes(currentPageName);
   const { t } = useTranslation();
+  const [direction, setDirection] = useState(0);
+  const [prevPage, setPrevPage] = useState(currentPageName);
   
   const navItems = navItemsBase.map(item => ({
     ...item,
     label: t(item.key)
   }));
 
+  useEffect(() => {
+    const currentIndex = navItems.findIndex(item => item.name === currentPageName);
+    const prevIndex = navItems.findIndex(item => item.name === prevPage);
+    if (currentIndex !== -1 && prevIndex !== -1) {
+      setDirection(currentIndex > prevIndex ? 1 : -1);
+    }
+    setPrevPage(currentPageName);
+  }, [currentPageName]);
+
+  const pageVariants = {
+    initial: (direction) => ({
+      x: direction > 0 ? 50 : -50,
+      opacity: 0
+    }),
+    animate: {
+      x: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
+    },
+    exit: (direction) => ({
+      x: direction > 0 ? -50 : 50,
+      opacity: 0,
+      transition: { duration: 0.2 }
+    })
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 select-none">
       <Toaster position="top-center" richColors />
       
-      <main className={hideNav ? "" : "pb-20"}>
-        {children}
-      </main>
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.main
+          key={currentPageName}
+          custom={direction}
+          variants={pageVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className={hideNav ? "" : "pb-20"}
+        >
+          {children}
+        </motion.main>
+      </AnimatePresence>
 
       {!hideNav && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-2xl border-t border-white/10 px-4 py-3 z-50">
-          <div className="max-w-lg mx-auto flex justify-around">
+        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-2xl border-t border-white/10 px-4 py-2 z-50 safe-area-inset-bottom">
+          <div className="max-w-lg mx-auto flex justify-around items-end" style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPageName === item.name;
@@ -40,35 +79,37 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.name}
                   to={createPageUrl(item.name)}
-                  className="relative flex flex-col items-center py-2 px-4"
+                  className="relative flex flex-col items-center py-2 px-4 touch-manipulation"
                 >
                   {isActive && (
                     <motion.div
                       layoutId="navIndicator"
-                      className="absolute -top-2 w-14 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full shadow-lg shadow-teal-500/50"
+                      className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full"
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />
                   )}
                   <motion.div
-                    className={`p-2 rounded-2xl transition-all ${
+                    className={`p-2.5 rounded-2xl ${
                       isActive ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/20" : ""
                     }`}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileTap={{ scale: 0.85 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
                   >
                     <Icon
-                      size={24}
+                      size={22}
                       className={`transition-colors ${
                         isActive ? "text-teal-300" : "text-slate-400"
                       }`}
                     />
                   </motion.div>
-                  <span
-                    className={`text-xs mt-1 transition-colors font-medium ${
+                  <motion.span
+                    className={`text-[10px] mt-0.5 transition-colors font-semibold ${
                       isActive ? "text-teal-300" : "text-slate-500"
                     }`}
+                    animate={{ scale: isActive ? 1.05 : 1 }}
                   >
                     {item.label}
-                  </span>
+                  </motion.span>
                 </Link>
               );
             })}
