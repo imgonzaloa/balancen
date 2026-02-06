@@ -50,7 +50,7 @@ export default function DailyMissions({ todayMeals, consumed, goal, profile }) {
 
       {/* Mission list */}
       <div className="space-y-3">
-        {missions && missions.length > 0 ? missions.map((mission, idx) => {
+        {missions.map((mission, idx) => {
           const isComplete = getMissionStatus(mission.id);
           return (
             <motion.div
@@ -69,7 +69,7 @@ export default function DailyMissions({ todayMeals, consumed, goal, profile }) {
                 <p className={`text-sm font-medium ${isComplete ? "text-emerald-300" : "text-white"}`}>
                   {mission.label}
                 </p>
-                <p className="text-xs text-white/60">+{mission.fire} fire</p>
+                <p className="text-xs text-white/60">+{mission.fire} {t("fire")}</p>
               </div>
               {isComplete ? (
                 <Check size={20} className="text-emerald-400" />
