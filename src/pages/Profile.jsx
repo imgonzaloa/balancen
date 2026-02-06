@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, User, Scale, Ruler, LogOut, Save, Camera, Settings } from "lucide-react";
+import { ChevronLeft, User, Scale, Ruler, LogOut, Save, Camera, Settings, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import StreakFire from "@/components/ui/StreakFire";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -48,6 +49,18 @@ export default function Profile() {
       queryClient.invalidateQueries(["profile"]);
       setEditMode(false);
       toast.success("Profile updated");
+    },
+  });
+
+  const languageMutation = useMutation({
+    mutationFn: async (language) => {
+      await base44.entities.UserProfile.update(profile.id, { language });
+      localStorage.setItem("app_language", language);
+      return language;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["profile"]);
+      toast.success(profile?.language === "es" ? "Idioma actualizado" : "Language updated");
     },
   });
 
@@ -178,12 +191,46 @@ export default function Profile() {
           </div>
         </motion.div>
 
+        {/* Language Selector */}
+        <motion.div
+          className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 shadow-lg mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+              <Globe size={20} className="text-indigo-300" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-white">
+                {profile?.language === "es" ? "Idioma" : "Language"}
+              </h3>
+              <p className="text-xs text-teal-200">
+                {profile?.language === "es" ? "Selecciona tu idioma" : "Select your language"}
+              </p>
+            </div>
+          </div>
+          <Select
+            value={profile?.language || "en"}
+            onValueChange={(value) => languageMutation.mutate(value)}
+          >
+            <SelectTrigger className="bg-white/10 border-white/20 text-white rounded-xl">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">🇬🇧 English</SelectItem>
+              <SelectItem value="es">🇪🇸 Español</SelectItem>
+            </SelectContent>
+          </Select>
+        </motion.div>
+
         {/* Settings Button */}
         <motion.div
           className="mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.12 }}
         >
           <Link to={createPageUrl("Settings")}>
             <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 shadow-lg flex items-center justify-between hover:bg-white/20 transition-all">
