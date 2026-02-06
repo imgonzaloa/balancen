@@ -24,6 +24,7 @@ import FriendsList from "@/components/home/FriendsList";
 import SocialCompletionStatus from "@/components/home/SocialCompletionStatus";
 import SocialActivityFeed from "@/components/home/SocialActivityFeed";
 import DailyTaskChecklist from "@/components/home/DailyTaskChecklist";
+import SetStatusModal from "@/components/groups/SetStatusModal";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -187,8 +188,9 @@ export default function Home() {
         const longestStreak = Math.max(profile.longest_streak, newStreak);
         const totalCheckins = profile.total_checkins + 1;
 
-        // FREE PLAN: Cap streak at 3 days
-        const finalStreak = (!profile.is_premium && newStreak > 3) ? 3 : newStreak;
+        // FREE PLAN: Cap streak at 3 days (owner exempt)
+        const isOwner = profile.role === "owner";
+        const finalStreak = (!profile.is_premium && !isOwner && newStreak > 3) ? 3 : newStreak;
 
         await base44.entities.UserProfile.update(profile.id, {
           current_streak: finalStreak,
@@ -205,8 +207,8 @@ export default function Home() {
           setShowFirstStreakModal(true);
         }
 
-        // Show paywall when reaching day 3 for free users
-        if (finalStreak === 3 && !profile.is_premium) {
+        // Show paywall when reaching day 3 for free users (owner exempt)
+        if (finalStreak === 3 && !profile.is_premium && !isOwner) {
           setTimeout(() => {
             window.location.href = createPageUrl("Paywall");
           }, 2000);
@@ -298,6 +300,37 @@ export default function Home() {
           </div>
 
           <StreakFire streak={profile?.current_streak || 0} />
+        </motion.div>
+
+        {/* Daily Status Input */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.03 }}
+        >
+          <SetStatusModal
+            currentStatus={profile?.status_text}
+            profile={profile}
+            onUpdate={() => {
+              queryClient.invalidateQueries(["profile"]);
+            }}
+            trigger={
+              <button className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 hover:bg-white/15 transition-all text-left">
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl">✨</div>
+                  <div className="flex-1">
+                    <p className="text-xs text-white/60 mb-1">{t("whats_on_your_mind")}</p>
+                    {profile?.status_text ? (
+                      <p className="text-white font-medium">{profile.status_text}</p>
+                    ) : (
+                      <p className="text-white/40">{t("set_daily_status")}</p>
+                    )}
+                  </div>
+                </div>
+              </button>
+            }
+          />
         </motion.div>
 
         {/* Daily Mission - PRIMARY FOCUS */}
@@ -461,8 +494,8 @@ export default function Home() {
           <WeekProgress checkIns={checkIns} />
         </motion.div>
 
-        {/* AI Features - Premium Only */}
-        {profile?.is_premium ? (
+        {/* AI Features - Premium Only (hide for owner) */}
+        {profile?.is_premium && profile?.role !== "owner" ? (
           <>
             {/* AI Health Insights */}
             {profile?.ai_recommendations_enabled !== false && checkIns.length >= 3 && (
@@ -501,7 +534,7 @@ export default function Home() {
             )}
           </>
         ) : (
-          checkIns.length >= 2 && (
+          checkIns.length >= 2 && profile?.role !== "owner" && (
             <motion.div
               className="mt-6"
               initial={{ opacity: 0, y: 20 }}
