@@ -302,12 +302,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
-      {/* Debug Panel - Remove after testing */}
-      <div className="fixed top-2 right-2 z-50 bg-black/80 text-white text-xs p-2 rounded-lg font-mono">
-        <div>🌍 Lang: {lang}</div>
-        <div>💾 Store: {localStorage.getItem("balancen_lang")}</div>
-        <div>🔤 t(debug.sample): {t("debug.sample")}</div>
-      </div>
       {/* UI Version Manager - handles migrations */}
       <UIVersionManager user={user} profile={profile} />
       
