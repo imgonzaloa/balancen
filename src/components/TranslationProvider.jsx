@@ -233,11 +233,11 @@ export function TranslationProvider({ children }) {
     }
   }, [profile?.language]);
 
-  const changeLanguage = (newLang) => {
+  const changeLanguage = async (newLang) => {
     setCurrentLang(newLang);
     localStorage.setItem("appLanguage", newLang);
     if (profile?.id) {
-      base44.entities.UserProfile.update(profile.id, { language: newLang });
+      await base44.entities.UserProfile.update(profile.id, { language: newLang });
     }
   };
 

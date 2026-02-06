@@ -39,11 +39,8 @@ export default function Settings() {
   });
 
   const handleLanguageChange = async (language) => {
-    changeLanguage(language);
-    if (profile?.id) {
-      await base44.entities.UserProfile.update(profile.id, { language });
-      queryClient.invalidateQueries(["profile", user?.email]);
-    }
+    await changeLanguage(language);
+    queryClient.invalidateQueries(["profile", user?.email]);
     toast.success("Language updated");
   };
 
