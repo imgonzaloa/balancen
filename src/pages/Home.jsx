@@ -117,17 +117,17 @@ export default function Home() {
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      <div className="max-w-lg mx-auto px-5 pb-24 pt-6 relative z-10 space-y-6">
+      <div className="max-w-lg mx-auto px-4 pb-24 pt-6 relative z-10 space-y-6">
         {/* Header with greeting */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center"
+          className="text-center space-y-1"
         >
-          <p className="text-teal-200 text-sm font-medium mb-2">
+          <p className="text-teal-200 text-xs font-semibold uppercase tracking-wide">
             {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
           </p>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-4xl font-black text-white">
             {profile?.display_name || t("welcome") || "Welcome"}
           </h1>
         </motion.div>
