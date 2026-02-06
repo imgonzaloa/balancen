@@ -227,11 +227,14 @@ export function TranslationProvider({ children }) {
   });
 
   useEffect(() => {
-    if (profile?.language && profile.language !== currentLang) {
+    const savedLang = localStorage.getItem("appLanguage");
+    if (savedLang && savedLang !== currentLang) {
+      setCurrentLang(savedLang);
+    } else if (profile?.language && !savedLang) {
       setCurrentLang(profile.language);
       localStorage.setItem("appLanguage", profile.language);
     }
-  }, [profile?.language, currentLang]);
+  }, [profile?.language]);
 
   const changeLanguage = (newLang) => {
     setCurrentLang(newLang);
