@@ -67,7 +67,7 @@ export default function MealPhotoCapture({ isOpen, onClose, onPhotoSelected }) {
         {!mode ? (
           <motion.div className="space-y-4 py-8">
             <h2 className="text-xl font-bold text-white text-center mb-6">
-              {t("add_meal") || "Add Meal"}
+              {t("add_meal")}
             </h2>
             <Button
               onClick={() => {
@@ -77,7 +77,7 @@ export default function MealPhotoCapture({ isOpen, onClose, onPhotoSelected }) {
               className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white py-6 rounded-2xl flex items-center justify-center gap-3"
             >
               <Camera size={20} />
-              {t("take_photo") || "Take Photo"}
+              {t("take_photo")}
             </Button>
             <Button
               onClick={() => {
@@ -88,7 +88,7 @@ export default function MealPhotoCapture({ isOpen, onClose, onPhotoSelected }) {
               className="w-full bg-white/10 border-white/20 text-white py-6 rounded-2xl flex items-center justify-center gap-3 hover:bg-white/20"
             >
               <Upload size={20} />
-              {t("upload_photo") || "Upload Photo"}
+              {t("upload_photo")}
             </Button>
           </motion.div>
         ) : mode === "camera" && cameraActive ? (

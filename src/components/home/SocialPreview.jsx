@@ -27,9 +27,9 @@ export default function SocialPreview({ friendsCount, groupsCount, userStreak })
                 <Users size={20} className="text-teal-300" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white">{t("friends") || "Friends"}</p>
-                <p className="text-xs text-teal-200 font-medium">{friendsCount || 0} {t("connected") || "connected"}</p>
-              </div>
+                 <p className="text-sm font-semibold text-white">{t("friends")}</p>
+                 <p className="text-xs text-teal-200 font-medium">{friendsCount || 0} {t("connected")}</p>
+               </div>
             </div>
             <ChevronRight size={18} className="text-white/40 flex-shrink-0" />
           </div>
@@ -49,9 +49,9 @@ export default function SocialPreview({ friendsCount, groupsCount, userStreak })
                 <TrendingUp size={20} className="text-purple-300" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white">{t("groups") || "Groups"}</p>
-                <p className="text-xs text-purple-200 font-medium">{groupsCount || 0} {t("groups_joined") || "groups"}</p>
-              </div>
+                 <p className="text-sm font-semibold text-white">{t("groups")}</p>
+                 <p className="text-xs text-purple-200 font-medium">{groupsCount || 0} {t("groups_joined")}</p>
+               </div>
             </div>
             <ChevronRight size={18} className="text-white/40 flex-shrink-0" />
           </div>
