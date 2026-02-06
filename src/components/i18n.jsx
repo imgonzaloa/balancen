@@ -285,7 +285,17 @@ const resources = {
       personalized_health_insights: "Personalized health insights & recommendations",
       weekly_ai_summaries: "Weekly AI-generated progress summaries",
       smart_challenge_suggestions: "Smart challenge suggestions based on your data",
-      upgrade_to_premium_cta: "Upgrade to Premium"
+      upgrade_to_premium_cta: "Upgrade to Premium",
+      
+      // Quick stats update
+      quick_update: "Quick Update",
+      update_anytime: "Update your stats anytime",
+      stats_updated: "Stats updated successfully",
+      error_updating_stats: "Error updating stats",
+      remaining: "remaining",
+      cancel: "Cancel",
+      save: "Save",
+      saving: "Saving..."
     }
   },
   es: {
@@ -552,7 +562,17 @@ const resources = {
       personalized_health_insights: "Información y recomendaciones de salud personalizadas",
       weekly_ai_summaries: "Resúmenes de progreso generados por IA semanalmente",
       smart_challenge_suggestions: "Sugerencias de desafíos inteligentes basados en tus datos",
-      upgrade_to_premium_cta: "Actualizar a Premium"
+      upgrade_to_premium_cta: "Actualizar a Premium",
+      
+      // Quick stats update
+      quick_update: "Actualización Rápida",
+      update_anytime: "Actualiza tus estadísticas en cualquier momento",
+      stats_updated: "Estadísticas actualizadas exitosamente",
+      error_updating_stats: "Error al actualizar estadísticas",
+      remaining: "restantes",
+      cancel: "Cancelar",
+      save: "Guardar",
+      saving: "Guardando..."
     }
   }
 };
