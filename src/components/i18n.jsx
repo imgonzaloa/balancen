@@ -328,7 +328,16 @@ const resources = {
       consumed: "Consumed",
       goal_exceeded: "Goal exceeded",
       last_meal: "Last meal",
-      meal_analysis: "Meal Analysis"
+      meal_analysis: "Meal Analysis",
+      create_group: "Create Group",
+      join_group: "Join Group",
+      create: "Create",
+      join: "Join",
+      group_created: "Group created!",
+      joined_group: "Joined group!",
+      no_groups_yet: "No groups yet",
+      create_or_join_group: "Create or join a group to get started!",
+      code_copied: "Code copied!"
       }
       },
   es: {
@@ -638,7 +647,16 @@ const resources = {
       consumed: "Consumidas",
       goal_exceeded: "Objetivo superado",
       last_meal: "Última comida",
-      meal_analysis: "Análisis de comida"
+      meal_analysis: "Análisis de comida",
+      create_group: "Crear grupo",
+      join_group: "Unirse a grupo",
+      create: "Crear",
+      join: "Unirse",
+      group_created: "¡Grupo creado!",
+      joined_group: "¡Grupo creado!",
+      no_groups_yet: "Sin grupos aún",
+      create_or_join_group: "¡Crea o únete a un grupo para empezar!",
+      code_copied: "¡Código copiado!"
       }
       }
       };
