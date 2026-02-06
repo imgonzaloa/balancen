@@ -119,13 +119,13 @@ export default function Profile() {
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
       
-      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
+      <div className="max-w-lg mx-auto px-4 pb-24 pt-8 relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link
               to={createPageUrl("Home")}
-              className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors"
+              className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0"
             >
               <ChevronLeft size={20} className="text-white" />
             </Link>
@@ -134,7 +134,7 @@ export default function Profile() {
           {!editMode && (
             <Button
               onClick={() => setEditMode(true)}
-              className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20"
+              className="rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 h-10 px-4"
             >
               {t("edit")}
             </Button>
@@ -176,19 +176,19 @@ export default function Profile() {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-sm rounded-2xl p-4 text-center border border-amber-400/20">
-                <div className="flex items-center justify-center mb-2">
+              <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-sm rounded-2xl p-5 text-center border border-amber-400/30 flex flex-col items-center justify-center min-h-[140px]">
+                <div className="flex items-center justify-center mb-3">
                   <StreakFire streak={profile?.current_streak || 0} size="small" />
                 </div>
-                <p className="text-xs text-white/80 font-medium">{t("current_streak")}</p>
+                <p className="text-xs text-white/70 font-semibold">{t("current_streak")}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
-                <p className="text-2xl font-bold text-teal-300">{profile?.longest_streak || 0}</p>
-                <p className="text-xs text-white/80 mt-1 font-medium">{t("best_streak")}</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20 flex flex-col items-center justify-center min-h-[140px]">
+                <p className="text-4xl font-bold text-teal-300 leading-none mb-2">{profile?.longest_streak || 0}</p>
+                <p className="text-xs text-white/70 font-semibold">{t("best_streak")}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
-                <p className="text-2xl font-bold text-white">{profile?.total_checkins || 0}</p>
-                <p className="text-xs text-white/80 mt-1 font-medium">{t("total_checkins")}</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20 flex flex-col items-center justify-center min-h-[140px]">
+                <p className="text-4xl font-bold text-white leading-none mb-2">{profile?.total_checkins || 0}</p>
+                <p className="text-xs text-white/70 font-semibold">{t("total_checkins")}</p>
               </div>
             </div>
           </div>
