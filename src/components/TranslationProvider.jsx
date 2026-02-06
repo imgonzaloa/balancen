@@ -247,20 +247,13 @@ const translations = {
     select_language: "Selecciona tu idioma",
     privacy: "Privacidad",
     data_encrypted: "Tus datos están encriptados y seguros",
-    },
-    debug: {
-    sample: "Hola"
-    }
-    },
-    en: {
-    ...translations.en,
-    debug: {
-    sample: "Hello"
     }
     }
     };
 
-    translations = enrichedTranslations;
+    // Add debug key to both languages
+    translations.en.debug = { sample: "Hello" };
+    translations.es.debug = { sample: "Hola" };
 
 const TranslationContext = createContext();
 
