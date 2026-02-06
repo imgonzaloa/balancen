@@ -5,7 +5,7 @@ import { X, Loader2, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import { useMeal } from "@/context/MealContext";
+import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
 import MealAnalysisOverlay from "@/components/home/MealAnalysisOverlay";
 import { Button } from "@/components/ui/button";

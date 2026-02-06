@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import { useMeal } from "@/context/MealContext";
+import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
 
 export default function CameraScreen() {
