@@ -43,15 +43,12 @@ export default function Settings() {
   });
 
   const handleLanguageChange = async (language) => {
-    console.log("🎯 User manually selected language:", language);
+    console.log("🎯 User selected language:", language);
     
-    // 1. Set manual override flag (prevents auto-detection)
-    localStorage.setItem("language_override", "true");
+    // 1. Update language in context (triggers immediate re-render)
+    changeLanguage(language);
     
-    // 2. Save language preference
-    localStorage.setItem("app_language", language);
-    
-    // 3. Save to user profile
+    // 2. Save to user profile
     if (profile?.id) {
       try {
         await base44.entities.UserProfile.update(profile.id, { language });
@@ -61,19 +58,11 @@ export default function Settings() {
       }
     }
     
-    // 4. Update context
-    changeLanguage(language);
-    
-    // 5. Show toast and FORCE RELOAD
+    // 3. Show success message in NEW language
     const message = language === "es" 
-      ? "Idioma actualizado. Recargando..." 
-      : "Language updated. Reloading...";
+      ? "✅ Idioma actualizado" 
+      : "✅ Language updated";
     toast.success(message);
-    
-    // 6. Force full app reload to apply language
-    setTimeout(() => {
-      window.location.reload();
-    }, 800);
   };
 
   const handleToggle = (field, value) => {
@@ -96,7 +85,10 @@ export default function Settings() {
           >
             <ChevronLeft size={20} className="text-white" />
           </Link>
-          <h1 className="text-2xl font-bold text-white">{t('settings')}</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-white">{t('settings')}</h1>
+            <p className="text-xs text-teal-200">Active: {lang}</p>
+          </div>
         </div>
 
         {/* Premium Status */}
@@ -341,12 +333,12 @@ export default function Settings() {
             </div>
             
             <Select
-              value={localStorage.getItem("app_language") || lang}
+              value={lang}
               onValueChange={handleLanguageChange}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue>
-                  {(localStorage.getItem("app_language") || lang) === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
+                  {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -356,13 +348,13 @@ export default function Settings() {
             </Select>
             <div className="mt-3 p-3 rounded-lg bg-black/20 border border-white/10">
               <p className="text-xs text-white/70 font-mono">
-                🌍 Active: <span className="text-teal-300 font-bold">{lang}</span>
+                🌍 {t('language')}: <span className="text-teal-300 font-bold">{lang === "es" ? "Español" : "English"}</span>
               </p>
               <p className="text-xs text-white/50 font-mono mt-1">
-                💾 Storage: {localStorage.getItem("app_language") || "none"}
+                💾 localStorage: {localStorage.getItem("app_language") || "none"}
               </p>
               <p className="text-xs text-white/50 font-mono mt-1">
-                🔒 Manual: {localStorage.getItem("language_override") === "true" ? "Yes" : "No"}
+                🔄 {t('select_language')}
               </p>
             </div>
           </div>

@@ -253,38 +253,29 @@ const TranslationContext = createContext();
 
 // Initialize language on app boot - SINGLE SOURCE OF TRUTH
 const getInitialLanguage = () => {
-  const hasManualOverride = localStorage.getItem("language_override") === "true";
   const saved = localStorage.getItem("app_language");
   
-  // 1. If user manually selected language, ALWAYS use it (no auto-detection)
-  if (hasManualOverride && (saved === "en" || saved === "es")) {
-    console.log("🌍 Manual override active. Using saved language:", saved);
-    return saved;
-  }
-  
-  // 2. If saved language exists but no override, use it
+  // Always prioritize saved preference
   if (saved === "en" || saved === "es") {
-    console.log("🌍 Using saved language:", saved);
+    console.log("🌍 Loading saved language:", saved);
     return saved;
   }
   
-  // 3. Auto-detect browser language (only if no preference exists)
-  const browserLang = navigator.language || navigator.userLanguage;
-  const detected = browserLang.toLowerCase().startsWith('es') ? 'es' : 'en';
-  console.log("🌍 Auto-detected browser language:", detected);
-  
-  localStorage.setItem("app_language", detected);
-  return detected;
+  // Default to English
+  console.log("🌍 No saved language, defaulting to English");
+  localStorage.setItem("app_language", "en");
+  return "en";
 };
 
 export function TranslationProvider({ children }) {
-  // Initialize language from localStorage ONCE on app boot
-  const [currentLang] = useState(getInitialLanguage);
+  const [currentLang, setCurrentLang] = useState(getInitialLanguage);
 
   const changeLanguage = (newLang) => {
-    console.log("🔄 Saving language preference:", newLang);
+    console.log("🔄 Changing language to:", newLang);
+    setCurrentLang(newLang);
     localStorage.setItem("app_language", newLang);
-    console.log("✅ Language saved. App will reload to apply changes.");
+    localStorage.setItem("language_override", "true");
+    console.log("✅ Language changed to:", newLang);
   };
 
   const t = (key) => {
@@ -296,7 +287,7 @@ export function TranslationProvider({ children }) {
     return translation;
   };
 
-  console.log("🎨 App language:", currentLang);
+  console.log("🎨 TranslationProvider active language:", currentLang);
 
   return (
     <TranslationContext.Provider value={{ t, lang: currentLang, changeLanguage }}>
