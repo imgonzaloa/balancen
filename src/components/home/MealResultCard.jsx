@@ -111,10 +111,10 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
         console.error('Error updating check-in:', err);
       }
 
-      toast.success(t("meal_saved") || "Meal saved!");
+      toast.success(t("meal_saved"));
       onSave?.();
-    } catch (err) {
-      toast.error(t("error_saving") || "Error saving meal");
+      } catch (err) {
+      toast.error(t("error_saving"));
       console.error(err);
     } finally {
       setUploading(false);
@@ -129,8 +129,8 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
         className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center"
       >
         <Loader2 size={40} className="text-teal-400 mx-auto mb-4 animate-spin" />
-        <p className="text-white font-semibold">{t("analyzing_meal") || "Analyzing meal..."}</p>
-        <p className="text-white/60 text-sm mt-2">{t("please_wait") || "This takes a few seconds"}</p>
+        <p className="text-white font-semibold">{t("analyzing_meal")}</p>
+        <p className="text-white/60 text-sm mt-2">{t("please_wait")}</p>
       </motion.div>
     );
   }
@@ -145,8 +145,8 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
         <div className="flex items-start gap-3">
           <AlertCircle size={24} className="text-red-300 flex-shrink-0 mt-1" />
           <div className="flex-1">
-            <p className="text-red-300 font-semibold">{t("analysis_failed") || "Analysis failed"}</p>
-            <p className="text-red-200/70 text-sm mt-1">{error}</p>
+             <p className="text-red-300 font-semibold">{t("analysis_failed")}</p>
+             <p className="text-red-200/70 text-sm mt-1">{error}</p>
             <div className="flex gap-2 mt-4">
               <Button onClick={onCancel} variant="outline" className="flex-1 bg-red-500/20 border-red-400 text-red-300 hover:bg-red-500/30">
                 {t("cancel")}
@@ -176,7 +176,7 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
 
       {/* Detected Items List - Editable */}
       <div className="space-y-2">
-        <p className="text-xs text-white/60 font-semibold uppercase">{t("detected_items") || "Detected Items"}</p>
+        <p className="text-xs text-white/60 font-semibold uppercase">{t("detected_items")}</p>
         <div className="space-y-2 max-h-32 overflow-y-auto">
           {items.map((item, idx) => (
             <motion.div
@@ -204,14 +204,14 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
         </div>
         <button className="w-full py-2 rounded-lg bg-teal-500/20 border border-teal-500/50 text-teal-300 text-sm font-medium hover:bg-teal-500/30 transition-colors flex items-center justify-center gap-2">
           <Plus size={16} />
-          {t("add_manual_item") || "Add manual item"}
+          {t("add_manual_item")}
         </button>
       </div>
 
       {/* Editable Nutrition */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white/5 rounded-2xl p-4">
-          <label className="text-xs text-white/60 block mb-2">{t("calories") || "Calories"}</label>
+          <label className="text-xs text-white/60 block mb-2">Calorías</label>
           <Input
             type="number"
             value={editValues.calories}
@@ -220,7 +220,7 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
           />
         </div>
         <div className="bg-white/5 rounded-2xl p-4">
-          <label className="text-xs text-white/60 block mb-2">{t("health_score") || "Health"}</label>
+          <label className="text-xs text-white/60 block mb-2">{t("health_score")}</label>
           <div className="w-full h-10 rounded-xl bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 relative overflow-hidden">
             <div
               className="h-full bg-white/30 transition-all duration-300"
@@ -236,9 +236,9 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
       {/* Macros Grid */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { label: t("protein") || "Protein", key: "protein_g", unit: "g" },
-          { label: t("carbs") || "Carbs", key: "carbs_g", unit: "g" },
-          { label: t("fats") || "Fats", key: "fats_g", unit: "g" }
+          { label: t("protein"), key: "protein_g", unit: "g" },
+          { label: t("carbs"), key: "carbs_g", unit: "g" },
+          { label: t("fats"), key: "fats_g", unit: "g" }
         ].map((macro) => (
           <div key={macro.key} className="bg-white/5 rounded-xl p-3">
             <p className="text-xs text-white/60 mb-2">{macro.label}</p>
@@ -257,7 +257,7 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
       {/* AI Confidence & Health Score */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white/5 rounded-lg p-3 text-center">
-          <p className="text-xs text-white/60 mb-1">{t("confidence") || "AI Confidence"}</p>
+          <p className="text-xs text-white/60 mb-1">{t("confidence")}</p>
           <div className="flex items-center justify-center gap-1">
             <div className="flex gap-0.5">
               {[...Array(5)].map((_, i) => (
@@ -275,7 +275,7 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
           </div>
         </div>
         <div className="bg-white/5 rounded-lg p-3 text-center">
-          <p className="text-xs text-white/60 mb-1">{t("health_score") || "Health"}</p>
+          <p className="text-xs text-white/60 mb-1">{t("health_score")}</p>
           <div className="w-full h-2 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 relative overflow-hidden">
             <div
               className="h-full bg-white/30 transition-all"
@@ -309,7 +309,7 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
           ) : (
             <>
               <CheckCircle2 size={16} />
-              {t("save_meal")}
+              Guardar comida
             </>
           )}
         </Button>
