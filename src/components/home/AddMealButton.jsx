@@ -30,7 +30,7 @@ export default function AddMealButton({ onClick }) {
       >
         <Camera size={24} />
       </motion.div>
-      <span className="relative z-10">{t("add_meal") || "Add Meal"}</span>
+      <span className="relative z-10">{t("add_meal")}</span>
     </motion.button>
   );
 }

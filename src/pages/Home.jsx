@@ -103,7 +103,7 @@ export default function Home() {
     setSelectedMealFile(null);
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
     queryClient.invalidateQueries({ queryKey: ["profile"] });
-    toast.success("🍽️ " + (t("meal_saved") || "Meal logged!"));
+    toast.success("🍽️ " + t("meal_saved"));
   };
 
   return (
@@ -128,7 +128,7 @@ export default function Home() {
             {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
           </p>
           <h1 className="text-4xl font-black text-white">
-            {profile?.display_name || t("welcome") || "Welcome"}
+            {profile?.display_name || t("welcome")}
           </h1>
         </motion.div>
 
@@ -180,7 +180,7 @@ export default function Home() {
               className="w-full bg-slate-900 rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-4 sticky top-0">
-                <h2 className="text-xl font-bold text-white">{t("meal_analysis") || "Meal Analysis"}</h2>
+                <h2 className="text-xl font-bold text-white">{t("meal_analysis")}</h2>
                 <button
                   onClick={() => setShowMealResult(false)}
                   className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white"
