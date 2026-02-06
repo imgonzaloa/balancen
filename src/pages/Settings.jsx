@@ -219,17 +219,6 @@ export default function Settings() {
                 />
                 <p className="text-xs text-white/40 mt-1">{t('optional_leave_empty')}</p>
               </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <div>
-                  <Label className="text-white text-sm">{t('auto_adjust_calories')}</Label>
-                  <p className="text-xs text-white/60">{t('reduce_50_when_met')}</p>
-                </div>
-                <Switch
-                  checked={profile?.auto_adjust_calories_goal || false}
-                  onCheckedChange={(checked) => handleToggle("auto_adjust_calories_goal", checked)}
-                />
-              </div>
             </div>
           </div>
         </motion.div>
