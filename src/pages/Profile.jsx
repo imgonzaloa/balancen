@@ -68,6 +68,18 @@ export default function Profile() {
     base44.auth.logout();
   };
 
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await base44.functions.invoke('deleteUserAccount', {});
+      toast.success(t("account_deleted"));
+      base44.auth.logout();
+    } catch (error) {
+      toast.error(t("error_deleting_account"));
+      setDeleting(false);
+    }
+  };
+
   const goalLabels = {
     en: {
       consistency: "Be more consistent",

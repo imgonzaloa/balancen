@@ -15,6 +15,7 @@ export default function Friends() {
   const [user, setUser] = useState(null);
   const [friendEmail, setFriendEmail] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -101,8 +102,51 @@ export default function Friends() {
     },
   });
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["friendsSent"] }),
+      queryClient.invalidateQueries({ queryKey: ["friendsReceived"] }),
+      queryClient.invalidateQueries({ queryKey: ["friendProfiles"] }),
+    ]);
+    setTimeout(() => setRefreshing(false), 500);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+    <div 
+      className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden"
+      onTouchStart={(e) => {
+        if (window.scrollY === 0) {
+          const touch = e.touches[0];
+          window.touchStartY = touch.clientY;
+        }
+      }}
+      onTouchMove={(e) => {
+        if (window.scrollY === 0 && window.touchStartY) {
+          const touch = e.touches[0];
+          const pullDistance = touch.clientY - window.touchStartY;
+          if (pullDistance > 80 && !refreshing) {
+            handleRefresh();
+            window.touchStartY = null;
+          }
+        }
+      }}
+      onTouchEnd={() => {
+        window.touchStartY = null;
+      }}
+    >
+      {refreshing && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-white/10 backdrop-blur-xl px-4 py-2 rounded-full">
+          <motion.div
+            className="text-white text-sm"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ repeat: Infinity, duration: 1 }}
+          >
+            {t('refreshing')}...
+          </motion.div>
+        </div>
+      )}
+
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
         <div className="absolute -bottom-8 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
