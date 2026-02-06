@@ -28,8 +28,16 @@ export default function InviteCollaborators() {
 
     setLoading(true);
     try {
+      // Registrar como colaborador (premium gratis)
+      await base44.entities.Collaborator.create({
+        email: email.toLowerCase(),
+        invited_by: user.email,
+        has_registered: false
+      });
+      
+      // Enviar invitación
       await base44.users.inviteUser(email, "user");
-      toast.success(`Invitation sent to ${email}`);
+      toast.success(`Invitation sent to ${email} with FREE premium access`);
       setEmail("");
     } catch (error) {
       toast.error("Failed to send invitation");
