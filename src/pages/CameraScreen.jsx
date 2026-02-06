@@ -96,20 +96,37 @@ export default function CameraScreen() {
       // Draw video frame
       ctx.drawImage(videoRef.current, 0, 0);
 
-      // Convert to JPEG data URL (instant, no upload needed)
-      const imageData = canvas.toDataURL("image/jpeg", 0.95);
+      // Convert to JPEG data URL
+      const dataURL = canvas.toDataURL("image/jpeg", 0.95);
 
-      // Stop camera and navigate with image data
+      // Convert dataURL → Blob → File object
+      const file = dataURLtoFile(dataURL, "meal.jpg");
+
+      // Stop camera and navigate with real File object
       stopCamera();
 
-      // Navigate to Home with captured image
+      // Navigate to Home with captured image File
       navigate("/Home", {
-        state: { capturedPhoto: imageData }
+        state: { capturedPhoto: file }
       });
     } catch (err) {
       console.error("Capture error:", err);
       toast.error(t("error_capturing"));
     }
+  };
+
+  // Convert dataURL to proper File object
+  const dataURLtoFile = (dataURL, filename) => {
+    const arr = dataURL.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    const blob = new Blob([u8arr], { type: mime });
+    return new File([blob], filename, { type: mime });
   };
 
   const handleFileUpload = (e) => {
