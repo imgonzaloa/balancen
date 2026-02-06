@@ -16,61 +16,93 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
   const [editValues, setEditValues] = useState({});
   const [uploading, setUploading] = useState(false);
   const [items, setItems] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
-    analyzePhoto();
+    // Handle data URL from camera capture (instant display)
+    if (file && typeof file === 'string' && file.startsWith('data:image')) {
+      setImagePreview(file);
+      analyzePhotoFromDataUrl(file);
+    } else if (file) {
+      // Handle File object
+      setImagePreview(URL.createObjectURL(file));
+      analyzePhoto();
+    }
   }, [file]);
+
+  const analyzePhotoFromDataUrl = async (dataUrl) => {
+    try {
+      setAnalyzing(true);
+      
+      // Convert data URL to blob
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      
+      // Upload blob as file
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
+      
+      await performAnalysis(file_url);
+      setAnalyzing(false);
+    } catch (err) {
+      console.error("Analysis error:", err);
+      setError(err.message);
+      setAnalyzing(false);
+    }
+  };
+
+  const performAnalysis = async (fileUrl) => {
+    const analysis = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analyze this food photo and provide detailed nutritional estimates. Return JSON with: { items: [{name: "food name", calories: estimated, protein: grams, carbs: grams, fats: grams, portion: "size estimate"}, ...], total_calories: sum, total_protein: sum, total_carbs: sum, total_fats: sum, health_score: 0-100, confidence: 0-100 }`,
+      file_urls: [fileUrl],
+      response_json_schema: {
+        type: "object",
+        properties: {
+          items: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                calories: { type: "number" },
+                protein: { type: "number" },
+                carbs: { type: "number" },
+                fats: { type: "number" },
+                portion: { type: "string" }
+              }
+            }
+          },
+          total_calories: { type: "number" },
+          total_protein: { type: "number" },
+          total_carbs: { type: "number" },
+          total_fats: { type: "number" },
+          health_score: { type: "number" },
+          confidence: { type: "number" }
+        }
+      }
+    });
+
+    // Format items for overlay display
+    const formattedItems = (analysis.items || []).map(item => ({
+      name: item.name,
+      calories: Math.round(item.calories || 0),
+      portion: item.portion
+    }));
+
+    setResult({ ...analysis, file_url: fileUrl });
+    setItems(formattedItems);
+    setEditValues({
+      calories: analysis.total_calories,
+      protein_g: analysis.total_protein,
+      carbs_g: analysis.total_carbs,
+      fats_g: analysis.total_fats
+    });
+  };
 
   const analyzePhoto = async () => {
     try {
       setAnalyzing(true);
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      
-      const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this food photo and provide detailed nutritional estimates. Return JSON with: { items: [{name: "food name", calories: estimated, protein: grams, carbs: grams, fats: grams, portion: "size estimate"}, ...], total_calories: sum, total_protein: sum, total_carbs: sum, total_fats: sum, health_score: 0-100, confidence: 0-100 }`,
-        file_urls: [file_url],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            items: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  name: { type: "string" },
-                  calories: { type: "number" },
-                  protein: { type: "number" },
-                  carbs: { type: "number" },
-                  fats: { type: "number" },
-                  portion: { type: "string" }
-                }
-              }
-            },
-            total_calories: { type: "number" },
-            total_protein: { type: "number" },
-            total_carbs: { type: "number" },
-            total_fats: { type: "number" },
-            health_score: { type: "number" },
-            confidence: { type: "number" }
-          }
-        }
-      });
-
-      // Format items for overlay display
-      const formattedItems = (analysis.items || []).map(item => ({
-        name: item.name,
-        calories: Math.round(item.calories || 0),
-        portion: item.portion
-      }));
-
-      setResult({ ...analysis, file_url });
-      setItems(formattedItems);
-      setEditValues({
-        calories: analysis.total_calories,
-        protein_g: analysis.total_protein,
-        carbs_g: analysis.total_carbs,
-        fats_g: analysis.total_fats
-      });
+      await performAnalysis(file_url);
       setAnalyzing(false);
     } catch (err) {
       console.error("Analysis error:", err);
@@ -167,9 +199,9 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      {/* Preview with overlay */}
+      {/* Preview with overlay - show captured image OR uploaded URL */}
       <MealAnalysisOverlay 
-        imageUrl={result.file_url} 
+        imageUrl={imagePreview || result.file_url} 
         items={items}
         onItemsChange={setItems}
       />
