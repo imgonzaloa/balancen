@@ -77,6 +77,7 @@ export default function Onboarding() {
     
     await base44.entities.UserProfile.create({
       display_name: user?.full_name?.split(" ")[0] || "User",
+      role: isOwner ? "owner" : "user",
       language: selections.language || "en",
       primary_goal: selections.primary_goal,
       social_mode: selections.social_mode,

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Scale, Ruler, LogOut, Save, Settings } from "lucide-react";
+import { ChevronLeft, Scale, Ruler, LogOut, Save, Settings, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -181,6 +181,31 @@ export default function Profile() {
             </div>
           </div>
         </motion.div>
+
+        {/* Owner Panel - OWNER ONLY */}
+        {profile?.role === "owner" && (
+          <motion.div
+            className="mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+          >
+            <Link to={createPageUrl("OwnerPanel")}>
+              <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl border border-amber-400/30 rounded-3xl p-5 shadow-lg flex items-center justify-between hover:from-amber-500/30 hover:to-orange-500/30 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                    <Crown size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">Owner Panel</p>
+                    <p className="text-xs text-amber-200">Admin controls & tools</p>
+                  </div>
+                </div>
+                <ChevronLeft size={20} className="text-white/60 rotate-180" />
+              </div>
+            </Link>
+          </motion.div>
+        )}
 
         {/* Status Button */}
         <motion.div

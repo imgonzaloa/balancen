@@ -163,31 +163,7 @@ export default function Settings() {
           </div>
         </motion.div>
 
-        {/* Invite Collaborators - OWNER ONLY */}
-        {user?.email === "imgonzaloa@gmail.com" && (
-          <Link to={createPageUrl("InviteCollaborators")}>
-            <motion.div
-              className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-all"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.33 }}
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
-                    <UserPlus size={20} className="text-teal-300" />
-                  </div>
-                  <div>
-                    <Label className="text-white font-semibold">{t('invite_collaborators')}</Label>
-                    <p className="text-xs text-white/60">{t('give_free_access')}</p>
-                  </div>
-                </div>
-                <ChevronLeft size={20} className="text-white rotate-180" />
-              </div>
-            </motion.div>
-          </Link>
-        )}
+
 
         {/* Goals & Targets */}
         <motion.div

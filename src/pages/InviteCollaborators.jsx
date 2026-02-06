@@ -20,8 +20,17 @@ export default function InviteCollaborators() {
     base44.auth.me().then(setUser);
   }, []);
 
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.email],
+    queryFn: async () => {
+      const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
+      return profiles[0] || null;
+    },
+    enabled: !!user?.email,
+  });
+
   // OWNER-ONLY ACCESS CHECK
-  if (user && user.email !== OWNER_EMAIL) {
+  if (user && profile && profile.role !== "owner") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 flex items-center justify-center px-5">
         <div className="text-center">
@@ -30,7 +39,7 @@ export default function InviteCollaborators() {
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
           <p className="text-white/60 mb-6">This feature is only available to the application owner.</p>
-          <Link to={createPageUrl("Settings")}>
+          <Link to={createPageUrl("OwnerPanel")}>
             <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
               Go Back
             </Button>
@@ -44,7 +53,7 @@ export default function InviteCollaborators() {
 
   const handleInvite = async () => {
     // Double-check owner permission on action
-    if (user.email !== OWNER_EMAIL) {
+    if (profile?.role !== "owner") {
       toast.error("Access denied");
       return;
     }
@@ -91,7 +100,7 @@ export default function InviteCollaborators() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link
-            to={createPageUrl("Settings")}
+            to={createPageUrl("OwnerPanel")}
             className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center"
           >
             <ChevronLeft size={20} className="text-white" />

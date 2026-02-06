@@ -59,6 +59,7 @@ import Paywall from './pages/Paywall';
 import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import OwnerPanel from './pages/OwnerPanel';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +76,7 @@ export const PAGES = {
     "Premium": Premium,
     "Profile": Profile,
     "Settings": Settings,
+    "OwnerPanel": OwnerPanel,
 }
 
 export const pagesConfig = {
