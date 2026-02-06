@@ -51,7 +51,6 @@ import Badges from './pages/Badges';
 import Friends from './pages/Friends';
 import GroupDetail from './pages/GroupDetail';
 import Groups from './pages/Groups';
-import Home from './pages/Home';
 import InviteCollaborators from './pages/InviteCollaborators';
 import Onboarding from './pages/Onboarding';
 import OnboardingTransition from './pages/OnboardingTransition';
@@ -60,6 +59,7 @@ import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import UserManagement from './pages/UserManagement';
+import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -68,7 +68,6 @@ export const PAGES = {
     "Friends": Friends,
     "GroupDetail": GroupDetail,
     "Groups": Groups,
-    "Home": Home,
     "InviteCollaborators": InviteCollaborators,
     "Onboarding": Onboarding,
     "OnboardingTransition": OnboardingTransition,
@@ -77,6 +76,7 @@ export const PAGES = {
     "Profile": Profile,
     "Settings": Settings,
     "UserManagement": UserManagement,
+    "Home": Home,
 }
 
 export const pagesConfig = {

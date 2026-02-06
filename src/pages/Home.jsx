@@ -9,6 +9,7 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 
 import StreakFire from "@/components/ui/StreakFire";
+import { Camera, X } from "lucide-react";
 import QuickCheckIn from "@/components/home/QuickCheckIn";
 import WeekProgress from "@/components/home/WeekProgress";
 import WeightTracker from "@/components/home/WeightTracker";
@@ -26,12 +27,18 @@ import SocialActivityFeed from "@/components/home/SocialActivityFeed";
 import DailyTaskChecklist from "@/components/home/DailyTaskChecklist";
 import SetStatusModal from "@/components/groups/SetStatusModal";
 import OwnerRoleChecker from "@/components/OwnerRoleChecker";
+import MealPhotoCapture from "@/components/home/MealPhotoCapture";
+import MealResultCard from "@/components/home/MealResultCard";
+import CaloriesSummary from "@/components/home/CaloriesSummary";
 
 export default function Home() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [showFirstStreakModal, setShowFirstStreakModal] = useState(false);
   const [hasShownPaywall, setHasShownPaywall] = useState(false);
+  const [showMealCapture, setShowMealCapture] = useState(false);
+  const [showMealResult, setShowMealResult] = useState(false);
+  const [selectedMealFile, setSelectedMealFile] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -274,6 +281,21 @@ export default function Home() {
     return t("good_evening");
   };
 
+  const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
+  const caloriesGoal = profile?.calories_goal || 2000;
+
+  const handleMealPhotoSelected = (file) => {
+    setSelectedMealFile(file);
+    setShowMealCapture(false);
+    setShowMealResult(true);
+  };
+
+  const handleMealSaved = () => {
+    setShowMealResult(false);
+    setSelectedMealFile(null);
+    queryClient.invalidateQueries(["meals", today]);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
       {/* Owner Role Checker - ensures owner role is assigned */}
@@ -290,52 +312,75 @@ export default function Home() {
       </div>
       
       <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
-        {/* Header */}
+        {/* Header with Streak */}
         <motion.div 
-          className="flex justify-between items-start mb-6"
+          className="flex justify-between items-start mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <div>
             <p className="text-teal-200 text-sm font-medium mb-1">{greeting()}</p>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-teal-100 bg-clip-text text-transparent">
-              {profile?.display_name || user?.full_name?.split(" ")[0] || "Usuario"}
+            <h1 className="text-2xl font-bold text-white">
+              {profile?.display_name || user?.full_name?.split(" ")[0] || "User"}
             </h1>
           </div>
-
-          <StreakFire streak={profile?.current_streak || 0} />
+          <StreakFire streak={profile?.current_streak || 0} size="medium" />
         </motion.div>
 
-        {/* Daily Status Input */}
-        <motion.div
-          className="mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.03 }}
+        {/* Calories Summary - PRIMARY FOCUS */}
+        <CaloriesSummary 
+          consumed={totalCaloriesToday}
+          goal={caloriesGoal}
+          todayMeals={todayMeals}
+          profile={profile}
+        />
+
+        {/* BIG ADD MEAL BUTTON */}
+        <motion.button
+          onClick={() => setShowMealCapture(true)}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full mt-6 py-8 rounded-3xl bg-gradient-to-br from-teal-500 via-emerald-500 to-cyan-500 hover:from-teal-600 hover:via-emerald-600 hover:to-cyan-600 text-white font-bold text-xl shadow-2xl shadow-teal-500/50 flex items-center justify-center gap-3 active:shadow-lg transition-all"
         >
-          <SetStatusModal
-            currentStatus={profile?.status_text}
-            profile={profile}
-            onUpdate={() => {
-              queryClient.invalidateQueries(["profile"]);
-            }}
-            trigger={
-              <button className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 hover:bg-white/15 transition-all text-left">
-                <div className="flex items-center gap-3">
-                  <div className="text-2xl">✨</div>
-                  <div className="flex-1">
-                    <p className="text-xs text-white/60 mb-1">{t("whats_on_your_mind")}</p>
-                    {profile?.status_text ? (
-                      <p className="text-white font-medium">{profile.status_text}</p>
-                    ) : (
-                      <p className="text-white/40">{t("set_daily_status")}</p>
-                    )}
-                  </div>
-                </div>
-              </button>
-            }
-          />
-        </motion.div>
+          <Camera size={28} />
+          {t("add_meal") || "Add Meal"}
+        </motion.button>
+
+        {/* Meal Result Modal */}
+        {showMealResult && selectedMealFile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end"
+          >
+            <motion.div
+              initial={{ y: 100 }}
+              animate={{ y: 0 }}
+              exit={{ y: 100 }}
+              className="w-full bg-slate-900 rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-white">{t("meal_analysis") || "Meal Analysis"}</h2>
+                <button
+                  onClick={() => setShowMealResult(false)}
+                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <MealResultCard
+                file={selectedMealFile}
+                profile={profile}
+                onSave={handleMealSaved}
+                onCancel={() => setShowMealResult(false)}
+              />
+            </motion.div>
+          </motion.div>
+        )}
 
         {/* Daily Mission - PRIMARY FOCUS */}
         <motion.div
@@ -597,6 +642,13 @@ export default function Home() {
           </Link>
         </motion.div>
       </div>
+
+      {/* Meal Photo Capture Modal */}
+      <MealPhotoCapture
+        isOpen={showMealCapture}
+        onClose={() => setShowMealCapture(false)}
+        onPhotoSelected={handleMealPhotoSelected}
+      />
 
       {/* First Streak Modal */}
       <FirstStreakModal 
