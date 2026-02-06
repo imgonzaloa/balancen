@@ -103,7 +103,7 @@ export default function Home() {
         fire_total: (profile.fire_total || 0) + 1
       });
 
-      toast.success("🔥 +1 fire for opening app!");
+      toast.success(`🔥 ${t("fire_for_opening")}`);
       queryClient.invalidateQueries(["checkIns"]);
       queryClient.invalidateQueries(["profile"]);
     };
@@ -158,19 +158,19 @@ export default function Home() {
       // +2 fire for check-in completion
       if (newCheckIn.checkin_fire_awarded) {
         fireIncrement += 2;
-        messages.push("🔥 +2 fire for check-in!");
+        messages.push(`🔥 ${t("fire_for_checkin")}`);
       }
 
       // +2 fire for meal photo
       if (newCheckIn.meal_photo_fire_awarded) {
         fireIncrement += 2;
-        messages.push("🔥 +2 fire for meal photo!");
+        messages.push(`🔥 ${t("fire_for_meal_photo")}`);
       }
 
       // +3 fire for steps goal
       if (newCheckIn.steps_fire_awarded) {
         fireIncrement += 3;
-        messages.push("🔥 +3 fire for steps goal!");
+        messages.push(`🔥 ${t("fire_for_steps_goal")}`);
 
         // Auto-progression for steps goal
         const currentGoal = profile.steps_goal || 8000;
@@ -193,7 +193,7 @@ export default function Home() {
       // +3 fire for calories goal
       if (newCheckIn.calories_fire_awarded) {
         fireIncrement += 3;
-        messages.push("🔥 +3 fire for calorie goal!");
+        messages.push(`🔥 ${t("fire_for_calorie_goal")}`);
 
         // Auto-progression for calories goal
         if (profile.auto_adjust_calories_goal && profile.calories_goal) {
@@ -360,9 +360,9 @@ export default function Home() {
           <span className="text-2xl">⚠️</span>
           <div>
             <p className="text-red-300 font-bold text-sm">
-              {profile?.current_streak || 0} day streak at risk!
+              {profile?.current_streak || 0} {t("streak_at_risk")}
             </p>
-            <p className="text-red-200/80 text-xs">Complete before midnight or lose it all</p>
+            <p className="text-red-200/80 text-xs">{t("complete_before_midnight")}</p>
           </div>
         </motion.div>
 
@@ -383,10 +383,10 @@ export default function Home() {
           transition={{ delay: 0.1 }}
         >
           <p className="text-amber-300 font-bold text-sm mb-1">
-            🔥 {3 - (profile?.current_streak || 0) % 3} more days to unlock DOUBLE FIRE bonus
+            🔥 {3 - (profile?.current_streak || 0) % 3} {t("days_to_unlock")}
           </p>
           <p className="text-amber-200/70 text-xs">
-            Keep your streak alive to unlock exclusive rewards
+            {t("keep_streak_alive")}
           </p>
         </motion.div>
 
@@ -425,14 +425,14 @@ export default function Home() {
             >
               <p className="text-amber-300 font-bold mb-1 flex items-center justify-center gap-2">
                 <TrendingUp size={16} />
-                You're #{profile?.current_streak || 1} in your friend group!
+                {t("youre_number")}{profile?.current_streak || 1} {t("in_your_friend_group")}
               </p>
               <p className="text-amber-200/80 text-xs">
-                Keep it up to stay on top
+                {t("keep_it_up_top")}
               </p>
             </motion.div>
             <p className="text-center text-sm text-amber-300 font-semibold">
-              ⚡ Tomorrow: Double fire bonus
+              ⚡ {t("tomorrow_double_fire")}
             </p>
           </motion.div>
         )}
@@ -461,7 +461,7 @@ export default function Home() {
                 await base44.entities.UserProfile.update(profile.id, {
                   fire_total: (profile.fire_total || 0) + 2
                 });
-                toast.success("🔥 +2 fire for meal photo!");
+                toast.success(`🔥 ${t("fire_for_meal_photo")}`);
                 queryClient.invalidateQueries(["checkIns"]);
                 queryClient.invalidateQueries(["profile"]);
               }

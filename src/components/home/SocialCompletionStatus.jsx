@@ -3,8 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { CheckCircle, AlertCircle, Crown } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function SocialCompletionStatus({ user, profile, todayCheckIn }) {
+  const { t } = useTranslation();
   // Fetch friends
   const { data: friendsList = [] } = useQuery({
     queryKey: ["friends", user?.email],
@@ -70,10 +72,10 @@ export default function SocialCompletionStatus({ user, profile, todayCheckIn }) 
   if (friendsWithStatus.length === 0) {
     return (
       <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-        <p className="text-xs text-teal-300 font-semibold mb-2">Today's Activity</p>
+        <p className="text-xs text-teal-300 font-semibold mb-2">{t("todays_activity")}</p>
         <div className="flex items-center gap-2 text-sm text-white/80">
           <span className="text-red-400">⚠</span>
-          <span>You haven't completed yet</span>
+          <span>{t("you_havent_completed")}</span>
         </div>
       </div>
     );
@@ -83,8 +85,8 @@ export default function SocialCompletionStatus({ user, profile, todayCheckIn }) 
     <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
       <div className="mb-3">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-teal-300 font-semibold">🏆 Leaderboard</p>
-          <p className="text-xs text-white/60">{completedCount}/{totalFriends + 1} completed today</p>
+          <p className="text-xs text-teal-300 font-semibold">🏆 {t("leaderboard")}</p>
+          <p className="text-xs text-white/60">{completedCount}/{totalFriends + 1} {t("completed")}</p>
         </div>
         {leader && userFire < leader.fire && (
           <motion.p 
@@ -92,12 +94,12 @@ export default function SocialCompletionStatus({ user, profile, todayCheckIn }) 
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ repeat: Infinity, duration: 2 }}
           >
-            🔥 You need +{fireToPassLeader} fire to pass {leader.name}
+            🔥 {t("you_need_fire")}{fireToPassLeader} {t("fire_to_pass")} {leader.name}
           </motion.p>
         )}
         {leader && userFire >= leader.fire && (
           <p className="text-xs text-emerald-300 font-bold">
-            👑 You're leading today!
+            👑 {t("youre_leading")}
           </p>
         )}
       </div>
@@ -120,7 +122,7 @@ export default function SocialCompletionStatus({ user, profile, todayCheckIn }) 
             {leader.completed ? (
               <CheckCircle size={12} className="text-emerald-400" />
             ) : (
-              <span className="text-xs text-orange-300">pending</span>
+              <span className="text-xs text-orange-300">{t("pending")}</span>
             )}
           </motion.div>
         )}
@@ -143,7 +145,7 @@ export default function SocialCompletionStatus({ user, profile, todayCheckIn }) 
             {friend.completed ? (
               <CheckCircle size={12} className="text-emerald-400" />
             ) : (
-              <span className="text-xs text-orange-300">pending</span>
+              <span className="text-xs text-orange-300">{t("pending")}</span>
             )}
           </motion.div>
         ))}
@@ -162,7 +164,7 @@ export default function SocialCompletionStatus({ user, profile, todayCheckIn }) 
           {userCompleted ? (
             <CheckCircle size={12} className="text-emerald-400" />
           ) : (
-            <span className="text-xs text-red-400 font-bold">pending</span>
+            <span className="text-xs text-red-400 font-bold">{t("pending")}</span>
           )}
         </motion.div>
       </div>
@@ -175,7 +177,7 @@ export default function SocialCompletionStatus({ user, profile, todayCheckIn }) 
           transition={{ repeat: Infinity, duration: 2 }}
         >
           <p className="text-xs text-orange-300 font-semibold">
-            ⚡ Complete now to jump ahead
+            ⚡ {t("complete_now_to_jump")}
           </p>
         </motion.div>
       )}

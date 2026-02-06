@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Circle, Camera, TrendingUp, Target, Flame } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function DailyTaskChecklist({ 
   todayCheckIn, 
@@ -8,6 +9,7 @@ export default function DailyTaskChecklist({
   profile, 
   onTaskClick 
 }) {
+  const { t } = useTranslation();
   const stepsGoal = profile?.steps_goal || 8000;
   const caloriesGoal = profile?.calories_goal;
   const todayCalories = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
@@ -15,7 +17,7 @@ export default function DailyTaskChecklist({
   const tasks = [
     {
       id: "app_open",
-      title: "Open app",
+      title: t("open_app"),
       fire: 1,
       completed: todayCheckIn?.app_open_fire_awarded || false,
       icon: Flame,
@@ -23,7 +25,7 @@ export default function DailyTaskChecklist({
     },
     {
       id: "checkin",
-      title: "Complete check-in",
+      title: t("complete_checkin"),
       fire: 2,
       completed: todayCheckIn?.checkin_fire_awarded || false,
       action: () => onTaskClick("checkin"),
@@ -31,7 +33,7 @@ export default function DailyTaskChecklist({
     },
     {
       id: "meal_photo",
-      title: "Add meal photo",
+      title: t("add_meal_photo"),
       fire: 2,
       completed: todayCheckIn?.meal_photo_fire_awarded || false,
       action: () => onTaskClick("meal_photo"),
@@ -39,7 +41,7 @@ export default function DailyTaskChecklist({
     },
     {
       id: "steps",
-      title: `Reach ${stepsGoal.toLocaleString()} steps`,
+      title: `${t("reach_steps")} ${stepsGoal.toLocaleString()} ${t("steps")}`,
       fire: 3,
       completed: todayCheckIn?.steps_fire_awarded || false,
       action: () => onTaskClick("steps"),
@@ -50,7 +52,7 @@ export default function DailyTaskChecklist({
   if (caloriesGoal) {
     tasks.push({
       id: "calories",
-      title: `Stay under ${caloriesGoal} cal`,
+      title: `${t("stay_under")} ${caloriesGoal} ${t("cal")}`,
       fire: 3,
       completed: todayCheckIn?.calories_fire_awarded || false,
       action: () => onTaskClick("calories"),
@@ -69,11 +71,11 @@ export default function DailyTaskChecklist({
       {/* Progress Header */}
       <div className="mb-3">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-white font-bold text-2xl">Today's Mission 🔥</h2>
+          <h2 className="text-white font-bold text-2xl">{t("todays_mission")} 🔥</h2>
           <div className="flex items-center gap-2 bg-orange-500/20 px-3 py-1.5 rounded-full border border-orange-400/30">
             <Flame size={18} className="text-orange-400" />
             <span className="text-orange-300 font-bold text-sm">
-              {totalFire} fire
+              {totalFire} {t("fire")}
             </span>
           </div>
         </div>
@@ -94,9 +96,9 @@ export default function DailyTaskChecklist({
         </div>
         
         <p className="text-teal-200 text-xs font-medium">
-          {completedCount === 0 ? "⚠️ Start now or lose your streak" : 
-           completedCount === totalCount ? "🎉 Mission complete!" :
-           `⚠️ ${totalCount - completedCount} task${totalCount - completedCount > 1 ? 's' : ''} remaining - complete before midnight`}
+          {completedCount === 0 ? `⚠️ ${t("start_now_or_lose")}` : 
+           completedCount === totalCount ? `🎉 ${t("mission_complete")}` :
+           `⚠️ ${totalCount - completedCount} ${totalCount - completedCount > 1 ? t("tasks_remaining_plural") : t("tasks_remaining")}`}
         </p>
       </div>
 
