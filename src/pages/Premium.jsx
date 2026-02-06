@@ -9,12 +9,12 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { toast } from "sonner";
 
 const featuresData = [
-  { icon: Flame, key: "fire_system", label: "3 Fire Metrics System" },
-  { icon: Sparkles, key: "advanced_ai", label: "AI Coaching" },
-  { icon: TrendingUp, key: "progressive_overload", label: "Auto Goal Progression" },
-  { icon: Users, key: "exclusive_challenges", label: "Unlimited Groups" },
-  { icon: Target, key: "analytics", label: "Advanced Analytics" },
-  { icon: Shield, key: "priority_sync", label: "Priority Device Sync" },
+  { icon: Flame, key: "fire_system" },
+  { icon: Sparkles, key: "advanced_ai" },
+  { icon: TrendingUp, key: "progressive_overload" },
+  { icon: Users, key: "exclusive_challenges" },
+  { icon: Target, key: "analytics" },
+  { icon: Shield, key: "priority_sync" },
 ];
 
 
@@ -39,18 +39,18 @@ export default function Premium() {
       })
       .catch(err => {
         console.error('Failed to load pricing:', err);
-        toast.error('Payment system temporarily unavailable');
+        toast.error(t('payment_system_unavailable'));
       });
   }, []);
 
   const handleStartTrial = async () => {
     if (!user) {
-      toast.error("Please log in to continue");
+      toast.error(t("please_login_continue"));
       return;
     }
 
     if (!pricing) {
-      toast.error("Payment system not configured");
+      toast.error(t("payment_not_configured"));
       return;
     }
 
@@ -64,7 +64,7 @@ export default function Premium() {
 
       if (!priceId) {
         console.error('Price ID is undefined');
-        toast.error("Price not available. Please refresh the page.");
+        toast.error(t("price_not_available"));
         setLoading(false);
         return;
       }
@@ -79,7 +79,7 @@ export default function Premium() {
       window.location.href = response.data.url;
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error("Failed to start checkout. Please try again.");
+      toast.error(t("checkout_failed"));
       setLoading(false);
     }
   };
@@ -181,7 +181,7 @@ export default function Premium() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
                   <Icon size={20} className="text-white" />
                 </div>
-                <p className="text-white text-sm font-medium">{feature.label}</p>
+                <p className="text-white text-sm font-medium">{t(feature.key)}</p>
               </motion.div>
             );
           })}
@@ -201,20 +201,20 @@ export default function Premium() {
             {loading ? (
               <>
                 <Loader2 size={24} className="mr-2 animate-spin" />
-                Processing...
+                {t("processing")}
               </>
             ) : (
               <>
                 <Crown size={24} className="mr-2" />
-                Start 7-Day Free Trial
+                {t("start_free_trial")}
               </>
             )}
           </Button>
           <p className="text-center text-emerald-200 text-xs font-semibold mt-3">
-            💳 Card required • Billing starts after 7 days
+            💳 {t("card_required_billing")}
           </p>
           <p className="text-center text-white/60 text-xs mt-1">
-            Cancel anytime before trial ends
+            {t("cancel_anytime")}
           </p>
         </motion.div>
       </div>

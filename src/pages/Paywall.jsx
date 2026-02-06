@@ -5,45 +5,47 @@ import { Flame, Users, TrendingUp, Award, X, Check, Sparkles, Trophy, Crown, Loa
 import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
-
-const freeFeatures = [
-  "Daily check-ins",
-  "Basic fire tracking",
-  "Manual tracking",
-  "1 group maximum",
-  "Basic stats"
-];
-
-const freeLimitations = [
-  "Streak capped at 3 days",
-  "Limited fire system",
-  "No automatic goals",
-  "No AI coaching",
-  "No advanced analytics",
-  "No progressive challenges",
-  "Limited social features"
-];
-
-const premiumFeatures = [
-  "Unlimited streaks & fire 🔥",
-  "3 fire metrics (Consistency + Steps + Calories)",
-  "Automatic goal progression",
-  "AI Coaching with personalized tips",
-  "Advanced analytics & insights",
-  "Unlimited groups",
-  "Social leaderboards",
-  "Priority device sync",
-  "Full history & export",
-  "Progressive challenges"
-];
+import { useTranslation } from "@/components/TranslationProvider";
 
 
 
 export default function Paywall() {
+  const { t } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [pricing, setPricing] = useState(null);
+  
+  const freeFeatures = [
+    t("daily_checkins"),
+    t("basic_fire_tracking"),
+    t("manual_tracking"),
+    t("one_group_max"),
+    t("basic_stats")
+  ];
+
+  const freeLimitations = [
+    t("streak_capped_3"),
+    t("limited_fire_system"),
+    t("no_auto_goals"),
+    t("no_ai_coaching"),
+    t("no_advanced_analytics"),
+    t("no_progressive_challenges"),
+    t("limited_social_features")
+  ];
+
+  const premiumFeatures = [
+    t("unlimited_streaks_fire"),
+    t("three_fire_metrics"),
+    t("auto_goal_progression"),
+    t("ai_coaching_personalized"),
+    t("advanced_analytics_insights"),
+    t("unlimited_groups"),
+    t("social_leaderboards"),
+    t("priority_device_sync"),
+    t("full_history_export"),
+    t("progressive_challenges")
+  ];
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -68,12 +70,12 @@ export default function Paywall() {
 
   const handleContinue = async () => {
     if (!user) {
-      toast.error("Please log in to continue");
+      toast.error(t("please_login_continue"));
       return;
     }
 
     if (!pricing) {
-      toast.error("Payment system not configured");
+      toast.error(t("payment_not_configured"));
       return;
     }
 
@@ -90,7 +92,7 @@ export default function Paywall() {
       window.location.href = response.data.url;
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error("Failed to start checkout. Please try again.");
+      toast.error(t("checkout_failed"));
       setLoading(false);
     }
   };
@@ -120,10 +122,10 @@ export default function Paywall() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-3xl font-black text-white mb-2">
-            Choose how far you want to go with Balancen
+            {t("choose_how_far")}
           </h1>
           <p className="text-lg text-teal-200">
-            Free lets you try. Premium lets you stay consistent.
+            {t("free_lets_try")}
           </p>
         </motion.div>
 
@@ -138,12 +140,12 @@ export default function Paywall() {
           <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-5">
             <div className="flex items-center gap-3 mb-4">
               <div className="px-3 py-1 bg-slate-500/30 rounded-full">
-                <span className="text-white text-sm font-semibold">Free</span>
+                <span className="text-white text-sm font-semibold">{t("free_plan")}</span>
               </div>
             </div>
 
             <div className="space-y-2 mb-4">
-              <p className="text-white/80 text-sm font-semibold mb-2">Includes:</p>
+              <p className="text-white/80 text-sm font-semibold mb-2">{t("includes")}</p>
               {freeFeatures.map((feature, i) => (
                 <div key={i} className="flex items-start gap-2 text-white/70 text-sm">
                   <Check size={16} className="text-teal-400 mt-0.5 flex-shrink-0" />
@@ -153,7 +155,7 @@ export default function Paywall() {
             </div>
 
             <div className="space-y-2 mb-3">
-              <p className="text-white/80 text-sm font-semibold mb-2">Not included:</p>
+              <p className="text-white/80 text-sm font-semibold mb-2">{t("not_included")}</p>
               {freeLimitations.map((limit, i) => (
                 <div key={i} className="flex items-start gap-2 text-white/50 text-sm">
                   <X size={16} className="text-red-400/60 mt-0.5 flex-shrink-0" />
@@ -163,7 +165,7 @@ export default function Paywall() {
             </div>
 
             <p className="text-white/40 text-xs italic">
-              Free is designed to let you try Balancen, not to build long-term habits.
+              {t("free_designed_try")}
             </p>
           </div>
 
@@ -174,13 +176,13 @@ export default function Paywall() {
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
                 <div className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
-                  <span className="text-white text-sm font-bold">Premium</span>
+                  <span className="text-white text-sm font-bold">{t("premium_plan")}</span>
                 </div>
                 <Crown size={18} className="text-amber-300" />
               </div>
 
               <div className="space-y-2 mb-4">
-                <p className="text-white text-sm font-semibold mb-2">Full Experience:</p>
+                <p className="text-white text-sm font-semibold mb-2">{t("full_experience")}</p>
                 {premiumFeatures.map((feature, i) => (
                   <div key={i} className="flex items-start gap-2 text-white text-sm">
                     <Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
@@ -193,18 +195,18 @@ export default function Paywall() {
               <div className="bg-purple-500/20 border border-purple-400/30 rounded-xl p-4 mb-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles size={16} className="text-purple-300" />
-                  <p className="text-white text-sm font-semibold">AI Coaching helps you:</p>
+                  <p className="text-white text-sm font-semibold">{t("ai_coaching_helps")}</p>
                 </div>
                 <ul className="space-y-1 text-white/90 text-xs">
-                  <li>• Review your daily activity and goals</li>
-                  <li>• Give simple recommendations</li>
-                  <li>• Help you adjust habits over time</li>
-                  <li>• Support long-term consistency</li>
+                  <li>• {t("review_activity_goals")}</li>
+                  <li>• {t("give_recommendations")}</li>
+                  <li>• {t("adjust_habits_overtime")}</li>
+                  <li>• {t("support_consistency")}</li>
                 </ul>
               </div>
 
               <p className="text-emerald-200 text-sm font-medium italic">
-                Premium is designed to help you stay consistent and improve over time.
+                {t("premium_designed_consistency")}
               </p>
             </div>
           </div>
@@ -218,7 +220,7 @@ export default function Paywall() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <h3 className="text-white font-semibold text-lg mb-3 text-center">Premium Pricing</h3>
+            <h3 className="text-white font-semibold text-lg mb-3 text-center">{t("premium_pricing")}</h3>
             
             <div className="flex gap-4">
               {['monthly', 'yearly'].map((key) => (
@@ -233,12 +235,12 @@ export default function Paywall() {
                 >
                   {key === 'yearly' && (
                     <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                      Best value
+                      {t("best_value")}
                     </div>
                   )}
-                  <p className="text-white/80 text-sm mb-1 font-medium">{key === 'monthly' ? 'Monthly' : 'Yearly'}</p>
+                  <p className="text-white/80 text-sm mb-1 font-medium">{t(key)}</p>
                   <p className="text-3xl font-black text-white">{pricing.currency}{pricing.prices[key]}</p>
-                  <p className="text-white/60 text-xs mt-1">/ {key === 'monthly' ? 'month' : 'year'}</p>
+                  <p className="text-white/60 text-xs mt-1">/ {t(key === 'monthly' ? 'month' : 'year')}</p>
                 </button>
               ))}
             </div>
@@ -260,28 +262,28 @@ export default function Paywall() {
             {loading ? (
               <>
                 <Loader2 size={20} className="mr-2 animate-spin" />
-                Processing...
+                {t("processing")}
               </>
             ) : (
               <>
                 <Crown size={20} className="mr-2" />
-                Start 7-Day Free Trial
+                {t("start_free_trial")}
               </>
             )}
           </Button>
           
           <p className="text-center text-xs text-emerald-200 font-semibold mt-3">
-            💳 Card required • Billing starts after 7 days
+            💳 {t("card_required_billing")}
           </p>
           <p className="text-center text-xs text-white/60 mt-1">
-            Cancel anytime before trial ends
+            {t("cancel_anytime")}
           </p>
           
           <button
             onClick={handleSkip}
             className="w-full py-4 text-white/50 hover:text-white/70 text-sm transition-colors mt-4"
           >
-            Continue with Free (limited features)
+            {t("continue_free_limited")}
           </button>
         </motion.div>
       </div>
