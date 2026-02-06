@@ -11,13 +11,8 @@ const getInitialLanguage = () => {
     return stored;
   }
   
-  // Priority 2: Detect browser language
-  const browserLang = navigator.language || navigator.userLanguage;
-  if (browserLang.startsWith("es")) {
-    return "es";
-  }
-  
-  return "en";
+  // Default to Spanish
+  return "es";
 };
 
 const resources = {
@@ -717,7 +712,7 @@ i18n
   .init({
     resources,
     lng: getInitialLanguage(),
-    fallbackLng: 'en',
+    fallbackLng: 'es',
     interpolation: {
       escapeValue: false
     },
