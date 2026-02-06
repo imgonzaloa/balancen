@@ -50,7 +50,7 @@ export default function DailyMissions({ todayMeals, consumed, goal, profile }) {
 
       {/* Mission list */}
       <div className="space-y-3">
-        {missions.map((mission, idx) => {
+        {missions && missions.length > 0 ? missions.map((mission, idx) => {
           const isComplete = getMissionStatus(mission.id);
           return (
             <motion.div
