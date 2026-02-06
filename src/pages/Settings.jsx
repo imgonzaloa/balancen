@@ -38,19 +38,12 @@ export default function Settings() {
 
   const languageMutation = useMutation({
     mutationFn: async (language) => {
-      // Update DB first
       await base44.entities.UserProfile.update(profile.id, { language });
-      // Then save to localStorage
-      localStorage.setItem("app_language", language);
       return language;
     },
-    onSuccess: (language) => {
-      toast.success("Language updated");
-      // Force immediate reload to apply new language
-      queryClient.clear();
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+    onSuccess: () => {
+      queryClient.invalidateQueries(["profile"]);
+      toast.success("Idioma actualizado");
     },
   });
 

@@ -52,12 +52,12 @@ import Friends from './pages/Friends';
 import GroupDetail from './pages/GroupDetail';
 import Groups from './pages/Groups';
 import Home from './pages/Home';
+import InviteCollaborators from './pages/InviteCollaborators';
 import Onboarding from './pages/Onboarding';
 import Paywall from './pages/Paywall';
 import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import InviteCollaborators from './pages/InviteCollaborators';
 import __Layout from './Layout.jsx';
 
 
@@ -67,12 +67,12 @@ export const PAGES = {
     "GroupDetail": GroupDetail,
     "Groups": Groups,
     "Home": Home,
+    "InviteCollaborators": InviteCollaborators,
     "Onboarding": Onboarding,
     "Paywall": Paywall,
     "Premium": Premium,
     "Profile": Profile,
     "Settings": Settings,
-    "InviteCollaborators": InviteCollaborators,
 }
 
 export const pagesConfig = {
