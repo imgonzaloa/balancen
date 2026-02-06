@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useState, useEffect } from "react";
+import "@/lib/i18n";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -15,7 +16,7 @@ const navItemsBase = [
 
 export default function Layout({ children, currentPageName }) {
   const hideNav = ["Onboarding", "Paywall"].includes(currentPageName);
-  const { t, lang, renderKey } = useTranslation();
+  const { t, lang } = useTranslation();
   const [direction, setDirection] = useState(0);
   const [prevPage, setPrevPage] = useState(currentPageName);
 
@@ -58,12 +59,12 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 select-none" key={`layout-${renderKey}`}>
+    <div className="min-h-screen bg-slate-50 select-none">
       <Toaster position="top-center" richColors />
       
       <AnimatePresence mode="wait" custom={direction}>
         <motion.main
-          key={`${currentPageName}-${renderKey}`}
+          key={currentPageName}
           custom={direction}
           variants={pageVariants}
           initial="initial"

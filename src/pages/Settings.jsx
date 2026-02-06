@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
+import "@/lib/i18n";
 import { motion } from "framer-motion";
 import { ChevronLeft, Watch, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -16,14 +17,6 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
   const { changeLanguage, lang, t } = useTranslation();
-
-  useEffect(() => {
-    base44.auth.me().then(setUser);
-  }, []);
-
-  useEffect(() => {
-    console.log("⚙️ Settings - Active language from context:", lang);
-  }, [lang]);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.email],
@@ -45,28 +38,16 @@ export default function Settings() {
   const handleLanguageChange = async (newLang) => {
     if (newLang !== "en" && newLang !== "es") return;
     
-    console.log("🎯 User selected language:", newLang);
-    
-    // 1. Update language in context (triggers immediate re-render)
-    changeLanguage(newLang);
+    // 1. Change language immediately
+    await changeLanguage(newLang);
     
     // 2. Save to user profile
     if (profile?.id) {
-      try {
-        await base44.entities.UserProfile.update(profile.id, { language: newLang });
-        console.log("✅ Language saved to profile");
-      } catch (error) {
-        console.error("❌ Profile save failed:", error);
-      }
+      await base44.entities.UserProfile.update(profile.id, { language: newLang });
     }
     
-    // 3. Show success message in NEW language
-    setTimeout(() => {
-      const message = newLang === "es" 
-        ? "✅ Idioma actualizado" 
-        : "✅ Language updated";
-      toast.success(message);
-    }, 100);
+    // 3. Show success message
+    toast.success(t('language_updated'));
   };
 
   const handleToggle = (field, value) => {
@@ -91,7 +72,6 @@ export default function Settings() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">{t('settings')}</h1>
-            <p className="text-xs text-teal-200">Active: {lang}</p>
           </div>
         </div>
 
@@ -350,17 +330,6 @@ export default function Settings() {
                 <SelectItem value="es">🇪🇸 Español</SelectItem>
               </SelectContent>
             </Select>
-            <div className="mt-3 p-3 rounded-lg bg-black/20 border border-white/10">
-              <p className="text-xs text-white/70 font-mono">
-                🎯 State lang: <span className="text-teal-300 font-bold">{lang}</span>
-              </p>
-              <p className="text-xs text-white/50 font-mono mt-1">
-                💾 Stored balancen_lang: <span className="text-white/80">{localStorage.getItem("balancen_lang") || "none"}</span>
-              </p>
-              <p className="text-xs text-white/50 font-mono mt-1">
-                📝 t(language): <span className="text-white/80">{t('language')}</span>
-              </p>
-            </div>
           </div>
         </motion.div>
 
