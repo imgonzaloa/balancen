@@ -1,41 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
-import { Users, Award, Settings, Flame, TrendingUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { Button } from "@/components/ui/button";
-
-import StreakFire from "@/components/ui/StreakFire";
-import { Camera, X } from "lucide-react";
-import QuickCheckIn from "@/components/home/QuickCheckIn";
-import WeekProgress from "@/components/home/WeekProgress";
-import WeightTracker from "@/components/home/WeightTracker";
-import CalorieTracker from "@/components/nutrition/CalorieTracker";
-import FirstStreakModal from "@/components/home/FirstStreakModal";
-import AIHealthInsights from "@/components/ai/AIHealthInsights";
-import WeeklySummary from "@/components/ai/WeeklySummary";
-import ChallengeSuggestions from "@/components/ai/ChallengeSuggestions";
-import AIPremiumUpsell from "@/components/ai/AIPremiumUpsell";
 import { useTranslation } from "@/components/TranslationProvider";
-import { UIVersionManager } from "@/components/UIVersionManager";
-import FriendsList from "@/components/home/FriendsList";
-import SocialCompletionStatus from "@/components/home/SocialCompletionStatus";
-import SocialActivityFeed from "@/components/home/SocialActivityFeed";
-import DailyTaskChecklist from "@/components/home/DailyTaskChecklist";
-import SetStatusModal from "@/components/groups/SetStatusModal";
-import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 import MealPhotoCapture from "@/components/home/MealPhotoCapture";
 import MealResultCard from "@/components/home/MealResultCard";
-import CaloriesSummary from "@/components/home/CaloriesSummary";
+import AddMealButton from "@/components/home/AddMealButton";
+import DailyCalorieGoal from "@/components/home/DailyCalorieGoal";
+import DailyMissions from "@/components/home/DailyMissions";
+import StreakBanner from "@/components/home/StreakBanner";
+import SocialPreview from "@/components/home/SocialPreview";
+import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 
 export default function Home() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
-  const [showFirstStreakModal, setShowFirstStreakModal] = useState(false);
-  const [hasShownPaywall, setHasShownPaywall] = useState(false);
   const [showMealCapture, setShowMealCapture] = useState(false);
   const [showMealResult, setShowMealResult] = useState(false);
   const [selectedMealFile, setSelectedMealFile] = useState(null);
@@ -56,20 +38,6 @@ export default function Home() {
   });
 
   const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-
-  const { data: checkIns = [] } = useQuery({
-    queryKey: ["checkIns", user?.email],
-    queryFn: async () => {
-      return base44.entities.DailyCheckIn.filter(
-        { created_by: user?.email },
-        "-date",
-        30
-      );
-    },
-    enabled: !!user?.email,
-    staleTime: 30000,
-  });
 
   const { data: todayMeals = [] } = useQuery({
     queryKey: ["meals", today, user?.email],
@@ -80,206 +48,46 @@ export default function Home() {
       );
     },
     enabled: !!user?.email,
-    staleTime: 30000,
-  });
-  const todayCheckIn = checkIns.find(c => c.date === today);
-  const yesterdayCheckIn = checkIns.find(c => c.date === yesterday);
-
-
-
-  // Award app open fire on mount
-  useEffect(() => {
-    const awardAppOpenFire = async () => {
-      if (!user || !profile) return;
-
-      const existing = checkIns.find(c => c.date === today);
-      if (existing?.app_open_fire_awarded) return;
-
-      const checkInData = {
-        date: today,
-        completed: false,
-        app_open_fire_awarded: true
-      };
-
-      if (existing) {
-        await base44.entities.DailyCheckIn.update(existing.id, checkInData);
-      } else {
-        await base44.entities.DailyCheckIn.create(checkInData);
-      }
-
-      await base44.entities.UserProfile.update(profile.id, {
-        fire_total: (profile.fire_total || 0) + 1
-      });
-
-      toast.success(`🔥 ${t("fire_for_opening")}`);
-      queryClient.invalidateQueries(["checkIns"]);
-      queryClient.invalidateQueries(["profile"]);
-    };
-
-    awardAppOpenFire();
-  }, [user?.email, profile?.id]);
-
-  const handleTaskAction = async (taskType) => {
-    const existing = checkIns.find(c => c.date === today);
-
-    if (taskType === "checkin") {
-      document.getElementById('checkin-card')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (taskType === "meal_photo") {
-      document.getElementById('calorie-tracker')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (taskType === "calories") {
-      document.getElementById('calorie-tracker')?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const createCheckInMutation = useMutation({
-    mutationFn: async (data) => {
-      const existing = checkIns.find(c => c.date === data.date);
-      
-      // Check goal achievements
-      const caloriesGoalMet = profile?.calories_goal && todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0) <= profile.calories_goal;
-      
-      const checkInData = {
-        ...data,
-        calories_goal_met: caloriesGoalMet || false,
-        calories_fire_awarded: caloriesGoalMet && !existing?.calories_fire_awarded,
-        checkin_fire_awarded: !existing?.checkin_fire_awarded,
-        meal_photo_fire_awarded: data.food_photo_url && !existing?.meal_photo_fire_awarded
-      };
-      
-      if (existing) {
-        return base44.entities.DailyCheckIn.update(existing.id, checkInData);
-      }
-      return base44.entities.DailyCheckIn.create(checkInData);
-    },
-    onSuccess: async (newCheckIn) => {
-      queryClient.invalidateQueries(["checkIns"]);
-
-      // Calculate fire rewards
-      let fireIncrement = 0;
-      const messages = [];
-
-      // +2 fire for check-in completion
-      if (newCheckIn.checkin_fire_awarded) {
-        fireIncrement += 2;
-        messages.push(`🔥 ${t("fire_for_checkin")}`);
-      }
-
-      // +2 fire for meal photo
-      if (newCheckIn.meal_photo_fire_awarded) {
-        fireIncrement += 2;
-        messages.push(`🔥 ${t("fire_for_meal_photo")}`);
-      }
-
-      // +3 fire for calories goal
-      if (newCheckIn.calories_fire_awarded) {
-        fireIncrement += 3;
-        messages.push(`🔥 ${t("fire_for_calorie_goal")}`);
-
-        // Auto-progression for calories goal
-        if (profile.auto_adjust_calories_goal && profile.calories_goal) {
-          const currentGoal = profile.calories_goal;
-          const minFloor = 1400;
-          const newGoal = Math.max(currentGoal - 50, minFloor);
-
-          if (newGoal !== currentGoal && profile.is_premium) {
-            await base44.entities.UserProfile.update(profile.id, {
-              calories_goal: newGoal
-            });
-            toast.success(`${t("new_calories_goal")}: ${newGoal}`);
-          }
-        }
-      }
-
-      // Update streak and fire
-      if (profile) {
-        const newStreak = profile.current_streak + 1;
-        const longestStreak = Math.max(profile.longest_streak, newStreak);
-        const totalCheckins = profile.total_checkins + 1;
-
-        // FREE PLAN: Cap streak at 3 days (owner exempt)
-        const isOwner = profile.role === "owner";
-        const finalStreak = (!profile.is_premium && !isOwner && newStreak > 3) ? 3 : newStreak;
-
-        await base44.entities.UserProfile.update(profile.id, {
-          current_streak: finalStreak,
-          longest_streak: longestStreak,
-          total_checkins: totalCheckins,
-          fire_total: (profile.fire_total || 0) + fireIncrement
-        });
-
-        // Show messages
-        messages.forEach(msg => toast.success(msg));
-
-        // Show first streak modal
-        if (totalCheckins === 1) {
-          setShowFirstStreakModal(true);
-        }
-
-        // Show paywall when reaching day 3 for free users (owner exempt)
-        if (finalStreak === 3 && !profile.is_premium && !isOwner) {
-          setTimeout(() => {
-            window.location.href = createPageUrl("Paywall");
-          }, 2000);
-        }
-
-        // Badges
-        const streakMilestones = [3, 7, 14, 30, 60, 100];
-        for (const milestone of streakMilestones) {
-          if (newStreak === milestone) {
-            await base44.entities.Badge.create({
-              badge_id: `streak_${milestone}_${user.email}_${Date.now()}`,
-              user_email: user.email,
-              badge_type: `streak_${milestone}`,
-              earned_date: today,
-            });
-          }
-        }
-
-        if (totalCheckins === 1) {
-          await base44.entities.Badge.create({
-            badge_id: `first_checkin_${user.email}`,
-            user_email: user.email,
-            badge_type: "first_checkin",
-            earned_date: today,
-          });
-        }
-
-        if (newCheckIn.food_photo_url) {
-          const existingPhotoBadge = await base44.entities.Badge.filter({
-            user_email: user.email,
-            badge_type: "first_photo"
-          });
-          if (existingPhotoBadge.length === 0) {
-            await base44.entities.Badge.create({
-              badge_id: `first_photo_${user.email}`,
-              user_email: user.email,
-              badge_type: "first_photo",
-              earned_date: today,
-            });
-          }
-        }
-
-        queryClient.invalidateQueries(["profile"]);
-        queryClient.invalidateQueries(["friends"]);
-        queryClient.invalidateQueries(["friendsStatus"]);
-      }
-    },
+    staleTime: 10000,
   });
 
-        // Redirect to onboarding if no profile
-        if (!profileLoading && !profile && user) {
-        window.location.href = createPageUrl("Onboarding");
-        return null;
-        }
+  const { data: friendsList = [] } = useQuery({
+    queryKey: ["friends", user?.email],
+    queryFn: async () => {
+      const sent = await base44.entities.Friend.filter({ user_email: user?.email });
+      const received = await base44.entities.Friend.filter({ friend_email: user?.email });
+      return [...sent, ...received].filter(f => f.status === "accepted");
+    },
+    enabled: !!user?.email,
+  });
 
-  const { t, lang } = useTranslation();
+  const { data: groupsList = [] } = useQuery({
+    queryKey: ["groups", user?.email],
+    queryFn: async () => {
+      const members = await base44.entities.GroupMember.filter({ user_email: user?.email });
+      return members;
+    },
+    enabled: !!user?.email,
+  });
 
-  const greeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return t("good_morning");
-    if (hour < 19) return t("good_afternoon");
-    return t("good_evening");
-  };
+  if (!profileLoading && !profile && user) {
+    window.location.href = "/Onboarding";
+    return null;
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center">
+        <motion.div
+          className="text-white text-lg"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+        >
+          {t("loading")}...
+        </motion.div>
+      </div>
+    );
+  }
 
   const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
   const caloriesGoal = profile?.calories_goal || 2000;
@@ -293,63 +101,71 @@ export default function Home() {
   const handleMealSaved = () => {
     setShowMealResult(false);
     setSelectedMealFile(null);
-    queryClient.invalidateQueries(["meals", today]);
+    queryClient.invalidateQueries({ queryKey: ["meals", today] });
+    queryClient.invalidateQueries({ queryKey: ["profile"] });
+    toast.success("🍽️ " + (t("meal_saved") || "Meal logged!"));
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
-      {/* Owner Role Checker - ensures owner role is assigned */}
       <OwnerRoleChecker user={user} profile={profile} />
-      
-      {/* UI Version Manager - handles migrations */}
-      <UIVersionManager user={user} profile={profile} />
-      
-      {/* Animated Background */}
-      <div className="absolute inset-0 opacity-30">
+
+      {/* Background effects */}
+      <div className="absolute inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
         <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
-      
-      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
-        {/* Header with Streak */}
-        <motion.div 
-          className="flex justify-between items-start mb-8"
+
+      <div className="max-w-lg mx-auto px-5 pb-24 pt-6 relative z-10 space-y-6">
+        {/* Header with greeting */}
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          className="text-center"
         >
-          <div>
-            <p className="text-teal-200 text-sm font-medium mb-1">{greeting()}</p>
-            <h1 className="text-2xl font-bold text-white">
-              {profile?.display_name || user?.full_name?.split(" ")[0] || "User"}
-            </h1>
-          </div>
-          <StreakFire streak={profile?.current_streak || 0} size="medium" />
+          <p className="text-teal-200 text-sm font-medium mb-2">
+            {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+          </p>
+          <h1 className="text-3xl font-bold text-white">
+            {profile?.display_name || "Welcome"}
+          </h1>
         </motion.div>
 
-        {/* Calories Summary - PRIMARY FOCUS */}
-        <CaloriesSummary 
+        {/* CORE: Streak Banner */}
+        <StreakBanner streak={profile?.current_streak || 0} fireTotal={profile?.fire_total || 0} />
+
+        {/* MAIN ACTION: Add Meal Button */}
+        <AddMealButton onClick={() => setShowMealCapture(true)} />
+
+        {/* Daily Calorie Goal - Big Focus */}
+        <DailyCalorieGoal consumed={totalCaloriesToday} goal={caloriesGoal} />
+
+        {/* Daily Missions */}
+        <DailyMissions
+          todayMeals={todayMeals}
           consumed={totalCaloriesToday}
           goal={caloriesGoal}
-          todayMeals={todayMeals}
           profile={profile}
         />
 
-        {/* BIG ADD MEAL BUTTON */}
-        <motion.button
-          onClick={() => setShowMealCapture(true)}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full mt-6 py-8 rounded-3xl bg-gradient-to-br from-teal-500 via-emerald-500 to-cyan-500 hover:from-teal-600 hover:via-emerald-600 hover:to-cyan-600 text-white font-bold text-xl shadow-2xl shadow-teal-500/50 flex items-center justify-center gap-3 active:shadow-lg transition-all"
-        >
-          <Camera size={28} />
-          {t("add_meal") || "Add Meal"}
-        </motion.button>
+        {/* Social Preview */}
+        <SocialPreview
+          friendsCount={friendsList.length}
+          groupsCount={groupsList.length}
+          userStreak={profile?.current_streak || 0}
+        />
+      </div>
 
-        {/* Meal Result Modal */}
+      {/* Meal Photo Capture Modal */}
+      <MealPhotoCapture
+        isOpen={showMealCapture}
+        onClose={() => setShowMealCapture(false)}
+        onPhotoSelected={handleMealPhotoSelected}
+      />
+
+      {/* Meal Result Modal */}
+      <AnimatePresence>
         {showMealResult && selectedMealFile && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -363,7 +179,7 @@ export default function Home() {
               exit={{ y: 100 }}
               className="w-full bg-slate-900 rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 sticky top-0">
                 <h2 className="text-xl font-bold text-white">{t("meal_analysis") || "Meal Analysis"}</h2>
                 <button
                   onClick={() => setShowMealResult(false)}
@@ -381,280 +197,7 @@ export default function Home() {
             </motion.div>
           </motion.div>
         )}
-
-        {/* Daily Mission - PRIMARY FOCUS */}
-        <motion.div
-          className="mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-        >
-          <DailyTaskChecklist 
-            todayCheckIn={todayCheckIn}
-            todayMeals={todayMeals}
-            profile={profile}
-            onTaskClick={handleTaskAction}
-          />
-        </motion.div>
-
-        {/* Streak Risk Warning - Always Show Until All Complete */}
-        <motion.div 
-          className="flex items-center gap-2 mb-4 bg-red-500/20 border border-red-500/50 rounded-xl px-4 py-3"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0, scale: [1, 1.02, 1] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          <span className="text-2xl">⚠️</span>
-          <div>
-            <p className="text-red-300 font-bold text-sm">
-              {profile?.current_streak || 0} {t("streak_at_risk")}
-            </p>
-            <p className="text-red-200/80 text-xs">{t("complete_before_midnight")}</p>
-          </div>
-        </motion.div>
-
-        {/* Social Pressure - Who Completed Today */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
-        >
-          <SocialCompletionStatus user={user} profile={profile} todayCheckIn={todayCheckIn} />
-        </motion.div>
-
-        {/* Progressive Reward Preview */}
-        <motion.div
-          className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-2xl p-4 text-center mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <p className="text-amber-300 font-bold text-sm mb-1">
-            🔥 {3 - (profile?.current_streak || 0) % 3} {t("days_to_unlock")}
-          </p>
-          <p className="text-amber-200/70 text-xs">
-            {t("keep_streak_alive")}
-          </p>
-        </motion.div>
-
-        {/* Social Activity Feed */}
-        <SocialActivityFeed user={user} />
-
-        {/* Main Check-in Card */}
-        <motion.div
-          id="checkin-card"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <QuickCheckIn 
-            onComplete={(data) => createCheckInMutation.mutateAsync(data)}
-            todayCheckIn={todayCheckIn}
-            yesterdayCheckIn={yesterdayCheckIn}
-            profile={profile}
-            showFireReward={true}
-          />
-        </motion.div>
-
-        {/* Future Anticipation & Ranking */}
-        {todayCheckIn && (
-          <motion.div
-            className="mt-4 space-y-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <motion.div 
-              className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-2xl p-4 text-center backdrop-blur-sm"
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.3, type: "spring" }}
-            >
-              <p className="text-amber-300 font-bold mb-1 flex items-center justify-center gap-2">
-                <TrendingUp size={16} />
-                {t("youre_number")}{profile?.current_streak || 1} {t("in_your_friend_group")}
-              </p>
-              <p className="text-amber-200/80 text-xs">
-                {t("keep_it_up_top")}
-              </p>
-            </motion.div>
-            <p className="text-center text-sm text-amber-300 font-semibold">
-              ⚡ {t("tomorrow_double_fire")}
-            </p>
-          </motion.div>
-        )}
-
-        {/* Calorie Tracker - Always visible */}
-        <motion.div
-          id="calorie-tracker"
-          className="mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <CalorieTracker 
-            meals={todayMeals}
-            date={today}
-            caloriesGoal={profile?.calories_goal}
-            onMealAdded={async () => {
-              queryClient.invalidateQueries(["meals", today]);
-              
-              // Award meal photo fire if first photo of the day
-              const existing = checkIns.find(c => c.date === today);
-              if (existing && !existing.meal_photo_fire_awarded && todayMeals.length === 0) {
-                await base44.entities.DailyCheckIn.update(existing.id, {
-                  meal_photo_fire_awarded: true
-                });
-                await base44.entities.UserProfile.update(profile.id, {
-                  fire_total: (profile.fire_total || 0) + 2
-                });
-                toast.success(`🔥 ${t("fire_for_meal_photo")}`);
-                queryClient.invalidateQueries(["checkIns"]);
-                queryClient.invalidateQueries(["profile"]);
-              }
-              queryClient.invalidateQueries(["meals", today]);
-            }}
-          />
-        </motion.div>
-
-        {/* Today's Stats - Only show after check-in */}
-        {todayCheckIn?.weight && (
-          <motion.div
-            className="mt-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <WeightTracker 
-              currentWeight={todayCheckIn.weight}
-              previousWeight={yesterdayCheckIn?.weight}
-              startingWeight={profile?.starting_weight}
-            />
-          </motion.div>
-        )}
-
-        {/* Week Progress */}
-        <motion.div
-          className="mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-        >
-          <WeekProgress checkIns={checkIns} />
-        </motion.div>
-
-        {/* AI Features - Premium Only (show for premium or owner) */}
-        {(profile?.is_premium || profile?.role === "owner") ? (
-          <>
-            {/* AI Health Insights */}
-            {profile?.ai_recommendations_enabled !== false && checkIns.length >= 3 && (
-              <motion.div
-                className="mt-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <AIHealthInsights profile={profile} recentCheckIns={checkIns} />
-              </motion.div>
-            )}
-
-            {/* Weekly Summary */}
-            {checkIns.length >= 7 && profile?.current_streak >= 3 && (
-              <motion.div
-                className="mt-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
-              >
-                <WeeklySummary profile={profile} checkIns={checkIns} />
-              </motion.div>
-            )}
-
-            {/* Challenge Suggestions */}
-            {profile?.current_streak >= 2 && (
-              <motion.div
-                className="mt-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <ChallengeSuggestions profile={profile} checkIns={checkIns} />
-              </motion.div>
-            )}
-          </>
-        ) : profile?.role !== "owner" && (
-          checkIns.length >= 2 && (
-            <motion.div
-              className="mt-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <AIPremiumUpsell />
-            </motion.div>
-          )
-        )}
-
-        {/* Quick Stats */}
-        <motion.div
-          className="grid grid-cols-2 gap-4 mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
-            <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-teal-400/30 to-emerald-400/30 rounded-full blur-2xl" />
-            <p className="text-xs text-teal-100 mb-2 font-medium relative z-10">{t("total_checkins")}</p>
-            <p className="text-3xl font-bold text-white relative z-10">{profile?.total_checkins || 0}</p>
-          </div>
-          <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
-            <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-amber-400/30 to-orange-400/30 rounded-full blur-2xl" />
-            <p className="text-xs text-amber-100 mb-2 font-medium relative z-10">{t("best_streak")}</p>
-            <p className="text-3xl font-bold bg-gradient-to-r from-amber-200 to-orange-200 bg-clip-text text-transparent relative z-10">{profile?.longest_streak || 0} {t("days")}</p>
-          </div>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div
-          className="grid grid-cols-2 gap-3 mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Link
-            to={createPageUrl("Groups")}
-            className="rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg">
-              <Users size={22} className="text-white" />
-            </div>
-            <span className="font-semibold text-white">{t("groups")}</span>
-          </Link>
-
-          <Link
-            to={createPageUrl("Friends")}
-            className="rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg">
-              <Users size={22} className="text-white" />
-            </div>
-            <span className="font-semibold text-white">{t("friends")}</span>
-          </Link>
-        </motion.div>
-      </div>
-
-      {/* Meal Photo Capture Modal */}
-      <MealPhotoCapture
-        isOpen={showMealCapture}
-        onClose={() => setShowMealCapture(false)}
-        onPhotoSelected={handleMealPhotoSelected}
-      />
-
-      {/* First Streak Modal */}
-      <FirstStreakModal 
-        isOpen={showFirstStreakModal} 
-        onClose={() => setShowFirstStreakModal(false)} 
-      />
+      </AnimatePresence>
     </div>
   );
 }

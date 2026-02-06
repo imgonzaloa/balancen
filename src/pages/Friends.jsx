@@ -2,53 +2,39 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, Users, CheckCircle, XCircle, Flame, TrendingUp } from "lucide-react";
-import StatusChip from "@/components/groups/StatusChip";
+import { UserPlus, Users, CheckCircle, XCircle, Flame, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
+import StatusChip from "@/components/groups/StatusChip";
 
 export default function Friends() {
   const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [friendEmail, setFriendEmail] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
     base44.auth.me().then(setUser);
   }, []);
 
-  const { data: profile } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
-      return profiles[0] || null;
-    },
-    enabled: !!user?.email,
-  });
-
-  // Fetch friend requests sent by me
   const { data: sentRequests = [] } = useQuery({
-    queryKey: ["friendsSent"],
+    queryKey: ["friendsSent", user?.email],
     queryFn: () => base44.entities.Friend.filter({ user_email: user?.email }),
     enabled: !!user?.email,
   });
 
-  // Fetch friend requests sent to me
   const { data: receivedRequests = [] } = useQuery({
-    queryKey: ["friendsReceived"],
+    queryKey: ["friendsReceived", user?.email],
     queryFn: () => base44.entities.Friend.filter({ friend_email: user?.email }),
     enabled: !!user?.email,
   });
 
   const acceptedFriends = [...sentRequests, ...receivedRequests].filter(f => f.status === "accepted");
-  const pendingRequests = receivedRequests.filter(f => f.status === "pending");
 
-  // Fetch profiles for all friends
   const { data: friendProfiles = [] } = useQuery({
     queryKey: ["friendProfiles", acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email)],
     queryFn: async () => {
@@ -65,16 +51,30 @@ export default function Friends() {
     enabled: acceptedFriends.length > 0,
   });
 
+  const { data: friendMeals = [] } = useQuery({
+    queryKey: ["friendMeals", acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email)],
+    queryFn: async () => {
+      const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
+      if (emails.length === 0) return [];
+      const meals = await Promise.all(
+        emails.map(async (email) => {
+          const m = await base44.entities.MealLog.filter({ created_by: email }, "-date", 5);
+          return m.map(meal => ({ ...meal, friend_email: email }));
+        })
+      );
+      return meals.flat();
+    },
+    enabled: acceptedFriends.length > 0,
+  });
+
+  const pendingRequests = receivedRequests.filter(f => f.status === "pending");
+
   const sendRequestMutation = useMutation({
     mutationFn: async (email) => {
-      // Check if already friends or pending
       const existing = [...sentRequests, ...receivedRequests].find(
         f => (f.user_email === email || f.friend_email === email)
       );
-      if (existing) {
-        throw new Error("Friend request already exists");
-      }
-      
+      if (existing) throw new Error("Friend request already exists");
       return base44.entities.Friend.create({
         user_email: user.email,
         friend_email: email,
@@ -82,13 +82,13 @@ export default function Friends() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["friendsSent"]);
+      queryClient.invalidateQueries({ queryKey: ["friendsSent"] });
       toast.success(t("friend_request_sent"));
       setFriendEmail("");
       setShowAddDialog(false);
     },
     onError: (error) => {
-      toast.error(error.message || t("error_sending_request"));
+      toast.error(error.message);
     },
   });
 
@@ -96,75 +96,35 @@ export default function Friends() {
     mutationFn: ({ requestId, status }) => 
       base44.entities.Friend.update(requestId, { status }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["friendsReceived"]);
-      queryClient.invalidateQueries(["friendsSent"]);
+      queryClient.invalidateQueries({ queryKey: ["friendsReceived"] });
+      queryClient.invalidateQueries({ queryKey: ["friendsSent"] });
       toast.success(t("request_updated"));
     },
   });
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["friendsSent"] }),
-      queryClient.invalidateQueries({ queryKey: ["friendsReceived"] }),
-      queryClient.invalidateQueries({ queryKey: ["friendProfiles"] }),
-    ]);
-    setTimeout(() => setRefreshing(false), 500);
-  };
-
   return (
-    <div 
-      className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden"
-      onTouchStart={(e) => {
-        if (window.scrollY === 0) {
-          const touch = e.touches[0];
-          window.touchStartY = touch.clientY;
-        }
-      }}
-      onTouchMove={(e) => {
-        if (window.scrollY === 0 && window.touchStartY) {
-          const touch = e.touches[0];
-          const pullDistance = touch.clientY - window.touchStartY;
-          if (pullDistance > 80 && !refreshing) {
-            handleRefresh();
-            window.touchStartY = null;
-          }
-        }
-      }}
-      onTouchEnd={() => {
-        window.touchStartY = null;
-      }}
-    >
-      {refreshing && (
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-white/10 backdrop-blur-xl px-4 py-2 rounded-full">
-          <motion.div
-            className="text-white text-sm"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ repeat: Infinity, duration: 1 }}
-          >
-            {t('refreshing')}...
-          </motion.div>
-        </div>
-      )}
-
-      <div className="absolute inset-0 opacity-30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
         <div className="absolute -bottom-8 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-8"
+        >
           <div>
-            <h1 className="text-3xl font-bold text-white mb-1">{t("friends_title")}</h1>
-            <p className="text-teal-200 text-sm">{t("connect_and_share")}</p>
+            <h1 className="text-3xl font-bold text-white">{t("friends_title") || "Friends"}</h1>
+            <p className="text-teal-200 text-sm mt-1">{friendProfiles.length} connected</p>
           </div>
 
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
               <Button className="bg-teal-500 hover:bg-teal-600 rounded-2xl">
-                <UserPlus size={20} className="mr-2" />
-                {t("add_friend")}
+                <UserPlus size={20} />
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-slate-900 border-slate-700">
@@ -188,47 +148,51 @@ export default function Friends() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
+        </motion.div>
 
         {/* Pending Requests */}
-        {pendingRequests.length > 0 && (
-          <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h2 className="text-lg font-semibold text-white mb-3">{t("pending_requests")}</h2>
-            <div className="space-y-3">
-              {pendingRequests.map((request) => (
-                <div
-                  key={request.id}
-                  className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 flex items-center justify-between"
-                >
-                  <div>
-                    <p className="text-white font-medium">{request.user_email}</p>
-                    <p className="text-teal-200 text-sm">{t("wants_to_connect")}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => respondRequestMutation.mutate({ requestId: request.id, status: "accepted" })}
-                      className="p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 transition-colors"
-                    >
-                      <CheckCircle size={20} className="text-emerald-300" />
-                    </button>
-                    <button
-                      onClick={() => respondRequestMutation.mutate({ requestId: request.id, status: "rejected" })}
-                      className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 transition-colors"
-                    >
-                      <XCircle size={20} className="text-red-300" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {pendingRequests.length > 0 && (
+            <motion.div
+              className="mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <h2 className="text-lg font-semibold text-white mb-3">{t("pending_requests")}</h2>
+              <div className="space-y-3">
+                {pendingRequests.map((request) => (
+                  <motion.div
+                    key={request.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-white font-medium">{request.user_email}</p>
+                      <p className="text-teal-200 text-sm">{t("wants_to_connect")}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => respondRequestMutation.mutate({ requestId: request.id, status: "accepted" })}
+                        className="p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 transition-colors"
+                      >
+                        <CheckCircle size={20} className="text-emerald-300" />
+                      </button>
+                      <button
+                        onClick={() => respondRequestMutation.mutate({ requestId: request.id, status: "rejected" })}
+                        className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 transition-colors"
+                      >
+                        <XCircle size={20} className="text-red-300" />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Friends List */}
+        {/* Friends Activity Feed */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -246,49 +210,58 @@ export default function Friends() {
               <p className="text-white/40 text-sm">{t("add_friends_to_share")}</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {friendProfiles.map((friendProfile, index) => (
-                <motion.div
-                  key={friendProfile.id}
-                  className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">
-                        {friendProfile.display_name?.charAt(0) || "?"}
-                      </div>
-                      {friendProfile.status_text && (
-                        <div className="absolute -bottom-1 -right-1 bg-purple-500 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-slate-900">
-                          ✨
+            <div className="space-y-4">
+              {friendProfiles.map((friend, idx) => {
+                const friendMeal = friendMeals.find(m => m.friend_email === friend.created_by);
+                return (
+                  <motion.div
+                    key={friend.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4"
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Avatar */}
+                      <div className="relative flex-shrink-0">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                          {friend.display_name?.charAt(0) || "?"}
                         </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <p className="text-white font-semibold">{friendProfile.display_name}</p>
-                      {friendProfile.status_text && (
-                        <StatusChip 
-                          status={friendProfile.status_text} 
-                          updatedAt={friendProfile.status_updated_at}
-                        />
-                      )}
-                      <div className="flex items-center gap-3 text-sm mt-1">
-                        <span className="flex items-center gap-1 text-orange-300">
-                          <Flame size={14} />
-                          {friendProfile.current_streak} {t("day_streak")}
-                        </span>
-                        <span className="flex items-center gap-1 text-emerald-300">
-                          <TrendingUp size={14} />
-                          {friendProfile.total_checkins} {t("checkins")}
-                        </span>
+                        {friend.status_text && (
+                          <div className="absolute -bottom-1 -right-1 bg-purple-500 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-slate-900">
+                            ✨
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-semibold">{friend.display_name}</p>
+                        {friend.status_text && (
+                          <StatusChip status={{ status_text: friend.status_text, status_updated_at: friend.status_updated_at }} />
+                        )}
+                        <div className="flex items-center gap-3 text-sm mt-2">
+                          <span className="flex items-center gap-1 text-orange-300">
+                            <Flame size={14} />
+                            {friend.current_streak} {t("day_streak")}
+                          </span>
+                          <span className="flex items-center gap-1 text-emerald-300">
+                            <Activity size={14} />
+                            {friend.total_checkins} meals
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+
+                    {/* Last meal preview */}
+                    {friendMeal && (
+                      <div className="mt-3 pt-3 border-t border-white/10 text-xs text-white/60">
+                        <p>Last meal: {friendMeal.estimated_calories} kcal</p>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </motion.div>
