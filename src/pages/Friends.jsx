@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Users, CheckCircle, XCircle, Flame, TrendingUp } from "lucide-react";
+import StatusChip from "@/components/groups/StatusChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -211,12 +212,25 @@ export default function Friends() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">
-                      {friendProfile.display_name?.charAt(0) || "?"}
+                    <div className="relative">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">
+                        {friendProfile.display_name?.charAt(0) || "?"}
+                      </div>
+                      {friendProfile.status_text && (
+                        <div className="absolute -bottom-1 -right-1 bg-purple-500 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-slate-900">
+                          ✨
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex-1">
                       <p className="text-white font-semibold">{friendProfile.display_name}</p>
+                      {friendProfile.status_text && (
+                        <StatusChip 
+                          status={friendProfile.status_text} 
+                          updatedAt={friendProfile.status_updated_at}
+                        />
+                      )}
                       <div className="flex items-center gap-3 text-sm mt-1">
                         <span className="flex items-center gap-1 text-orange-300">
                           <Flame size={14} />

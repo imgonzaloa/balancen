@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 const BAD_WORDS = ["fuck", "shit", "bitch", "asshole", "damn", "puta", "mierda", "carajo", "pendejo", "idiota"];
 
-export default function SetStatusModal({ isOpen, onClose, currentStatus, profile, onUpdate }) {
+export default function SetStatusModal({ isOpen, onClose, currentStatus, profile, onUpdate, trigger }) {
   const { t } = useTranslation();
   const [status, setStatus] = useState(currentStatus || "");
   const [saving, setSaving] = useState(false);

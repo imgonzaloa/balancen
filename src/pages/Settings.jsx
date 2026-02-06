@@ -78,8 +78,8 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Premium Status */}
-        {profile?.is_premium ? (
+        {/* Premium Status - hide for owner */}
+        {profile?.is_premium && profile?.role !== "owner" ? (
           <motion.div
             className="relative overflow-hidden rounded-3xl p-5 mb-6 bg-gradient-to-br from-amber-500 to-orange-600 shadow-2xl"
             initial={{ opacity: 0, y: 20 }}
@@ -94,7 +94,7 @@ export default function Settings() {
               </div>
             </div>
           </motion.div>
-        ) : (
+        ) : profile?.role !== "owner" ? (
           <Link to={createPageUrl("Premium")}>
             <motion.div
               className="relative overflow-hidden rounded-3xl p-5 mb-6 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-all"
@@ -116,7 +116,7 @@ export default function Settings() {
               </div>
             </motion.div>
           </Link>
-        )}
+        ) : null}
 
         {/* AI Recommendations */}
         <motion.div
