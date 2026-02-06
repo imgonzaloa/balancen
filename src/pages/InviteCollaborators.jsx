@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
+const OWNER_EMAIL = "imgonzaloa@gmail.com";
+
 export default function InviteCollaborators() {
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
@@ -18,9 +20,35 @@ export default function InviteCollaborators() {
     base44.auth.me().then(setUser);
   }, []);
 
+  // OWNER-ONLY ACCESS CHECK
+  if (user && user.email !== OWNER_EMAIL) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 flex items-center justify-center px-5">
+        <div className="text-center">
+          <div className="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">🚫</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
+          <p className="text-white/60 mb-6">This feature is only available to the application owner.</p>
+          <Link to={createPageUrl("Settings")}>
+            <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
+              Go Back
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const appUrl = window.location.origin;
 
   const handleInvite = async () => {
+    // Double-check owner permission on action
+    if (user.email !== OWNER_EMAIL) {
+      toast.error("Access denied");
+      return;
+    }
+
     if (!email || !email.includes("@")) {
       toast.error("Enter a valid email");
       return;
