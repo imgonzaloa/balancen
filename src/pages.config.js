@@ -57,6 +57,7 @@ import Paywall from './pages/Paywall';
 import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import InviteCollaborators from './pages/InviteCollaborators';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +72,7 @@ export const PAGES = {
     "Premium": Premium,
     "Profile": Profile,
     "Settings": Settings,
+    "InviteCollaborators": InviteCollaborators,
 }
 
 export const pagesConfig = {

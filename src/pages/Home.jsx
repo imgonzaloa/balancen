@@ -33,11 +33,7 @@ export default function Home() {
   const [hasShownPaywall, setHasShownPaywall] = useState(false);
 
   useEffect(() => {
-    // Force fresh user data on mount
     base44.auth.me().then(setUser).catch(() => setUser(null));
-    
-    // Invalidate all queries on mount to force fresh data
-    queryClient.invalidateQueries();
   }, []);
 
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -47,10 +43,8 @@ export default function Home() {
       return profiles[0] || null;
     },
     enabled: !!user?.email,
-    staleTime: 0,
-    cacheTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const today = new Date().toISOString().split("T")[0];
@@ -66,9 +60,7 @@ export default function Home() {
       );
     },
     enabled: !!user?.email,
-    staleTime: 0,
-    cacheTime: 0,
-    refetchOnMount: "always",
+    staleTime: 30000,
   });
 
   const { data: todayMeals = [] } = useQuery({
@@ -80,8 +72,7 @@ export default function Home() {
       );
     },
     enabled: !!user?.email,
-    staleTime: 0,
-    refetchOnMount: "always",
+    staleTime: 30000,
   });
   const todayCheckIn = checkIns.find(c => c.date === today);
   const yesterdayCheckIn = checkIns.find(c => c.date === yesterday);
