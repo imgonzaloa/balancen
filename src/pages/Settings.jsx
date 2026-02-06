@@ -15,7 +15,7 @@ import { toast } from "sonner";
 export default function Settings() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
-  const { changeLanguage, lang } = useTranslation();
+  const { changeLanguage, lang, t } = useTranslation();
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -67,7 +67,7 @@ export default function Settings() {
           >
             <ChevronLeft size={20} className="text-white" />
           </Link>
-          <h1 className="text-2xl font-bold text-white">Settings</h1>
+          <h1 className="text-2xl font-bold text-white">{t('settings')}</h1>
         </div>
 
         {/* Premium Status */}
@@ -255,7 +255,7 @@ export default function Settings() {
 
             <div className="space-y-4">
               <div>
-                <Label className="text-white text-sm mb-2 block">Daily Steps Target</Label>
+                <Label className="text-white text-sm mb-2 block">{t('daily_steps_target')}</Label>
                 <input
                   type="number"
                   value={profile?.steps_goal || 8000}
@@ -266,7 +266,7 @@ export default function Settings() {
               </div>
 
               <div>
-                <Label className="text-white text-sm mb-2 block">Daily Calories Limit</Label>
+                <Label className="text-white text-sm mb-2 block">{t('daily_calories_limit')}</Label>
                 <input
                   type="number"
                   value={profile?.calories_goal || ""}
@@ -274,12 +274,12 @@ export default function Settings() {
                   className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:border-orange-300 outline-none"
                   placeholder="Optional - e.g., 2000"
                 />
-                <p className="text-xs text-white/40 mt-1">Optional - leave empty if not tracking</p>
+                <p className="text-xs text-white/40 mt-1">{t('optional_leave_empty')}</p>
               </div>
 
               <div className="flex items-center justify-between pt-2">
                 <div>
-                  <Label className="text-white text-sm">Auto-adjust calories goal</Label>
+                  <Label className="text-white text-sm">{t('auto_adjust_calories')}</Label>
                   <p className="text-xs text-white/60">Reduce by 50 kcal when goal met</p>
                 </div>
                 <Switch
