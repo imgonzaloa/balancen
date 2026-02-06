@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { createPageUrl } from "@/utils";
-import MealResultCard from "@/components/home/MealResultCard";
 import AddMealButton from "@/components/home/AddMealButton";
 import DailyCalorieGoal from "@/components/home/DailyCalorieGoal";
 import DailyMissions from "@/components/home/DailyMissions";
@@ -18,25 +16,12 @@ import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 export default function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
-  const [showMealResult, setShowMealResult] = useState(false);
-  const [selectedMealFile, setSelectedMealFile] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
   }, []);
-
-  // Check if returning from camera with captured photo
-  useEffect(() => {
-    if (location.state?.capturedPhoto) {
-      setSelectedMealFile(location.state.capturedPhoto);
-      setShowMealResult(true);
-      // Clear location state
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", user?.email],
@@ -107,8 +92,6 @@ export default function Home() {
 
 
   const handleMealSaved = () => {
-    setShowMealResult(false);
-    setSelectedMealFile(null);
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
     queryClient.invalidateQueries({ queryKey: ["profile"] });
     toast.success("🍽️ " + t("meal_saved"));
@@ -165,40 +148,7 @@ export default function Home() {
         />
       </div>
 
-      {/* Meal Result Modal */}
-      <AnimatePresence>
-        {showMealResult && selectedMealFile && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end"
-          >
-            <motion.div
-              initial={{ y: 100 }}
-              animate={{ y: 0 }}
-              exit={{ y: 100 }}
-              className="w-full bg-slate-900 rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between mb-4 sticky top-0">
-                <h2 className="text-xl font-bold text-white">{t("meal_analysis")}</h2>
-                <button
-                  onClick={() => setShowMealResult(false)}
-                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <MealResultCard
-                file={selectedMealFile}
-                profile={profile}
-                onSave={handleMealSaved}
-                onCancel={() => setShowMealResult(false)}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </div>
   );
 }
