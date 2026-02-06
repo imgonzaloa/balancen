@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
 import { ChevronLeft, Watch, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -14,6 +15,7 @@ import { toast } from "sonner";
 export default function Settings() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
+  const { changeLanguage, lang } = useTranslation();
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -38,12 +40,12 @@ export default function Settings() {
 
   const languageMutation = useMutation({
     mutationFn: async (language) => {
-      await base44.entities.UserProfile.update(profile.id, { language });
+      await changeLanguage(language);
       return language;
     },
-    onSuccess: (language) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(["profile", user?.email]);
-      window.location.reload();
+      toast.success("Language changed");
     },
   });
 
@@ -312,15 +314,15 @@ export default function Settings() {
             </div>
             
             <Select
-              value={profile?.language || "en"}
+              value={lang}
               onValueChange={(value) => languageMutation.mutate(value)}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="es">Español</SelectItem>
+                <SelectItem value="en">🇬🇧 English</SelectItem>
+                <SelectItem value="es">🇪🇸 Español</SelectItem>
               </SelectContent>
             </Select>
           </div>
