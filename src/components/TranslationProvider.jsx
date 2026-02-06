@@ -226,16 +226,6 @@ export function TranslationProvider({ children }) {
     enabled: !!user?.email,
   });
 
-  useEffect(() => {
-    const savedLang = localStorage.getItem("appLanguage");
-    if (savedLang && savedLang !== currentLang) {
-      setCurrentLang(savedLang);
-    } else if (profile?.language && !savedLang) {
-      setCurrentLang(profile.language);
-      localStorage.setItem("appLanguage", profile.language);
-    }
-  }, [profile?.language]);
-
   const changeLanguage = (newLang) => {
     setCurrentLang(newLang);
     localStorage.setItem("appLanguage", newLang);
