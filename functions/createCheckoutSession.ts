@@ -3,7 +3,6 @@ import Stripe from 'npm:stripe@17.5.0';
 
 // VERSION 3 - FORCE COMPLETE REDEPLOY
 Deno.serve(async (req) => {
-  console.log('=== CREATE CHECKOUT v3 ===');
   const base44 = createClientFromRequest(req);
 
   try {
@@ -16,8 +15,14 @@ Deno.serve(async (req) => {
     const { priceId, selectedPlan, region } = body;
 
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
+    console.log('Stripe key prefix:', stripeKey ? stripeKey.substring(0, 7) : 'MISSING');
+    
     if (!stripeKey || !stripeKey.startsWith('sk_')) {
-      return Response.json({ error: 'Invalid Stripe configuration' }, { status: 500 });
+      console.error('Invalid Stripe key - must start with sk_');
+      return Response.json({ 
+        error: 'Invalid Stripe key configuration',
+        hint: 'Key must start with sk_live_ or sk_test_'
+      }, { status: 500 });
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
