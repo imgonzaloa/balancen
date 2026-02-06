@@ -18,6 +18,13 @@ export default function Layout({ children, currentPageName }) {
   const { t } = useTranslation();
   const [direction, setDirection] = useState(0);
   const [prevPage, setPrevPage] = useState(currentPageName);
+
+  // Register service worker for PWA
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  }, []);
   
   const navItems = navItemsBase.map(item => ({
     ...item,
