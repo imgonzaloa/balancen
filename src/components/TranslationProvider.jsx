@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+
+// SINGLE SOURCE OF TRUTH: Only use "balancen_lang" key
+const STORAGE_KEY = "balancen_lang";
 
 const translations = {
   en: {
@@ -246,56 +247,71 @@ const translations = {
     select_language: "Selecciona tu idioma",
     privacy: "Privacidad",
     data_encrypted: "Tus datos están encriptados y seguros",
+    },
+    debug: {
+    sample: "Hola"
+    }
+    },
+    en: {
+    ...translations.en,
+    debug: {
+    sample: "Hello"
+    }
     }
     };
 
+    translations = enrichedTranslations;
+
 const TranslationContext = createContext();
+
+// ONE-TIME CLEANUP: Remove all legacy keys
+const cleanupLegacyKeys = () => {
+  const legacyKeys = ["app_language", "language", "locale", "i18nLocale", "language_override"];
+  legacyKeys.forEach(key => {
+    if (localStorage.getItem(key)) {
+      console.log("🧹 Cleaning up legacy key:", key);
+      localStorage.removeItem(key);
+    }
+  });
+};
 
 // SINGLE SOURCE OF TRUTH: "balancen_lang" key
 const getInitialLanguage = () => {
-  const stored = localStorage.getItem("balancen_lang");
+  const stored = localStorage.getItem(STORAGE_KEY);
   
   // If valid language exists, use it
   if (stored === "en" || stored === "es") {
     console.log("🌍 Loading saved language from balancen_lang:", stored);
+    cleanupLegacyKeys();
     return stored;
   }
   
-  // Migrate from legacy keys
-  const legacy = localStorage.getItem("app_language") || localStorage.getItem("language");
+  // Migrate from legacy keys (one-time)
+  const legacy = localStorage.getItem("app_language") || 
+                 localStorage.getItem("language") || 
+                 localStorage.getItem("locale");
+  
   if (legacy === "en" || legacy === "es") {
-    console.log("🔄 Migrating legacy language:", legacy);
-    localStorage.setItem("balancen_lang", legacy);
-    localStorage.removeItem("app_language");
-    localStorage.removeItem("language");
-    localStorage.removeItem("language_override");
+    console.log("🔄 Migrating legacy language to balancen_lang:", legacy);
+    localStorage.setItem(STORAGE_KEY, legacy);
+    cleanupLegacyKeys();
     return legacy;
   }
   
   // Default to English
   console.log("🌍 No saved language, defaulting to English");
-  localStorage.setItem("balancen_lang", "en");
+  localStorage.setItem(STORAGE_KEY, "en");
+  cleanupLegacyKeys();
   return "en";
 };
 
 export function TranslationProvider({ children }) {
   const [lang, setLang] = useState(getInitialLanguage);
+  const [renderKey, setRenderKey] = useState(0);
 
-  // Migration on mount
+  // Cleanup on mount
   useEffect(() => {
-    const stored = localStorage.getItem("balancen_lang");
-    const legacy = localStorage.getItem("app_language") || localStorage.getItem("language");
-    
-    if (!stored && (legacy === "es" || legacy === "en")) {
-      console.log("🔄 Migrating legacy key to balancen_lang");
-      localStorage.setItem("balancen_lang", legacy);
-      setLang(legacy);
-    }
-    
-    // Clean up old keys
-    localStorage.removeItem("app_language");
-    localStorage.removeItem("language");
-    localStorage.removeItem("language_override");
+    cleanupLegacyKeys();
   }, []);
 
   const changeLanguage = (newLang) => {
@@ -304,10 +320,11 @@ export function TranslationProvider({ children }) {
       return;
     }
     
-    console.log("🔄 Changing language to:", newLang);
+    console.log("🔄 CHANGING LANGUAGE TO:", newLang);
     setLang(newLang);
-    localStorage.setItem("balancen_lang", newLang);
-    console.log("✅ Language changed. State:", newLang, "Storage:", localStorage.getItem("balancen_lang"));
+    localStorage.setItem(STORAGE_KEY, newLang);
+    setRenderKey(prev => prev + 1); // Force re-render
+    console.log("✅ Language changed. State:", newLang, "Storage:", localStorage.getItem(STORAGE_KEY));
   };
 
   const t = (key) => {
@@ -319,11 +336,13 @@ export function TranslationProvider({ children }) {
     return translation;
   };
 
-  console.log("🎨 TranslationProvider - State lang:", lang, "Storage:", localStorage.getItem("balancen_lang"));
+  console.log("🎨 TranslationProvider - Lang:", lang, "Storage:", localStorage.getItem(STORAGE_KEY), "RenderKey:", renderKey);
 
   return (
-    <TranslationContext.Provider value={{ t, lang, changeLanguage }}>
-      {children}
+    <TranslationContext.Provider value={{ t, lang, changeLanguage, renderKey }}>
+      <div key={renderKey}>
+        {children}
+      </div>
     </TranslationContext.Provider>
   );
 }

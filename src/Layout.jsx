@@ -15,7 +15,7 @@ const navItemsBase = [
 
 export default function Layout({ children, currentPageName }) {
   const hideNav = ["Onboarding", "Paywall"].includes(currentPageName);
-  const { t } = useTranslation();
+  const { t, lang, renderKey } = useTranslation();
   const [direction, setDirection] = useState(0);
   const [prevPage, setPrevPage] = useState(currentPageName);
 
@@ -58,12 +58,12 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 select-none">
+    <div className="min-h-screen bg-slate-50 select-none" key={`layout-${renderKey}`}>
       <Toaster position="top-center" richColors />
       
       <AnimatePresence mode="wait" custom={direction}>
         <motion.main
-          key={currentPageName}
+          key={`${currentPageName}-${renderKey}`}
           custom={direction}
           variants={pageVariants}
           initial="initial"
