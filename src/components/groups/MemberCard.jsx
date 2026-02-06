@@ -53,8 +53,8 @@ export default function MemberCard({ member, userProfile, rank, isCurrentUser })
         
         {/* Status Overlay */}
         {showStatus && (
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap shadow-lg border border-white/30">
-            {userProfile.status_emoji} {userProfile.status_text}
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap max-w-[120px] truncate shadow-lg z-10">
+            {userProfile.status_text}
           </div>
         )}
         

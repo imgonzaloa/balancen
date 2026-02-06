@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import StreakFire from "@/components/ui/StreakFire";
 import { useTranslation } from "@/components/TranslationProvider";
+import SetStatusModal from "@/components/groups/SetStatusModal";
+import StatusChip from "@/components/groups/StatusChip";
 
 export default function Profile() {
   const { t } = useTranslation();
