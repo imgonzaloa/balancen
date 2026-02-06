@@ -309,9 +309,28 @@ const resources = {
       remaining: "remaining",
       cancel: "Cancel",
       save: "Save",
-      saving: "Saving..."
-    }
-  },
+      saving: "Saving...",
+      add_meal: "Add Meal",
+      take_photo: "Take Photo",
+      upload_photo: "Upload Photo",
+      capture: "Capture",
+      analyzing_meal: "Analyzing meal...",
+      please_wait: "This takes a few seconds",
+      analysis_failed: "Analysis failed",
+      retry: "Retry",
+      detected_items: "Detected Items",
+      health_score: "Health",
+      confidence: "Confidence",
+      meal_saved: "Meal saved!",
+      error_saving: "Error saving meal",
+      save_meal: "Save Meal",
+      today_calories: "Today's Calories",
+      consumed: "Consumed",
+      goal_exceeded: "Goal exceeded",
+      last_meal: "Last meal",
+      meal_analysis: "Meal Analysis"
+      }
+      },
   es: {
     translation: {
       good_morning: "Buenos días",
@@ -600,10 +619,29 @@ const resources = {
       remaining: "restantes",
       cancel: "Cancelar",
       save: "Guardar",
-      saving: "Guardando..."
-    }
-  }
-};
+      saving: "Guardando...",
+      add_meal: "Añadir comida",
+      take_photo: "Tomar foto",
+      upload_photo: "Subir foto",
+      capture: "Capturar",
+      analyzing_meal: "Analizando comida...",
+      please_wait: "Esto toma unos segundos",
+      analysis_failed: "Análisis fallido",
+      retry: "Reintentar",
+      detected_items: "Alimentos detectados",
+      health_score: "Salud",
+      confidence: "Confianza",
+      meal_saved: "¡Comida guardada!",
+      error_saving: "Error al guardar",
+      save_meal: "Guardar comida",
+      today_calories: "Calorías de hoy",
+      consumed: "Consumidas",
+      goal_exceeded: "Objetivo superado",
+      last_meal: "Última comida",
+      meal_analysis: "Análisis de comida"
+      }
+      }
+      };
 
 i18n
   .use(initReactI18next)
