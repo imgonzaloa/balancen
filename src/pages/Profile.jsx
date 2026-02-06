@@ -19,6 +19,7 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -142,6 +143,7 @@ export default function Profile() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                   {profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}
                 </div>
+                <StatusChip status={profile} />
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-2 border-slate-900" />
               </div>
               <div className="flex-1">
@@ -178,6 +180,30 @@ export default function Profile() {
               </div>
             </div>
           </div>
+        </motion.div>
+
+        {/* Status Button */}
+        <motion.div
+          className="mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <button
+            onClick={() => setStatusModalOpen(true)}
+            className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 shadow-lg flex items-center justify-between hover:bg-white/20 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">✨</div>
+              <div className="text-left">
+                <p className="font-semibold text-white">{t("set_status")}</p>
+                <p className="text-xs text-teal-200 truncate max-w-[200px]">
+                  {profile?.status_text || t("status_placeholder")}
+                </p>
+              </div>
+            </div>
+            <ChevronLeft size={20} className="text-white/60 rotate-180" />
+          </button>
         </motion.div>
 
         {/* Settings Button */}
@@ -327,6 +353,15 @@ export default function Profile() {
           </motion.div>
         )}
       </div>
+
+      {/* Status Modal */}
+      <SetStatusModal
+        isOpen={statusModalOpen}
+        onClose={() => setStatusModalOpen(false)}
+        currentStatus={profile?.status_text}
+        profile={profile}
+        onUpdate={() => queryClient.invalidateQueries(["profile"])}
+      />
     </div>
   );
 }
