@@ -38,13 +38,13 @@ export default function Settings() {
     },
   });
 
-  const handleLanguageChange = (language) => {
-    if (typeof changeLanguage === 'function') {
-      changeLanguage(language);
-    }
+  const handleLanguageChange = async (language) => {
+    changeLanguage(language);
     if (profile?.id) {
-      base44.entities.UserProfile.update(profile.id, { language });
+      await base44.entities.UserProfile.update(profile.id, { language });
+      queryClient.invalidateQueries(["profile", user?.email]);
     }
+    toast.success("Language updated");
   };
 
   const handleToggle = (field, value) => {
