@@ -228,19 +228,22 @@ export function TranslationProvider({ children }) {
   useEffect(() => {
     if (profile && !isLoading) {
       const lang = (profile.language === "es") ? "es" : "en";
-      if (currentLang !== lang) {
-        setCurrentLang(lang);
-        localStorage.setItem("app_language", lang);
-      }
+      setCurrentLang(lang);
+      localStorage.setItem("app_language", lang);
     }
-  }, [profile, isLoading, currentLang]);
+  }, [profile, isLoading]);
+
+  const changeLanguage = (newLang) => {
+    setCurrentLang(newLang);
+    localStorage.setItem("app_language", newLang);
+  };
 
   const t = (key) => {
     return translations[currentLang]?.[key] || translations.en[key] || key;
   };
 
   return (
-    <TranslationContext.Provider value={{ t, lang: currentLang }}>
+    <TranslationContext.Provider value={{ t, lang: currentLang, changeLanguage }}>
       {children}
     </TranslationContext.Provider>
   );
