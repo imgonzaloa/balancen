@@ -210,16 +210,9 @@ const TranslationContext = createContext();
 export function TranslationProvider({ children }) {
   const [user, setUser] = useState(null);
   const [currentLang, setCurrentLang] = useState("en");
-  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {
-      // Not logged in, use localStorage or default to English
-      const stored = localStorage.getItem("app_language");
-      const validLang = (stored === "es") ? "es" : "en";
-      setCurrentLang(validLang);
-      setIsInitialized(true);
-    });
+    base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
   const { data: profile } = useQuery({
@@ -229,28 +222,21 @@ export function TranslationProvider({ children }) {
       return profiles[0] || null;
     },
     enabled: !!user?.email,
-    staleTime: 30000,
   });
 
-  // Initialize and sync language from profile
+  // Update language when profile changes
   useEffect(() => {
-    if (profile) {
-      const profileLang = (profile.language === "es") ? "es" : "en";
-      setCurrentLang(profileLang);
-      localStorage.setItem("app_language", profileLang);
-      setIsInitialized(true);
+    if (profile?.language) {
+      setCurrentLang(profile.language === "es" ? "es" : "en");
     }
-  }, [profile]);
+  }, [profile?.language]);
 
-  const lang = currentLang;
-  
   const t = (key) => {
-    const validLang = (lang === "es") ? "es" : "en";
-    return translations[validLang]?.[key] || translations.en[key] || key;
+    return translations[currentLang]?.[key] || translations.en[key] || key;
   };
 
   return (
-    <TranslationContext.Provider value={{ t, lang }} key={lang}>
+    <TranslationContext.Provider value={{ t, lang: currentLang }}>
       {children}
     </TranslationContext.Provider>
   );
