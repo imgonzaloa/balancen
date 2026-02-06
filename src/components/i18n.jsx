@@ -23,6 +23,11 @@ const getInitialLanguage = () => {
 const resources = {
   en: {
     translation: {
+      // Home & Navigation
+       home: "Home",
+       groups: "Groups",
+       friends: "Friends",
+       profile: "Profile",
       good_morning: "Good morning",
       good_afternoon: "Good afternoon",
       good_evening: "Good evening",

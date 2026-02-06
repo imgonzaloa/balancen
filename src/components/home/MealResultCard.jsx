@@ -89,6 +89,7 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
         hour12: false
       });
 
+      // Create meal log
       await base44.entities.MealLog.create({
         date: today,
         meal_time,
@@ -98,6 +99,17 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
         estimated_carbs: editValues.carbs_g,
         estimated_fats: editValues.fats_g
       });
+
+      // Call update check-in function to handle fire awards + 24h status auto-set
+      try {
+        await base44.functions.invoke('updateDailyCheckIn', {
+          food_photo_url: result.file_url,
+          estimated_calories: editValues.calories,
+          meal_photo_fire_awarded: false
+        });
+      } catch (err) {
+        console.error('Error updating check-in:', err);
+      }
 
       toast.success(t("meal_saved") || "Meal saved!");
       onSave?.();
