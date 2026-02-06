@@ -309,11 +309,15 @@ export default function Settings() {
             </div>
             
             <Select
-              value={lang}
-              onValueChange={handleLanguageChange}
+              value={lang || "en"}
+              onValueChange={(value) => {
+                handleLanguageChange(value);
+              }}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                <SelectValue />
+                <SelectValue placeholder="Select language">
+                  {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en">🇬🇧 English</SelectItem>
