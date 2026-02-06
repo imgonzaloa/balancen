@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import MemberCard from "@/components/groups/MemberCard";
 import SetStatusModal from "@/components/groups/SetStatusModal";
+import StatusChip from "@/components/groups/StatusChip";
 
 export default function GroupDetail() {
   const [user, setUser] = useState(null);
@@ -82,22 +83,10 @@ export default function GroupDetail() {
 
   const sortedMembers = [...enrichedMembers].sort((a, b) => b.fire_total - a.fire_total);
 
-  // Update status mutation
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ emoji, text }) => {
-      if (!currentUserProfile) return;
-      return base44.entities.UserProfile.update(currentUserProfile.id, {
-        status_emoji: emoji,
-        status_text: text,
-        status_updated_at: new Date().toISOString()
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["memberProfiles"]);
-      queryClient.invalidateQueries(["profile"]);
-      toast.success("Status updated");
-    },
-  });
+  const handleStatusUpdate = () => {
+    queryClient.invalidateQueries(["memberProfiles"]);
+    queryClient.invalidateQueries(["profile"]);
+  };
 
   const copyCode = () => {
     if (!group) return;
@@ -142,7 +131,7 @@ export default function GroupDetail() {
             size="sm"
           >
             <Sparkles size={16} className="mr-1" />
-            Status
+            Note
           </Button>
         </div>
 
@@ -257,11 +246,9 @@ export default function GroupDetail() {
         <SetStatusModal
           isOpen={statusModalOpen}
           onClose={() => setStatusModalOpen(false)}
-          onSave={(status) => updateStatusMutation.mutateAsync(status)}
-          currentStatus={{
-            emoji: currentUserProfile?.status_emoji || "",
-            text: currentUserProfile?.status_text || ""
-          }}
+          currentStatus={currentUserProfile?.status_text}
+          profile={currentUserProfile}
+          onUpdate={handleStatusUpdate}
         />
       </div>
     </div>
