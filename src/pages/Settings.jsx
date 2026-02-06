@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
-import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus } from "lucide-react";
+import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -257,6 +257,69 @@ export default function Settings() {
             </div>
           </div>
         </motion.div>
+
+        {/* ADMIN TOOLS - OWNER ONLY */}
+        {profile?.role === "owner" && (
+          <>
+            <motion.div
+              className="mt-8 mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Crown size={20} className="text-amber-400" />
+                <h2 className="text-lg font-bold text-white">Admin Tools</h2>
+              </div>
+            </motion.div>
+
+            {/* Invite Collaborators */}
+            <Link to={createPageUrl("InviteCollaborators")}>
+              <motion.div
+                className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl border border-amber-400/30 hover:from-amber-500/30 hover:to-orange-500/30 transition-all"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.65 }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                      <UserPlus size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <Label className="text-white font-semibold">Invite Collaborators</Label>
+                      <p className="text-xs text-amber-200">Grant free premium access</p>
+                    </div>
+                  </div>
+                  <ChevronLeft size={20} className="text-white rotate-180" />
+                </div>
+              </motion.div>
+            </Link>
+
+            {/* User Management */}
+            <Link to={createPageUrl("UserManagement")}>
+              <motion.div
+                className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-all"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                      <Users size={20} className="text-purple-300" />
+                    </div>
+                    <div>
+                      <Label className="text-white font-semibold">User Management</Label>
+                      <p className="text-xs text-white/60">View & manage users</p>
+                    </div>
+                  </div>
+                  <ChevronLeft size={20} className="text-white rotate-180" />
+                </div>
+              </motion.div>
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );

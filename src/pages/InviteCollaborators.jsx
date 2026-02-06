@@ -40,7 +40,7 @@ export default function InviteCollaborators() {
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
           <p className="text-white/60 mb-6">This feature is only available to the application owner.</p>
-          <Link to={createPageUrl("OwnerPanel")}>
+          <Link to={createPageUrl("Settings")}>
             <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
               Go Back
             </Button>
@@ -101,7 +101,7 @@ export default function InviteCollaborators() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link
-            to={createPageUrl("OwnerPanel")}
+            to={createPageUrl("Settings")}
             className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center"
           >
             <ChevronLeft size={20} className="text-white" />
