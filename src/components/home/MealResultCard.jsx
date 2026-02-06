@@ -3,18 +3,19 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, X, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { toast } from "sonner";
+import MealAnalysisOverlay from "./MealAnalysisOverlay";
 
 export default function MealResultCard({ file, profile, onSave, onCancel }) {
   const { t } = useTranslation();
   const [analyzing, setAnalyzing] = useState(true);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [confirmed, setConfirmed] = useState(false);
   const [editValues, setEditValues] = useState({});
   const [uploading, setUploading] = useState(false);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
     analyzePhoto();
@@ -26,28 +27,49 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this food photo and provide nutritional estimates. Return JSON with: { items: [names of food items detected], calories: estimated total calories, protein_g: protein in grams, carbs_g: carbs in grams, fats_g: fats in grams, health_score: 0-100 score, confidence: 0-100 }`,
+        prompt: `Analyze this food photo and provide detailed nutritional estimates. Return JSON with: { items: [{name: "food name", calories: estimated, protein: grams, carbs: grams, fats: grams, portion: "size estimate"}, ...], total_calories: sum, total_protein: sum, total_carbs: sum, total_fats: sum, health_score: 0-100, confidence: 0-100 }`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
           properties: {
-            items: { type: "array", items: { type: "string" } },
-            calories: { type: "number" },
-            protein_g: { type: "number" },
-            carbs_g: { type: "number" },
-            fats_g: { type: "number" },
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  calories: { type: "number" },
+                  protein: { type: "number" },
+                  carbs: { type: "number" },
+                  fats: { type: "number" },
+                  portion: { type: "string" }
+                }
+              }
+            },
+            total_calories: { type: "number" },
+            total_protein: { type: "number" },
+            total_carbs: { type: "number" },
+            total_fats: { type: "number" },
             health_score: { type: "number" },
             confidence: { type: "number" }
           }
         }
       });
 
+      // Format items for overlay display
+      const formattedItems = (analysis.items || []).map(item => ({
+        name: item.name,
+        calories: Math.round(item.calories || 0),
+        portion: item.portion
+      }));
+
       setResult({ ...analysis, file_url });
+      setItems(formattedItems);
       setEditValues({
-        calories: analysis.calories,
-        protein_g: analysis.protein_g,
-        carbs_g: analysis.carbs_g,
-        fats_g: analysis.fats_g
+        calories: analysis.total_calories,
+        protein_g: analysis.total_protein,
+        carbs_g: analysis.total_carbs,
+        fats_g: analysis.total_fats
       });
       setAnalyzing(false);
     } catch (err) {
@@ -133,22 +155,45 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      {/* Preview Image */}
-      <div className="relative rounded-2xl overflow-hidden bg-black/50 border border-white/10">
-        <img src={result.file_url} alt="Meal" className="w-full h-48 object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-      </div>
+      {/* Preview with overlay */}
+      <MealAnalysisOverlay 
+        imageUrl={result.file_url} 
+        items={items}
+        onItemsChange={setItems}
+      />
 
-      {/* Detected Items */}
-      <div>
-        <p className="text-xs text-white/60 font-semibold uppercase mb-2">{t("detected_items") || "Detected Items"}</p>
-        <div className="flex flex-wrap gap-2">
-          {result.items?.map((item, idx) => (
-            <span key={idx} className="px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/50 text-teal-300 text-xs font-medium">
-              {item}
-            </span>
+      {/* Detected Items List - Editable */}
+      <div className="space-y-2">
+        <p className="text-xs text-white/60 font-semibold uppercase">{t("detected_items") || "Detected Items"}</p>
+        <div className="space-y-2 max-h-32 overflow-y-auto">
+          {items.map((item, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg p-3"
+            >
+              <div className="flex-1">
+                <p className="text-white font-medium text-sm">{item.name}</p>
+                <p className="text-xs text-white/60">{item.portion || "estimated"}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-white font-bold">{item.calories}</p>
+                <p className="text-xs text-white/60">cal</p>
+              </div>
+              <button
+                onClick={() => setItems(items.filter((_, i) => i !== idx))}
+                className="ml-3 p-1 hover:bg-red-500/20 rounded transition-colors"
+              >
+                <Trash2 size={16} className="text-red-400" />
+              </button>
+            </motion.div>
           ))}
         </div>
+        <button className="w-full py-2 rounded-lg bg-teal-500/20 border border-teal-500/50 text-teal-300 text-sm font-medium hover:bg-teal-500/30 transition-colors flex items-center justify-center gap-2">
+          <Plus size={16} />
+          Add manual item
+        </button>
       </div>
 
       {/* Editable Nutrition */}
@@ -197,11 +242,36 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
         ))}
       </div>
 
-      {/* Confidence */}
-      <div className="text-center py-2">
-        <p className="text-xs text-white/60">
-          {t("confidence") || "Confidence"}: <span className="text-teal-300 font-semibold">{result.confidence || 0}%</span>
-        </p>
+      {/* AI Confidence & Health Score */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white/5 rounded-lg p-3 text-center">
+          <p className="text-xs text-white/60 mb-1">{t("confidence") || "AI Confidence"}</p>
+          <div className="flex items-center justify-center gap-1">
+            <div className="flex gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1 w-1 rounded-full ${
+                    i < Math.round((result.confidence || 0) / 20)
+                      ? "bg-teal-400"
+                      : "bg-white/20"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-white font-bold text-sm ml-2">{result.confidence || 0}%</span>
+          </div>
+        </div>
+        <div className="bg-white/5 rounded-lg p-3 text-center">
+          <p className="text-xs text-white/60 mb-1">{t("health_score") || "Health"}</p>
+          <div className="w-full h-2 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 relative overflow-hidden">
+            <div
+              className="h-full bg-white/30 transition-all"
+              style={{ width: `${100 - (result.health_score || 50)}%` }}
+            />
+          </div>
+          <p className="text-white font-bold text-sm mt-1">{result.health_score || 50}/100</p>
+        </div>
       </div>
 
       {/* Actions */}
