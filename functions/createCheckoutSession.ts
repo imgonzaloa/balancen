@@ -1,7 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import Stripe from 'npm:stripe@17.5.0';
 
+// VERSION 3 - FORCE COMPLETE REDEPLOY
 Deno.serve(async (req) => {
+  console.log('=== CREATE CHECKOUT v3 ===');
   const base44 = createClientFromRequest(req);
 
   try {
