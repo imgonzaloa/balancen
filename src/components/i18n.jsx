@@ -353,7 +353,9 @@ const resources = {
       complete_day_label: "Complete daily tracking",
       tasks_left_midnight: "tasks left before midnight",
       one_task_left_midnight: "1 task left before midnight",
-      meals_detected: "meals detected"
+      meals_detected: "meals detected",
+      connected: "connected",
+      groups_joined: "groups"
       }
       },
   es: {
@@ -688,7 +690,9 @@ const resources = {
       complete_day_label: "Completa rastreo diario",
       tasks_left_midnight: "tareas antes de medianoche",
       one_task_left_midnight: "1 tarea antes de medianoche",
-      meals_detected: "comidas detectadas"
+      meals_detected: "comidas detectadas",
+      connected: "conectados",
+      groups_joined: "grupos"
       }
       }
       };

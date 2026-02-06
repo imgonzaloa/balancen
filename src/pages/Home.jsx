@@ -83,7 +83,7 @@ export default function Home() {
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
-          {t("loading")}...
+          {t("loading") || "Loading"}...
         </motion.div>
       </div>
     );
@@ -128,7 +128,7 @@ export default function Home() {
             {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
           </p>
           <h1 className="text-3xl font-bold text-white">
-            {profile?.display_name || "Welcome"}
+            {profile?.display_name || t("welcome") || "Welcome"}
           </h1>
         </motion.div>
 
