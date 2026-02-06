@@ -39,10 +39,12 @@ export default function Settings() {
   });
 
   const handleLanguageChange = (language) => {
+    console.log("Settings - changing language to:", language);
     changeLanguage(language);
     if (profile?.id) {
       updateMutation.mutate({ language });
     }
+    toast.success(language === "es" ? "Idioma actualizado" : "Language updated");
   };
 
   const handleToggle = (field, value) => {
@@ -310,13 +312,11 @@ export default function Settings() {
             </div>
             
             <Select
-              value={lang || "en"}
-              onValueChange={(value) => {
-                handleLanguageChange(value);
-              }}
+              value={lang}
+              onValueChange={handleLanguageChange}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                <SelectValue placeholder="Select language">
+                <SelectValue>
                   {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
                 </SelectValue>
               </SelectTrigger>
@@ -325,6 +325,9 @@ export default function Settings() {
                 <SelectItem value="es">🇪🇸 Español</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-white/50 mt-2">
+              Active: {lang} | Source: localStorage
+            </p>
           </div>
         </motion.div>
 

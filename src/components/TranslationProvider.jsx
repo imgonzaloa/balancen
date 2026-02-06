@@ -209,12 +209,14 @@ const TranslationContext = createContext();
 
 export function TranslationProvider({ children }) {
   const [currentLang, setCurrentLang] = useState(() => {
-    return localStorage.getItem("appLanguage") || "en";
+    const saved = localStorage.getItem("languagePreference");
+    return saved || "en";
   });
 
   const changeLanguage = (newLang) => {
+    console.log("Changing language to:", newLang);
     setCurrentLang(newLang);
-    localStorage.setItem("appLanguage", newLang);
+    localStorage.setItem("languagePreference", newLang);
   };
 
   const t = (key) => {
