@@ -14,7 +14,6 @@ import { toast } from "sonner";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
-  const [localLang, setLocalLang] = useState(localStorage.getItem("languagePreference") || "en");
   const queryClient = useQueryClient();
   const { changeLanguage, lang, t } = useTranslation();
 
@@ -23,8 +22,7 @@ export default function Settings() {
   }, []);
 
   useEffect(() => {
-    console.log("Settings - current lang from context:", lang);
-    setLocalLang(lang);
+    console.log("⚙️ Settings - Active language from context:", lang);
   }, [lang]);
 
   const { data: profile } = useQuery({
@@ -45,12 +43,20 @@ export default function Settings() {
   });
 
   const handleLanguageChange = (language) => {
-    console.log("Settings - changing language to:", language);
+    console.log("🎯 Settings - User selected language:", language);
+    
+    // Update global language immediately
     changeLanguage(language);
+    
+    // Save to user profile
     if (profile?.id) {
       updateMutation.mutate({ language });
     }
-    toast.success(language === "es" ? "Idioma actualizado" : "Language updated");
+    
+    // Show success message in the NEW language
+    setTimeout(() => {
+      toast.success(language === "es" ? "Idioma actualizado a Español" : "Language updated to English");
+    }, 100);
   };
 
   const handleToggle = (field, value) => {
@@ -318,13 +324,12 @@ export default function Settings() {
             </div>
             
             <Select
-              key={localLang}
-              value={localLang}
+              value={lang}
               onValueChange={handleLanguageChange}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue>
-                  {localLang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
+                  {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -332,9 +337,17 @@ export default function Settings() {
                 <SelectItem value="es">🇪🇸 Español</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-white/50 mt-2">
-              Context: {lang} | Local: {localLang} | Storage: {localStorage.getItem("languagePreference") || "none"}
-            </p>
+            <div className="mt-3 p-3 rounded-lg bg-black/20 border border-white/10">
+              <p className="text-xs text-white/70 font-mono">
+                🌍 Active: <span className="text-teal-300 font-bold">{lang}</span>
+              </p>
+              <p className="text-xs text-white/50 font-mono mt-1">
+                💾 Storage: {localStorage.getItem("languagePreference") || "none"}
+              </p>
+              <p className="text-xs text-white/50 font-mono mt-1">
+                📚 Resources: en, es
+              </p>
+            </div>
           </div>
         </motion.div>
 
