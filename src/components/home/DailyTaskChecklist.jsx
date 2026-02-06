@@ -10,7 +10,6 @@ export default function DailyTaskChecklist({
   onTaskClick 
 }) {
   const { t } = useTranslation();
-  const stepsGoal = profile?.steps_goal || 8000;
   const caloriesGoal = profile?.calories_goal;
   const todayCalories = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
 
@@ -38,14 +37,6 @@ export default function DailyTaskChecklist({
       completed: todayCheckIn?.meal_photo_fire_awarded || false,
       action: () => onTaskClick("meal_photo"),
       icon: Camera
-    },
-    {
-      id: "steps",
-      title: `${t("reach_steps")} ${stepsGoal.toLocaleString()} ${t("steps")}`,
-      fire: 3,
-      completed: todayCheckIn?.steps_fire_awarded || false,
-      action: () => onTaskClick("steps"),
-      icon: TrendingUp
     }
   ];
 
