@@ -225,12 +225,11 @@ export function TranslationProvider({ children }) {
   });
 
   useEffect(() => {
-    if (profile?.language) {
-      setCurrentLang(profile.language);
-    } else {
-      setCurrentLang("en");
+    if (profile) {
+      const lang = profile.language || "en";
+      setCurrentLang(lang);
     }
-  }, [profile?.language]);
+  }, [profile]);
 
   const t = (key) => {
     return translations[currentLang]?.[key] || translations.en[key] || key;
