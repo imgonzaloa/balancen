@@ -254,13 +254,17 @@ const TranslationContext = createContext();
 export function TranslationProvider({ children }) {
   const [currentLang, setCurrentLang] = useState(() => {
     const saved = localStorage.getItem("languagePreference");
+    console.log("Initial language load:", saved || "en");
     return saved || "en";
   });
 
   const changeLanguage = (newLang) => {
-    console.log("Changing language to:", newLang);
+    console.log("TranslationProvider - changing language to:", newLang);
     setCurrentLang(newLang);
     localStorage.setItem("languagePreference", newLang);
+    console.log("Language saved to localStorage:", localStorage.getItem("languagePreference"));
+    // Force re-render by updating state immediately
+    window.dispatchEvent(new Event('languageChanged'));
   };
 
   const t = (key) => {

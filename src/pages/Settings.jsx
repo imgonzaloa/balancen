@@ -14,12 +14,18 @@ import { toast } from "sonner";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
+  const [localLang, setLocalLang] = useState(localStorage.getItem("languagePreference") || "en");
   const queryClient = useQueryClient();
   const { changeLanguage, lang, t } = useTranslation();
 
   useEffect(() => {
     base44.auth.me().then(setUser);
   }, []);
+
+  useEffect(() => {
+    console.log("Settings - current lang from context:", lang);
+    setLocalLang(lang);
+  }, [lang]);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.email],
@@ -312,12 +318,13 @@ export default function Settings() {
             </div>
             
             <Select
-              value={lang}
+              key={localLang}
+              value={localLang}
               onValueChange={handleLanguageChange}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue>
-                  {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
+                  {localLang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -326,7 +333,7 @@ export default function Settings() {
               </SelectContent>
             </Select>
             <p className="text-xs text-white/50 mt-2">
-              Active: {lang} | Source: localStorage
+              Context: {lang} | Local: {localLang} | Storage: {localStorage.getItem("languagePreference") || "none"}
             </p>
           </div>
         </motion.div>
