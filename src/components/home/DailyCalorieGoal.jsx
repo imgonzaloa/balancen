@@ -17,8 +17,8 @@ export default function DailyCalorieGoal({ consumed, goal }) {
       className="bg-gradient-to-br from-teal-500/20 to-emerald-500/10 backdrop-blur-xl border border-teal-500/30 rounded-3xl p-6 space-y-4"
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-white">{t("today_calories") || "Today's Calories"}</h3>
+       <div className="flex items-center justify-between">
+         <h3 className="text-lg font-bold text-white">{t("today_calories")}</h3>
         <div className={`p-2 rounded-xl ${isExceeded ? "bg-red-500/20" : "bg-teal-500/20"}`}>
           {isExceeded ? (
             <AlertCircle className="text-red-400" size={20} />
@@ -33,22 +33,22 @@ export default function DailyCalorieGoal({ consumed, goal }) {
       {/* Main metrics */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
-          <p className="text-xs text-white/60 mb-3 font-semibold">{t("consumed") || "Consumed"}</p>
-          <p className="text-4xl font-bold text-white leading-none mb-2">{Math.round(consumed)}</p>
-          <p className="text-xs text-white/40">kcal</p>
-        </div>
-        <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
-          <p className="text-xs text-white/60 mb-3 font-semibold">{t("remaining") || "Remaining"}</p>
-          <p className={`text-4xl font-bold leading-none mb-2 ${isExceeded ? "text-red-400" : "text-emerald-400"}`}>
-            {Math.round(remaining)}
-          </p>
-          <p className="text-xs text-white/40">kcal</p>
-        </div>
-        <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
-          <p className="text-xs text-white/60 mb-3 font-semibold">{t("goal") || "Goal"}</p>
-          <p className="text-4xl font-bold text-white leading-none mb-2">{goal}</p>
-          <p className="text-xs text-white/40">kcal</p>
-        </div>
+            <p className="text-xs text-white/60 mb-3 font-semibold">{t("consumed")}</p>
+            <p className="text-4xl font-bold text-white leading-none mb-2">{Math.round(consumed)}</p>
+            <p className="text-xs text-white/40">kcal</p>
+          </div>
+          <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
+            <p className="text-xs text-white/60 mb-3 font-semibold">{t("remaining")}</p>
+            <p className={`text-4xl font-bold leading-none mb-2 ${isExceeded ? "text-red-400" : "text-emerald-400"}`}>
+              {Math.round(remaining)}
+            </p>
+            <p className="text-xs text-white/40">kcal</p>
+          </div>
+          <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
+            <p className="text-xs text-white/60 mb-3 font-semibold">{t("goal")}</p>
+            <p className="text-4xl font-bold text-white leading-none mb-2">{goal}</p>
+            <p className="text-xs text-white/40">kcal</p>
+          </div>
       </div>
 
       {/* Progress bar */}
@@ -68,7 +68,7 @@ export default function DailyCalorieGoal({ consumed, goal }) {
           <span className="text-white/60">{percentage.toFixed(0)}%</span>
           {isExceeded && (
             <span className="text-red-400 font-semibold">
-              +{Math.round(consumed - goal)} {t("over_goal") || "over goal"}
+              +{Math.round(consumed - goal)} {t("over_goal")}
             </span>
           )}
           </div>
@@ -77,17 +77,17 @@ export default function DailyCalorieGoal({ consumed, goal }) {
           {/* Status message */}
           {!isExceeded && !isComplete && (
           <p className="text-sm text-emerald-300 text-center font-medium">
-          🎯 {t("keep_going") || "Keep going!"} {Math.round(remaining)} {t("kcal_left") || "kcal left"}
+          🎯 {t("keep_going")} {Math.round(remaining)} {t("kcal_left")}
           </p>
           )}
           {isComplete && !isExceeded && (
           <p className="text-sm text-emerald-300 text-center font-medium">
-          ✨ {t("goal_reached_perfect") || "Goal reached! Perfect balance today"}
+          ✨ {t("goal_reached_perfect")}
           </p>
           )}
           {isExceeded && (
           <p className="text-sm text-red-300 text-center font-medium">
-          ⚠️ {t("goal_exceeded_back_on_track") || "Goal exceeded. Back on track tomorrow!"}
+          ⚠️ {t("goal_exceeded_back_on_track")}
           </p>
           )}
     </motion.div>
