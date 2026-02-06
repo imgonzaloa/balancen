@@ -125,7 +125,8 @@ const translations = {
     select_language: "Select your language",
     privacy: "Privacy",
     data_encrypted: "Your data is encrypted and secure",
-    },
+    debug: { sample: "Hello" }
+  },
   es: {
     good_morning: "Buenos días",
     good_afternoon: "Buenas tardes",
@@ -247,13 +248,9 @@ const translations = {
     select_language: "Selecciona tu idioma",
     privacy: "Privacidad",
     data_encrypted: "Tus datos están encriptados y seguros",
-    }
-    }
-    };
-
-    // Add debug key to both languages
-    translations.en.debug = { sample: "Hello" };
-    translations.es.debug = { sample: "Hola" };
+    debug: { sample: "Hola" }
+  }
+};
 
 const TranslationContext = createContext();
 
