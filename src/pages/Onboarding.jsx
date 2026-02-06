@@ -66,7 +66,9 @@ export default function Onboarding() {
     const OWNER_EMAIL = "imgonzaloa@gmail.com";
     
     // Owner gets premium automatically
-    const isOwner = user.email === OWNER_EMAIL;
+    const isOwner = user.email?.toLowerCase() === OWNER_EMAIL.toLowerCase();
+    
+    console.log("🔐 Onboarding - Creating profile for:", user.email, "isOwner:", isOwner);
     
     // Check if invited as collaborator
     const collaborators = await base44.entities.Collaborator.filter({
