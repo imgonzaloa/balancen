@@ -38,16 +38,13 @@ export default function Settings() {
     },
   });
 
-  const languageMutation = useMutation({
-    mutationFn: async (language) => {
-      await changeLanguage(language);
-      return language;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["profile", user?.email]);
-      toast.success("Language changed");
-    },
-  });
+  const handleLanguageChange = async (language) => {
+    changeLanguage(language);
+    if (profile?.id) {
+      await base44.entities.UserProfile.update(profile.id, { language });
+    }
+    toast.success("Language changed");
+  };
 
   const handleToggle = (field, value) => {
     updateMutation.mutate({ [field]: value });
@@ -315,7 +312,7 @@ export default function Settings() {
             
             <Select
               value={lang}
-              onValueChange={(value) => languageMutation.mutate(value)}
+              onValueChange={handleLanguageChange}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue />
