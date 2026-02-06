@@ -3,14 +3,15 @@ import { motion } from "framer-motion";
 import { Flame, Check, Lock } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
-const missions = [
-  { id: "first_meal", label: "Log first meal", fire: 1, icon: "🥗" },
-  { id: "stay_goal", label: "Stay within goal", fire: 2, icon: "🎯" },
-  { id: "complete_day", label: "Complete daily tracking", fire: 3, icon: "✅" }
+const getMissions = (t) => [
+  { id: "first_meal", label: t("first_meal_label") || "Log first meal", fire: 1, icon: "🥗" },
+  { id: "stay_goal", label: t("stay_goal_label") || "Stay within goal", fire: 2, icon: "🎯" },
+  { id: "complete_day", label: t("complete_day_label") || "Complete daily tracking", fire: 3, icon: "✅" }
 ];
 
 export default function DailyMissions({ todayMeals, consumed, goal, profile }) {
   const { t } = useTranslation();
+  const missions = getMissions(t);
 
   const getMissionStatus = (missionId) => {
     switch (missionId) {
@@ -27,6 +28,7 @@ export default function DailyMissions({ todayMeals, consumed, goal, profile }) {
 
   const completedCount = missions.filter(m => getMissionStatus(m.id)).length;
   const totalFire = missions.reduce((sum, m) => getMissionStatus(m.id) ? sum + m.fire : sum, 0);
+  const remainingTasks = missions.length - completedCount;
 
   return (
     <motion.div
@@ -83,7 +85,7 @@ export default function DailyMissions({ todayMeals, consumed, goal, profile }) {
       {completedCount < missions.length && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-3 text-center">
           <p className="text-sm text-red-300 font-semibold">
-            ⚠️ {missions.length - completedCount} tasks left before midnight
+            ⚠️ {remainingTasks} {remainingTasks === 1 ? t("one_task_left_midnight") : t("tasks_left_midnight")}
           </p>
         </div>
       )}

@@ -27,18 +27,18 @@ export default function StreakBanner({ streak, fireTotal }) {
         <p className="text-5xl font-bold bg-gradient-to-r from-orange-300 to-red-300 bg-clip-text text-transparent">
           {streak}
         </p>
-        <p className="text-white/60 text-sm mt-1">{t("days") || "days"} on fire</p>
+        <p className="text-white/60 text-sm mt-1">{t("days") || "days"} {t("on_fire") || "on fire"}</p>
       </div>
 
       {/* Fire total */}
       <div className="flex items-center justify-center gap-2 bg-black/30 rounded-full px-4 py-2 w-fit mx-auto">
         <Flame size={16} className="text-orange-400" />
-        <span className="text-white font-bold">{fireTotal || 0} total fire</span>
+        <span className="text-white font-bold">{fireTotal || 0} {t("total_fire") || "total fire"}</span>
       </div>
 
       {/* Motivation message */}
       <p className="text-xs text-orange-200 italic">
-        "Keep the flame alive — one meal at a time."
+        "{t("keep_flame_alive") || "Keep the flame alive — one meal at a time."}"
       </p>
     </motion.div>
   );

@@ -68,28 +68,28 @@ export default function DailyCalorieGoal({ consumed, goal }) {
           <span className="text-white/60">{percentage.toFixed(0)}%</span>
           {isExceeded && (
             <span className="text-red-400 font-semibold">
-              +{Math.round(consumed - goal)} over goal
+              +{Math.round(consumed - goal)} {t("over_goal") || "over goal"}
             </span>
           )}
-        </div>
-      </div>
+          </div>
+          </div>
 
-      {/* Status message */}
-      {!isExceeded && !isComplete && (
-        <p className="text-sm text-emerald-300 text-center font-medium">
-          🎯 Keep going! {Math.round(remaining)} kcal left
-        </p>
-      )}
-      {isComplete && !isExceeded && (
-        <p className="text-sm text-emerald-300 text-center font-medium">
-          ✨ Goal reached! Perfect balance today
-        </p>
-      )}
-      {isExceeded && (
-        <p className="text-sm text-red-300 text-center font-medium">
-          ⚠️ Goal exceeded. Back on track tomorrow!
-        </p>
-      )}
+          {/* Status message */}
+          {!isExceeded && !isComplete && (
+          <p className="text-sm text-emerald-300 text-center font-medium">
+          🎯 {t("keep_going") || "Keep going!"} {Math.round(remaining)} {t("kcal_left") || "kcal left"}
+          </p>
+          )}
+          {isComplete && !isExceeded && (
+          <p className="text-sm text-emerald-300 text-center font-medium">
+          ✨ {t("goal_reached_perfect") || "Goal reached! Perfect balance today"}
+          </p>
+          )}
+          {isExceeded && (
+          <p className="text-sm text-red-300 text-center font-medium">
+          ⚠️ {t("goal_exceeded_back_on_track") || "Goal exceeded. Back on track tomorrow!"}
+          </p>
+          )}
     </motion.div>
   );
 }
