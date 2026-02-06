@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useLocation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import MealPhotoCapture from "@/components/home/MealPhotoCapture";
+import { createPageUrl } from "@/utils";
 import MealResultCard from "@/components/home/MealResultCard";
 import AddMealButton from "@/components/home/AddMealButton";
 import DailyCalorieGoal from "@/components/home/DailyCalorieGoal";
@@ -16,15 +17,26 @@ import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 
 export default function Home() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
-  const [showMealCapture, setShowMealCapture] = useState(false);
   const [showMealResult, setShowMealResult] = useState(false);
   const [selectedMealFile, setSelectedMealFile] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
   }, []);
+
+  // Check if returning from camera with captured photo
+  useEffect(() => {
+    if (location.state?.capturedPhoto) {
+      setSelectedMealFile(location.state.capturedPhoto);
+      setShowMealResult(true);
+      // Clear location state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", user?.email],
@@ -136,7 +148,7 @@ export default function Home() {
         <StreakBanner streak={profile?.current_streak || 0} fireTotal={profile?.fire_total || 0} />
 
         {/* MAIN ACTION: Add Meal Button */}
-        <AddMealButton onClick={() => setShowMealCapture(true)} />
+        <AddMealButton onClick={() => navigate(createPageUrl("CameraScreen"))} />
 
         {/* Daily Calorie Goal - Big Focus */}
         <DailyCalorieGoal consumed={totalCaloriesToday} goal={caloriesGoal} />
@@ -156,13 +168,6 @@ export default function Home() {
           userStreak={profile?.current_streak || 0}
         />
       </div>
-
-      {/* Meal Photo Capture Modal */}
-      <MealPhotoCapture
-        isOpen={showMealCapture}
-        onClose={() => setShowMealCapture(false)}
-        onPhotoSelected={handleMealPhotoSelected}
-      />
 
       {/* Meal Result Modal */}
       <AnimatePresence>
