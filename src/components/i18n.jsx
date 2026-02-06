@@ -356,7 +356,11 @@ const resources = {
       meals_detected: "meals detected",
       connected: "connected",
       groups_joined: "groups",
-      completed: "completed"
+      completed: "completed",
+      add_manual_item: "Add manual item",
+      protein: "Protein",
+      carbs: "Carbs",
+      fats: "Fats"
       }
       },
   es: {
@@ -694,7 +698,11 @@ const resources = {
       meals_detected: "comidas detectadas",
       connected: "conectados",
       groups_joined: "grupos",
-      completed: "completado"
+      completed: "completado",
+      add_manual_item: "Añadir elemento manual",
+      protein: "Proteína",
+      carbs: "Carbohidratos",
+      fats: "Grasas"
       }
       }
       };

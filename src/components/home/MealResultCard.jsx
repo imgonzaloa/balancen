@@ -192,7 +192,7 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
         </div>
         <button className="w-full py-2 rounded-lg bg-teal-500/20 border border-teal-500/50 text-teal-300 text-sm font-medium hover:bg-teal-500/30 transition-colors flex items-center justify-center gap-2">
           <Plus size={16} />
-          Add manual item
+          {t("add_manual_item") || "Add manual item"}
         </button>
       </div>
 
@@ -224,9 +224,9 @@ export default function MealResultCard({ file, profile, onSave, onCancel }) {
       {/* Macros Grid */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { label: "Protein", key: "protein_g", unit: "g" },
-          { label: "Carbs", key: "carbs_g", unit: "g" },
-          { label: "Fats", key: "fats_g", unit: "g" }
+          { label: t("protein") || "Protein", key: "protein_g", unit: "g" },
+          { label: t("carbs") || "Carbs", key: "carbs_g", unit: "g" },
+          { label: t("fats") || "Fats", key: "fats_g", unit: "g" }
         ].map((macro) => (
           <div key={macro.key} className="bg-white/5 rounded-xl p-3">
             <p className="text-xs text-white/60 mb-2">{macro.label}</p>

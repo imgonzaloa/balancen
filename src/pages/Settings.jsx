@@ -64,7 +64,7 @@ export default function Settings() {
         <div className="absolute -bottom-8 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
+      <div className="max-w-lg mx-auto px-4 pb-24 pt-8 relative z-10">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link
