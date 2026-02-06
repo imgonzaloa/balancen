@@ -20,7 +20,7 @@ export default function Settings() {
   }, []);
 
   const { data: profile } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.email],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
       return profiles[0] || null;
@@ -31,7 +31,7 @@ export default function Settings() {
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(["profile"]);
+      queryClient.invalidateQueries(["profile", user?.email]);
       toast.success("Settings updated");
     },
   });
@@ -42,9 +42,8 @@ export default function Settings() {
       return language;
     },
     onSuccess: (language) => {
-      queryClient.invalidateQueries(["profile"]);
       queryClient.invalidateQueries(["profile", user?.email]);
-      toast.success(language === "es" ? "Idioma actualizado" : "Language updated");
+      window.location.reload();
     },
   });
 
