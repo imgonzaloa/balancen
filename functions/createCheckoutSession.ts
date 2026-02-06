@@ -1,9 +1,9 @@
-import { createClientFromRequest } from 'npm:@base44/sdk';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import Stripe from 'npm:stripe@17.5.0';
 
-// Force redeploy - refresh secrets
+// Force redeploy with SDK version update
 Deno.serve(async (req) => {
-        console.log('=== Checkout function started ===');
+        console.log('=== Checkout Session v2 - Starting ===');
         const base44 = createClientFromRequest(req);
 
         try {
