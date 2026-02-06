@@ -43,29 +43,34 @@ export default function Settings() {
   });
 
   const handleLanguageChange = async (language) => {
-    console.log("🎯 Settings - User selected language:", language);
+    console.log("🎯 User selected language:", language);
     
-    // 1. Update global language state IMMEDIATELY (triggers full UI re-render)
-    changeLanguage(language);
+    // 1. Save to localStorage IMMEDIATELY
+    localStorage.setItem("app_language", language);
     
-    // 2. Save to user profile (async, doesn't block UI update)
+    // 2. Save to user profile
     if (profile?.id) {
       try {
         await base44.entities.UserProfile.update(profile.id, { language });
-        queryClient.invalidateQueries(["profile", user?.email]);
-        console.log("✅ Language saved to user profile");
+        console.log("✅ Language saved to profile");
       } catch (error) {
-        console.error("❌ Failed to save language to profile:", error);
+        console.error("❌ Profile save failed:", error);
       }
     }
     
-    // 3. Show success message in the NEW language
+    // 3. Update context
+    changeLanguage(language);
+    
+    // 4. Show toast and FORCE RELOAD
+    const message = language === "es" 
+      ? "Idioma actualizado. Recargando..." 
+      : "Language updated. Reloading...";
+    toast.success(message);
+    
+    // 5. Force full app reload to apply language
     setTimeout(() => {
-      const successMessage = language === "es" 
-        ? "✅ Idioma actualizado a Español" 
-        : "✅ Language updated to English";
-      toast.success(successMessage);
-    }, 100);
+      window.location.reload();
+    }, 800);
   };
 
   const handleToggle = (field, value) => {
@@ -333,12 +338,12 @@ export default function Settings() {
             </div>
             
             <Select
-              value={lang}
+              value={localStorage.getItem("app_language") || lang}
               onValueChange={handleLanguageChange}
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue>
-                  {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
+                  {(localStorage.getItem("app_language") || lang) === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -351,10 +356,10 @@ export default function Settings() {
                 🌍 Active: <span className="text-teal-300 font-bold">{lang}</span>
               </p>
               <p className="text-xs text-white/50 font-mono mt-1">
-                💾 Storage: {localStorage.getItem("languagePreference") || "none"}
+                💾 Saved: {localStorage.getItem("app_language") || "none"}
               </p>
               <p className="text-xs text-white/50 font-mono mt-1">
-                📚 Resources: en, es
+                📚 Available: en, es
               </p>
             </div>
           </div>
