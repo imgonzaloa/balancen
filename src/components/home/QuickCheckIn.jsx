@@ -6,7 +6,6 @@ import { base44 } from "@/api/base44Client";
 import FoodRating from "@/components/ui/FoodRating";
 import MovementToggle from "@/components/ui/MovementToggle";
 import CheckInButton from "@/components/ui/CheckInButton";
-import StepsCounter from "@/components/home/StepsCounter";
 import WeightTracker from "@/components/home/WeightTracker";
 import { useTranslation } from "@/components/TranslationProvider";
 
@@ -15,7 +14,6 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
   const [step, setStep] = useState(todayCheckIn ? "done" : "main");
   const [foodRating, setFoodRating] = useState(todayCheckIn?.food_rating || null);
   const [movedToday, setMovedToday] = useState(todayCheckIn?.moved_today ?? null);
-  const [steps, setSteps] = useState(todayCheckIn?.steps || 0);
   const [weight, setWeight] = useState(todayCheckIn?.weight || null);
   const [photoUrl, setPhotoUrl] = useState(todayCheckIn?.food_photo_url || null);
   const [estimatedCal, setEstimatedCal] = useState(todayCheckIn?.estimated_calories || null);
@@ -63,7 +61,6 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
       date: today,
       food_rating: foodRating,
       moved_today: movedToday,
-      steps: steps || 0,
       weight: weight,
       food_photo_url: photoUrl,
       estimated_calories: estimatedCal,
@@ -178,12 +175,6 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
             </div>
           )}
           
-          {(todayCheckIn?.steps || steps > 0) && (
-            <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
-              {t("steps")}: {(todayCheckIn?.steps || steps).toLocaleString()} 🚶
-            </div>
-          )}
-          
           {(todayCheckIn?.weight || weight) && (
             <div className="text-sm bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 text-white font-medium">
               {t("weight_kg")}: {(todayCheckIn?.weight || weight).toFixed(1)} kg
@@ -279,19 +270,6 @@ export default function QuickCheckIn({ onComplete, todayCheckIn, profile, yester
             {t("did_you_move")}
           </label>
           <MovementToggle value={movedToday} onChange={setMovedToday} />
-        </div>
-
-        {/* Steps Counter */}
-        <div>
-          <label className="block text-sm font-semibold text-white mb-3">
-            {t("steps_optional")}
-          </label>
-          <StepsCounter 
-            steps={steps} 
-            goal={profile?.steps_goal || 8000}
-            showInput
-            onChange={setSteps}
-          />
         </div>
 
         {/* Weight Tracker */}
