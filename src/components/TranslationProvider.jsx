@@ -209,8 +209,7 @@ const TranslationContext = createContext();
 
 export function TranslationProvider({ children }) {
   const [user, setUser] = useState(null);
-  const browserLang = navigator.language.startsWith('es') ? 'es' : 'en';
-  const [currentLang, setCurrentLang] = useState(browserLang);
+  const [currentLang, setCurrentLang] = useState("en");
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -226,15 +225,10 @@ export function TranslationProvider({ children }) {
   });
 
   useEffect(() => {
-    if (profile) {
-      if (profile.language) {
-        setCurrentLang(profile.language);
-      } else {
-        // Si no hay idioma guardado, usar el del navegador
-        setCurrentLang(browserLang);
-      }
+    if (profile?.language) {
+      setCurrentLang(profile.language);
     }
-  }, [profile, browserLang]);
+  }, [profile?.language]);
 
   const t = (key) => {
     return translations[currentLang]?.[key] || translations.en[key] || key;
