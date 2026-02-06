@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
-import { ChevronLeft, Watch, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus } from "lucide-react";
+import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -118,60 +118,6 @@ export default function Settings() {
           </Link>
         )}
 
-        {/* Wearable Integration */}
-        <motion.div
-          className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full blur-2xl" />
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                <Watch size={20} className="text-blue-300" />
-              </div>
-              <div className="flex-1">
-                <Label className="text-white font-semibold">{t('connect_device')}</Label>
-                <p className="text-xs text-white/60">{t('automatic_data_sync')}</p>
-              </div>
-              <Switch
-                checked={profile?.wearable_connected || false}
-                onCheckedChange={(checked) => handleToggle("wearable_connected", checked)}
-              />
-            </div>
-
-            {profile?.wearable_connected && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="mt-4"
-              >
-                <Label className="text-white text-sm mb-2 block">{t('device_type')}</Label>
-                <Select
-                  value={profile?.wearable_type || ""}
-                  onValueChange={(value) => updateMutation.mutate({ wearable_type: value })}
-                >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                    <SelectValue placeholder={t('select')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="apple_health">Apple Health</SelectItem>
-                    <SelectItem value="google_fit">Google Fit</SelectItem>
-                    <SelectItem value="garmin">Garmin</SelectItem>
-                    <SelectItem value="whoop">Whoop</SelectItem>
-                    <SelectItem value="fitbit">Fitbit</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-white/40 mt-2">
-                  {t('manual_entry_available')}
-                </p>
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
-
         {/* AI Recommendations */}
         <motion.div
           className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20"
@@ -262,17 +208,6 @@ export default function Settings() {
             </div>
 
             <div className="space-y-4">
-              <div>
-                <Label className="text-white text-sm mb-2 block">{t('daily_steps_target')}</Label>
-                <input
-                  type="number"
-                  value={profile?.steps_goal || 8000}
-                  onChange={(e) => updateMutation.mutate({ steps_goal: parseInt(e.target.value) || 8000 })}
-                  className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:border-orange-300 outline-none"
-                  placeholder="8000"
-                />
-              </div>
-
               <div>
                 <Label className="text-white text-sm mb-2 block">{t('daily_calories_limit')}</Label>
                 <input

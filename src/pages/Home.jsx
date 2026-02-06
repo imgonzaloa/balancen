@@ -25,7 +25,6 @@ import FriendsList from "@/components/home/FriendsList";
 import SocialCompletionStatus from "@/components/home/SocialCompletionStatus";
 import SocialActivityFeed from "@/components/home/SocialActivityFeed";
 import DailyTaskChecklist from "@/components/home/DailyTaskChecklist";
-import QuickStatsUpdate from "@/components/home/QuickStatsUpdate";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -387,40 +386,6 @@ export default function Home() {
 
         {/* Social Activity Feed */}
         <SocialActivityFeed user={user} />
-
-        {/* Quick Stats Update - Always visible for easy updates */}
-        {todayCheckIn && (
-          <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 }}
-          >
-            <QuickStatsUpdate
-              todayCheckIn={todayCheckIn}
-              profile={profile}
-              onUpdate={async (data) => {
-                const existing = checkIns.find(c => c.date === today);
-                if (existing) {
-                  await base44.entities.DailyCheckIn.update(existing.id, data);
-                  queryClient.invalidateQueries(["checkIns"]);
-                  
-                  // Check if steps goal reached and award fire
-                  if (data.steps >= (profile?.steps_goal || 8000) && !existing.steps_fire_awarded) {
-                    await base44.entities.DailyCheckIn.update(existing.id, {
-                      steps_fire_awarded: true
-                    });
-                    await base44.entities.UserProfile.update(profile.id, {
-                      fire_total: (profile.fire_total || 0) + 3
-                    });
-                    toast.success(`🔥 ${t("fire_for_steps_goal")}`);
-                    queryClient.invalidateQueries(["profile"]);
-                  }
-                }
-              }}
-            />
-          </motion.div>
-        )}
 
         {/* Main Check-in Card */}
         <motion.div
