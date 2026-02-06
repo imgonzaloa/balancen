@@ -1,52 +1,49 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { X, Upload, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 
 export default function CameraScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [cameraError, setCameraError] = useState(null);
-  const [showUploadFallback, setShowUploadFallback] = useState(false);
-  const fileInputRef = useRef(null);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
-  const [cameraReady, setCameraReady] = useState(false);
+  const [cameraError, setCameraError] = useState(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    startCamera();
+    initCamera();
     return () => {
       stopCamera();
     };
   }, []);
 
-  // Monitor video readiness
+  // Monitor video readiness - retry if stream not playing
   useEffect(() => {
-    if (!cameraReady || !videoRef.current) return;
+    if (!videoReady) return;
 
-    const checkVideoReady = setTimeout(() => {
-      if (videoRef.current?.readyState !== 4) {
-        console.warn("Video not ready, restarting stream");
+    const readinessCheck = setTimeout(() => {
+      if (videoRef.current?.readyState < 2) {
+        console.warn("Video not ready, reinitializing stream");
         stopCamera();
-        setTimeout(() => startCamera(), 300);
+        setTimeout(initCamera, 500);
       }
     }, 1000);
 
-    return () => clearTimeout(checkVideoReady);
-  }, [cameraReady]);
+    return () => clearTimeout(readinessCheck);
+  }, [videoReady]);
 
-  const startCamera = async () => {
+  const initCamera = async () => {
     try {
       setCameraError(null);
 
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+        video: {
+          facingMode: "environment"
+        },
         audio: false
       });
 
@@ -54,14 +51,22 @@ export default function CameraScreen() {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play().catch(err => console.error("Play error:", err));
-        setCameraReady(true);
+
+        // Handle metadata loaded to ensure video is ready
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().catch(err => {
+            console.error("Play failed:", err);
+            stopCamera();
+            setTimeout(initCamera, 500);
+          });
+          setVideoReady(true);
+        };
       }
     } catch (err) {
       console.error("Camera error:", err);
       setCameraError(err.message);
+      setShowFallback(true);
       toast.error(t("camera_permission_denied"));
-      setShowUploadFallback(true);
     }
   };
 
@@ -70,31 +75,55 @@ export default function CameraScreen() {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    setCameraReady(false);
+    setVideoReady(false);
   };
 
   const capturePhoto = () => {
-    if (videoRef.current && videoRef.current.readyState === 4) {
+    if (!videoRef.current || videoRef.current.readyState < 2) {
+      toast.error(t("camera_not_ready"));
+      return;
+    }
+
+    try {
+      // Create hidden canvas
       const canvas = document.createElement("canvas");
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
+
       const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Failed to get canvas context");
+
+      // Draw video frame
       ctx.drawImage(videoRef.current, 0, 0);
-      canvas.toBlob((blob) => {
-        stopCamera();
-        navigate(-1, { state: { capturedPhoto: blob } });
-      }, "image/jpeg", 0.95);
+
+      // Convert to JPEG data URL (instant, no upload needed)
+      const imageData = canvas.toDataURL("image/jpeg", 0.95);
+
+      // Stop camera and navigate with image data
+      stopCamera();
+
+      // Navigate to Home with captured image
+      navigate("/Home", {
+        state: { capturedPhoto: imageData }
+      });
+    } catch (err) {
+      console.error("Capture error:", err);
+      toast.error(t("error_capturing"));
     }
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      stopCamera();
-      navigate(-1, { state: { capturedPhoto: file } });
+      // Read file as data URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        stopCamera();
+        navigate("/Home", {
+          state: { capturedPhoto: event.target.result }
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -103,11 +132,11 @@ export default function CameraScreen() {
     navigate(-1);
   };
 
-  // FALLBACK: Camera error with upload option
-  if (showUploadFallback && cameraError) {
+  // FALLBACK: Upload only (camera unavailable)
+  if (showFallback && cameraError) {
     return (
       <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 9999, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10, padding: "1rem", display: "flex", justifyContent: "flex-end" }}>
+        <div style={{ position: "absolute", top: "1rem", right: "1rem", zIndex: 10 }}>
           <button
             onClick={handleClose}
             style={{
@@ -119,7 +148,7 @@ export default function CameraScreen() {
               cursor: "pointer"
             }}
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
 
@@ -146,7 +175,6 @@ export default function CameraScreen() {
               marginBottom: "0.75rem"
             }}
           >
-            <Upload size={20} style={{ display: "inline", marginRight: "0.5rem" }} />
             {t("upload_photo")}
           </button>
 
@@ -178,10 +206,10 @@ export default function CameraScreen() {
     );
   }
 
-  // FULLSCREEN CAMERA - NO MODAL, NO OVERLAY
+  // FULLSCREEN CAMERA
   return (
     <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 9999, backgroundColor: "#000" }}>
-      {/* Video fills entire screen */}
+      {/* Video element fills entire screen */}
       <video
         ref={videoRef}
         autoPlay
@@ -194,9 +222,7 @@ export default function CameraScreen() {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          display: "block",
-          visibility: "visible",
-          opacity: 1
+          display: "block"
         }}
       />
 
@@ -213,13 +239,14 @@ export default function CameraScreen() {
           backgroundColor: "rgba(255,255,255,0.1)",
           border: "none",
           color: "white",
-          cursor: "pointer"
+          cursor: "pointer",
+          backdropFilter: "none"
         }}
       >
         <X size={24} />
       </button>
 
-      {/* Bottom controls */}
+      {/* Bottom controls with gradient */}
       <div
         style={{
           position: "absolute",
@@ -227,7 +254,7 @@ export default function CameraScreen() {
           left: 0,
           right: 0,
           zIndex: 10,
-          background: "linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0))",
+          background: "linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7), transparent)",
           padding: "1.5rem",
           display: "flex",
           gap: "0.75rem"
@@ -249,6 +276,7 @@ export default function CameraScreen() {
         >
           {t("cancel")}
         </button>
+
         <button
           onClick={capturePhoto}
           style={{
@@ -263,7 +291,7 @@ export default function CameraScreen() {
             border: "none"
           }}
         >
-          {t("capture")}
+          {t("tomar_foto")}
         </button>
       </div>
     </div>
