@@ -133,49 +133,67 @@ async function compressImage(file, targetSizeKB = 300) {
   });
 }
 
-// Main upload handler
+// Main upload handler with retry logic
 export async function uploadProfilePhoto(file, onProgress) {
-  logger.log('PHOTO_UPLOAD_START', { fileName: file.name, fileSize: file.size });
-
-  try {
-    // Step 1: Convert HEIC if needed
-    let processed = await convertHEICToJPEG(file);
-    logger.log('PHOTO_CONVERSION_DONE', { newSize: processed.size });
-
-    // Step 2: Resize
-    processed = await resizeImage(processed, 1536);
-    logger.log('PHOTO_RESIZE_DONE', { newSize: processed.size });
-
-    // Step 3: Compress
-    processed = await compressImage(processed, 350);
-    logger.log('PHOTO_COMPRESS_DONE', { newSize: processed.size });
-
-    // Step 4: Upload via function
-    const formData = new FormData();
-    formData.append('file', processed);
-
-    const response = await base44.functions.invoke('uploadProfilePhoto', {}, {
-      data: formData,
-      headers: {
-        'X-File-Name': processed.name,
-        'X-File-Size': processed.size.toString()
-      }
-    });
-
-    if (response.data?.success && response.data?.file_url) {
-      logger.log('PHOTO_UPLOAD_SUCCESS', { url: response.data.file_url });
-      return {
-        success: true,
-        fileUrl: response.data.file_url
-      };
-    } else {
-      throw new Error(response.data?.error || 'Upload failed');
-    }
-  } catch (error) {
-    logger.error('PHOTO_UPLOAD_ERROR', error);
+  const MAX_FILE_SIZE_MB = 15;
+  if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
     return {
       success: false,
-      error: error.message || 'Upload failed'
+      error: `File too large. Max ${MAX_FILE_SIZE_MB}MB`
     };
   }
+
+  logger.log('PHOTO_UPLOAD_START', { fileName: file.name, fileSize: file.size });
+
+  const MAX_RETRIES = 3;
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      // Step 1: Convert HEIC if needed
+      let processed = await convertHEICToJPEG(file);
+      logger.log('PHOTO_CONVERSION_DONE', { newSize: processed.size, attempt });
+
+      // Step 2: Resize
+      processed = await resizeImage(processed, 1024);
+      logger.log('PHOTO_RESIZE_DONE', { newSize: processed.size });
+
+      // Step 3: Compress
+      processed = await compressImage(processed, 250);
+      logger.log('PHOTO_COMPRESS_DONE', { newSize: processed.size });
+
+      // Step 4: Upload via integration directly (no custom function)
+      const uploadResult = await base44.integrations.Core.UploadFile({
+        file: processed
+      });
+
+      if (uploadResult?.file_url) {
+        logger.log('PHOTO_UPLOAD_SUCCESS', { url: uploadResult.file_url });
+        return {
+          success: true,
+          fileUrl: uploadResult.file_url
+        };
+      } else {
+        throw new Error('No file URL returned');
+      }
+    } catch (error) {
+      lastError = error;
+      logger.error(`PHOTO_UPLOAD_ERROR_ATTEMPT_${attempt}`, {
+        message: error.message,
+        attempt
+      });
+
+      if (attempt < MAX_RETRIES) {
+        // Exponential backoff
+        await new Promise(resolve => 
+          setTimeout(resolve, 500 * attempt)
+        );
+      }
+    }
+  }
+
+  return {
+    success: false,
+    error: lastError?.message || 'Upload failed after retries'
+  };
 }
