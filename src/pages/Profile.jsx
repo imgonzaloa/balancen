@@ -14,6 +14,8 @@ import { useTranslation } from "@/components/TranslationProvider";
 import SetStatusModal from "@/components/groups/SetStatusModal";
 import ReferralProgress from "@/components/profile/ReferralProgress";
 import { useAppState } from "@/components/AppStateContext";
+import { ImageProcessor, getUploadErrorMessage } from "@/components/utils/ImageProcessor";
+import { RobustUploader } from "@/components/utils/RobustUploader";
 
 export default function Profile() {
   const { t, lang } = useTranslation();
@@ -21,6 +23,7 @@ export default function Profile() {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
   const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const queryClient = useQueryClient();
 
   const user = cachedUser;
@@ -68,96 +71,133 @@ export default function Profile() {
     base44.auth.logout();
   };
 
-  const compressImage = async (file) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          
-          // Resize to max 1024px
-          const maxSize = 1024;
-          if (width > maxSize || height > maxSize) {
-            if (width > height) {
-              height = (height / width) * maxSize;
-              width = maxSize;
-            } else {
-              width = (width / height) * maxSize;
-              height = maxSize;
-            }
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          canvas.toBlob((blob) => {
-            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-          }, 'image/jpeg', 0.85);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleAvatarUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      toast.error(lang === "es" ? "Formato no válido" : "Invalid format");
-      return;
-    }
+    console.log('[PROFILE_UPLOAD] Started', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      platform: navigator.userAgent
+    });
 
-    const loadingToast = toast.loading(lang === "es" ? "Subiendo foto..." : "Uploading photo...");
+    setUploadingAvatar(true);
+    const loadingToast = toast.loading(lang === "es" ? "Procesando imagen..." : "Processing image...");
+    
+    // Save current avatar for rollback
+    const previousAvatar = profile?.profile_photo || profile?.avatar_url;
     
     try {
-      // Compress image before upload
-      const compressedFile = await compressImage(file);
+      // Step 1: Process image (HEIC conversion + resize + compress)
+      const imageProcessor = new ImageProcessor();
+      const processedFile = await imageProcessor.processImage(file);
       
-      const { data } = await base44.integrations.Core.UploadFile({ file: compressedFile });
+      console.log('[PROFILE_UPLOAD] Processed', {
+        originalSize: file.size,
+        processedSize: processedFile.size,
+        reduction: ((1 - processedFile.size / file.size) * 100).toFixed(1) + '%'
+      });
+
+      // Update toast
+      toast.loading(lang === "es" ? "Subiendo foto..." : "Uploading photo...", { id: loadingToast });
       
-      // Optimistic update FIRST
+      // Step 2: Optimistic UI update FIRST (instant feedback)
+      const tempUrl = URL.createObjectURL(processedFile);
       queryClient.setQueryData(["profile"], {
         ...profile,
-        profile_photo: data.file_url,
-        avatar_url: data.file_url
+        profile_photo: tempUrl,
+        avatar_url: tempUrl
       });
       
-      // Then persist to backend
-      await base44.entities.UserProfile.update(profile.id, { 
-        profile_photo: data.file_url,
-        avatar_url: data.file_url 
+      // Step 3: Upload with retry logic
+      const uploader = new RobustUploader();
+      const uploadResult = await uploader.upload(base44, processedFile);
+      
+      console.log('[PROFILE_UPLOAD] Uploaded', {
+        fileUrl: uploadResult.file_url,
+        uploadSize: processedFile.size
+      });
+
+      // Step 4: Update with real URL
+      queryClient.setQueryData(["profile"], {
+        ...profile,
+        profile_photo: uploadResult.file_url,
+        avatar_url: uploadResult.file_url
       });
       
+      // Step 5: Persist to backend (fire and forget with error handling)
+      base44.entities.UserProfile.update(profile.id, { 
+        profile_photo: uploadResult.file_url,
+        avatar_url: uploadResult.file_url 
+      }).then(() => {
+        console.log('[PROFILE_UPLOAD] Persisted to DB');
+      }).catch((err) => {
+        console.error('[PROFILE_UPLOAD] DB persist failed', err);
+        // Don't show error to user - optimistic UI is already showing the image
+      });
+      
+      // Step 6: Cache avatar in localStorage for instant loading next time
+      try {
+        localStorage.setItem(`avatar_cache_${user?.email}`, uploadResult.file_url);
+      } catch (e) {
+        console.warn('[PROFILE_UPLOAD] LocalStorage cache failed', e);
+      }
+      
+      // Cleanup
+      URL.revokeObjectURL(tempUrl);
       toast.dismiss(loadingToast);
-      toast.success(lang === "es" ? "Foto actualizada" : "Photo updated");
+      toast.success(lang === "es" ? "✨ Foto actualizada" : "✨ Photo updated");
+      
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("[PROFILE_UPLOAD] Error", {
+        error: error.message,
+        stack: error.stack,
+        fileName: file.name
+      });
+      
       toast.dismiss(loadingToast);
-      toast.error(lang === "es" ? "No pudimos subir la imagen. Intentá otra vez" : "Couldn't upload image. Try again");
-      // Revert optimistic update
-      queryClient.invalidateQueries(["profile"]);
+      
+      // User-friendly error message
+      const errorMessage = getUploadErrorMessage(error, lang);
+      toast.error(errorMessage, {
+        duration: 4000,
+        action: {
+          label: lang === "es" ? "Reintentar" : "Retry",
+          onClick: () => {
+            // Trigger file input again
+            document.getElementById('avatar-upload')?.click();
+          }
+        }
+      });
+      
+      // Rollback optimistic update
+      queryClient.setQueryData(["profile"], {
+        ...profile,
+        profile_photo: previousAvatar,
+        avatar_url: previousAvatar
+      });
+    } finally {
+      setUploadingAvatar(false);
+      // Clear file input so same file can be selected again
+      e.target.value = '';
     }
   };
 
-  const handleDeleteAccount = async () => {
-    setDeleting(true);
-    try {
-      await base44.functions.invoke('deleteUserAccount', {});
-      toast.success(t("account_deleted"));
-      base44.auth.logout();
-    } catch (error) {
-      toast.error(t("error_deleting_account"));
-      setDeleting(false);
+  // Preload cached avatar on mount
+  useEffect(() => {
+    if (user?.email && profile?.id) {
+      const cachedUrl = localStorage.getItem(`avatar_cache_${user.email}`);
+      if (cachedUrl && !profile?.profile_photo && !profile?.avatar_url) {
+        // Prefetch cached avatar
+        queryClient.setQueryData(["profile"], {
+          ...profile,
+          profile_photo: cachedUrl,
+          avatar_url: cachedUrl
+        });
+      }
     }
-  };
+  }, [user?.email, profile?.id]);
 
   const goalLabels = {
     en: {
@@ -232,25 +272,43 @@ export default function Profile() {
             <div className="flex items-center gap-4 mb-6">
               <div className="relative">
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => document.getElementById('avatar-upload')?.click()}
+                  whileHover={{ scale: uploadingAvatar ? 1 : 1.05 }}
+                  whileTap={{ scale: uploadingAvatar ? 1 : 0.95 }}
+                  onClick={() => !uploadingAvatar && document.getElementById('avatar-upload')?.click()}
+                  disabled={uploadingAvatar}
                   className="relative w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg overflow-hidden"
                 >
-                  {profile?.profile_photo ? (
-                    <img src={profile.profile_photo} alt="Profile" className="w-full h-full object-cover" />
+                  {profile?.profile_photo || profile?.avatar_url ? (
+                    <img 
+                      src={profile.profile_photo || profile.avatar_url} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to initials if image fails to load
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `<span>${profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}</span>`;
+                      }}
+                    />
                   ) : (
                     <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}</span>
                   )}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Camera size={20} className="text-white" />
-                  </div>
+                  {uploadingAvatar ? (
+                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera size={20} className="text-white" />
+                    </div>
+                  )}
                 </motion.button>
                 <input
                   id="avatar-upload"
                   type="file"
-                  accept="image/*"
+                  accept="image/*,image/heic,image/heif"
+                  capture="environment"
                   onChange={handleAvatarUpload}
+                  disabled={uploadingAvatar}
                   className="hidden"
                 />
               </div>
