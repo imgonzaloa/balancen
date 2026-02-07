@@ -71,9 +71,7 @@ export default function PhotoPicker({ isOpen, onClose, onSelect }) {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-semibold text-gray-900">{t('choose_from_gallery')}</p>
-                  <p className="text-sm text-gray-600">
-                    {typeof t === 'function' ? (t.lang === 'es' ? 'Elegir una foto existente' : 'Choose an existing photo') : 'Select from gallery'}
-                  </p>
+                  <p className="text-sm text-gray-600">JPG, PNG, HEIC</p>
                 </div>
               </button>
               
@@ -86,9 +84,7 @@ export default function PhotoPicker({ isOpen, onClose, onSelect }) {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-semibold text-gray-900">{t('take_photo')}</p>
-                  <p className="text-sm text-gray-600">
-                    {typeof t === 'function' ? (t.lang === 'es' ? 'Usar la cámara' : 'Use the camera') : 'Take a new photo'}
-                  </p>
+                  <p className="text-sm text-gray-600">{t('lang') === 'es' ? 'Sacar una nueva foto' : 'Take a new photo'}</p>
                 </div>
               </button>
             </div>

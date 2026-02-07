@@ -6,7 +6,7 @@ const resources = {
     translation: {
       // Navigation
       home: "Home",
-      social: "Social",
+      social: "Social", 
       progress: "Progress",
       profile: "Profile",
       

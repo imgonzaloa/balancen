@@ -179,21 +179,32 @@ export async function processImage(file) {
   return processed;
 }
 
-export function getUploadErrorMessage(status, error) {
-  if (status === 401 || status === 403) {
-    return 'Sesión vencida. Reingresá.';
-  }
-  if (status === 413) {
-    return 'Archivo muy grande. Lo estamos comprimiendo más...';
-  }
-  if (status === 415) {
-    return 'Formato no soportado. Convertimos HEIC automáticamente.';
-  }
-  if (status >= 500) {
-    return 'Error del servidor. Intentá más tarde.';
-  }
-  if (!navigator.onLine) {
-    return 'Sin conexión. Revisá tu internet.';
-  }
-  return error?.message || 'Error subiendo foto. Intentá de nuevo.';
+export function getUploadErrorMessage(status, error, lang = 'es') {
+  const messages = {
+    es: {
+      401: 'Sesión vencida. Reingresá.',
+      413: 'Archivo muy grande. Lo estamos comprimiendo más...',
+      415: 'Formato no soportado. Convertimos HEIC automáticamente.',
+      500: 'Error del servidor. Intentá más tarde.',
+      offline: 'Sin conexión. Revisá tu internet.',
+      default: 'Error subiendo foto. Intentá de nuevo.'
+    },
+    en: {
+      401: 'Session expired. Please login again.',
+      413: 'File too large. We\'re compressing it...',
+      415: 'Format not supported. We\'ll convert HEIC automatically.',
+      500: 'Server error. Try again later.',
+      offline: 'No connection. Check your internet.',
+      default: 'Error uploading photo. Try again.'
+    }
+  };
+
+  const msgSet = messages[lang] || messages.es;
+
+  if (status === 401 || status === 403) return msgSet[401];
+  if (status === 413) return msgSet[413];
+  if (status === 415) return msgSet[415];
+  if (status >= 500) return msgSet[500];
+  if (!navigator.onLine) return msgSet.offline;
+  return error?.message || msgSet.default;
 }
