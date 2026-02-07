@@ -67,6 +67,21 @@ export default function Profile() {
     base44.auth.logout();
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      toast.loading("Uploading photo...");
+      const { data } = await base44.integrations.Core.UploadFile({ file });
+      await base44.entities.UserProfile.update(profile.id, { profile_photo: data.file_url });
+      queryClient.invalidateQueries(["profile"]);
+      toast.success("Photo updated");
+    } catch (error) {
+      toast.error("Failed to upload photo");
+    }
+  };
+
   const handleDeleteAccount = async () => {
     setDeleting(true);
     try {
