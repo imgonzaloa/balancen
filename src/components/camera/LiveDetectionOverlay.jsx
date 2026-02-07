@@ -1,34 +1,45 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, CheckCircle } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
+import { LiveDetectionService } from "./LiveDetectionService";
+import { getFoodName, getGuidance } from "./foodTranslations";
 
 export default function LiveDetectionOverlay({ videoRef }) {
-  const [detectedItems, setDetectedItems] = useState([]);
-  const canvasRef = useRef(null);
+  const { lang } = useTranslation();
+  const [detectionState, setDetectionState] = useState(null);
+  const serviceRef = useRef(null);
   const intervalRef = useRef(null);
 
   useEffect(() => {
+    // Initialize service
+    serviceRef.current = new LiveDetectionService();
+
     // Start detection loop
     intervalRef.current = setInterval(() => {
       if (videoRef.current && videoRef.current.readyState === 4) {
-        detectObjects();
+        processFrame();
       }
-    }, 1200); // Sample every 1.2s for smooth experience
+    }, 800); // Sample every 800ms
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      if (serviceRef.current) {
+        serviceRef.current.reset();
+      }
     };
   }, []);
 
-  const detectObjects = async () => {
+  const processFrame = async () => {
     try {
       const video = videoRef.current;
       if (!video || video.videoWidth === 0) return;
 
       // Create canvas to sample frame
       const canvas = document.createElement("canvas");
-      canvas.width = 320; // Low res for speed
+      canvas.width = 320;
       canvas.height = 240;
       const ctx = canvas.getContext("2d");
       
@@ -36,68 +47,99 @@ export default function LiveDetectionOverlay({ videoRef }) {
 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Simulate lightweight detection (real impl would call AI)
-      // For demo, generate random food items with confidence
-      const possibleItems = [
-        { name: "🍪 cookie", confidence: 0.85 },
-        { name: "🥗 salad", confidence: 0.78 },
-        { name: "🍎 apple", confidence: 0.92 },
-        { name: "🍕 pizza", confidence: 0.88 },
-        { name: "🥑 avocado", confidence: 0.81 },
-        { name: "🍔 burger", confidence: 0.76 },
-      ];
-
-      // Randomly show 0-2 items
-      const itemCount = Math.random() > 0.6 ? Math.floor(Math.random() * 2) + 1 : 0;
+      // Process with service
+      const result = await serviceRef.current.processFrame(canvas);
       
-      if (itemCount > 0) {
-        const selected = [];
-        for (let i = 0; i < itemCount; i++) {
-          const item = possibleItems[Math.floor(Math.random() * possibleItems.length)];
-          selected.push({
-            ...item,
-            id: Math.random(),
-            x: 20 + Math.random() * 60, // Random position %
-            y: 20 + Math.random() * 60,
-          });
-        }
-        setDetectedItems(selected);
-      } else {
-        setDetectedItems([]);
-      }
+      setDetectionState(result);
 
     } catch (err) {
-      // Silent fail - don't break camera
-      console.log("Detection skipped");
+      console.log("[DETECTION] Error:", err);
     }
   };
 
+  if (!detectionState) return null;
+
+  // Render guidance state
+  if (detectionState.state === "GUIDANCE") {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-[6] flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-4 py-2 bg-black/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg"
+        >
+          <p className="text-white text-sm font-semibold">
+            {getGuidance(detectionState.guidance, lang)}
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Render scanning state
+  if (detectionState.state === "SCANNING") {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-[6] flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="px-4 py-2 bg-black/70 backdrop-blur-md rounded-2xl border border-emerald-500/30 shadow-lg flex items-center gap-2"
+        >
+          <Loader2 size={16} className="text-emerald-400 animate-spin" />
+          <p className="text-white text-sm font-semibold">
+            {getGuidance("SCANNING", lang)}
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Render stable/locked state with food label
+  const foodName = getFoodName(detectionState.label, lang);
+  const isLocked = detectionState.state === "LOCKED";
+
   return (
     <div className="absolute inset-0 pointer-events-none z-[6]">
-      <AnimatePresence>
-        {detectedItems.map((item) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.4 }}
-            style={{
-              position: "absolute",
-              left: `${item.x}%`,
-              top: `${item.y}%`,
-            }}
-            className="px-3 py-1.5 bg-black/70 backdrop-blur-md rounded-full border border-white/20 shadow-lg"
-          >
-            <p className="text-white text-xs font-semibold whitespace-nowrap">
-              {item.name}
-            </p>
-            <p className="text-white/60 text-[10px] text-center">
-              {Math.round(item.confidence * 100)}%
-            </p>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      {/* Primary food label */}
+      <motion.div
+        key={detectionState.label}
+        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+      >
+        <div className={`px-4 py-2 backdrop-blur-xl rounded-2xl shadow-2xl border ${
+          isLocked 
+            ? "bg-emerald-500/90 border-emerald-400/50" 
+            : "bg-black/80 border-white/30"
+        }`}>
+          <div className="flex items-center gap-2">
+            {isLocked && <CheckCircle size={16} className="text-white" />}
+            <div>
+              <p className="text-white text-sm font-bold whitespace-nowrap">
+                {foodName}
+              </p>
+              <p className="text-white/80 text-xs text-center">
+                {Math.round(detectionState.confidence * 100)}%
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Locked badge */}
+      {isLocked && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-20 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-500/90 backdrop-blur-md rounded-full border border-emerald-400/50 shadow-lg"
+        >
+          <p className="text-white text-xs font-semibold">
+            {getGuidance("LOCKED", lang)}
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 }
