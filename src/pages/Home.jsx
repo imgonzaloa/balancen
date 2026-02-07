@@ -17,15 +17,13 @@ import MicroProgressPulse from "@/components/home/MicroProgressPulse";
 import { Button } from "@/components/ui/button";
 import AINutritionConfidence from "@/components/home/AINutritionConfidence";
 import QuickActionButton from "@/components/QuickActionButton";
+import HomeErrorFallback from "@/components/HomeErrorFallback";
 
-// Timeout wrapper for data fetching
+// Import optimized fetcher with timeout and retry
+import { fetchWithRetry, withTimeout, useSafeQuery } from "@/components/DataFetcher";
+
 const fetchWithTimeout = (promise, timeoutMs = 8000) => {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout')), timeoutMs)
-    ),
-  ]);
+  return withTimeout(promise, timeoutMs);
 };
 
 export default function Home() {
@@ -45,10 +43,9 @@ export default function Home() {
     queryKey: ["profile", user?.email],
     queryFn: async () => {
       try {
-        const result = await fetchWithTimeout(
-          base44.entities.UserProfile.filter({ created_by: user?.email })
+        return await fetchWithRetry(
+          () => base44.entities.UserProfile.filter({ created_by: user?.email }).then(r => r[0] || null)
         );
-        return result[0] || null;
       } catch (err) {
         console.warn('[HOME] Profile fetch timeout/error', err);
         return null;
@@ -63,38 +60,28 @@ export default function Home() {
   const today = new Date().toISOString().split("T")[0];
 
   const { data: todayMeals = [], isLoading: mealsLoading } = useQuery({
-    queryKey: ["meals", today, user?.email],
-    queryFn: async () => {
-      try {
-        return await fetchWithTimeout(
-          base44.entities.MealLog.filter(
-            { created_by: user?.email, date: today },
-            "-meal_time"
-          )
-        );
-      } catch (err) {
-        console.warn('[HOME] Meals fetch timeout/error', err);
-        return [];
-      }
-    },
-    enabled: !!user?.email && !cachedMeals,
-    initialData: cachedMeals || [],
-    staleTime: 1 * 60 * 1000,
-    keepPreviousData: true,
+  queryKey: ["meals", today, user?.email],
+  queryFn: async () => {
+  return await fetchWithRetry(
+  () => base44.entities.MealLog.filter(
+    { created_by: user?.email, date: today },
+    "-meal_time"
+  )
+  );
+  },
+  enabled: !!user?.email && !cachedMeals,
+  initialData: cachedMeals || [],
+  staleTime: 1 * 60 * 1000,
+  keepPreviousData: true,
   });
 
   const { data: friends = [], isLoading: friendsLoading } = useQuery({
     queryKey: ["friends", user?.email],
     queryFn: async () => {
-      try {
-        const sent = await fetchWithTimeout(
-          base44.entities.Friend.filter({ created_by: user?.email })
-        );
-        return sent.filter(f => f.status === "accepted");
-      } catch (err) {
-        console.warn('[HOME] Friends fetch timeout/error', err);
-        return [];
-      }
+      const sent = await fetchWithRetry(
+        () => base44.entities.Friend.filter({ created_by: user?.email })
+      );
+      return sent.filter(f => f.status === "accepted");
     },
     enabled: !!user?.email && !cachedFriends,
     initialData: cachedFriends || [],
@@ -184,6 +171,29 @@ export default function Home() {
   // Show skeleton only if initializing AND profile fetch is loading (not profile is empty)
   if (!isInitialized && profileLoading) {
     return <HomeSkeleton />;
+  }
+
+  // Timeout fallback after 3 seconds of loading with no profile
+  const [showTimeout, setShowTimeout] = React.useState(false);
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (profileLoading && !profile) {
+        setShowTimeout(true);
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [profileLoading, profile]);
+
+  if (showTimeout && profileLoading && !profile) {
+    return (
+      <HomeErrorFallback
+        onRetry={() => {
+          setShowTimeout(false);
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
+        }}
+        error={new Error("Profile loading timeout")}
+      />
+    );
   }
 
   // If fully initialized but no profile, redirect to onboarding
