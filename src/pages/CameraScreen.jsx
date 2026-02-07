@@ -252,31 +252,42 @@ export default function CameraScreen() {
         <X size={24} />
       </button>
 
-      {/* Bottom controls */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-6 pb-safe">
-        <div className="flex gap-3">
-          <button
-            onClick={handleClose}
-            className="flex-1 py-4 rounded-xl bg-white/10 border border-white/20 text-white font-semibold transition-transform active:scale-95"
-          >
-            {t("cancel")}
-          </button>
-
+      {/* Bottom action bar - CAL AI style */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pb-6 pt-8">
+        {/* Capture button - centered */}
+        <div className="flex justify-center mb-6">
           <button
             onClick={capturePhoto}
             disabled={!videoReady || isCapturing}
-            className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-transform active:scale-95 shadow-lg shadow-emerald-500/30"
+            className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 border-4 border-white/30 shadow-2xl shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-transform active:scale-90 flex items-center justify-center"
           >
-            {isCapturing ? t("capturing") : t("capture")}
+            <div className="w-16 h-16 rounded-full bg-white" />
           </button>
         </div>
 
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="w-full mt-3 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-medium"
-        >
-          {t("upload_from_gallery")}
-        </button>
+        {/* Action tabs */}
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <button
+            onClick={capturePhoto}
+            disabled={!videoReady || isCapturing}
+            className="py-3 px-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+          >
+            {t("scan_food") || "Scan Food"}
+          </button>
+          
+          <button
+            className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
+          >
+            {t("barcode") || "Barcode"}
+          </button>
+          
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
+          >
+            {t("gallery") || "Gallery"}
+          </button>
+        </div>
       </div>
 
       <input

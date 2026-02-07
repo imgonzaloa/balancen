@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
-import AddMealButton from "@/components/home/AddMealButton";
 import DailyCalorieGoal from "@/components/home/DailyCalorieGoal";
 import DailyMissions from "@/components/home/DailyMissions";
 import StreakBanner from "@/components/home/StreakBanner";
@@ -20,6 +19,8 @@ import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 import StatusBubble from "@/components/home/StatusBubble";
 import RecentActivityTimeline from "@/components/home/RecentActivityTimeline";
 import MealSavedCelebration from "@/components/home/MealSavedCelebration";
+import DailyMacroRing from "@/components/home/DailyMacroRing";
+import QuickAddButton from "@/components/home/QuickAddButton";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -119,6 +120,11 @@ export default function Home() {
 
   const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
   const caloriesGoal = profile?.calories_goal || 2000;
+  
+  // Calculate total macros from today's meals
+  const totalProtein = todayMeals.reduce((sum, meal) => sum + (meal.estimated_protein || 0), 0);
+  const totalCarbs = todayMeals.reduce((sum, meal) => sum + (meal.estimated_carbs || 0), 0);
+  const totalFats = todayMeals.reduce((sum, meal) => sum + (meal.estimated_fats || 0), 0);
 
 
 
@@ -180,8 +186,14 @@ export default function Home() {
         {/* CORE: Streak Banner */}
         <StreakBanner streak={profile?.current_streak || 0} fireTotal={profile?.fire_total || 0} />
 
-        {/* Daily Calorie Goal - Big Focus */}
-        <DailyCalorieGoal consumed={totalCaloriesToday} goal={caloriesGoal} />
+        {/* Daily Macro Ring - Enhanced nutrition view */}
+        <DailyMacroRing 
+          consumed={totalCaloriesToday} 
+          goal={caloriesGoal}
+          protein={totalProtein}
+          carbs={totalCarbs}
+          fats={totalFats}
+        />
         
         {/* Recent Activity Timeline */}
         <RecentActivityTimeline recentMeals={todayMeals} profile={profile} />
@@ -191,9 +203,6 @@ export default function Home() {
           meal={todayMeals[0] || null} 
           onClick={() => navigate(createPageUrl("CameraScreen"))}
         />
-
-        {/* MAIN ACTION: Add Meal Button */}
-        <AddMealButton onClick={() => navigate(createPageUrl("CameraScreen"))} />
 
         {/* Daily Missions */}
         <DailyMissions
@@ -236,6 +245,9 @@ export default function Home() {
         show={showCelebration}
         onComplete={() => setShowCelebration(false)}
       />
-    </div>
-  );
-}
+
+      {/* Floating Quick Add Button */}
+      <QuickAddButton onClick={() => navigate(createPageUrl("CameraScreen"))} />
+      </div>
+      );
+      }
