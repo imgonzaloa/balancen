@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
+import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
 import AddMealButton from "@/components/home/AddMealButton";
 import DailyCalorieGoal from "@/components/home/DailyCalorieGoal";
 import DailyMissions from "@/components/home/DailyMissions";
 import StreakBanner from "@/components/home/StreakBanner";
 import SocialPreview from "@/components/home/SocialPreview";
+import MealResultCard from "@/components/home/MealResultCard";
 import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 
 export default function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { previewUrl } = useMeal();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -148,7 +151,13 @@ export default function Home() {
         />
       </div>
 
-
+      {/* Meal Result Modal */}
+      {previewUrl && (
+        <MealResultCard
+          profile={profile}
+          onSave={handleMealSaved}
+        />
+      )}
     </div>
   );
 }

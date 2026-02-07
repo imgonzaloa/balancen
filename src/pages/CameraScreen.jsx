@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, AlertCircle } from "lucide-react";
+import { X, AlertCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
@@ -13,35 +13,21 @@ export default function CameraScreen() {
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const fileInputRef = useRef(null);
+  
   const [cameraError, setCameraError] = useState(null);
   const [videoReady, setVideoReady] = useState(false);
-  const [showUploadFallback, setShowUploadFallback] = useState(false);
-  const fileInputRef = useRef(null);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
     initCamera();
     return () => stopCamera();
   }, []);
 
-  // Retry if video not ready
-  useEffect(() => {
-    if (!videoReady) return;
-
-    const checkTimer = setTimeout(() => {
-      if (videoRef.current?.readyState < 2) {
-        console.warn("Video not ready, reinitializing");
-        stopCamera();
-        setTimeout(initCamera, 500);
-      }
-    }, 1000);
-
-    return () => clearTimeout(checkTimer);
-  }, [videoReady]);
-
   const initCamera = async () => {
     try {
       setCameraError(null);
-
+      
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
         audio: false
@@ -51,19 +37,31 @@ export default function CameraScreen() {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play().catch(err => {
-            console.error("Play error:", err);
-            stopCamera();
-            setTimeout(initCamera, 500);
-          });
-          setVideoReady(true);
-        };
+        
+        // Wait for metadata to load
+        await new Promise((resolve) => {
+          videoRef.current.onloadedmetadata = resolve;
+        });
+
+        // Start playing
+        await videoRef.current.play();
+        
+        // Verify video dimensions with retries
+        let retries = 0;
+        while (videoRef.current.videoWidth === 0 && retries < 3) {
+          await new Promise(r => setTimeout(r, 300));
+          retries++;
+        }
+
+        if (videoRef.current.videoWidth === 0) {
+          throw new Error("Video stream failed to initialize");
+        }
+
+        setVideoReady(true);
       }
     } catch (err) {
       console.error("Camera error:", err);
-      setCameraError(err.message);
-      setShowUploadFallback(true);
+      setCameraError(err.message || t("camera_permission_denied"));
       toast.error(t("camera_permission_denied"));
     }
   };
@@ -77,54 +75,76 @@ export default function CameraScreen() {
   };
 
   const capturePhoto = async () => {
-    if (!videoRef.current || videoRef.current.readyState < 2) {
+    if (!videoRef.current || !videoReady || videoRef.current.videoWidth === 0) {
       toast.error(t("camera_not_ready"));
       return;
     }
 
+    setIsCapturing(true);
+
     try {
-      // Capture video frame to canvas
+      const video = videoRef.current;
       const canvas = document.createElement("canvas");
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
 
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Canvas context failed");
 
-      ctx.drawImage(videoRef.current, 0, 0);
+      ctx.drawImage(video, 0, 0);
 
-      // Convert canvas to blob
-      const blob = await new Promise(resolve =>
+      // Convert to blob
+      const blob = await new Promise((resolve) =>
         canvas.toBlob(resolve, "image/jpeg", 0.9)
       );
 
       if (!blob || blob.size === 0) {
-        toast.error(t("error_capturing"));
-        return;
+        // Retry once
+        await new Promise(r => setTimeout(r, 100));
+        const retryBlob = await new Promise((resolve) =>
+          canvas.toBlob(resolve, "image/jpeg", 0.9)
+        );
+        
+        if (!retryBlob || retryBlob.size === 0) {
+          throw new Error("Failed to capture photo");
+        }
       }
 
       // Create File object
       const file = new File([blob], "meal.jpg", { type: "image/jpeg" });
 
-      // Store in global context
-      setCapturedFile(file);
+      // Create dataUrl for localStorage
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
 
-      // Stop camera and navigate to result screen
+      // Store BEFORE navigation
+      setCapturedFile(file, dataUrl);
+
+      // Stop camera AFTER storing
       stopCamera();
-      navigate(createPageUrl("MealResult"));
+
+      // Navigate to result screen
+      navigate(createPageUrl("Home"));
+      
     } catch (err) {
       console.error("Capture error:", err);
       toast.error(t("error_capturing"));
+      setIsCapturing(false);
     }
   };
 
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setCapturedFile(selectedFile);
+    if (!selectedFile) return;
+
+    // Create dataUrl for localStorage
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target.result;
+      setCapturedFile(selectedFile, dataUrl);
       stopCamera();
-      navigate(createPageUrl("MealResult"));
-    }
+      navigate(createPageUrl("Home"));
+    };
+    reader.readAsDataURL(selectedFile);
   };
 
   const handleClose = () => {
@@ -132,79 +152,33 @@ export default function CameraScreen() {
     navigate(-1);
   };
 
-  // FALLBACK: No camera access
-  if (showUploadFallback && cameraError) {
+  // Error fallback UI
+  if (cameraError) {
     return (
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          zIndex: 9999,
-          backgroundColor: "#000",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
+      <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
         <button
           onClick={handleClose}
-          style={{
-            position: "absolute",
-            top: "1rem",
-            right: "1rem",
-            zIndex: 10,
-            padding: "0.5rem",
-            borderRadius: "0.75rem",
-            backgroundColor: "rgba(255,255,255,0.1)",
-            border: "none",
-            color: "white",
-            cursor: "pointer"
-          }}
+          className="absolute top-4 right-4 p-3 rounded-xl bg-white/10 hover:bg-white/20 text-white"
         >
           <X size={24} />
         </button>
 
-        <div style={{ textAlign: "center", color: "white", maxWidth: "20rem" }}>
-          <AlertCircle size={48} style={{ margin: "0 auto 1rem", color: "rgb(248 113 113)" }} />
-          <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", marginBottom: "0.5rem" }}>
-            {t("camera_not_available")}
-          </h2>
-          <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "2rem", fontSize: "0.875rem" }}>
-            {cameraError}
-          </p>
+        <div className="text-center text-white max-w-sm px-6">
+          <AlertCircle size={64} className="mx-auto mb-4 text-red-400" />
+          <h2 className="text-xl font-bold mb-2">{t("camera_not_available")}</h2>
+          <p className="text-white/60 mb-6 text-sm">{cameraError}</p>
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            style={{
-              width: "100%",
-              padding: "1rem",
-              borderRadius: "1rem",
-              background: "linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))",
-              color: "white",
-              fontWeight: "600",
-              border: "none",
-              cursor: "pointer",
-              marginBottom: "0.75rem"
-            }}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold mb-3 flex items-center justify-center gap-2"
           >
+            <Upload size={20} />
             {t("upload_photo")}
           </button>
 
           <button
             onClick={handleClose}
-            style={{
-              width: "100%",
-              padding: "1rem",
-              borderRadius: "1rem",
-              backgroundColor: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              color: "white",
-              fontWeight: "600",
-              cursor: "pointer"
-            }}
+            className="w-full py-4 rounded-xl bg-white/10 border border-white/20 text-white font-semibold"
           >
             {t("cancel")}
           </button>
@@ -215,108 +189,65 @@ export default function CameraScreen() {
           type="file"
           accept="image/*"
           onChange={handleFileUpload}
-          style={{ display: "none" }}
+          className="hidden"
         />
       </div>
     );
   }
 
-  // FULLSCREEN CAMERA
+  // Fullscreen camera UI
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        zIndex: 9999,
-        backgroundColor: "#000"
-      }}
-    >
+    <div className="fixed inset-0 z-[9999] bg-black">
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          display: "block"
-        }}
+        className="absolute inset-0 w-full h-full object-cover"
       />
 
       {/* Close button */}
       <button
         onClick={handleClose}
-        style={{
-          position: "absolute",
-          top: "1rem",
-          right: "1rem",
-          zIndex: 10,
-          padding: "0.5rem",
-          borderRadius: "0.75rem",
-          backgroundColor: "rgba(255,255,255,0.1)",
-          border: "none",
-          color: "white",
-          cursor: "pointer"
-        }}
+        className="absolute top-4 right-4 z-10 p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white"
       >
         <X size={24} />
       </button>
 
       {/* Bottom controls */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          background: "linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7), transparent)",
-          padding: "1.5rem",
-          display: "flex",
-          gap: "0.75rem"
-        }}
-      >
-        <button
-          onClick={handleClose}
-          style={{
-            flex: 1,
-            padding: "1rem",
-            borderRadius: "1rem",
-            backgroundColor: "rgba(255,255,255,0.1)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            color: "white",
-            fontWeight: "600",
-            cursor: "pointer",
-            fontSize: "1rem"
-          }}
-        >
-          {t("cancel")}
-        </button>
+      <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-6 pb-safe">
+        <div className="flex gap-3">
+          <button
+            onClick={handleClose}
+            className="flex-1 py-4 rounded-xl bg-white/10 border border-white/20 text-white font-semibold"
+          >
+            {t("cancel")}
+          </button>
+
+          <button
+            onClick={capturePhoto}
+            disabled={!videoReady || isCapturing}
+            className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isCapturing ? t("capturing") : t("capture")}
+          </button>
+        </div>
 
         <button
-          onClick={capturePhoto}
-          style={{
-            flex: 1,
-            padding: "1rem",
-            borderRadius: "1rem",
-            background: "linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))",
-            color: "white",
-            fontWeight: "600",
-            cursor: "pointer",
-            fontSize: "1rem",
-            border: "none"
-          }}
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full mt-3 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-medium"
         >
-          {t("tomar_foto")}
+          {t("upload_from_gallery")}
         </button>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
     </div>
   );
 }

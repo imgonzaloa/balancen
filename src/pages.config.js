@@ -48,11 +48,13 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Badges from './pages/Badges';
+import CameraScreen from './pages/CameraScreen';
 import Friends from './pages/Friends';
 import GroupDetail from './pages/GroupDetail';
 import Groups from './pages/Groups';
 import Home from './pages/Home';
 import InviteCollaborators from './pages/InviteCollaborators';
+import MealResult from './pages/MealResult';
 import Onboarding from './pages/Onboarding';
 import OnboardingTransition from './pages/OnboardingTransition';
 import Paywall from './pages/Paywall';
@@ -60,18 +62,18 @@ import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import UserManagement from './pages/UserManagement';
-import CameraScreen from './pages/CameraScreen';
-import MealResult from './pages/MealResult';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Badges": Badges,
+    "CameraScreen": CameraScreen,
     "Friends": Friends,
     "GroupDetail": GroupDetail,
     "Groups": Groups,
     "Home": Home,
     "InviteCollaborators": InviteCollaborators,
+    "MealResult": MealResult,
     "Onboarding": Onboarding,
     "OnboardingTransition": OnboardingTransition,
     "Paywall": Paywall,
@@ -79,8 +81,6 @@ export const PAGES = {
     "Profile": Profile,
     "Settings": Settings,
     "UserManagement": UserManagement,
-    "CameraScreen": CameraScreen,
-    "MealResult": MealResult,
 }
 
 export const pagesConfig = {
