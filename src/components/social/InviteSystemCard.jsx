@@ -152,6 +152,7 @@ export default function InviteSystemCard({ profile }) {
             {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
           </Button>
         </div>
+      </div>
     </motion.div>
   );
 }
