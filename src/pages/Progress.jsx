@@ -38,12 +38,8 @@ export default function Progress() {
     enabled: !!user?.email,
     keepPreviousData: true,
   });
-  
-  if (!user || (profileLoading && !profile)) {
-    return <ProgressSkeleton />;
-  }
 
-  // Memoize all calculations
+  // Memoize all calculations - must be before early returns
   const calculations = useMemo(() => {
     const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
     const totalProtein = todayMeals.reduce((sum, meal) => sum + (meal.estimated_protein || 0), 0);
