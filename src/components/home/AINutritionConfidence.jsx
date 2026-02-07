@@ -75,7 +75,7 @@ export default function AINutritionConfidence({ todayMeals, profile }) {
           
           <div>
             <p className="text-white/60 text-xs">
-              {lang === "es" ? "Precisión estimada" : "Estimated accuracy"}
+              {t("estimated_accuracy")}
             </p>
             <p className="text-white text-xl font-black tabular-nums">
               {confidence}%
@@ -90,21 +90,19 @@ export default function AINutritionConfidence({ todayMeals, profile }) {
           </button>
           <div className="absolute right-0 top-10 w-64 p-3 bg-black/95 backdrop-blur-xl rounded-lg border border-white/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
             <p className="text-white/80 text-xs leading-relaxed">
-              {lang === "es" 
-                ? "Aumentá tu precisión confirmando porciones y registrando todas tus comidas."
-                : "Increase accuracy by confirming portions and logging all your meals."}
+              {t("increase_accuracy")}
             </p>
           </div>
         </div>
       </div>
       
       {/* Progress hint */}
-      {confidence < 90 && (
+      {confidence < 90 && todayMeals.length < 3 && (
         <div className="mt-3 pt-3 border-t border-white/10">
           <p className="text-white/50 text-xs">
             {lang === "es" 
-              ? `+${90 - confidence}% registrando ${3 - todayMeals.length} comida${3 - todayMeals.length > 1 ? 's' : ''} más`
-              : `+${90 - confidence}% by logging ${3 - todayMeals.length} more meal${3 - todayMeals.length > 1 ? 's' : ''}`}
+              ? `+${90 - confidence}% ${t("by_logging")} ${3 - todayMeals.length} ${3 - todayMeals.length > 1 ? t("more_meals") : t("more_meal")}`
+              : `+${90 - confidence}% ${t("by_logging")} ${3 - todayMeals.length} ${3 - todayMeals.length > 1 ? t("more_meals") : t("more_meal")}`}
           </p>
         </div>
       )}

@@ -51,7 +51,14 @@ export const guidanceMessages = {
   }
 };
 
+import { getLocalizedFoodName } from "./foodDictionary";
+
 export function getFoodName(key, lang) {
+  // Try centralized dictionary first
+  const dictName = getLocalizedFoodName(key, lang);
+  if (dictName !== key) return dictName;
+  
+  // Fallback to local translations
   const langNames = foodNames[lang] || foodNames.en;
   return langNames[key] || langNames.FOOD_DETECTED;
 }
