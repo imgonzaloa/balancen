@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import React from "react";
 import PerformanceMonitor from "@/components/PerformanceMonitor";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { AppStateProvider } from "@/components/AppStateContext";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -48,9 +49,10 @@ export default function Layout({ children, currentPageName }) {
 
 
   return (
-    <ErrorBoundary screen={currentPageName}>
-      <MealProvider>
-        <div className="min-h-screen bg-background select-none">
+    <AppStateProvider>
+      <ErrorBoundary screen={currentPageName}>
+        <MealProvider>
+          <div className="min-h-screen bg-background select-none">
           <Toaster position="top-center" richColors />
           <PerformanceMonitor />
           
@@ -136,5 +138,6 @@ export default function Layout({ children, currentPageName }) {
         </div>
         </MealProvider>
         </ErrorBoundary>
+        </AppStateProvider>
         );
         }
