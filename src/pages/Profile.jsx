@@ -13,6 +13,7 @@ import StreakFire from "@/components/ui/StreakFire";
 import { useTranslation } from "@/components/TranslationProvider";
 import SetStatusModal from "@/components/groups/SetStatusModal";
 import StatusChip from "@/components/groups/StatusChip";
+import StatusBubble from "@/components/profile/StatusBubble";
 
 export default function Profile() {
   const { t } = useTranslation();
@@ -156,7 +157,10 @@ export default function Profile() {
                   {profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}
                 </div>
                 <StatusChip status={profile} />
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-2 border-slate-900" />
+                <StatusBubble 
+                  profile={profile} 
+                  onUpdate={() => queryClient.invalidateQueries(["profile"])} 
+                />
               </div>
               <div className="flex-1">
                 {editMode ? (
