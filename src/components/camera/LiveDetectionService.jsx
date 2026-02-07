@@ -86,6 +86,7 @@ export class LiveDetectionService {
 
   /**
    * Add prediction to window and compute stable result
+   * Implements dynamic switching when camera moves to new food
    */
   addPrediction(prediction) {
     this.predictionWindow.push(prediction);
@@ -114,6 +115,13 @@ export class LiveDetectionService {
     const topPredictions = this.predictionWindow.filter(p => p.key === maxKey);
     const avgConfidence = topPredictions.reduce((sum, p) => sum + p.confidence, 0) / topPredictions.length;
 
+    // DYNAMIC SWITCHING: If new food detected with high confidence, reset lock
+    if (this.lockedLabel && maxKey !== this.lockedLabel.key && avgConfidence >= 0.75 && stability >= 0.5) {
+      console.log("[DETECTION] SWITCHING from", this.lockedLabel.key, "to", maxKey);
+      this.lockedLabel = null;
+      this.predictionWindow = [prediction]; // Reset window for new food
+    }
+
     console.log("[DETECTION] Stability:", stability.toFixed(2), "Confidence:", avgConfidence.toFixed(2), "Key:", maxKey);
 
     // Check if we should lock
@@ -122,17 +130,33 @@ export class LiveDetectionService {
         this.lockedLabel = { key: maxKey, confidence: avgConfidence };
         console.log("[DETECTION] LOCKED:", maxKey);
       }
-      return { state: "LOCKED", label: maxKey, confidence: avgConfidence };
+      return { state: "LOCKED", label: maxKey, confidence: avgConfidence, calories: this.getCalorieEstimate(maxKey) };
     }
 
     // Check if stable enough to show
     if (stability >= this.stabilityThreshold && avgConfidence >= this.minConfidence) {
       this.currentLabel = { key: maxKey, confidence: avgConfidence };
-      return { state: "STABLE", label: maxKey, confidence: avgConfidence };
+      return { state: "STABLE", label: maxKey, confidence: avgConfidence, calories: this.getCalorieEstimate(maxKey) };
     }
 
     // Not stable - scanning
-    return { state: "SCANNING", label: null, confidence: 0 };
+    return { state: "SCANNING", label: null, confidence: 0, calories: null };
+  }
+
+  /**
+   * Get calorie estimate range for food
+   */
+  getCalorieEstimate(foodKey) {
+    const estimates = {
+      COOKIE: { min: 150, max: 200 },
+      SALAD: { min: 100, max: 250 },
+      PIZZA: { min: 250, max: 350 },
+      BURGER: { min: 450, max: 650 },
+      APPLE: { min: 80, max: 100 },
+      SANDWICH: { min: 300, max: 450 },
+      PASTA: { min: 350, max: 500 },
+    };
+    return estimates[foodKey] || { min: 100, max: 300 };
   }
 
   /**

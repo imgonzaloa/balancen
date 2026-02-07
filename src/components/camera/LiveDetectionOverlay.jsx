@@ -94,13 +94,14 @@ export default function LiveDetectionOverlay({ videoRef }) {
     );
   }
 
-  // Render stable/locked state with food label
+  // Render stable/locked state with food label + calorie preview
   const foodName = getFoodName(detectionState.label, lang);
   const isLocked = detectionState.state === "LOCKED";
+  const calories = detectionState.calories;
 
   return (
     <div className="absolute inset-0 pointer-events-none z-[6]">
-      {/* Primary food label */}
+      {/* Primary food label - centered */}
       <motion.div
         key={detectionState.label}
         initial={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -128,17 +129,44 @@ export default function LiveDetectionOverlay({ videoRef }) {
         </div>
       </motion.div>
 
+      {/* Live calorie preview card - bottom */}
+      {calories && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="absolute bottom-32 left-1/2 -translate-x-1/2 px-4 py-3 bg-black/80 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl min-w-[180px]"
+        >
+          <p className="text-white/60 text-xs text-center mb-1">
+            {lang === "es" ? "Calorías estimadas" : "Estimated calories"}
+          </p>
+          <p className="text-white text-lg font-bold text-center">
+            ~{calories.min}–{calories.max} kcal
+          </p>
+        </motion.div>
+      )}
+
       {/* Locked badge */}
       {isLocked && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-20 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-500/90 backdrop-blur-md rounded-full border border-emerald-400/50 shadow-lg"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="absolute top-20 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-emerald-500/90 backdrop-blur-md rounded-full border border-emerald-400/50 shadow-lg"
         >
-          <p className="text-white text-xs font-semibold">
+          <p className="text-white text-xs font-semibold flex items-center gap-1">
+            <CheckCircle size={12} />
             {getGuidance("LOCKED", lang)}
           </p>
         </motion.div>
+      )}
+
+      {/* Scanning pulse animation */}
+      {detectionState.state === "STABLE" && !isLocked && (
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-emerald-400/50"
+        />
       )}
     </div>
   );
