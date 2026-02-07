@@ -19,6 +19,7 @@ import AINutritionConfidence from "@/components/home/AINutritionConfidence";
 import QuickActionButton from "@/components/QuickActionButton";
 import HomeErrorFallback from "@/components/HomeErrorFallback";
 import PullToRefresh from "@/components/PullToRefresh";
+import SafeModeHome from "@/components/SafeModeHome";
 
 // Import optimized fetcher with timeout and retry
 import { fetchWithRetry, withTimeout, useSafeQuery } from "@/components/DataFetcher";
@@ -197,20 +198,26 @@ export default function Home() {
     );
   }
 
-  // If fully initialized but no profile, redirect to onboarding
+  // If fully initialized but no profile, redirect to language selector (for new users)
   if (isInitialized && !profile && user) {
-    window.location.href = "/Onboarding";
+    window.location.href = "/LanguageSelector";
     return null;
+  }
+
+  // Safe Mode: if errors keep occurring, show minimal version
+  const errorCount = parseInt(localStorage.getItem('ERROR_COUNT') || '0');
+  if (errorCount >= 2) {
+    return <SafeModeHome />;
   }
 
   return (
     <ErrorBoundary screen="Home">
       <PullToRefresh>
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-20 pointer-events-none">
-            <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-            <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-          </div>
+                  <div className="absolute inset-0 opacity-10 pointer-events-none">
+                    <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-2xl" />
+                    <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-2xl" style={{ animationDelay: '1s' }} />
+                  </div>
 
           <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 space-y-6">
           {/* Streak Card - Premium Design */}
