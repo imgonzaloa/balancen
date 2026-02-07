@@ -110,16 +110,6 @@ export default function Home() {
     keepPreviousData: true,
   });
 
-  if (!profileLoading && !profile && user) {
-    window.location.href = "/Onboarding";
-    return null;
-  }
-
-  // Show skeleton while loading initial data
-  if (!user || (profileLoading && !profile)) {
-    return <HomeSkeleton />;
-  }
-
   // Memoize expensive calculations
   const { totalCaloriesToday, totalProtein, totalCarbs, totalFats } = useMemo(() => ({
     totalCaloriesToday: todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0),
@@ -129,8 +119,6 @@ export default function Home() {
   }), [todayMeals]);
   
   const caloriesGoal = profile?.calories_goal || 2000;
-
-
 
   const handleMealSaved = async (addedCalories) => {
     // Optimistic update - show celebration immediately
@@ -165,6 +153,17 @@ export default function Home() {
     // Invalidate to refresh with real data
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
   };
+
+  // Early returns AFTER all hooks
+  if (!profileLoading && !profile && user) {
+    window.location.href = "/Onboarding";
+    return null;
+  }
+
+  // Show skeleton while loading initial data
+  if (!user || (profileLoading && !profile)) {
+    return <HomeSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
