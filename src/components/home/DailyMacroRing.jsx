@@ -10,9 +10,9 @@ export default function DailyMacroRing({ consumed, goal, protein = 0, carbs = 0,
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   const macros = [
-    { label: t("protein") || "Protein", value: protein, color: "text-blue-400", bg: "from-blue-500/20" },
-    { label: t("carbs") || "Carbs", value: carbs, color: "text-orange-400", bg: "from-orange-500/20" },
-    { label: t("fats") || "Fats", value: fats, color: "text-purple-400", bg: "from-purple-500/20" }
+    { label: t("protein"), value: protein, color: "text-blue-400", bg: "from-blue-500/20" },
+    { label: t("carbs"), value: carbs, color: "text-orange-400", bg: "from-orange-500/20" },
+    { label: t("fats"), value: fats, color: "text-purple-400", bg: "from-purple-500/20" }
   ];
 
   return (

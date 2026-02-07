@@ -12,11 +12,9 @@ import { toast } from "sonner";
 import StreakFire from "@/components/ui/StreakFire";
 import { useTranslation } from "@/components/TranslationProvider";
 import SetStatusModal from "@/components/groups/SetStatusModal";
-import StatusChip from "@/components/groups/StatusChip";
-import StatusBubble from "@/components/profile/StatusBubble";
 
 export default function Profile() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
@@ -156,10 +154,6 @@ export default function Profile() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                   {profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}
                 </div>
-                <StatusBubble 
-                  profile={profile} 
-                  onUpdate={() => queryClient.invalidateQueries(["profile"])} 
-                />
               </div>
               <div className="flex-1">
                 {editMode ? (
@@ -199,12 +193,40 @@ export default function Profile() {
 
 
 
-        {/* Settings Button */}
+        {/* Daily Note Section */}
         <motion.div
           className="mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
+        >
+          <button
+            onClick={() => setStatusModalOpen(true)}
+            className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 shadow-lg flex items-center justify-between hover:bg-white/20 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">📝</div>
+              <div className="text-left">
+                <p className="font-semibold text-white">
+                  {profile?.status_text || (lang === "es" ? "Agregá nota de hoy" : "Add today's note")}
+                </p>
+                <p className="text-xs text-teal-200">
+                  {profile?.status_text 
+                    ? (lang === "es" ? "Toca para editar" : "Tap to edit")
+                    : (lang === "es" ? "Opcional • Expira en 24h" : "Optional • Expires in 24h")}
+                </p>
+              </div>
+            </div>
+            <ChevronLeft size={20} className="text-white/60 rotate-180" />
+          </button>
+        </motion.div>
+
+        {/* Settings Button */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
         >
           <Link to={createPageUrl("Settings")}>
             <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 shadow-lg flex items-center justify-between hover:bg-white/20 transition-all">
@@ -213,8 +235,8 @@ export default function Profile() {
                   <Settings size={20} className="text-teal-300" />
                 </div>
                 <div>
-                  <p className="font-semibold text-white">{t("settings") || "Settings"}</p>
-                  <p className="text-xs text-teal-200">{t("settings_desc") || "Language, notifications, privacy"}</p>
+                  <p className="font-semibold text-white">{t("settings")}</p>
+                  <p className="text-xs text-teal-200">{t("settings_desc")}</p>
                 </div>
               </div>
               <ChevronLeft size={20} className="text-white/60 rotate-180" />
