@@ -6,6 +6,7 @@ import { Heart, TrendingUp, Flame, Award, Users } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { SocialSkeleton } from "@/components/ui/ScreenSkeleton";
 
 export default function Social() {
   const { t, lang } = useTranslation();
@@ -26,13 +27,13 @@ export default function Social() {
   });
 
   // Fetch real activity feed from friends' meals (respecting privacy)
-  const { data: activityFeed = [] } = useQuery({
+  const { data: activityFeed = [], isLoading: activityLoading } = useQuery({
     queryKey: ["friendsActivity", friendsList],
     queryFn: async () => {
       if (friendsList.length === 0) return [];
       
       const activities = [];
-      for (const friend of friendsList) {
+      for (const friend of friendsList.slice(0, 5)) { // Limit to 5 friends for performance
         // Get friend's profile to check privacy settings
         const friendProfiles = await base44.entities.UserProfile.filter({ created_by: friend.friend_user_id });
         const friendProfile = friendProfiles[0];
@@ -43,7 +44,7 @@ export default function Social() {
         const meals = await base44.entities.MealLog.filter(
           { created_by: friend.friend_user_id },
           "-created_date",
-          5
+          3 // Reduced from 5 for performance
         );
         
         meals.forEach(meal => {
@@ -67,6 +68,7 @@ export default function Social() {
       return activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     },
     enabled: friendsList.length > 0,
+    keepPreviousData: true,
   });
 
   // Show empty state if no friends

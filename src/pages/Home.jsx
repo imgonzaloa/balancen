@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -46,13 +48,12 @@ export default function Home() {
       return profiles[0] || null;
     },
     enabled: !!user?.email,
-    staleTime: 30000,
-    refetchOnWindowFocus: false,
+    keepPreviousData: true,
   });
 
   const today = new Date().toISOString().split("T")[0];
 
-  const { data: todayMeals = [] } = useQuery({
+  const { data: todayMeals = [], isLoading: mealsLoading } = useQuery({
     queryKey: ["meals", today, user?.email],
     queryFn: async () => {
       return base44.entities.MealLog.filter(
@@ -61,7 +62,7 @@ export default function Home() {
       );
     },
     enabled: !!user?.email,
-    staleTime: 10000,
+    keepPreviousData: true,
   });
 
   const { data: friendsList = [] } = useQuery({
@@ -107,18 +108,9 @@ export default function Home() {
     return null;
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center">
-        <motion.div
-          className="text-white text-lg"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-        >
-          {t("loading")}...
-        </motion.div>
-      </div>
-    );
+  // Show skeleton while loading initial data
+  if (!user || (profileLoading && !profile)) {
+    return <HomeSkeleton />;
   }
 
   const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);

@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { TrendingUp, Target, Calendar } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
+import { ProgressSkeleton } from "@/components/ui/ScreenSkeleton";
 
 export default function Progress() {
   const { t, lang } = useTranslation();
@@ -13,18 +14,19 @@ export default function Progress() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", user?.email],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
       return profiles[0] || null;
     },
     enabled: !!user?.email,
+    keepPreviousData: true,
   });
 
   const today = new Date().toISOString().split("T")[0];
 
-  const { data: todayMeals = [] } = useQuery({
+  const { data: todayMeals = [], isLoading: mealsLoading } = useQuery({
     queryKey: ["meals", today, user?.email],
     queryFn: async () => {
       return base44.entities.MealLog.filter(
@@ -33,7 +35,12 @@ export default function Progress() {
       );
     },
     enabled: !!user?.email,
+    keepPreviousData: true,
   });
+  
+  if (!user || (profileLoading && !profile)) {
+    return <ProgressSkeleton />;
+  }
 
   const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
   const totalProtein = todayMeals.reduce((sum, meal) => sum + (meal.estimated_protein || 0), 0);

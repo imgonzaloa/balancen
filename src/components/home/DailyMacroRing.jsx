@@ -2,7 +2,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function DailyMacroRing({ consumed, goal, protein = 0, carbs = 0, fats = 0 }) {
+// Memoize to prevent unnecessary rerenders
+const DailyMacroRing = React.memo(function DailyMacroRing({ consumed, goal, protein = 0, carbs = 0, fats = 0 }) {
+
+
   const { t, lang } = useTranslation();
   
   const percentage = Math.min((consumed / goal) * 100, 100);
@@ -93,4 +96,6 @@ export default function DailyMacroRing({ consumed, goal, protein = 0, carbs = 0,
       </div>
     </motion.div>
   );
-}
+});
+
+export default DailyMacroRing;

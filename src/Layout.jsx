@@ -1,11 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, Users, Award, User } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Toaster } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { MealProvider } from "@/components/MealContext";
 import { useState, useEffect } from "react";
+import React from "react";
+import PerformanceMonitor from "@/lib/PerformanceMonitor";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -42,42 +44,26 @@ export default function Layout({ children, currentPageName }) {
     setPrevPage(currentPageName);
   }, [currentPageName]);
 
-  const pageVariants = {
-    initial: (direction) => ({
-      x: direction > 0 ? 30 : -30,
-      opacity: 0
-    }),
-    animate: {
-      x: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 400, damping: 32, mass: 0.8 }
-    },
-    exit: (direction) => ({
-      x: direction > 0 ? -30 : 30,
-      opacity: 0,
-      transition: { duration: 0.15 }
-    })
-  };
+
 
   return (
     <MealProvider>
       <div className="min-h-screen bg-background select-none">
         <Toaster position="top-center" richColors />
+        <PerformanceMonitor />
         
-        <AnimatePresence mode="wait" custom={direction}>
-                  <motion.main
-                    key={currentPageName}
-                    custom={direction}
-                    variants={pageVariants}
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    className={hideNav ? "" : "pb-20"}
-                    style={{ willChange: 'transform, opacity' }}
-                  >
-                    {children}
-                  </motion.main>
-                </AnimatePresence>
+        <React.Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />}>
+          <motion.main
+            key={currentPageName}
+            initial={{ opacity: 0.95 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
+            className={hideNav ? "" : "pb-20"}
+            style={{ willChange: 'opacity' }}
+          >
+            {children}
+          </motion.main>
+        </React.Suspense>
 
       {!hideNav && (
         <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-4 py-2 z-50 safe-area-inset-bottom">
