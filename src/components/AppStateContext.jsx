@@ -20,7 +20,7 @@ export function AppStateProvider({ children }) {
         logger.log('AUTH_CHECK_TIMEOUT');
         setUser(null);
         setIsInitialized(true);
-      }, 3000);
+      }, 5000);
       
       try {
         const currentUser = await base44.auth.me();
@@ -28,21 +28,27 @@ export function AppStateProvider({ children }) {
         setUser(currentUser);
         logger.log('AUTH_CHECK_SUCCESS', { email: currentUser?.email });
         
-        // Check first-time setup
+        // CRITICAL: Check onboarding state properly
         if (currentUser?.email) {
           const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
+          const profile = profiles?.[0];
           
           // No profile = new user, go to language selector
-          if (!profiles?.[0]) {
+          if (!profile) {
+            logger.log('NEW_USER_REDIRECT_TO_LANGUAGE');
             window.location.href = '/LanguageSelector';
             return;
           }
           
-          // Profile exists but onboarding not completed
-          if (!profiles[0].onboarding_completed) {
+          // Profile exists but onboarding NOT completed
+          if (profile && !profile.onboarding_completed) {
+            logger.log('ONBOARDING_NOT_COMPLETED');
             window.location.href = '/Onboarding';
             return;
           }
+          
+          // Onboarding completed: user is ready for Home
+          logger.log('ONBOARDING_COMPLETED_PROCEED_HOME');
         }
       } catch (err) {
         clearTimeout(timeout);
