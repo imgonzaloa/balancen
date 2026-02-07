@@ -16,6 +16,10 @@ export function AppStateProvider({ children }) {
   useEffect(() => {
     const initUser = async () => {
       logger.log('AUTH_CHECK_START');
+      
+      // Check localStorage first (instant, prevents loops)
+      const savedOnboarding = localStorage.getItem('onboarding_completed');
+      
       const timeout = setTimeout(() => {
         logger.log('AUTH_CHECK_TIMEOUT');
         setUser(null);
@@ -28,8 +32,14 @@ export function AppStateProvider({ children }) {
         setUser(currentUser);
         logger.log('AUTH_CHECK_SUCCESS', { email: currentUser?.email });
         
-        // CRITICAL: Check onboarding state properly
         if (currentUser?.email) {
+          // Quick check: if localStorage says onboarding done, skip DB check
+          if (savedOnboarding === 'true') {
+            logger.log('ONBOARDING_COMPLETED_CACHED');
+            setIsInitialized(true);
+            return;
+          }
+          
           const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
           const profile = profiles?.[0];
           
@@ -41,13 +51,15 @@ export function AppStateProvider({ children }) {
           }
           
           // Profile exists but onboarding NOT completed
-          if (profile && !profile.onboarding_completed) {
+          if (!profile.onboarding_completed) {
             logger.log('ONBOARDING_NOT_COMPLETED');
+            localStorage.removeItem('onboarding_completed'); // Ensure flag is cleared
             window.location.href = '/Onboarding';
             return;
           }
           
-          // Onboarding completed: user is ready for Home
+          // Onboarding completed: set flag and proceed
+          localStorage.setItem('onboarding_completed', 'true');
           logger.log('ONBOARDING_COMPLETED_PROCEED_HOME');
         }
       } catch (err) {
