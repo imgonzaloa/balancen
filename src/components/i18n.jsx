@@ -409,7 +409,10 @@ const resources = {
       barcode: "Barcode",
       gallery: "Gallery",
       building_consistency: "you're building consistency",
-      great_job: "Great job tracking"
+      great_job: "Great job tracking",
+      social: "Social",
+      progress: "Progress",
+      not_accurate_edit: "Not accurate? Edit manually."
       }
       },
   es: {
@@ -800,7 +803,10 @@ const resources = {
       barcode: "Código de barras",
       gallery: "Galería",
       building_consistency: "estás construyendo constancia",
-      great_job: "Gran trabajo registrando"
+      great_job: "Gran trabajo registrando",
+      social: "Social",
+      progress: "Progreso",
+      not_accurate_edit: "¿No es preciso? Edita manualmente."
       }
       }
       };

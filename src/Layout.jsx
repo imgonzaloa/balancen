@@ -9,8 +9,8 @@ import { useState, useEffect } from "react";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
-  { name: "Groups", icon: Users, key: "groups" },
-  { name: "Friends", icon: Users, key: "friends" },
+  { name: "Social", icon: Users, key: "social" },
+  { name: "Progress", icon: Award, key: "progress" },
   { name: "Profile", icon: User, key: "profile" },
 ];
 

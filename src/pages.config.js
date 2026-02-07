@@ -62,6 +62,8 @@ import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import UserManagement from './pages/UserManagement';
+import Social from './pages/Social';
+import Progress from './pages/Progress';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +83,8 @@ export const PAGES = {
     "Profile": Profile,
     "Settings": Settings,
     "UserManagement": UserManagement,
+    "Social": Social,
+    "Progress": Progress,
 }
 
 export const pagesConfig = {
