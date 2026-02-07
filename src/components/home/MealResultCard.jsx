@@ -9,7 +9,7 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 
 export default function MealResultCard({ profile, onSave }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const {
     file,

@@ -22,6 +22,8 @@ import MealSavedCelebration from "@/components/home/MealSavedCelebration";
 import DailyMacroRing from "@/components/home/DailyMacroRing";
 import QuickAddButton from "@/components/home/QuickAddButton";
 import AINutritionConfidence from "@/components/home/AINutritionConfidence";
+import MomentumHeroCard from "@/components/home/MomentumHeroCard";
+import AIInsightCard from "@/components/home/AIInsightCard";
 
 export default function Home() {
   const { t, lang } = useTranslation();
@@ -194,8 +196,11 @@ export default function Home() {
           );
         })()}
 
-        {/* CORE: Streak Banner */}
-        <StreakBanner streak={profile?.current_streak || 0} fireTotal={profile?.fire_total || 0} />
+        {/* Momentum Hero Card */}
+        <MomentumHeroCard 
+          streak={profile?.current_streak || 0} 
+          profile={profile}
+        />
 
         {/* Empty state for no meals */}
         {todayMeals.length === 0 && (
@@ -223,7 +228,14 @@ export default function Home() {
           fats={totalFats}
         />
 
-        {/* AI Nutrition Confidence Score */}
+        {/* AI Insight Card */}
+        <AIInsightCard 
+          todayMeals={todayMeals} 
+          profile={profile}
+          caloriesGoal={caloriesGoal}
+        />
+
+        {/* AI Nutrition Confidence Score - Interactive */}
         <AINutritionConfidence todayMeals={todayMeals} profile={profile} />
 
         {/* Recent Activity Timeline */}

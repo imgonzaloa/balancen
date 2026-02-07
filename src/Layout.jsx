@@ -95,7 +95,7 @@ export default function Layout({ children, currentPageName }) {
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                   }}
-                  className="relative flex flex-col items-center py-2 px-4 touch-manipulation active:opacity-60"
+                  className="relative flex flex-col items-center py-2 px-4 touch-manipulation active:scale-90 transition-transform"
                   aria-label={item.label}
                   aria-current={isActive ? "page" : undefined}
                 >

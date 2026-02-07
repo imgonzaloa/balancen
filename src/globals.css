@@ -102,6 +102,10 @@
   .active\:opacity-60:active {
     opacity: 0.6;
   }
+
+  .active\:scale-90:active {
+    transform: scale(0.9);
+  }
   
   /* Safe area support for notched devices */
   .safe-area-inset-bottom {

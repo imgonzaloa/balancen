@@ -5,6 +5,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 
 export default function AINutritionConfidence({ todayMeals, profile }) {
   const { t, lang } = useTranslation();
+  const [showModal, setShowModal] = React.useState(false);
   
   // Calculate confidence score
   const calculateConfidence = () => {
@@ -31,13 +32,17 @@ export default function AINutritionConfidence({ todayMeals, profile }) {
   const strokeDashoffset = circumference - (confidence / 100) * circumference;
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
-      className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
-    >
-      <div className="flex items-center justify-between">
+    <>
+      <motion.button
+        onClick={() => setShowModal(true)}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ delay: 0.2 }}
+        className="w-full bg-gradient-to-br from-slate-800/60 via-slate-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-4 border border-white/10 shadow-lg cursor-pointer"
+      >
+        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Confidence ring */}
           <div className="relative w-12 h-12">
@@ -83,16 +88,9 @@ export default function AINutritionConfidence({ todayMeals, profile }) {
           </div>
         </div>
         
-        {/* Info tooltip */}
-        <div className="group relative">
-          <button className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
-            <Info size={14} className="text-white/60" />
-          </button>
-          <div className="absolute right-0 top-10 w-64 p-3 bg-black/95 backdrop-blur-xl rounded-lg border border-white/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
-            <p className="text-white/80 text-xs leading-relaxed">
-              {t("increase_accuracy")}
-            </p>
-          </div>
+        {/* Tap indicator */}
+        <div className="text-white/40">
+          <Info size={18} />
         </div>
       </div>
       
@@ -106,6 +104,105 @@ export default function AINutritionConfidence({ todayMeals, profile }) {
           </p>
         </div>
       )}
-    </motion.div>
+      </motion.button>
+      
+      {/* Explanation Modal */}
+      {showModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowModal(false)}
+          className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-gradient-to-br from-slate-800 via-slate-900 to-black rounded-3xl p-6 max-w-md w-full border border-white/20 shadow-2xl"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <Shield size={24} className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-white text-xl font-bold">
+                  {lang === "es" ? "Precisión del Análisis" : "Analysis Accuracy"}
+                </h3>
+                <p className="text-white/60 text-sm">
+                  {lang === "es" ? "Cómo funciona" : "How it works"}
+                </p>
+              </div>
+            </div>
+            
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-emerald-400 text-sm">✓</span>
+                </div>
+                <div>
+                  <p className="text-white font-medium text-sm mb-1">
+                    {lang === "es" ? "Visión AI" : "AI Vision"}
+                  </p>
+                  <p className="text-white/60 text-xs leading-relaxed">
+                    {lang === "es" 
+                      ? "Analizamos tu foto usando inteligencia artificial entrenada en millones de alimentos."
+                      : "We analyze your photo using AI trained on millions of food items."}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-blue-400 text-sm">✓</span>
+                </div>
+                <div>
+                  <p className="text-white font-medium text-sm mb-1">
+                    {lang === "es" ? "Base Nutricional" : "Nutrition Database"}
+                  </p>
+                  <p className="text-white/60 text-xs leading-relaxed">
+                    {lang === "es"
+                      ? "Comparamos con bases de datos validadas (USDA, locales) para estimar calorías y macros."
+                      : "We compare against validated databases (USDA, local) to estimate calories and macros."}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-purple-400 text-sm">✓</span>
+                </div>
+                <div>
+                  <p className="text-white font-medium text-sm mb-1">
+                    {lang === "es" ? "Ajuste Manual" : "Manual Adjustment"}
+                  </p>
+                  <p className="text-white/60 text-xs leading-relaxed">
+                    {lang === "es"
+                      ? "Podés ajustar porciones y confirmar alimentos para mejorar precisión en futuros análisis."
+                      : "You can adjust portions and confirm foods to improve accuracy in future analyses."}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 mb-6">
+              <p className="text-white/80 text-xs leading-relaxed">
+                {lang === "es"
+                  ? "💡 La precisión aumenta cuando registrás todas tus comidas y confirmás las porciones."
+                  : "💡 Accuracy increases when you log all meals and confirm portions."}
+              </p>
+            </div>
+            
+            <button
+              onClick={() => setShowModal(false)}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold"
+            >
+              {lang === "es" ? "Entendido" : "Got it"}
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </>
   );
 }
