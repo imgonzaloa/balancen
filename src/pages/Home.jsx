@@ -23,7 +23,7 @@ import DailyMacroRing from "@/components/home/DailyMacroRing";
 import QuickAddButton from "@/components/home/QuickAddButton";
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { previewUrl } = useMeal();
