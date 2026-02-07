@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
-import RealTimeFoodDetection from "@/components/camera/RealTimeFoodDetection";
+import LiveDetectionOverlay from "@/components/camera/LiveDetectionOverlay";
 
 export default function CameraScreen() {
   const { t } = useTranslation();
@@ -218,7 +218,7 @@ export default function CameraScreen() {
       />
 
       {/* Live Detection Overlay - Real-time food detection */}
-      {videoReady && <RealTimeFoodDetection videoRef={videoRef} isActive={true} />}
+      {videoReady && <LiveDetectionOverlay videoRef={videoRef} />}
 
       {/* Live Framing Assist Overlay - Subtle */}
       {videoReady && (
