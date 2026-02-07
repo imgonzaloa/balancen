@@ -206,6 +206,25 @@ export default function CameraScreen() {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
+      {/* Live Framing Assist Overlay */}
+      {videoReady && (
+        <div className="absolute inset-0 z-[5] flex items-center justify-center pointer-events-none">
+          <div className="relative w-[85%] aspect-square max-w-md">
+            {/* Corner guides */}
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-white/60 rounded-tl-2xl" />
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-white/60 rounded-tr-2xl" />
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-white/60 rounded-bl-2xl" />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-3 border-r-3 border-white/60 rounded-br-2xl" />
+            
+            {/* Instruction text */}
+            <div className="absolute -bottom-16 left-0 right-0 text-center space-y-1">
+              <p className="text-white text-sm font-semibold">{t("center_your_food") || "Center your food"}</p>
+              <p className="text-white/60 text-xs">{t("good_lighting_tip") || "Good lighting improves accuracy"}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Close button */}
       <button
         onClick={handleClose}

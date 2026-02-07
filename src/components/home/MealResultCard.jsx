@@ -29,6 +29,7 @@ export default function MealResultCard({ profile, onSave }) {
   const [editedFats, setEditedFats] = useState("");
   const [saving, setSaving] = useState(false);
   const [analysisStep, setAnalysisStep] = useState(0);
+  const [showSuccessPulse, setShowSuccessPulse] = useState(false);
 
   // Update editable fields when result changes
   useEffect(() => {
@@ -133,6 +134,13 @@ export default function MealResultCard({ profile, onSave }) {
         notes: data.notes || "",
         warnings: data.warnings || []
       });
+
+      // Micro-reward: subtle haptic + success pulse
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      setShowSuccessPulse(true);
+      setTimeout(() => setShowSuccessPulse(false), 800);
 
       toast.success(t("analysis_complete"));
     } catch (err) {
@@ -286,38 +294,62 @@ export default function MealResultCard({ profile, onSave }) {
           </div>
         </div>
 
-        {/* Analysis Status */}
-        {status === "uploading" ? (
-          <div className="p-6 text-center">
-            <Loader2 className="w-12 h-12 mx-auto mb-4 text-emerald-400 animate-spin" />
-            <p className="text-white font-semibold mb-2">{t("uploading_photo")}</p>
-            <p className="text-white/60 text-sm">{t("please_wait")}</p>
+        {/* Analysis Status with Skeleton */}
+        {status === "uploading" || status === "analyzing" ? (
+          <div className="p-6 space-y-4">
+            {/* Loading indicator */}
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 mx-auto mb-4 text-emerald-400 animate-spin" />
+              {status === "uploading" ? (
+                <p className="text-white font-semibold">{t("uploading_photo")}</p>
+              ) : (
+                <motion.div
+                  key={analysisStep}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <p className="text-white font-semibold mb-1">
+                    {analysisStep === 0 && (t("analyzing_food_step") || "Analyzing food...")}
+                    {analysisStep === 1 && (t("estimating_calories_step") || "Estimating calories...")}
+                    {analysisStep === 2 && (t("calculating_macros_step") || "Calculating macros...")}
+                  </p>
+                </motion.div>
+              )}
+              <p className="text-white/60 text-xs mt-1">{t("please_wait")}</p>
+            </div>
+
+            {/* Skeleton loading cards */}
+            {status === "analyzing" && (
+              <>
+                {/* Food name skeleton */}
+                <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl p-5 animate-pulse">
+                  <div className="h-3 w-20 bg-white/20 rounded mx-auto mb-3" />
+                  <div className="h-8 w-48 bg-white/20 rounded mx-auto mb-2" />
+                  <div className="h-2 w-32 bg-white/20 rounded mx-auto" />
+                </div>
+
+                {/* Calories skeleton */}
+                <div className="bg-gradient-to-br from-orange-500/20 to-red-500/10 border border-orange-500/30 rounded-2xl p-6 animate-pulse">
+                  <div className="h-10 w-10 bg-white/20 rounded-full mx-auto mb-2" />
+                  <div className="h-12 w-32 bg-white/20 rounded mx-auto" />
+                </div>
+
+                {/* Macros skeleton */}
+                <div className="grid grid-cols-3 gap-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-slate-800/50 rounded-xl p-4 border border-white/5 animate-pulse">
+                      <div className="h-2 w-12 bg-white/20 rounded mx-auto mb-2" />
+                      <div className="h-6 w-10 bg-white/20 rounded mx-auto" />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         ) : null}
 
-        {status === "analyzing" ? (
-          <div className="p-6 text-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-            >
-              <Loader2 className="w-12 h-12 mx-auto mb-4 text-emerald-400" />
-            </motion.div>
-            <motion.div
-              key={analysisStep}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <p className="text-white font-semibold mb-2">
-                {analysisStep === 0 && t("analyzing_food_step")}
-                {analysisStep === 1 && t("estimating_calories_step")}
-                {analysisStep === 2 && t("calculating_macros_step")}
-              </p>
-            </motion.div>
-            <p className="text-white/60 text-sm">{t("please_wait")}</p>
-          </div>
-        ) : null}
+
 
         {/* Error State */}
         {status === "error" && error ? (
@@ -344,30 +376,63 @@ export default function MealResultCard({ profile, onSave }) {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="p-6 space-y-5"
           >
-            {/* Food Identification */}
+            {/* Food Identification with success pulse */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-center bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl p-5"
+              animate={{ opacity: 1, y: 0, scale: showSuccessPulse ? [1, 1.02, 1] : 1 }}
+              transition={{ delay: 0.1, scale: { duration: 0.5 } }}
+              className="text-center bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl p-5 relative overflow-hidden"
             >
-              <p className="text-emerald-300 text-xs font-medium mb-2">{t("detected_food")}</p>
+              {showSuccessPulse && (
+                <motion.div
+                  initial={{ opacity: 0.6, scale: 0.8 }}
+                  animate={{ opacity: 0, scale: 2 }}
+                  transition={{ duration: 0.8 }}
+                  className="absolute inset-0 bg-emerald-400/20 rounded-2xl"
+                />
+              )}
+              
+              <p className="text-emerald-300 text-xs font-medium mb-2">{t("detected_food") || "Detected Food"}</p>
               <h2 className="text-3xl font-black text-white mb-2">{result.foodName}</h2>
+              
+              {/* Confidence bar with color coding */}
               {result.confidence > 0 && (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${result.confidence * 100}%` }}
-                      transition={{ delay: 0.3, duration: 0.6 }}
-                      className="h-full bg-gradient-to-r from-emerald-400 to-teal-400"
-                    />
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${result.confidence * 100}%` }}
+                        transition={{ delay: 0.3, duration: 0.6 }}
+                        className={`h-full ${
+                          result.confidence >= 0.8 
+                            ? 'bg-gradient-to-r from-emerald-400 to-teal-400' 
+                            : result.confidence >= 0.5 
+                            ? 'bg-gradient-to-r from-yellow-400 to-orange-400' 
+                            : 'bg-gradient-to-r from-red-400 to-orange-400'
+                        }`}
+                      />
+                    </div>
+                    <span className={`text-xs font-semibold ${
+                      result.confidence >= 0.8 
+                        ? 'text-emerald-300' 
+                        : result.confidence >= 0.5 
+                        ? 'text-yellow-300' 
+                        : 'text-red-300'
+                    }`}>
+                      {Math.round(result.confidence * 100)}%
+                    </span>
                   </div>
-                  <span className="text-emerald-300 text-xs font-semibold">
-                    {Math.round(result.confidence * 100)}%
-                  </span>
+                  
+                  {/* Low confidence hint */}
+                  {result.confidence < 0.8 && (
+                    <p className="text-white/50 text-xs italic">
+                      {t("not_accurate_edit") || "Not accurate? Edit manually."}
+                    </p>
+                  )}
                 </div>
               )}
+              
               {result.description && (
                 <p className="text-white/60 text-xs mt-2">{result.description}</p>
               )}

@@ -17,6 +17,8 @@ import LastMealPreview from "@/components/home/LastMealPreview";
 import FireIncreaseAnimation from "@/components/home/FireIncreaseAnimation";
 import GroupLeaderboardShortcut from "@/components/home/GroupLeaderboardShortcut";
 import OwnerRoleChecker from "@/components/OwnerRoleChecker";
+import StatusBubble from "@/components/home/StatusBubble";
+import RecentActivityTimeline from "@/components/home/RecentActivityTimeline";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -150,18 +152,26 @@ export default function Home() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pb-24 pt-6 relative z-10 space-y-6">
-        {/* Header with greeting */}
+        {/* Header with greeting and status bubble */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-1"
+          className="flex items-start justify-between gap-4"
         >
-          <p className="text-teal-200 text-xs font-semibold uppercase tracking-wide">
-            {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
-          </p>
-          <h1 className="text-4xl font-black text-white">
-            {profile?.display_name || t("welcome")}
-          </h1>
+          <div className="flex-1 text-center space-y-1">
+            <p className="text-teal-200 text-xs font-semibold uppercase tracking-wide">
+              {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+            </p>
+            <h1 className="text-4xl font-black text-white">
+              {profile?.display_name || t("welcome")}
+            </h1>
+          </div>
+          
+          {/* Status Bubble */}
+          <StatusBubble 
+            profile={profile} 
+            onUpdate={() => queryClient.invalidateQueries(["profile"])} 
+          />
         </motion.div>
 
         {/* CORE: Streak Banner */}
@@ -169,6 +179,9 @@ export default function Home() {
 
         {/* Daily Calorie Goal - Big Focus */}
         <DailyCalorieGoal consumed={totalCaloriesToday} goal={caloriesGoal} />
+        
+        {/* Recent Activity Timeline */}
+        <RecentActivityTimeline recentMeals={todayMeals} profile={profile} />
         
         {/* Last Meal Preview */}
         <LastMealPreview 
