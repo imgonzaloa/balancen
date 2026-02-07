@@ -1,177 +1,250 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-
-const STORAGE_KEY = "balancen_lang";
-
-// Get initial language - DEFAULT TO ENGLISH
-const getInitialLanguage = () => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "en" || stored === "es") {
-    return stored;
-  }
-  return "en"; // DEFAULT ENGLISH
-};
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
 
 const resources = {
   en: {
     translation: {
       // Navigation
       home: "Home",
-      groups: "Groups",
-      friends: "Friends",
-      profile: "Profile",
       social: "Social",
       progress: "Progress",
+      profile: "Profile",
       
       // Home
-      welcome: "Welcome",
-      current_streak: "Current streak",
-      total_fire: "Total fire",
+      current_streak: "Current Streak",
       days_in_a_row: "days in a row",
+      total_fire: "Total Fire",
       today_progress: "Today's Progress",
       calories: "Calories",
       protein: "Protein",
-      carbs: "Carbs",
-      fats: "Fats",
-      goal_text: "of",
       meals_logged_today: "Meals logged today",
-      log_your_meal: "Log your meal",
-      friends_active: "Friends active",
+      log_your_meal: "Log Your Meal",
+      friends_active: "Friends active today",
       friends: "friends",
       recent_activity: "Recent Activity",
       meal: "Meal",
-      no_meals_yet: "No meals yet",
-      tap_to_add_meal: "Tap to add your first meal",
       meal_logged: "Meal logged!",
+      meal_saved: "Meal Saved!",
+      great_job: "Great job tracking",
       
       // Camera
-      scan_food: "Scan Food",
-      barcode: "Barcode",
-      gallery: "Gallery",
-      camera_permission_denied: "Camera permission denied",
-      camera_not_ready: "Camera not ready",
-      camera_not_available: "Camera Not Available",
-      error_capturing: "Error capturing photo",
-      upload_photo: "Upload Photo",
+      camera_access_denied: "Camera access denied",
+      upload_photo_instead: "Upload a photo instead",
       cancel: "Cancel",
+      choose_from_gallery: "Choose from Gallery",
+      take_photo: "Take Photo",
       
       // Profile
-      my_profile: "My profile",
+      my_profile: "My Profile",
       edit: "Edit",
       save: "Save",
-      logout: "Logout",
-      your_goals: "Your goals",
-      main_goal: "Main goal",
+      best_streak: "Best Streak",
+      total_checkins: "Total Check-ins",
+      add_status: "Add a status",
+      tap_to_edit: "Tap to edit",
+      status_expires_24h: "Expires in 24h",
+      settings: "Settings",
+      settings_desc: "Language, privacy & more",
+      your_goals: "Your Goals",
+      main_goal: "Main Goal",
       intensity: "Intensity",
       mode: "Mode",
-      optional_data: "Optional data",
+      with_friends: "With Friends",
+      alone: "Solo",
+      optional_data: "Optional Data",
       weight_kg: "Weight (kg)",
       height_cm: "Height (cm)",
-      not_defined: "Not defined",
-      with_friends: "With friends",
-      alone: "Alone",
-      settings: "Settings",
-      settings_desc: "Language, notifications, privacy",
       optional: "Optional",
-      add_status: "Add today's note",
-      tap_to_edit: "Tap to edit",
-      status_expires_24h: "Optional • Expires in 24h",
-      total_checkins: "Total check-ins",
-      best_streak: "Best streak",
+      not_defined: "Not set",
+      logout: "Logout",
       
-      // Precision
-      estimated_accuracy: "Estimated accuracy",
+      // Goals
+      consistency: "Be more consistent",
+      weight_loss: "Lose weight",
+      healthy_habits: "Build healthy habits",
+      stay_active: "Stay active",
+      
+      // Intensity
+      easy: "Easy",
+      normal: "Normal",
+      challenging: "Challenging",
+      
+      // Settings
+      language: "Language",
+      select_language: "Select Language",
+      privacy: "Privacy",
+      data_encrypted: "Your data is encrypted",
+      admin_tools: "Admin Tools",
+      invite_collaborators: "Invite Collaborators",
+      grant_free_premium: "Grant free premium access",
+      user_management: "User Management",
+      view_manage_users: "View & manage users",
+      daily_calories_limit: "Daily calorie limit",
+      optional_leave_empty: "Optional - leave empty if unsure",
+      goals_targets: "Goals & Targets",
+      set_daily_goals: "Set your daily goals",
+      
+      // Referral
+      invite_friends: "Invite Friends",
+      your_referrals: "Your referrals",
+      free_month_progress: "for your next free month",
+      invited_friends: "Invited Friends",
+      registered: "Registered",
+      premium_active: "Premium Active",
+      pending: "Pending",
+      share_invite: "Share Invite",
+      copy_link: "Copy Link",
       
       // Social
-      no_friends_yet: "You don't have friends yet",
-      invite_to_start: "Invite friends to get started",
+      add_friends: "Add Friends",
+      no_friends_yet: "No friends yet",
+      invite_friends_to_join: "Invite friends to join you",
       
-      // Misc
-      analyzing: "Analyzing...",
-      loading: "Loading",
-      meal_saved: "Meal saved!",
-      error_saving: "Error saving meal",
+      // Precision
+      estimated_accuracy: "Estimated Accuracy",
+      what_is_precision: "What is 'Estimated Accuracy'?",
+      precision_explanation: "It's an estimate of how complete and reliable your data is today. It increases when you log more meals and confirm portions.",
+      improve_precision: "Improve Precision",
+      precision_factors: "To improve your accuracy:",
+      factor_more_meals: "Log 2 more meals",
+      factor_confirm_ingredients: "Confirm ingredients",
+      factor_clear_photo: "Upload clear photos",
+      
+      // Errors
+      error_uploading_photo: "Couldn't upload photo. Try again",
+      error_network: "Network error. Check connection",
+      retry: "Retry",
+      processing_image: "Processing image...",
+      uploading_photo: "Uploading photo...",
+      photo_updated: "Photo updated",
     }
   },
   es: {
     translation: {
       // Navigation
       home: "Inicio",
-      groups: "Grupos",
-      friends: "Amigos",
-      profile: "Perfil",
       social: "Social",
       progress: "Progreso",
+      profile: "Perfil",
       
       // Home
-      welcome: "Bienvenido",
-      current_streak: "Racha actual",
-      total_fire: "Total fuego",
+      current_streak: "Racha Actual",
       days_in_a_row: "días seguidos",
-      today_progress: "Progreso de hoy",
+      total_fire: "Fuego Total",
+      today_progress: "Progreso de Hoy",
       calories: "Calorías",
       protein: "Proteína",
-      carbs: "Carbos",
-      fats: "Grasas",
-      goal_text: "de",
       meals_logged_today: "Comidas registradas hoy",
-      log_your_meal: "Registrá tu comida",
-      friends_active: "Amigos activos",
+      log_your_meal: "Registrar Comida",
+      friends_active: "Amigos activos hoy",
       friends: "amigos",
-      recent_activity: "Actividad reciente",
+      recent_activity: "Actividad Reciente",
       meal: "Comida",
-      no_meals_yet: "Sin comidas registradas",
-      tap_to_add_meal: "Toca para agregar tu primera comida",
       meal_logged: "¡Comida registrada!",
+      meal_saved: "¡Comida Guardada!",
+      great_job: "¡Excelente trabajo!",
       
       // Camera
-      scan_food: "Escanear comida",
-      barcode: "Código de barras",
-      gallery: "Galería",
-      camera_permission_denied: "Permiso de cámara denegado",
-      camera_not_ready: "Cámara no lista",
-      camera_not_available: "Cámara No Disponible",
-      error_capturing: "Error al capturar foto",
-      upload_photo: "Subir foto",
+      camera_access_denied: "Acceso a cámara denegado",
+      upload_photo_instead: "Subir una foto",
       cancel: "Cancelar",
+      choose_from_gallery: "Elegir de la Galería",
+      take_photo: "Sacar una Foto",
       
       // Profile
-      my_profile: "Mi perfil",
+      my_profile: "Mi Perfil",
       edit: "Editar",
       save: "Guardar",
-      logout: "Cerrar sesión",
-      your_goals: "Tus metas",
-      main_goal: "Meta principal",
+      best_streak: "Mejor Racha",
+      total_checkins: "Check-ins Totales",
+      add_status: "Agregar estado",
+      tap_to_edit: "Toca para editar",
+      status_expires_24h: "Expira en 24h",
+      settings: "Configuración",
+      settings_desc: "Idioma, privacidad y más",
+      your_goals: "Tus Objetivos",
+      main_goal: "Objetivo Principal",
       intensity: "Intensidad",
       mode: "Modo",
-      optional_data: "Datos opcionales",
+      with_friends: "Con Amigos",
+      alone: "Solo",
+      optional_data: "Datos Opcionales",
       weight_kg: "Peso (kg)",
       height_cm: "Altura (cm)",
-      not_defined: "No definido",
-      with_friends: "Con amigos",
-      alone: "Solo",
-      settings: "Configuración",
-      settings_desc: "Idioma, notificaciones, privacidad",
       optional: "Opcional",
-      add_status: "Agregá nota de hoy",
-      tap_to_edit: "Toca para editar",
-      status_expires_24h: "Opcional • Expira en 24h",
-      total_checkins: "Total check-ins",
-      best_streak: "Mejor racha",
+      not_defined: "No definido",
+      logout: "Cerrar Sesión",
       
-      // Precision
-      estimated_accuracy: "Precisión estimada",
+      // Goals
+      consistency: "Ser más consistente",
+      weight_loss: "Bajar de peso",
+      healthy_habits: "Hábitos saludables",
+      stay_active: "Mantenerse activo",
+      
+      // Intensity
+      easy: "Fácil",
+      normal: "Normal",
+      challenging: "Desafiante",
+      
+      // Settings
+      language: "Idioma",
+      select_language: "Seleccionar Idioma",
+      privacy: "Privacidad",
+      data_encrypted: "Tus datos están protegidos",
+      admin_tools: "Herramientas de Admin",
+      invite_collaborators: "Invitar Colaboradores",
+      grant_free_premium: "Dar Acceso Premium Gratis",
+      user_management: "Gestión de Usuarios",
+      view_manage_users: "Ver y administrar usuarios",
+      daily_calories_limit: "Límite diario de calorías",
+      optional_leave_empty: "Opcional - dejalo vacío si no estás seguro",
+      goals_targets: "Objetivos y Metas",
+      set_daily_goals: "Configurar objetivos diarios",
+      
+      // Referral
+      invite_friends: "Invitar Amigos",
+      your_referrals: "Tus referidos",
+      free_month_progress: "para tu próximo mes gratis",
+      invited_friends: "Amigos Invitados",
+      registered: "Registrado",
+      premium_active: "Premium Activo",
+      pending: "Pendiente",
+      share_invite: "Compartir Invitación",
+      copy_link: "Copiar Link",
       
       // Social
+      add_friends: "Agregar Amigos",
       no_friends_yet: "Todavía no tenés amigos",
-      invite_to_start: "Invitá amigos para empezar",
+      invite_friends_to_join: "Invitá amigos a unirse",
       
-      // Misc
-      analyzing: "Analizando...",
-      loading: "Cargando",
-      meal_saved: "¡Comida guardada!",
-      error_saving: "Error al guardar",
+      // Precision
+      estimated_accuracy: "Precisión Estimada",
+      what_is_precision: "¿Qué significa 'Precisión Estimada'?",
+      precision_explanation: "Es una estimación de cuán completos y confiables son tus datos de hoy. Sube cuando registrás más comidas y confirmás porciones.",
+      improve_precision: "Mejorar Precisión",
+      precision_factors: "Para mejorar tu precisión:",
+      factor_more_meals: "Registrá 2 comidas más",
+      factor_confirm_ingredients: "Confirmá ingredientes",
+      factor_clear_photo: "Subí fotos nítidas",
+      
+      // Errors
+      error_uploading_photo: "No pudimos subir la foto. Intentá otra vez",
+      error_network: "Error de red. Revisá tu conexión",
+      retry: "Reintentar",
+      processing_image: "Procesando imagen...",
+      uploading_photo: "Subiendo foto...",
+      photo_updated: "Foto actualizada",
     }
+  }
+};
+
+// Get initial language from localStorage or default to Spanish
+const getInitialLanguage = () => {
+  try {
+    const stored = localStorage.getItem("app_language");
+    return stored || "es"; // Default Spanish
+  } catch {
+    return "es";
   }
 };
 
@@ -180,7 +253,7 @@ i18n
   .init({
     resources,
     lng: getInitialLanguage(),
-    fallbackLng: 'en',
+    fallbackLng: "en",
     interpolation: {
       escapeValue: false
     },
@@ -189,9 +262,13 @@ i18n
     }
   });
 
-// Save to localStorage whenever language changes
+// Save language changes to localStorage
 i18n.on('languageChanged', (lng) => {
-  localStorage.setItem(STORAGE_KEY, lng);
+  try {
+    localStorage.setItem("app_language", lng);
+  } catch (e) {
+    console.warn("Failed to save language preference", e);
+  }
 });
 
 export default i18n;

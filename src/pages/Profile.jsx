@@ -189,7 +189,6 @@ export default function Profile() {
     if (user?.email && profile?.id) {
       const cachedUrl = localStorage.getItem(`avatar_cache_${user.email}`);
       if (cachedUrl && !profile?.profile_photo && !profile?.avatar_url) {
-        // Prefetch cached avatar
         queryClient.setQueryData(["profile"], {
           ...profile,
           profile_photo: cachedUrl,
@@ -198,6 +197,17 @@ export default function Profile() {
       }
     }
   }, [user?.email, profile?.id]);
+
+  const handleAvatarClick = () => {
+    // On mobile, show action sheet-like choice
+    if ('showOpenFilePicker' in window) {
+      // Modern browsers support file picker
+      document.getElementById('avatar-upload')?.click();
+    } else {
+      // Fallback: just open file picker (includes camera on mobile)
+      document.getElementById('avatar-upload')?.click();
+    }
+  };
 
   const goalLabels = {
     en: {
@@ -274,7 +284,7 @@ export default function Profile() {
                 <motion.button
                   whileHover={{ scale: uploadingAvatar ? 1 : 1.05 }}
                   whileTap={{ scale: uploadingAvatar ? 1 : 0.95 }}
-                  onClick={() => !uploadingAvatar && document.getElementById('avatar-upload')?.click()}
+                  onClick={() => !uploadingAvatar && handleAvatarClick()}
                   disabled={uploadingAvatar}
                   className="relative w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg overflow-hidden"
                 >
