@@ -268,13 +268,13 @@ const resources = {
   }
 };
 
-// Get initial language from localStorage or default to Spanish
+// Get initial language from localStorage or default to ENGLISH
 const getInitialLanguage = () => {
   try {
     const stored = localStorage.getItem("app_language");
-    return stored || "es"; // Default Spanish
+    return stored || "en"; // Default ENGLISH
   } catch {
-    return "es";
+    return "en";
   }
 };
 
@@ -284,6 +284,7 @@ i18n
     resources,
     lng: getInitialLanguage(),
     fallbackLng: "en",
+    defaultNS: "translation",
     interpolation: {
       escapeValue: false
     },
