@@ -13,6 +13,8 @@ import DailyMissions from "@/components/home/DailyMissions";
 import StreakBanner from "@/components/home/StreakBanner";
 import SocialPreview from "@/components/home/SocialPreview";
 import MealResultCard from "@/components/home/MealResultCard";
+import LastMealPreview from "@/components/home/LastMealPreview";
+import FireIncreaseAnimation from "@/components/home/FireIncreaseAnimation";
 import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 
 export default function Home() {
@@ -21,6 +23,8 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { previewUrl } = useMeal();
   const [user, setUser] = useState(null);
+  const [showFireAnimation, setShowFireAnimation] = useState(false);
+  const [fireAmount, setFireAmount] = useState(0);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -94,9 +98,23 @@ export default function Home() {
 
 
 
-  const handleMealSaved = () => {
+  const handleMealSaved = (addedCalories) => {
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
     queryClient.invalidateQueries({ queryKey: ["profile"] });
+    
+    // Award fire for meal photo
+    if (addedCalories > 0) {
+      setFireAmount(2);
+      setShowFireAnimation(true);
+      
+      // Update fire total in profile
+      if (profile) {
+        base44.entities.UserProfile.update(profile.id, {
+          fire_total: (profile.fire_total || 0) + 2
+        });
+      }
+    }
+    
     toast.success("🍽️ " + t("meal_saved"));
   };
 
@@ -129,11 +147,17 @@ export default function Home() {
         {/* CORE: Streak Banner */}
         <StreakBanner streak={profile?.current_streak || 0} fireTotal={profile?.fire_total || 0} />
 
-        {/* MAIN ACTION: Add Meal Button */}
-        <AddMealButton onClick={() => navigate(createPageUrl("CameraScreen"))} />
-
         {/* Daily Calorie Goal - Big Focus */}
         <DailyCalorieGoal consumed={totalCaloriesToday} goal={caloriesGoal} />
+        
+        {/* Last Meal Preview */}
+        <LastMealPreview 
+          meal={todayMeals[0] || null} 
+          onClick={() => navigate(createPageUrl("CameraScreen"))}
+        />
+
+        {/* MAIN ACTION: Add Meal Button */}
+        <AddMealButton onClick={() => navigate(createPageUrl("CameraScreen"))} />
 
         {/* Daily Missions */}
         <DailyMissions
@@ -158,6 +182,13 @@ export default function Home() {
           onSave={handleMealSaved}
         />
       )}
+
+      {/* Fire Animation */}
+      <FireIncreaseAnimation 
+        show={showFireAnimation} 
+        amount={fireAmount}
+        onComplete={() => setShowFireAnimation(false)}
+      />
     </div>
   );
 }
