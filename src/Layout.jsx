@@ -7,7 +7,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { MealProvider } from "@/components/MealContext";
 import { useState, useEffect } from "react";
 import React from "react";
-import PerformanceMonitor from "@/lib/PerformanceMonitor";
+import PerformanceMonitor from "@/components/PerformanceMonitor";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },

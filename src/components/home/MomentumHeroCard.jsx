@@ -3,7 +3,9 @@ import { motion } from "framer-motion";
 import { Flame, TrendingUp, Zap } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function MomentumHeroCard({ streak, momentumScore, profile }) {
+const MomentumHeroCard = React.memo(function MomentumHeroCard({ streak, momentumScore, profile }) {
+
+
   const { t, lang } = useTranslation();
   
   // Calculate momentum score based on streak, consistency, and activity
@@ -152,4 +154,6 @@ export default function MomentumHeroCard({ streak, momentumScore, profile }) {
       </div>
     </motion.div>
   );
-}
+});
+
+export default MomentumHeroCard;

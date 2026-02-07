@@ -3,7 +3,9 @@ import { motion } from "framer-motion";
 import { Sparkles, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function AIInsightCard({ todayMeals, profile, caloriesGoal }) {
+const AIInsightCard = React.memo(function AIInsightCard({ todayMeals, profile, caloriesGoal }) {
+
+
   const { t, lang } = useTranslation();
   
   // Calculate macros
@@ -127,4 +129,6 @@ export default function AIInsightCard({ todayMeals, profile, caloriesGoal }) {
       </div>
     </motion.div>
   );
-}
+});
+
+export default AIInsightCard;
