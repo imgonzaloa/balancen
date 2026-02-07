@@ -6,10 +6,12 @@
 export class LiveDetectionService {
   constructor() {
     this.predictionWindow = [];
-    this.windowSize = 10; // Last 10 predictions
-    this.minConfidence = 0.70;
-    this.stabilityThreshold = 0.6; // 60% of frames must agree
+    this.windowSize = 8; // Smaller window for faster switching
+    this.minConfidence = 0.65;
+    this.stabilityThreshold = 0.5; // 50% agreement for faster response
     this.lockConfidence = 0.85;
+    this.consecutiveCount = 0; // Track consecutive detections
+    this.lastStableLabel = null;
     this.currentLabel = null;
     this.lockedLabel = null;
     this.lockTimer = null;
@@ -116,25 +118,35 @@ export class LiveDetectionService {
     const topPredictions = this.predictionWindow.filter(p => p.key === maxKey);
     const avgConfidence = topPredictions.reduce((sum, p) => sum + p.confidence, 0) / topPredictions.length;
 
-    // DYNAMIC SWITCHING: If new food detected with high confidence, reset lock
-    if (this.lockedLabel && maxKey !== this.lockedLabel.key && avgConfidence >= 0.75 && stability >= 0.5) {
-      console.log("[DETECTION] SWITCHING from", this.lockedLabel.key, "to", maxKey);
+    // DYNAMIC SWITCHING: If new food detected with confidence, switch immediately
+    if (this.lastStableLabel && maxKey !== this.lastStableLabel && avgConfidence >= 0.70 && stability >= 0.4) {
+      console.log("[DETECTION] SWITCHING from", this.lastStableLabel, "to", maxKey);
       this.lockedLabel = null;
+      this.lastStableLabel = null;
       this.predictionWindow = [prediction]; // Reset window for new food
+      this.consecutiveCount = 1;
+    }
+    
+    // Track consecutive stable detections
+    if (maxKey === this.lastStableLabel) {
+      this.consecutiveCount++;
+    } else {
+      this.consecutiveCount = 1;
+      this.lastStableLabel = maxKey;
     }
 
-    console.log("[DETECTION] Stability:", stability.toFixed(2), "Confidence:", avgConfidence.toFixed(2), "Key:", maxKey);
+    console.log("[DETECTION] Consecutive:", this.consecutiveCount, "Stability:", stability.toFixed(2), "Confidence:", avgConfidence.toFixed(2), "Key:", maxKey);
 
-    // Check if we should lock
-    if (avgConfidence >= this.lockConfidence && stability >= this.stabilityThreshold) {
+    // Require 3 consecutive stable frames before locking (as per requirements)
+    if (avgConfidence >= this.lockConfidence && stability >= this.stabilityThreshold && this.consecutiveCount >= 3) {
       if (!this.lockedLabel) {
         this.lockedLabel = { key: maxKey, confidence: avgConfidence };
-        console.log("[DETECTION] LOCKED:", maxKey);
+        console.log("[DETECTION] LOCKED after", this.consecutiveCount, "consistent frames:", maxKey);
       }
       return { state: "LOCKED", label: maxKey, confidence: avgConfidence, calories: this.getCalorieEstimate(maxKey) };
     }
 
-    // Check if stable enough to show
+    // Show stable detection even with lower threshold for continuous updates
     if (stability >= this.stabilityThreshold && avgConfidence >= this.minConfidence) {
       this.currentLabel = { key: maxKey, confidence: avgConfidence };
       return { state: "STABLE", label: maxKey, confidence: avgConfidence, calories: this.getCalorieEstimate(maxKey) };

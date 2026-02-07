@@ -15,12 +15,12 @@ export default function LiveDetectionOverlay({ videoRef }) {
     // Initialize service
     serviceRef.current = new LiveDetectionService();
 
-    // Start detection loop
+    // Start detection loop - faster for continuous updates
     intervalRef.current = setInterval(() => {
       if (videoRef.current && videoRef.current.readyState === 4) {
         processFrame();
       }
-    }, 800); // Sample every 800ms
+    }, 500); // Sample every 500ms for more responsive switching
 
     return () => {
       if (intervalRef.current) {
@@ -122,16 +122,16 @@ export default function LiveDetectionOverlay({ videoRef }) {
         </motion.div>
       )}
 
-      {/* Primary food label - centered, never clipped */}
+      {/* Primary food label - positioned at top, never clipping */}
       <motion.div
         key={detectionState.label}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="absolute top-24 left-1/2 -translate-x-1/2 w-[90%] max-w-sm flex justify-center"
+        className="absolute top-20 left-4 right-4 flex justify-center"
       >
-        <div className={`px-4 py-3 backdrop-blur-xl rounded-2xl shadow-2xl border w-full ${
+        <div className={`px-5 py-3.5 backdrop-blur-xl rounded-2xl shadow-2xl border ${
           isLocked 
             ? "bg-emerald-500/90 border-emerald-400/50" 
             : confidence >= 0.8 
@@ -139,77 +139,111 @@ export default function LiveDetectionOverlay({ videoRef }) {
               : "bg-black/75 border-white/20"
         }`}>
           <div className="flex items-center gap-3">
-            {(isLocked || confidence >= 0.8) && <CheckCircle size={18} className="text-white flex-shrink-0" />}
-            <div className="text-center flex-1 min-w-0">
-              <p className="text-white text-sm font-bold mb-1 truncate">
+            {(isLocked || confidence >= 0.8) && <CheckCircle size={20} className="text-white flex-shrink-0" />}
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-base font-bold mb-0.5 truncate">
                 {foodName}
               </p>
               
-              {/* Confidence indicator */}
-              <div className="text-[10px] text-white/70">
-                {Math.round(confidence * 100)}% {lang === "es" ? "confianza" : "confidence"}
+              {/* Enhanced confidence with label */}
+              <div className="flex items-center gap-2 text-[11px]">
+                <div className={`px-2 py-0.5 rounded-full ${
+                  confidence >= 0.85 ? "bg-emerald-500/30 text-emerald-300" :
+                  confidence >= 0.7 ? "bg-yellow-500/30 text-yellow-300" :
+                  "bg-orange-500/30 text-orange-300"
+                }`}>
+                  {lang === "es" 
+                    ? confidence >= 0.85 ? "Alta" : confidence >= 0.7 ? "Media" : "Baja"
+                    : confidence >= 0.85 ? "High" : confidence >= 0.7 ? "Medium" : "Low"}
+                </div>
+                <span className="text-white/60">
+                  {Math.round(confidence * 100)}%
+                </span>
               </div>
             </div>
           </div>
           
-          {/* Trust reinforcement */}
-          {confidence >= 0.8 && (
-            <div className="mt-2 pt-2 border-t border-white/10">
-              <p className="text-white/60 text-[9px] text-center leading-tight">
+          {/* Trust reinforcement with shield icon */}
+          {confidence >= 0.85 && (
+            <div className="mt-2 pt-2 border-t border-white/10 flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              </div>
+              <p className="text-white/60 text-[9px] leading-tight">
                 {lang === "es" 
-                  ? "Análisis completo basado en IA nutricional avanzada"
-                  : "Complete analysis based on advanced nutritional AI"}
+                  ? "Detección estable • Base nutricional verificada"
+                  : "Stable detection • Verified nutritional database"}
               </p>
             </div>
           )}
         </div>
       </motion.div>
 
-      {/* Live calorie preview with portion indicator */}
-      {calories && confidence >= 0.8 && (
+      {/* Live calorie preview - now shows for all confident detections */}
+      {calories && confidence >= 0.7 && (
         <motion.div
           key={`calories-${detectionState.label}`}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="absolute bottom-44 left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="absolute bottom-40 left-4 right-4 flex justify-center"
         >
-          <div className="px-5 py-3 bg-black/85 backdrop-blur-xl rounded-2xl border border-emerald-500/30 shadow-2xl">
-            <p className="text-white/60 text-[10px] text-center mb-1 uppercase tracking-wide">
-              {lang === "es" ? "Rango estimado" : "Estimate range"}
+          <div className="px-6 py-4 bg-black/90 backdrop-blur-xl rounded-2xl border border-emerald-500/30 shadow-2xl">
+            <p className="text-white/50 text-[10px] text-center mb-2 uppercase tracking-wider font-semibold">
+              {lang === "es" ? "Estimación calórica" : "Calorie estimate"}
             </p>
-            <p className="text-white text-xl font-black text-center tabular-nums">
-              {calories.min}–{calories.max}
-            </p>
-            <p className="text-white/40 text-xs text-center mb-2">kcal</p>
+            <div className="flex items-baseline justify-center gap-2 mb-1">
+              <p className="text-emerald-400 text-3xl font-black tabular-nums">
+                {calories.min}
+              </p>
+              <span className="text-white/40 text-lg">–</span>
+              <p className="text-emerald-400 text-3xl font-black tabular-nums">
+                {calories.max}
+              </p>
+            </div>
+            <p className="text-white/30 text-xs text-center mb-3">kcal</p>
             
             {/* Portion size indicator */}
-            <div className="flex items-center justify-center gap-1 pt-2 border-t border-white/10">
+            <div className="flex items-center justify-center gap-2 pt-3 border-t border-white/10">
               <div className="flex gap-1">
                 {[1, 2, 3, 4].map((i) => (
-                  <div 
+                  <motion.div 
                     key={i}
-                    className={`w-1.5 h-3 rounded-sm ${i <= 2 ? 'bg-emerald-400' : 'bg-white/20'}`}
+                    initial={{ scaleY: 0 }}
+                    animate={{ scaleY: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                    className={`w-2 h-4 rounded-sm ${i <= 2 ? 'bg-emerald-400' : 'bg-white/20'}`}
                   />
                 ))}
               </div>
-              <span className="text-white/60 text-[10px] ml-1">
-                {lang === "es" ? "porción med" : "medium serving"}
+              <span className="text-white/50 text-xs font-medium">
+                {lang === "es" ? "Porción media" : "Medium portion"}
               </span>
             </div>
+            
+            {/* Editable hint */}
+            <p className="text-white/40 text-[9px] text-center mt-2">
+              {lang === "es" 
+                ? "Podrás ajustar después de capturar"
+                : "Adjustable after capture"}
+            </p>
           </div>
         </motion.div>
       )}
 
-      {/* Confidence < 80%: Show suggestion chips */}
-      {confidence < 0.8 && confidence > 0 && (
+      {/* Low confidence guidance */}
+      {confidence < 0.7 && confidence > 0.5 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-44 left-1/2 -translate-x-1/2 flex flex-wrap gap-2 justify-center max-w-[85%]"
+          className="absolute bottom-40 left-4 right-4 flex justify-center"
         >
-          <div className="px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20 text-white text-xs font-medium">
-            {foodName} {Math.round(confidence * 100)}%
+          <div className="px-4 py-2 bg-orange-500/20 backdrop-blur-md rounded-xl border border-orange-500/30">
+            <p className="text-orange-300 text-xs font-medium text-center">
+              {lang === "es" 
+                ? "Centra el alimento para mejorar precisión"
+                : "Center food to improve accuracy"}
+            </p>
           </div>
         </motion.div>
       )}

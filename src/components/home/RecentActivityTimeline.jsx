@@ -8,12 +8,12 @@ export default function RecentActivityTimeline({ recentMeals, profile }) {
 
   const activities = [];
 
-  // Recent meals
+  // Recent meals with better labels
   if (recentMeals && recentMeals.length > 0) {
     recentMeals.slice(0, 2).forEach((meal) => {
       activities.push({
         icon: Utensils,
-        text: t("meal_logged") || "Meal logged",
+        text: t("meal_registered") || (t("lang") === "es" ? "Comida registrada" : "Meal registered"),
         detail: `${meal.estimated_calories} kcal`,
         time: meal.meal_time,
         color: "text-emerald-400",
