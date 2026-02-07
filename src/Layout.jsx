@@ -28,8 +28,11 @@ const navItemsBase = [
 // Persistent tab containers
 const persistentPages = ["Home", "Social", "Progress", "Profile"];
 
+// Pages that should not show nav (no bottom bar)
+const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
+
 export default function Layout({ children, currentPageName }) {
-    const hideNav = ["Onboarding", "Paywall", "CameraScreen", "MealResult"].includes(currentPageName);
+    const hideNav = noNavPages.includes(currentPageName);
     const { t, lang } = useTranslation();
     const [direction, setDirection] = useState(0);
     const [prevPage, setPrevPage] = useState(currentPageName);
@@ -89,24 +92,25 @@ export default function Layout({ children, currentPageName }) {
                 <MealProvider>
                                 {iOSOptimizer()}
                           <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`}>
-          <Toaster position="top-center" richColors />
-          <PerformanceMonitor />
-          
-          <React.Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />}>
-            <motion.main
-              key={currentPageName}
-              initial={{ opacity: 0.98 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.1 }}
-              className={hideNav ? "" : "pb-20"}
-              style={{ 
-                willChange: 'opacity',
-                visibility: isPersistentPage && mountedPages[currentPageName] ? 'visible' : undefined
-              }}
-            >
-              {children}
-            </motion.main>
-          </React.Suspense>
+                          <Toaster position="top-center" richColors />
+                          <PerformanceMonitor />
+
+                          <React.Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />}>
+                            <motion.main
+                              key={currentPageName}
+                              initial={{ opacity: 0.98 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ duration: 0.1 }}
+                              className={`${hideNav ? "" : "pb-20"} safe-area-inset-top`}
+                              style={{ 
+                                willChange: 'opacity',
+                                visibility: isPersistentPage && mountedPages[currentPageName] ? 'visible' : undefined,
+                                paddingTop: 'env(safe-area-inset-top, 0)',
+                              }}
+                            >
+                              {children}
+                            </motion.main>
+                          </React.Suspense>
 
       {!hideNav && (
         <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-4 py-2 z-50 safe-area-inset-bottom">

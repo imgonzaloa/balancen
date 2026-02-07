@@ -13,29 +13,40 @@ export default function LanguageSelector() {
   const [selectedLang, setSelectedLang] = useState('en');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       const u = await base44.auth.me();
       if (!u) {
-        // Not authenticated, redirect to auth
         window.location.href = '/';
         return;
       }
       setUser(u);
       
-      // Check if user already has a profile with language set
-      const profiles = await base44.entities.UserProfile.filter({ created_by: u.email });
-      if (profiles?.[0]?.language) {
-        // User already selected language, go to onboarding or home
-        await changeLanguage(profiles[0].language);
-        if (profiles[0].onboarding_completed) {
-          navigate(createPageUrl('Home'));
-        } else {
-          navigate(createPageUrl('Onboarding'));
-        }
+      // If onboarding is already completed, user should never see this screen
+      if (localStorage.getItem('onboarding_completed') === 'true') {
+        navigate(createPageUrl('Home'));
         return;
       }
+      
+      // Check profile
+      const profiles = await base44.entities.UserProfile.filter({ created_by: u.email });
+      const profile = profiles?.[0];
+      
+      if (profile?.onboarding_completed) {
+        localStorage.setItem('onboarding_completed', 'true');
+        navigate(createPageUrl('Home'));
+        return;
+      }
+      
+      // Only show if truly at language selection step
+      if (profile?.language) {
+        navigate(createPageUrl('Onboarding'));
+        return;
+      }
+      
+      setIsReady(true);
     };
     init();
   }, [changeLanguage, navigate]);
@@ -72,9 +83,13 @@ export default function LanguageSelector() {
     }
   };
 
+  if (!isReady) {
+    return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center p-6">
-      <div className="max-w-md w-full">
+      <div className="max-w-md w-full safe-area-inset-top" style={{ paddingTop: 'env(safe-area-inset-top, 1rem)' }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

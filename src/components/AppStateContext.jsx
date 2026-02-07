@@ -17,8 +17,9 @@ export function AppStateProvider({ children }) {
     const initUser = async () => {
       logger.log('AUTH_CHECK_START');
       
-      // Check localStorage first (instant, prevents loops)
+      // Load persisted state immediately (no flashing)
       const savedOnboarding = localStorage.getItem('onboarding_completed');
+      const savedLanguage = localStorage.getItem('app_language');
       
       const timeout = setTimeout(() => {
         logger.log('AUTH_CHECK_TIMEOUT');
@@ -29,44 +30,66 @@ export function AppStateProvider({ children }) {
       try {
         const currentUser = await base44.auth.me();
         clearTimeout(timeout);
-        setUser(currentUser);
-        logger.log('AUTH_CHECK_SUCCESS', { email: currentUser?.email });
         
-        if (currentUser?.email) {
-          // Quick check: if localStorage says onboarding done, skip DB check
-          if (savedOnboarding === 'true') {
-            logger.log('ONBOARDING_COMPLETED_CACHED');
-            setIsInitialized(true);
-            return;
-          }
-          
-          const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
-          const profile = profiles?.[0];
-          
-          // No profile = new user, go to language selector
-          if (!profile) {
-            logger.log('NEW_USER_REDIRECT_TO_LANGUAGE');
-            window.location.href = '/LanguageSelector';
-            return;
-          }
-          
-          // Profile exists but onboarding NOT completed
-          if (!profile.onboarding_completed) {
-            logger.log('ONBOARDING_NOT_COMPLETED');
-            localStorage.removeItem('onboarding_completed'); // Ensure flag is cleared
-            window.location.href = '/Onboarding';
-            return;
-          }
-          
-          // Onboarding completed: set flag and proceed
-          localStorage.setItem('onboarding_completed', 'true');
-          logger.log('ONBOARDING_COMPLETED_PROCEED_HOME');
+        if (!currentUser) {
+          // Not authenticated: stay on login
+          setIsInitialized(true);
+          return;
         }
+        
+        setUser(currentUser);
+        logger.log('AUTH_CHECK_SUCCESS', { email: currentUser.email });
+        
+        // Quick path: cached onboarding flag means user is fully set up
+        if (savedOnboarding === 'true') {
+          logger.log('BOOT_ONBOARDING_CACHED');
+          setIsInitialized(true);
+          return;
+        }
+        
+        // Fetch profile (authoritative state)
+        const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
+        const profile = profiles?.[0];
+        
+        // New user: ZERO DB profile
+        if (!profile) {
+          logger.log('BOOT_NEW_USER_NEEDS_LANGUAGE');
+          // Create minimal profile with default language
+          try {
+            const defaultLang = savedLanguage || 'en';
+            await base44.entities.UserProfile.create({
+              display_name: currentUser.full_name || 'User',
+              language: defaultLang,
+              onboarding_completed: false,
+            });
+            // Will redirect to Onboarding in next render
+            window.location.href = '/Onboarding';
+          } catch (createErr) {
+            logger.error('PROFILE_CREATE_FAILED', createErr);
+            window.location.href = '/Onboarding';
+          }
+          return;
+        }
+        
+        // Profile exists: check onboarding
+        if (!profile.onboarding_completed) {
+          logger.log('BOOT_ONBOARDING_INCOMPLETE');
+          localStorage.removeItem('onboarding_completed');
+          window.location.href = '/Onboarding';
+          return;
+        }
+        
+        // Fully set up: go to Home
+        localStorage.setItem('onboarding_completed', 'true');
+        if (!savedLanguage && profile.language) {
+          localStorage.setItem('app_language', profile.language);
+        }
+        logger.log('BOOT_FULLY_INITIALIZED');
+        setIsInitialized(true);
       } catch (err) {
         clearTimeout(timeout);
         logger.error('AUTH_CHECK_ERROR', err);
         setUser(null);
-      } finally {
         setIsInitialized(true);
       }
     };
