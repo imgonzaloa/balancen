@@ -83,6 +83,10 @@ export default function Progress() {
     daysToGoal
   } = calculations;
 
+  if (!user || (profileLoading && !profile)) {
+    return <ProgressSkeleton />;
+  }
+
   return (
     <ErrorBoundary screen="Progress">
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">
