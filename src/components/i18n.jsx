@@ -404,7 +404,12 @@ const resources = {
       add_manual_item: "Add manual item",
       protein: "Protein",
       carbs: "Carbs",
-      fats: "Fats"
+      fats: "Fats",
+      scan_food: "Scan Food",
+      barcode: "Barcode",
+      gallery: "Gallery",
+      building_consistency: "you're building consistency",
+      great_job: "Great job tracking"
       }
       },
   es: {
@@ -790,7 +795,12 @@ const resources = {
       add_manual_item: "Añadir elemento manual",
       protein: "Proteína",
       carbs: "Carbohidratos",
-      fats: "Grasas"
+      fats: "Grasas",
+      scan_food: "Escanear comida",
+      barcode: "Código de barras",
+      gallery: "Galería",
+      building_consistency: "estás construyendo constancia",
+      great_job: "Gran trabajo registrando"
       }
       }
       };
