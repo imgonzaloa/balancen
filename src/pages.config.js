@@ -60,10 +60,10 @@ import OnboardingTransition from './pages/OnboardingTransition';
 import Paywall from './pages/Paywall';
 import Premium from './pages/Premium';
 import Profile from './pages/Profile';
-import Settings from './pages/Settings';
-import UserManagement from './pages/UserManagement';
-import Social from './pages/Social';
 import Progress from './pages/Progress';
+import Settings from './pages/Settings';
+import Social from './pages/Social';
+import UserManagement from './pages/UserManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -81,10 +81,10 @@ export const PAGES = {
     "Paywall": Paywall,
     "Premium": Premium,
     "Profile": Profile,
-    "Settings": Settings,
-    "UserManagement": UserManagement,
-    "Social": Social,
     "Progress": Progress,
+    "Settings": Settings,
+    "Social": Social,
+    "UserManagement": UserManagement,
 }
 
 export const pagesConfig = {

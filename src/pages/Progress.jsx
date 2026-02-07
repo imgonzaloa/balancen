@@ -75,9 +75,24 @@ export default function Progress() {
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-emerald-300 text-sm font-semibold uppercase tracking-wide">
-                {lang === "es" ? "Momentum Score" : "Momentum Score"}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-emerald-300 text-sm font-semibold uppercase tracking-wide">
+                  {lang === "es" ? "Momentum Score" : "Momentum Score"}
+                </p>
+                {/* Tooltip indicator */}
+                <div className="group relative">
+                  <div className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white/60 cursor-help">
+                    ?
+                  </div>
+                  <div className="absolute left-0 top-6 w-56 p-3 bg-black/95 backdrop-blur-xl rounded-lg border border-white/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                    <p className="text-white/80 text-[10px] leading-relaxed">
+                      {lang === "es" 
+                        ? "Combina consistencia, adherencia a meta, balance de macros y frecuencia de registro para medir tu progreso general."
+                        : "Combines consistency, goal adherence, macro balance, and tracking frequency to measure your overall progress."}
+                    </p>
+                  </div>
+                </div>
+              </div>
               <p className="text-white/60 text-xs mt-1">
                 {lang === "es" ? "Nunca vuelve a cero" : "Never resets to zero"}
               </p>
@@ -110,25 +125,30 @@ export default function Progress() {
           </div>
         </motion.div>
 
-        {/* Prediction */}
+        {/* Projection Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-xl rounded-2xl p-5 border border-blue-500/30"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-500/30 flex items-center justify-center">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0">
               <TrendingUp size={20} className="text-blue-300" />
             </div>
             <div className="flex-1">
-              <p className="text-blue-300 text-xs font-semibold uppercase">
-                {lang === "es" ? "Proyección" : "Projection"}
+              <p className="text-blue-300 text-xs font-semibold uppercase mb-1">
+                {lang === "es" ? "Proyección estimada" : "Goal projection"}
               </p>
-              <p className="text-white font-semibold">
+              <p className="text-white font-bold text-lg">
                 {lang === "es" 
-                  ? `Meta en ~${Math.abs(daysToGoal)} días al ritmo actual`
-                  : `Goal in ~${Math.abs(daysToGoal)} days at current pace`}
+                  ? `~${Math.abs(daysToGoal)} días`
+                  : `~${Math.abs(daysToGoal)} days`}
+              </p>
+              <p className="text-white/60 text-xs mt-1">
+                {lang === "es" 
+                  ? "Al ritmo actual de registro"
+                  : "At current tracking pace"}
               </p>
             </div>
           </div>
