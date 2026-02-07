@@ -16,6 +16,7 @@ import iOSOptimizer from "@/components/iOSOptimizer";
 import { SafeModeProvider } from "@/components/SafeModeProvider";
 import TabErrorBoundary from "@/components/TabErrorBoundary";
 import { logger } from "@/components/logger";
+import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
