@@ -42,21 +42,24 @@ export default function Home() {
   const [microPulseMessage, setMicroPulseMessage] = useState("");
 
   const { data: profile = null, isLoading: profileLoading } = useQuery({
-    queryKey: ["profile", user?.email],
-    queryFn: async () => {
-      try {
-        return await fetchWithRetry(
-          () => base44.entities.UserProfile.filter({ created_by: user?.email }).then(r => r[0] || null)
-        );
-      } catch (err) {
-        console.warn('[HOME] Profile fetch timeout/error', err);
-        return null;
-      }
-    },
-    enabled: !!user?.email && !cachedProfile,
-    initialData: cachedProfile,
-    staleTime: 5 * 60 * 1000,
-    keepPreviousData: true,
+   queryKey: ["profile", user?.email],
+   queryFn: async () => {
+     try {
+       return await fetchWithRetry(
+         () => base44.entities.UserProfile.filter({ created_by: user?.email }).then(r => r[0] || null)
+       );
+     } catch (err) {
+       console.warn('[HOME] Profile fetch timeout/error', err);
+       return null;
+     }
+   },
+   enabled: !!user?.email && !cachedProfile,
+   initialData: cachedProfile,
+   staleTime: 10 * 60 * 1000,
+   gcTime: 15 * 60 * 1000,
+   keepPreviousData: true,
+   refetchOnMount: false,
+   refetchOnWindowFocus: false,
   });
 
   const today = new Date().toISOString().split("T")[0];
@@ -73,8 +76,11 @@ export default function Home() {
   },
   enabled: !!user?.email && !cachedMeals,
   initialData: cachedMeals || [],
-  staleTime: 1 * 60 * 1000,
+  staleTime: 2 * 60 * 1000,
+  gcTime: 5 * 60 * 1000,
   keepPreviousData: true,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
   });
 
   const { data: friends = [], isLoading: friendsLoading } = useQuery({
@@ -87,8 +93,11 @@ export default function Home() {
     },
     enabled: !!user?.email && !cachedFriends,
     initialData: cachedFriends || [],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
     keepPreviousData: true,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const { totalCaloriesToday, totalProtein } = useMemo(() => ({
@@ -224,10 +233,10 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-orange-500/20 via-red-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-7 border border-orange-500/30 shadow-2xl shadow-orange-500/10 relative overflow-hidden"
+            className="bg-gradient-to-br from-orange-500/20 via-red-500/20 to-pink-500/20 rounded-3xl p-7 border border-orange-500/30 shadow-lg relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-40 h-40 bg-orange-400/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-red-400/10 rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-orange-400/10 rounded-full blur-2xl" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-red-400/10 rounded-full blur-2xl" />
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 to-pink-500 rounded-full" />
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -269,7 +278,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-3xl p-7 border border-white/10 shadow-2xl shadow-slate-900/50 relative overflow-hidden"
+            className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 rounded-3xl p-7 border border-white/10 shadow-lg relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5" />
             <div className="absolute top-0 right-0 w-32 h-32 bg-teal-400/10 rounded-full blur-3xl" />
