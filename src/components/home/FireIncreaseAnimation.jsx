@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame } from "lucide-react";
 
-export default function FireIncreaseAnimation({ show, amount = 1, onComplete }) {
+const FireIncreaseAnimation = React.memo(function FireIncreaseAnimation({ show, amount = 1, onComplete }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
