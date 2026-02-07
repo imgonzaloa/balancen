@@ -13,64 +13,76 @@ export function AppStateProvider({ children }) {
 
   // Initialize user on mount
   useEffect(() => {
-    base44.auth.me()
-      .then(setUser)
-      .catch(() => setUser(null))
-      .finally(() => setIsInitialized(true));
+    const initUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (err) {
+        console.error("Error initializing user:", err);
+        setUser(null);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+
+    initUser();
   }, []);
 
-  // Fetch profile when user is available
+  // Parallel data fetching when user loads
   useEffect(() => {
-    if (!user?.email || profile !== null) return;
+    if (!user?.email) return;
     
-    base44.entities.UserProfile.filter({ created_by: user.email })
-      .then(profiles => setProfile(profiles[0] || null))
-      .catch(() => setProfile(null));
-  }, [user?.email]);
-
-  // Fetch friends when user is available
-  useEffect(() => {
-    if (!user?.email || friends !== null) return;
-    
+    // Fetch all data in parallel for speed
     Promise.all([
-      base44.entities.Friend.filter({ created_by: user.email }),
-    ]).then(([friendsList]) => {
-      setFriends(friendsList);
-    }).catch(() => setFriends([]));
-  }, [user?.email]);
-
-  // Fetch today's meals when user is available
-  useEffect(() => {
-    if (!user?.email || todayMeals !== null) return;
-    
-    const today = new Date().toISOString().split("T")[0];
-    base44.entities.MealLog.filter(
-      { created_by: user.email, date: today },
-      "-meal_time"
-    ).then(setTodayMeals)
-      .catch(() => setTodayMeals([]));
+      base44.entities.UserProfile.filter({ created_by: user.email })
+        .then(profiles => setProfile(profiles[0] || null))
+        .catch(() => setProfile(null)),
+      
+      base44.entities.Friend.filter({ created_by: user.email })
+        .then(friendsList => setFriends(friendsList))
+        .catch(() => setFriends([])),
+      
+      base44.entities.MealLog.filter(
+        { created_by: user.email, date: new Date().toISOString().split("T")[0] },
+        "-meal_time"
+      ).then(setTodayMeals)
+        .catch(() => setTodayMeals([]))
+    ]);
   }, [user?.email]);
 
   const refreshProfile = async () => {
     if (!user?.email) return;
-    const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-    setProfile(profiles[0] || null);
+    try {
+      const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+      setProfile(profiles[0] || null);
+    } catch (err) {
+      console.error("Error refreshing profile:", err);
+    }
   };
 
   const refreshFriends = async () => {
     if (!user?.email) return;
-    const friendsList = await base44.entities.Friend.filter({ created_by: user.email });
-    setFriends(friendsList);
+    try {
+      const friendsList = await base44.entities.Friend.filter({ created_by: user.email });
+      setFriends(friendsList);
+    } catch (err) {
+      console.error("Error refreshing friends:", err);
+    }
   };
 
   const refreshTodayMeals = async () => {
     if (!user?.email) return;
-    const today = new Date().toISOString().split("T")[0];
-    const meals = await base44.entities.MealLog.filter(
-      { created_by: user.email, date: today },
-      "-meal_time"
-    );
-    setTodayMeals(meals);
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const meals = await base44.entities.MealLog.filter(
+        { created_by: user.email, date: today },
+        "-meal_time"
+      );
+      setTodayMeals(meals);
+    } catch (err) {
+      console.error("Error refreshing meals:", err);
+      setTodayMeals([]);
+    }
   };
 
   const value = {
