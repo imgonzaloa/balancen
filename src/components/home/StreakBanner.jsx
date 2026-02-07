@@ -72,4 +72,6 @@ const StreakBanner = React.memo(function StreakBanner({ streak, fireTotal }) {
       </p>
     </motion.div>
   );
-}
+});
+
+export default StreakBanner;
