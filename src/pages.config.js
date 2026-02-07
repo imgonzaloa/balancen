@@ -54,18 +54,18 @@ import GroupDetail from './pages/GroupDetail';
 import Groups from './pages/Groups';
 import Home from './pages/Home';
 import InviteCollaborators from './pages/InviteCollaborators';
+import LanguageSelector from './pages/LanguageSelector';
 import MealResult from './pages/MealResult';
 import Onboarding from './pages/Onboarding';
 import OnboardingTransition from './pages/OnboardingTransition';
 import Paywall from './pages/Paywall';
 import Premium from './pages/Premium';
 import Profile from './pages/Profile';
+import ProfileSetup from './pages/ProfileSetup';
 import Progress from './pages/Progress';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
 import UserManagement from './pages/UserManagement';
-import LanguageSelector from './pages/LanguageSelector';
-import ProfileSetup from './pages/ProfileSetup';
 import __Layout from './Layout.jsx';
 
 
@@ -77,18 +77,18 @@ export const PAGES = {
     "Groups": Groups,
     "Home": Home,
     "InviteCollaborators": InviteCollaborators,
+    "LanguageSelector": LanguageSelector,
     "MealResult": MealResult,
     "Onboarding": Onboarding,
     "OnboardingTransition": OnboardingTransition,
     "Paywall": Paywall,
     "Premium": Premium,
     "Profile": Profile,
+    "ProfileSetup": ProfileSetup,
     "Progress": Progress,
     "Settings": Settings,
     "Social": Social,
     "UserManagement": UserManagement,
-    "LanguageSelector": LanguageSelector,
-    "ProfileSetup": ProfileSetup,
 }
 
 export const pagesConfig = {

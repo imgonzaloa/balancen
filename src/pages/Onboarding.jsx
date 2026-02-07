@@ -23,9 +23,16 @@ export default function Onboarding() {
       const u = await base44.auth.me();
       setUser(u);
       
-      // Check if profile already exists and is completed
+      // Check localStorage first (instant, prevents onboarding loop)
+      if (localStorage.getItem('onboarding_completed') === 'true') {
+        navigate(createPageUrl('Home'));
+        return;
+      }
+      
+      // Check DB as fallback
       const profiles = await base44.entities.UserProfile.filter({ created_by: u?.email });
       if (profiles?.[0]?.onboarding_completed) {
+        localStorage.setItem('onboarding_completed', 'true');
         navigate(createPageUrl('Home'));
         return;
       }
@@ -49,16 +56,20 @@ export default function Onboarding() {
         // Update existing profile: answers + onboarding_completed=true
         await base44.entities.UserProfile.update(existingProfile[0].id, {
           ...formData,
-          onboarding_completed: true, // CRITICAL: Mark as complete
+          onboarding_completed: true,
+          display_name: user?.full_name || existingProfile[0].display_name || 'User',
         });
       } else {
         // Create new profile with onboarding answers + completed flag
         await base44.entities.UserProfile.create({
           ...formData,
           display_name: user?.full_name || 'User',
-          onboarding_completed: true, // CRITICAL: Mark as complete
+          onboarding_completed: true,
         });
       }
+
+      // Persist onboarding flag to localStorage immediately
+      localStorage.setItem('onboarding_completed', 'true');
 
       // Process referral if exists
       const pendingReferral = localStorage.getItem("pending_referral");
@@ -73,7 +84,7 @@ export default function Onboarding() {
         }
       }
 
-      // Onboarding complete: go straight to Home (not ProfileSetup)
+      // Onboarding complete: go straight to Home
       navigate(createPageUrl("Home"));
     } catch (error) {
       toast.error("Error creating profile");
@@ -112,11 +123,12 @@ export default function Onboarding() {
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <div className="w-16 h-16 rounded-lg bg-black flex items-center justify-center mx-auto mb-4 border-2 border-white">
+                <div className="w-16 h-16 rounded-lg bg-black flex items-center justify-center mx-auto mb-4 border-2 border-teal-400">
                   <span className="text-4xl font-black text-white">B</span>
                 </div>
                 <h1 className="text-3xl font-black text-white mb-2">Balancen</h1>
-                <p className="text-white/60">{t('select_language')}</p>
+                <p className="text-white/60 text-sm">{t('select_language')}</p>
+                <p className="text-white/40 text-xs mt-1">{t('can_change_later')}</p>
               </div>
 
               <div className="space-y-3">

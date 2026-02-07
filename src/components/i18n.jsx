@@ -66,8 +66,11 @@ const resources = {
       
       // Intensity
       easy: "Easy",
+      easy_desc: "Gentle pace",
       normal: "Normal",
+      normal_desc: "Balanced approach",
       challenging: "Challenging",
+      challenging_desc: "Push yourself",
       
       // Settings
       language: "Language",
@@ -217,8 +220,11 @@ const resources = {
       
       // Intensity
       easy: "Fácil",
+      easy_desc: "Ritmo suave",
       normal: "Normal",
+      normal_desc: "Enfoque balanceado",
       challenging: "Desafiante",
+      challenging_desc: "Desafíate a vos mismo",
       
       // Settings
       language: "Idioma",
