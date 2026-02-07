@@ -136,13 +136,14 @@ export default function Profile() {
       toast.success(lang === "es" ? "✨ Foto actualizada" : "✨ Photo updated");
       
     } catch (error) {
+      console.error('[AVATAR] Upload failed:', error);
       logger.error('AVATAR_UPLOAD_ERROR', error);
       
       toast.dismiss(loadingToast);
       
-      // User-friendly error message
-      const errorMessage = getUploadErrorMessage(error.status, error);
-      toast.error(errorMessage, {
+      // User-friendly error
+      const errorMsg = error.message || (lang === 'es' ? 'No pudimos subir la foto' : 'Failed to upload photo');
+      toast.error(errorMsg, {
         duration: 4000,
         action: {
           label: lang === "es" ? "Reintentar" : "Retry",
