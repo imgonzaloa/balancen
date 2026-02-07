@@ -241,6 +241,14 @@ export default function Social() {
           </div>
         )}
       </div>
+
+      {/* Invite Modal */}
+      <InviteModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        profile={profile}
+      />
     </div>
+    </ErrorBoundary>
   );
 }

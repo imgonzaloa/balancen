@@ -323,5 +323,6 @@ export default function Progress() {
         </motion.div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

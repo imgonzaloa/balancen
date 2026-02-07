@@ -8,6 +8,7 @@ import { MealProvider } from "@/components/MealContext";
 import { useState, useEffect } from "react";
 import React from "react";
 import PerformanceMonitor from "@/components/PerformanceMonitor";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -47,13 +48,14 @@ export default function Layout({ children, currentPageName }) {
 
 
   return (
-    <MealProvider>
-      <div className="min-h-screen bg-background select-none">
-        <Toaster position="top-center" richColors />
-        <PerformanceMonitor />
-        
-        <React.Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />}>
-          <motion.main
+    <ErrorBoundary screen={currentPageName}>
+      <MealProvider>
+        <div className="min-h-screen bg-background select-none">
+          <Toaster position="top-center" richColors />
+          <PerformanceMonitor />
+          
+          <React.Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />}>
+            <motion.main
             key={currentPageName}
             initial={{ opacity: 0.95 }}
             animate={{ opacity: 1 }}
@@ -130,8 +132,9 @@ export default function Layout({ children, currentPageName }) {
             })}
           </div>
         </nav>
-      )}
-      </div>
-    </MealProvider>
-  );
-}
+        )}
+        </div>
+        </MealProvider>
+        </ErrorBoundary>
+        );
+        }

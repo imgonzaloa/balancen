@@ -24,6 +24,7 @@ import GroupLeaderboardShortcut from "@/components/home/GroupLeaderboardShortcut
 import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 import StatusBubble from "@/components/home/StatusBubble";
 import RecentActivityTimeline from "@/components/home/RecentActivityTimeline";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import MealSavedCelebration from "@/components/home/MealSavedCelebration";
 import DailyMacroRing from "@/components/home/DailyMacroRing";
 import QuickAddButton from "@/components/home/QuickAddButton";
@@ -166,8 +167,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
-      <OwnerRoleChecker user={user} profile={profile} />
+    <ErrorBoundary screen="Home">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+        <OwnerRoleChecker user={user} profile={profile} />
 
       {/* Background effects */}
       <div className="absolute inset-0 opacity-30 pointer-events-none">
@@ -313,5 +315,6 @@ export default function Home() {
       {/* Floating Quick Add Button */}
       <QuickAddButton onClick={() => navigate(createPageUrl("CameraScreen"))} />
       </div>
+      </ErrorBoundary>
       );
       }
