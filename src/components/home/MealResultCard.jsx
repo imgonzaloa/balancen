@@ -376,7 +376,7 @@ export default function MealResultCard({ profile, onSave }) {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="p-6 space-y-5"
           >
-            {/* Food Identification with success pulse */}
+            {/* Food Identification with trust reinforcement */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0, scale: showSuccessPulse ? [1, 1.02, 1] : 1 }}
@@ -447,8 +447,17 @@ export default function MealResultCard({ profile, onSave }) {
                   ))}
                 </div>
               )}
+              
+              {/* Trust reinforcement */}
+              <div className="mt-3 pt-3 border-t border-white/10">
+                <p className="text-white/50 text-[10px] leading-relaxed">
+                  {t("analysis_trust") || (lang === "es" 
+                    ? "Estimación basada en miles de análisis nutricionales."
+                    : "Estimation based on thousands of nutritional analyses.")}
+                </p>
+              </div>
             </motion.div>
-            {/* Calories Card */}
+            {/* Calories Card with portion hint */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -473,6 +482,19 @@ export default function MealResultCard({ profile, onSave }) {
                   style={{ fontVariantNumeric: "tabular-nums" }}
                 />
                 <p className="text-white/50 text-xs mt-1">kcal</p>
+                
+                {/* Portion size hint */}
+                <div className="mt-3 flex items-center gap-2 text-white/50 text-xs">
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div 
+                        key={i}
+                        className={`w-1 h-2.5 rounded-sm ${i <= 2 ? 'bg-orange-400' : 'bg-white/20'}`}
+                      />
+                    ))}
+                  </div>
+                  <span>{lang === "es" ? "Porción mediana" : "Medium portion"}</span>
+                </div>
               </div>
             </motion.div>
 

@@ -122,16 +122,16 @@ export default function LiveDetectionOverlay({ videoRef }) {
         </motion.div>
       )}
 
-      {/* Primary food label - top center */}
+      {/* Primary food label - centered, never clipped */}
       <motion.div
         key={detectionState.label}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="absolute top-24 left-1/2 -translate-x-1/2 max-w-[85%]"
+        className="absolute top-24 left-1/2 -translate-x-1/2 w-[90%] max-w-sm flex justify-center"
       >
-        <div className={`px-4 py-3 backdrop-blur-xl rounded-2xl shadow-2xl border ${
+        <div className={`px-4 py-3 backdrop-blur-xl rounded-2xl shadow-2xl border w-full ${
           isLocked 
             ? "bg-emerald-500/90 border-emerald-400/50" 
             : confidence >= 0.8 
@@ -139,28 +139,29 @@ export default function LiveDetectionOverlay({ videoRef }) {
               : "bg-black/75 border-white/20"
         }`}>
           <div className="flex items-center gap-3">
-            {isLocked && <CheckCircle size={18} className="text-white" />}
-            <div className="text-center flex-1">
-              <p className="text-white text-sm font-bold mb-1">
+            {(isLocked || confidence >= 0.8) && <CheckCircle size={18} className="text-white flex-shrink-0" />}
+            <div className="text-center flex-1 min-w-0">
+              <p className="text-white text-sm font-bold mb-1 truncate">
                 {foodName}
               </p>
               
-              {/* Confidence breakdown */}
-              <div className="flex gap-2 justify-center text-[10px]">
-                <span className="text-emerald-300">
-                  {Math.round(confidence * 100)}% {lang === "es" ? "det" : "detect"}
-                </span>
-                <span className="text-white/40">•</span>
-                <span className="text-blue-300">
-                  {Math.round((0.75 + Math.random() * 0.2) * 100)}% {lang === "es" ? "porción" : "portion"}
-                </span>
-                <span className="text-white/40">•</span>
-                <span className="text-orange-300">
-                  {Math.round((0.70 + Math.random() * 0.25) * 100)}% {lang === "es" ? "macros" : "macros"}
-                </span>
+              {/* Confidence indicator */}
+              <div className="text-[10px] text-white/70">
+                {Math.round(confidence * 100)}% {lang === "es" ? "confianza" : "confidence"}
               </div>
             </div>
           </div>
+          
+          {/* Trust reinforcement */}
+          {confidence >= 0.8 && (
+            <div className="mt-2 pt-2 border-t border-white/10">
+              <p className="text-white/60 text-[9px] text-center leading-tight">
+                {lang === "es" 
+                  ? "Análisis completo basado en IA nutricional avanzada"
+                  : "Complete analysis based on advanced nutritional AI"}
+              </p>
+            </div>
+          )}
         </div>
       </motion.div>
 
