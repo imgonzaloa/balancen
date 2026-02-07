@@ -47,13 +47,20 @@ export default function Settings() {
     // 1. Change language immediately
     await changeLanguage(newLang);
     
-    // 2. Save to user profile
+    // 2. Save to localStorage (instant persistence)
+    localStorage.setItem('app_language', newLang);
+    
+    // 3. Save to user profile (async)
     if (profile?.id) {
       await base44.entities.UserProfile.update(profile.id, { language: newLang });
     }
     
-    // 3. Show success message
-    toast.success(t('language_updated'));
+    // 4. Invalidate queries to refresh translations
+    queryClient.invalidateQueries(['profile']);
+    
+    // 5. Show success message
+    const msg = newLang === 'es' ? 'Idioma actualizado' : 'Language updated';
+    toast.success(msg);
   };
 
   const handleToggle = (field, value) => {
