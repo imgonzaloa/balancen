@@ -68,19 +68,20 @@ export class LiveDetectionService {
 
   /**
    * Simulate detection (replace with real AI call)
+   * Creates realistic detection behavior with gradual confidence building
    */
   async detectFood(canvas) {
     // Simulate AI detection with realistic food categories
     const foodCategories = [
-      { key: "COOKIE", confidence: 0.75 + Math.random() * 0.2 },
-      { key: "SALAD", confidence: 0.70 + Math.random() * 0.15 },
-      { key: "PIZZA", confidence: 0.65 + Math.random() * 0.25 },
-      { key: "BURGER", confidence: 0.60 + Math.random() * 0.3 },
-      { key: "APPLE", confidence: 0.80 + Math.random() * 0.15 },
+      { key: "COOKIE", confidence: 0.70 + Math.random() * 0.25 },
+      { key: "SALAD", confidence: 0.65 + Math.random() * 0.25 },
+      { key: "PIZZA", confidence: 0.68 + Math.random() * 0.27 },
+      { key: "BURGER", confidence: 0.62 + Math.random() * 0.3 },
+      { key: "APPLE", confidence: 0.75 + Math.random() * 0.2 },
     ];
 
-    // Pick one based on timestamp to create some persistence
-    const index = Math.floor(Date.now() / 2000) % foodCategories.length;
+    // Pick based on timestamp but allow gradual transitions
+    const index = Math.floor(Date.now() / 3000) % foodCategories.length;
     return foodCategories[index];
   }
 
