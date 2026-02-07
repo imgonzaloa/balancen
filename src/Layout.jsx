@@ -28,12 +28,13 @@ const navItemsBase = [
 const persistentPages = ["Home", "Social", "Progress", "Profile"];
 
 export default function Layout({ children, currentPageName }) {
-  const hideNav = ["Onboarding", "Paywall", "CameraScreen", "MealResult"].includes(currentPageName);
-  const { t, lang } = useTranslation();
-  const [direction, setDirection] = useState(0);
-  const [prevPage, setPrevPage] = useState(currentPageName);
-  const [isNavigating, setIsNavigating] = useState(false);
-  const [mountedPages, setMountedPages] = useState({});
+    const hideNav = ["Onboarding", "Paywall", "CameraScreen", "MealResult"].includes(currentPageName);
+    const { t, lang } = useTranslation();
+    const [direction, setDirection] = useState(0);
+    const [prevPage, setPrevPage] = useState(currentPageName);
+    const [isNavigating, setIsNavigating] = useState(false);
+    const [mountedPages, setMountedPages] = useState({});
+    const [darkMode, setDarkMode] = useState(false);
 
   // Keep tabs mounted for instant switching
   const isPersistentPage = persistentPages.includes(currentPageName);
@@ -43,6 +44,15 @@ export default function Layout({ children, currentPageName }) {
       setMountedPages(prev => ({ ...prev, [currentPageName]: true }));
     }
   }, [currentPageName, isPersistentPage]);
+
+  // Detect system dark mode preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setDarkMode(mediaQuery.matches);
+    const handler = (e) => setDarkMode(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   // Register service worker for PWA
   useEffect(() => {
@@ -75,8 +85,8 @@ export default function Layout({ children, currentPageName }) {
             <ErrorBoundary screen={currentPageName}>
               <TabErrorBoundary tabName={currentPageName}>
                 <MealProvider>
-                {iOSOptimizer()}
-          <div className="min-h-screen bg-background select-none">
+                                {iOSOptimizer()}
+                          <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`}>
           <Toaster position="top-center" richColors />
           <PerformanceMonitor />
           
