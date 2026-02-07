@@ -95,6 +95,12 @@
   /* Better touch targets */
   .touch-manipulation {
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Instant feedback for active state */
+  .active\:opacity-60:active {
+    opacity: 0.6;
   }
   
   /* Safe area support for notched devices */

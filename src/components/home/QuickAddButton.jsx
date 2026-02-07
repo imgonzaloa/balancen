@@ -7,8 +7,9 @@ export default function QuickAddButton({ onClick }) {
     <motion.button
       onClick={onClick}
       whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="fixed bottom-24 right-6 z-40 w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shadow-2xl shadow-emerald-500/40 flex items-center justify-center border-2 border-white/20"
+      whileTap={{ scale: 0.92 }}
+      className="fixed bottom-24 right-6 z-40 w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shadow-2xl shadow-emerald-500/40 flex items-center justify-center border-2 border-white/20 active:shadow-xl"
+      style={{ willChange: 'transform' }}
     >
       <motion.div
         animate={{ rotate: [0, 90, 0] }}

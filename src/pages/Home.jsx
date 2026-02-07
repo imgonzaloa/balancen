@@ -201,12 +201,10 @@ export default function Home() {
           >
             <div className="text-5xl mb-3">🍽️</div>
             <h3 className="text-white font-bold text-lg mb-2">
-              {t("no_meals_yet") || (lang === "es" ? "Sin comidas registradas" : "No meals yet")}
+              {t("no_meals_yet")}
             </h3>
             <p className="text-white/60 text-sm mb-4">
-              {lang === "es" 
-                ? "Empieza registrando tu primera comida."
-                : "Start by logging your first meal."}
+              {t("tap_to_add_meal")}
             </p>
           </motion.div>
         )}

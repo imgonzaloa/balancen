@@ -13,7 +13,7 @@ export default function RecentActivityTimeline({ recentMeals, profile }) {
     recentMeals.slice(0, 2).forEach((meal) => {
       activities.push({
         icon: Utensils,
-        text: t("meal_registered") || (t("lang") === "es" ? "Comida registrada" : "Meal registered"),
+        text: t("meal_registered"),
         detail: `${meal.estimated_calories} kcal`,
         time: meal.meal_time,
         color: "text-emerald-400",
@@ -25,8 +25,8 @@ export default function RecentActivityTimeline({ recentMeals, profile }) {
   if (profile?.current_streak > 0 && profile.current_streak % 7 === 0) {
     activities.push({
       icon: Flame,
-      text: t("streak_milestone") || "Streak milestone",
-      detail: `${profile.current_streak} days`,
+      text: t("streak_milestone"),
+      detail: `${profile.current_streak} ${t("days")}`,
       color: "text-orange-400",
     });
   }
@@ -37,7 +37,7 @@ export default function RecentActivityTimeline({ recentMeals, profile }) {
   if (todayCalories >= goal * 0.9) {
     activities.push({
       icon: Trophy,
-      text: t("goal_reached") || "Goal almost reached",
+      text: t("goal_almost_reached"),
       detail: `${Math.round((todayCalories / goal) * 100)}%`,
       color: "text-amber-400",
     });
@@ -53,7 +53,7 @@ export default function RecentActivityTimeline({ recentMeals, profile }) {
       className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
     >
       <h3 className="text-white/70 text-xs font-semibold uppercase tracking-wide mb-3">
-        {t("recent_activity") || "Recent Activity"}
+        {t("recent_activity")}
       </h3>
 
       <div className="space-y-2">
