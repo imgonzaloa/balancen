@@ -12,18 +12,18 @@ import { toast } from "sonner";
 import StreakFire from "@/components/ui/StreakFire";
 import { useTranslation } from "@/components/TranslationProvider";
 import SetStatusModal from "@/components/groups/SetStatusModal";
+import ReferralProgress from "@/components/profile/ReferralProgress";
+import { useAppState } from "@/components/AppStateContext";
 
 export default function Profile() {
   const { t, lang } = useTranslation();
-  const [user, setUser] = useState(null);
+  const { user: cachedUser, profile: cachedProfile, isInitialized } = useAppState();
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    base44.auth.me().then(setUser);
-  }, []);
+  const user = cachedUser;
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -31,7 +31,8 @@ export default function Profile() {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
       return profiles[0] || null;
     },
-    enabled: !!user?.email,
+    enabled: !!user?.email && !cachedProfile,
+    initialData: cachedProfile,
   });
 
   useEffect(() => {
@@ -226,6 +227,9 @@ export default function Profile() {
         </motion.div>
 
 
+
+        {/* Referral Progress */}
+        <ReferralProgress profile={profile} />
 
         {/* Daily Note Section */}
         <motion.div

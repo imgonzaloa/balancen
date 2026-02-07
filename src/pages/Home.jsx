@@ -9,29 +9,23 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
-import DailyCalorieGoal from "@/components/home/DailyCalorieGoal";
 import DailyMissions from "@/components/home/DailyMissions";
-
-// Memoize to prevent recreating on every render
-const MemoizedMissions = React.memo(DailyMissions);
-const MemoizedSocialPreview = React.memo(SocialPreview);
-const MemoizedGroupLeaderboard = React.memo(GroupLeaderboardShortcut);
-import StreakBanner from "@/components/home/StreakBanner";
-import SocialPreview from "@/components/home/SocialPreview";
 import MealResultCard from "@/components/home/MealResultCard";
-import LastMealPreview from "@/components/home/LastMealPreview";
 import FireIncreaseAnimation from "@/components/home/FireIncreaseAnimation";
-import GroupLeaderboardShortcut from "@/components/home/GroupLeaderboardShortcut";
 import OwnerRoleChecker from "@/components/OwnerRoleChecker";
-import StatusBubble from "@/components/home/StatusBubble";
-import RecentActivityTimeline from "@/components/home/RecentActivityTimeline";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import MealSavedCelebration from "@/components/home/MealSavedCelebration";
 import DailyMacroRing from "@/components/home/DailyMacroRing";
 import QuickAddButton from "@/components/home/QuickAddButton";
-import AINutritionConfidence from "@/components/home/AINutritionConfidence";
 import MomentumHeroCard from "@/components/home/MomentumHeroCard";
-import AIInsightCard from "@/components/home/AIInsightCard";
+import DynamicGreeting from "@/components/home/DynamicGreeting";
+import NextActionCard from "@/components/home/NextActionCard";
+import SocialHighlight from "@/components/home/SocialHighlight";
+import MicroProgressPulse from "@/components/home/MicroProgressPulse";
+import AIInsightClickable from "@/components/home/AIInsightClickable";
+
+// Memoize to prevent recreating on every render
+const MemoizedMissions = React.memo(DailyMissions);
 
 export default function Home() {
   const { t, lang } = useTranslation();
@@ -42,6 +36,8 @@ export default function Home() {
   const [showFireAnimation, setShowFireAnimation] = useState(false);
   const [fireAmount, setFireAmount] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showMicroPulse, setShowMicroPulse] = useState(false);
+  const [microPulseMessage, setMicroPulseMessage] = useState("");
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.email],
@@ -122,6 +118,10 @@ export default function Home() {
     // Optimistic update - show celebration immediately
     setShowCelebration(true);
     
+    // Micro progress feedback
+    setMicroPulseMessage(lang === "es" ? "¡Comida registrada!" : "Meal logged!");
+    setShowMicroPulse(true);
+    
     // Award fire for meal photo
     if (addedCalories > 0) {
       setFireAmount(2);
@@ -175,20 +175,13 @@ export default function Home() {
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-6 relative z-10 space-y-6">
-        {/* Header with greeting */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-1"
-        >
-          <p className="text-teal-200 text-xs font-semibold uppercase tracking-wide">
-            {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
-          </p>
-          <h1 className="text-4xl font-black text-white">
-            {profile?.display_name || t("welcome")}
-          </h1>
-        </motion.div>
+      <div className="max-w-lg mx-auto px-4 pb-24 pt-6 relative z-10 space-y-5">
+        {/* Dynamic Greeting */}
+        <DynamicGreeting 
+          profile={profile}
+          todayMeals={todayMeals}
+          caloriesGoal={caloriesGoal}
+        />
 
         {/* Note of the day - only in Home, check 24h expiry */}
         {profile?.status_text && (() => {
@@ -214,22 +207,13 @@ export default function Home() {
           profile={profile}
         />
 
-        {/* Empty state for no meals */}
-        {todayMeals.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-md rounded-3xl p-8 border border-purple-500/20 text-center"
-          >
-            <div className="text-6xl mb-4">🍽️</div>
-            <h3 className="text-white font-bold text-xl mb-2">
-              {t("no_meals_yet")}
-            </h3>
-            <p className="text-white/60 text-sm">
-              {t("tap_to_add_meal")}
-            </p>
-          </motion.div>
-        )}
+        {/* Next Action Card */}
+        <NextActionCard 
+          todayMeals={todayMeals}
+          caloriesGoal={caloriesGoal}
+          totalCalories={totalCaloriesToday}
+          friendsCount={friendsList.length}
+        />
 
         {/* Daily Macro Ring - Enhanced nutrition view */}
         <DailyMacroRing 
@@ -240,23 +224,11 @@ export default function Home() {
           fats={totalFats}
         />
 
-        {/* AI Insight Card */}
-        <AIInsightCard 
+        {/* AI Insight Clickable */}
+        <AIInsightClickable 
           todayMeals={todayMeals} 
           profile={profile}
           caloriesGoal={caloriesGoal}
-        />
-
-        {/* AI Nutrition Confidence Score - Interactive */}
-        <AINutritionConfidence todayMeals={todayMeals} profile={profile} />
-
-        {/* Recent Activity Timeline */}
-        <RecentActivityTimeline recentMeals={todayMeals} profile={profile} />
-        
-        {/* Last Meal Preview */}
-        <LastMealPreview 
-          meal={todayMeals[0] || null} 
-          onClick={() => navigate(createPageUrl("CameraScreen"))}
         />
 
         {/* Daily Missions - Only show if has meals */}
@@ -269,16 +241,10 @@ export default function Home() {
           />
         )}
 
-        {/* Group Leaderboard Shortcut */}
-        {topGroupMembers.length > 0 && (
-          <MemoizedGroupLeaderboard topMembers={topGroupMembers} />
-        )}
-
-        {/* Social Preview */}
-        <MemoizedSocialPreview
+        {/* Social Highlight */}
+        <SocialHighlight 
           friendsCount={friendsList.length}
-          groupsCount={groupsList.length}
-          userStreak={profile?.current_streak || 0}
+          topFriendStreak={friendsList.length > 0 ? Math.max(...friendsList.map(f => f.current_streak || 0)) : 0}
         />
       </div>
 
@@ -301,6 +267,13 @@ export default function Home() {
       <MealSavedCelebration 
         show={showCelebration}
         onComplete={() => setShowCelebration(false)}
+      />
+
+      {/* Micro Progress Pulse */}
+      <MicroProgressPulse 
+        show={showMicroPulse}
+        message={microPulseMessage}
+        onComplete={() => setShowMicroPulse(false)}
       />
 
       {/* Floating Quick Add Button */}
