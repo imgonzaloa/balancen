@@ -14,8 +14,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import SetStatusModal from "@/components/groups/SetStatusModal";
 import ReferralProgress from "@/components/profile/ReferralProgress";
 import { useAppState } from "@/components/AppStateContext";
-import { processImage, getUploadErrorMessage } from "@/components/ImageProcessor";
-import { uploadAvatar } from "@/components/utils/RobustUploader";
+import { processImage } from "@/components/ImageProcessor";
 import PhotoPicker from "@/components/profile/PhotoPicker";
 import { logger } from "@/components/logger";
 
