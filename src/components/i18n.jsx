@@ -121,6 +121,17 @@ const resources = {
       processing_image: "Processing image...",
       uploading_photo: "Uploading photo...",
       photo_updated: "Photo updated",
+      
+      // Missing translations
+      ai_recommendations: "AI Recommendations",
+      personalized_tips: "Personalized tips for you",
+      notifications: "Notifications",
+      gentle_reminders: "Gentle reminders",
+      premium_active: "Premium Active",
+      all_features_unlocked: "All features unlocked",
+      upgrade_to_premium_title: "Upgrade to Premium",
+      unlock_all_features: "Unlock all features",
+      language_updated: "Language updated",
     }
   },
   es: {
@@ -242,6 +253,17 @@ const resources = {
       processing_image: "Procesando imagen...",
       uploading_photo: "Subiendo foto...",
       photo_updated: "Foto actualizada",
+      
+      // Missing translations
+      ai_recommendations: "Recomendaciones IA",
+      personalized_tips: "Tips personalizados para vos",
+      notifications: "Notificaciones",
+      gentle_reminders: "Recordatorios suaves",
+      premium_active: "Premium Activo",
+      all_features_unlocked: "Todas las funciones desbloqueadas",
+      upgrade_to_premium_title: "Actualizar a Premium",
+      unlock_all_features: "Desbloquear todas las funciones",
+      language_updated: "Idioma actualizado",
     }
   }
 };

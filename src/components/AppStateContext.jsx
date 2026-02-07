@@ -11,13 +11,21 @@ export function AppStateProvider({ children }) {
   const [todayMeals, setTodayMeals] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize user on mount
+  // Initialize user on mount with timeout
   useEffect(() => {
     const initUser = async () => {
+      const timeout = setTimeout(() => {
+        console.warn('[APP_STATE] Auth check timeout');
+        setUser(null);
+        setIsInitialized(true);
+      }, 3000);
+      
       try {
         const currentUser = await base44.auth.me();
+        clearTimeout(timeout);
         setUser(currentUser);
       } catch (err) {
+        clearTimeout(timeout);
         console.error("Error initializing user:", err);
         setUser(null);
       } finally {
@@ -28,25 +36,47 @@ export function AppStateProvider({ children }) {
     initUser();
   }, []);
 
-  // Parallel data fetching when user loads
+  // Parallel data fetching when user loads with timeout
   useEffect(() => {
     if (!user?.email) return;
     
+    const fetchWithTimeout = (promise, timeoutMs = 10000) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), timeoutMs)
+        )
+      ]);
+    };
+    
     // Fetch all data in parallel for speed
     Promise.all([
-      base44.entities.UserProfile.filter({ created_by: user.email })
-        .then(profiles => setProfile(profiles[0] || null))
-        .catch(() => setProfile(null)),
+      fetchWithTimeout(
+        base44.entities.UserProfile.filter({ created_by: user.email })
+      ).then(profiles => setProfile(profiles[0] || null))
+        .catch((err) => {
+          console.warn('[APP_STATE] Profile fetch failed', err);
+          setProfile(null);
+        }),
       
-      base44.entities.Friend.filter({ created_by: user.email })
-        .then(friendsList => setFriends(friendsList))
-        .catch(() => setFriends([])),
+      fetchWithTimeout(
+        base44.entities.Friend.filter({ created_by: user.email })
+      ).then(friendsList => setFriends(friendsList))
+        .catch((err) => {
+          console.warn('[APP_STATE] Friends fetch failed', err);
+          setFriends([]);
+        }),
       
-      base44.entities.MealLog.filter(
-        { created_by: user.email, date: new Date().toISOString().split("T")[0] },
-        "-meal_time"
+      fetchWithTimeout(
+        base44.entities.MealLog.filter(
+          { created_by: user.email, date: new Date().toISOString().split("T")[0] },
+          "-meal_time"
+        )
       ).then(setTodayMeals)
-        .catch(() => setTodayMeals([]))
+        .catch((err) => {
+          console.warn('[APP_STATE] Meals fetch failed', err);
+          setTodayMeals([]);
+        })
     ]);
   }, [user?.email]);
 

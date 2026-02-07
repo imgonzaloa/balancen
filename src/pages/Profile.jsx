@@ -16,6 +16,7 @@ import ReferralProgress from "@/components/profile/ReferralProgress";
 import { useAppState } from "@/components/AppStateContext";
 import { ImageProcessor, getUploadErrorMessage } from "@/components/utils/ImageProcessor";
 import { RobustUploader } from "@/components/utils/RobustUploader";
+import PhotoPicker from "@/components/profile/PhotoPicker";
 
 export default function Profile() {
   const { t, lang } = useTranslation();
@@ -24,6 +25,7 @@ export default function Profile() {
   const [formData, setFormData] = useState({});
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const queryClient = useQueryClient();
 
   const user = cachedUser;
@@ -199,14 +201,11 @@ export default function Profile() {
   }, [user?.email, profile?.id]);
 
   const handleAvatarClick = () => {
-    // On mobile, show action sheet-like choice
-    if ('showOpenFilePicker' in window) {
-      // Modern browsers support file picker
-      document.getElementById('avatar-upload')?.click();
-    } else {
-      // Fallback: just open file picker (includes camera on mobile)
-      document.getElementById('avatar-upload')?.click();
-    }
+    setShowPhotoPicker(true);
+  };
+  
+  const handlePhotoSelected = (file) => {
+    handleAvatarUpload({ target: { files: [file] } });
   };
 
   const goalLabels = {
@@ -312,15 +311,6 @@ export default function Profile() {
                     </div>
                   )}
                 </motion.button>
-                <input
-                  id="avatar-upload"
-                  type="file"
-                  accept="image/*,image/heic,image/heif"
-                  capture="environment"
-                  onChange={handleAvatarUpload}
-                  disabled={uploadingAvatar}
-                  className="hidden"
-                />
               </div>
               <div className="flex-1">
                 {editMode ? (
@@ -546,6 +536,13 @@ export default function Profile() {
         currentStatus={profile?.status_text}
         profile={profile}
         onUpdate={() => queryClient.invalidateQueries(["profile"])}
+      />
+      
+      {/* Photo Picker */}
+      <PhotoPicker
+        isOpen={showPhotoPicker}
+        onClose={() => setShowPhotoPicker(false)}
+        onSelect={handlePhotoSelected}
       />
     </div>
   );

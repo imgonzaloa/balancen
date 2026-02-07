@@ -193,7 +193,7 @@ export default function Settings() {
                   value={profile?.calories_goal || ""}
                   onChange={(e) => updateMutation.mutate({ calories_goal: parseInt(e.target.value) || null })}
                   className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:border-orange-300 outline-none"
-                  placeholder="Optional - e.g., 2000"
+                  placeholder={lang === "es" ? "Opcional (ej.: 2000)" : "Optional - e.g., 2000"}
                 />
                 <p className="text-xs text-white/40 mt-1">{t('optional_leave_empty')}</p>
               </div>
@@ -317,7 +317,7 @@ export default function Settings() {
             >
               <div className="flex items-center gap-2 mb-4">
                 <Crown size={20} className="text-amber-400" />
-                <h2 className="text-lg font-bold text-white">Admin Tools</h2>
+                <h2 className="text-lg font-bold text-white">{t('admin_tools')}</h2>
               </div>
             </motion.div>
 
@@ -335,8 +335,8 @@ export default function Settings() {
                       <UserPlus size={20} className="text-white" />
                     </div>
                     <div>
-                      <Label className="text-white font-semibold">Invite Collaborators</Label>
-                      <p className="text-xs text-amber-200">Grant free premium access</p>
+                      <Label className="text-white font-semibold">{t('invite_collaborators')}</Label>
+                      <p className="text-xs text-amber-200">{t('grant_free_premium')}</p>
                     </div>
                   </div>
                   <ChevronLeft size={20} className="text-white rotate-180" />
@@ -358,8 +358,8 @@ export default function Settings() {
                       <Users size={20} className="text-purple-300" />
                     </div>
                     <div>
-                      <Label className="text-white font-semibold">User Management</Label>
-                      <p className="text-xs text-white/60">View & manage users</p>
+                      <Label className="text-white font-semibold">{t('user_management')}</Label>
+                      <p className="text-xs text-white/60">{t('view_manage_users')}</p>
                     </div>
                   </div>
                   <ChevronLeft size={20} className="text-white rotate-180" />
