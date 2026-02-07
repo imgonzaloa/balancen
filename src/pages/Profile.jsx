@@ -259,7 +259,7 @@ export default function Profile() {
         {/* Referral Progress */}
         <ReferralProgress profile={profile} />
 
-        {/* Daily Note Section */}
+        {/* Status Note - Single instance */}
         <motion.div
           className="mb-6"
           initial={{ opacity: 0, y: 20 }}
@@ -271,15 +271,15 @@ export default function Profile() {
             className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 shadow-lg flex items-center justify-between hover:bg-white/20 transition-all"
           >
             <div className="flex items-center gap-3">
-              <div className="text-2xl">📝</div>
+              <div className="text-2xl">💭</div>
               <div className="text-left">
                 <p className="font-semibold text-white">
-                  {profile?.status_text || (lang === "es" ? "Agregá nota de hoy" : "Add today's note")}
+                  {profile?.status_text || t("add_status")}
                 </p>
                 <p className="text-xs text-teal-200">
                   {profile?.status_text 
-                    ? (lang === "es" ? "Toca para editar" : "Tap to edit")
-                    : (lang === "es" ? "Opcional • Expira en 24h" : "Optional • Expires in 24h")}
+                    ? t("tap_to_edit")
+                    : t("status_expires_24h")}
                 </p>
               </div>
             </div>

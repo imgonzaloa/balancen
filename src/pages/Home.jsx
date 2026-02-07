@@ -1,38 +1,27 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
-import DailyMissions from "@/components/home/DailyMissions";
+import { Camera, Flame, Target, Users } from "lucide-react";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import MealResultCard from "@/components/home/MealResultCard";
 import FireIncreaseAnimation from "@/components/home/FireIncreaseAnimation";
-import OwnerRoleChecker from "@/components/OwnerRoleChecker";
-import ErrorBoundary from "@/components/ErrorBoundary";
 import MealSavedCelebration from "@/components/home/MealSavedCelebration";
-import DailyMacroRing from "@/components/home/DailyMacroRing";
-import QuickAddButton from "@/components/home/QuickAddButton";
-import MomentumHeroCard from "@/components/home/MomentumHeroCard";
-import DynamicGreeting from "@/components/home/DynamicGreeting";
-import NextActionCard from "@/components/home/NextActionCard";
-import SocialHighlight from "@/components/home/SocialHighlight";
 import MicroProgressPulse from "@/components/home/MicroProgressPulse";
-import AIInsightClickable from "@/components/home/AIInsightClickable";
-
-// Memoize to prevent recreating on every render
-const MemoizedMissions = React.memo(DailyMissions);
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { previewUrl } = useMeal();
-  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
+  const { user, profile: cachedProfile, todayMeals: cachedMeals, friends: cachedFriends, isInitialized } = useAppState();
   const [showFireAnimation, setShowFireAnimation] = useState(false);
   const [fireAmount, setFireAmount] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -63,101 +52,58 @@ export default function Home() {
     initialData: cachedMeals || [],
   });
 
-  const { data: friendsList = [] } = useQuery({
+  const { data: friends = [] } = useQuery({
     queryKey: ["friends", user?.email],
     queryFn: async () => {
-      const sent = await base44.entities.Friend.filter({ user_email: user?.email });
-      const received = await base44.entities.Friend.filter({ friend_email: user?.email });
-      return [...sent, ...received].filter(f => f.status === "accepted");
+      const sent = await base44.entities.Friend.filter({ created_by: user?.email });
+      return sent.filter(f => f.status === "accepted");
     },
-    enabled: !!user?.email,
-    keepPreviousData: true,
+    enabled: !!user?.email && !cachedFriends,
+    initialData: cachedFriends || [],
   });
 
-  const { data: groupsList = [] } = useQuery({
-    queryKey: ["groups", user?.email],
-    queryFn: async () => {
-      const members = await base44.entities.GroupMember.filter({ user_email: user?.email });
-      return members;
-    },
-    enabled: !!user?.email,
-    keepPreviousData: true,
-  });
-
-  const { data: topGroupMembers = [] } = useQuery({
-    queryKey: ["topGroupMembers", groupsList],
-    queryFn: async () => {
-      if (groupsList.length === 0) return [];
-      
-      // Get first group's top members
-      const firstGroupId = groupsList[0].group_id;
-      const members = await base44.entities.GroupMember.filter({ group_id: firstGroupId });
-      const profiles = await Promise.all(
-        members.slice(0, 5).map(async (m) => { // Limit to 5 for performance
-          const p = await base44.entities.UserProfile.filter({ created_by: m.user_email });
-          return { name: m.display_name, fire: p[0]?.fire_total || 0 };
-        })
-      );
-      return profiles.sort((a, b) => b.fire - a.fire);
-    },
-    enabled: groupsList.length > 0,
-    keepPreviousData: true,
-  });
-
-  // Memoize expensive calculations
-  const { totalCaloriesToday, totalProtein, totalCarbs, totalFats } = useMemo(() => ({
+  const { totalCaloriesToday, totalProtein } = useMemo(() => ({
     totalCaloriesToday: todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0),
     totalProtein: todayMeals.reduce((sum, meal) => sum + (meal.estimated_protein || 0), 0),
-    totalCarbs: todayMeals.reduce((sum, meal) => sum + (meal.estimated_carbs || 0), 0),
-    totalFats: todayMeals.reduce((sum, meal) => sum + (meal.estimated_fats || 0), 0),
   }), [todayMeals]);
   
   const caloriesGoal = profile?.calories_goal || 2000;
+  const proteinGoal = Math.round(profile?.weight ? profile.weight * 2 : 150);
+
+  const caloriesPercent = Math.min((totalCaloriesToday / caloriesGoal) * 100, 100);
+  const proteinPercent = Math.min((totalProtein / proteinGoal) * 100, 100);
 
   const handleMealSaved = async (addedCalories) => {
-    // Optimistic update - show celebration immediately
     setShowCelebration(true);
-    
-    // Micro progress feedback
-    setMicroPulseMessage(lang === "es" ? "¡Comida registrada!" : "Meal logged!");
+    setMicroPulseMessage(t("meal_logged"));
     setShowMicroPulse(true);
     
-    // Award fire for meal photo
     if (addedCalories > 0) {
       setFireAmount(2);
       setShowFireAnimation(true);
       
-      // Optimistic fire update
       if (profile) {
         const newFireTotal = (profile.fire_total || 0) + 2;
-        
-        // Update cache immediately
         queryClient.setQueryData(["profile", user?.email], {
           ...profile,
           fire_total: newFireTotal
         });
         
-        // Sync to backend in background
         base44.entities.UserProfile.update(profile.id, {
           fire_total: newFireTotal
-        }).catch(err => {
-          console.error("Fire update failed:", err);
-          // Revert on error
+        }).catch(() => {
           queryClient.invalidateQueries({ queryKey: ["profile"] });
         });
       }
     }
     
-    // Invalidate to refresh with real data
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
   };
 
-  // Show skeleton while loading
   if (!isInitialized || !profile) {
     return <HomeSkeleton />;
   }
 
-  // Redirect to onboarding if no profile
   if (!profile && user) {
     window.location.href = "/Onboarding";
     return null;
@@ -166,119 +112,229 @@ export default function Home() {
   return (
     <ErrorBoundary screen="Home">
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
-        <OwnerRoleChecker user={user} profile={profile} />
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+          <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
 
-      {/* Background effects */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
+        <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 space-y-6">
+          {/* Streak Card */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-orange-500/20 via-red-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-6 border border-orange-500/30 shadow-2xl relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-400/10 rounded-full blur-3xl" />
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center shadow-lg"
+                >
+                  <Flame size={32} className="text-white" />
+                </motion.div>
+                <div>
+                  <p className="text-white/70 text-sm font-medium">{t("current_streak")}</p>
+                  <motion.p 
+                    key={profile?.current_streak}
+                    initial={{ scale: 1.2 }}
+                    animate={{ scale: 1 }}
+                    className="text-white text-4xl font-black"
+                  >
+                    {profile?.current_streak || 0}
+                  </motion.p>
+                  <p className="text-orange-200 text-xs font-medium">{t("days_in_a_row")}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-white/70 text-xs mb-1">{t("total_fire")}</p>
+                <motion.p 
+                  key={profile?.fire_total}
+                  initial={{ scale: 1.2 }}
+                  animate={{ scale: 1 }}
+                  className="text-orange-300 text-3xl font-black"
+                >
+                  {profile?.fire_total || 0}
+                </motion.p>
+              </div>
+            </div>
+          </motion.div>
 
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-6 relative z-10 space-y-5">
-        {/* Dynamic Greeting */}
-        <DynamicGreeting 
-          profile={profile}
-          todayMeals={todayMeals}
-          caloriesGoal={caloriesGoal}
-        />
+          {/* Daily Progress Rings */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-xl relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5" />
+            <h3 className="text-white font-bold text-lg mb-5 relative z-10">{t("today_progress")}</h3>
+            <div className="grid grid-cols-2 gap-4 relative z-10">
+              {/* Calories Ring */}
+              <div className="text-center">
+                <div className="relative w-32 h-32 mx-auto mb-3">
+                  <svg width="128" height="128" className="transform -rotate-90">
+                    <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.1)" strokeWidth="10" fill="none" />
+                    <motion.circle
+                      cx="64"
+                      cy="64"
+                      r="56"
+                      stroke="url(#caloriesGradient)"
+                      strokeWidth="10"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeDasharray={2 * Math.PI * 56}
+                      initial={{ strokeDashoffset: 2 * Math.PI * 56 }}
+                      animate={{ strokeDashoffset: 2 * Math.PI * 56 * (1 - caloriesPercent / 100) }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                    />
+                    <defs>
+                      <linearGradient id="caloriesGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#10b981" />
+                        <stop offset="100%" stopColor="#14b8a6" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <motion.p 
+                      key={totalCaloriesToday}
+                      initial={{ scale: 1.3, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-white text-2xl font-black"
+                    >
+                      {Math.round(totalCaloriesToday)}
+                    </motion.p>
+                    <p className="text-white/40 text-[10px]">/ {caloriesGoal}</p>
+                  </div>
+                </div>
+                <p className="text-white/80 font-semibold text-sm">{t("calories")}</p>
+              </div>
 
-        {/* Note of the day - only in Home, check 24h expiry */}
-        {profile?.status_text && (() => {
-          const isExpired = profile?.status_updated_at ? 
-            (new Date() - new Date(profile.status_updated_at)) / (1000 * 60 * 60) >= 24 : true;
-          return !isExpired && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="flex justify-center"
+              {/* Protein Ring */}
+              <div className="text-center">
+                <div className="relative w-32 h-32 mx-auto mb-3">
+                  <svg width="128" height="128" className="transform -rotate-90">
+                    <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.1)" strokeWidth="10" fill="none" />
+                    <motion.circle
+                      cx="64"
+                      cy="64"
+                      r="56"
+                      stroke="url(#proteinGradient)"
+                      strokeWidth="10"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeDasharray={2 * Math.PI * 56}
+                      initial={{ strokeDashoffset: 2 * Math.PI * 56 }}
+                      animate={{ strokeDashoffset: 2 * Math.PI * 56 * (1 - proteinPercent / 100) }}
+                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                    />
+                    <defs>
+                      <linearGradient id="proteinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#3b82f6" />
+                        <stop offset="100%" stopColor="#8b5cf6" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <motion.p 
+                      key={totalProtein}
+                      initial={{ scale: 1.3, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-white text-2xl font-black"
+                    >
+                      {Math.round(totalProtein)}
+                    </motion.p>
+                    <p className="text-white/40 text-[10px]">/ {proteinGoal}g</p>
+                  </div>
+                </div>
+                <p className="text-white/80 font-semibold text-sm">{t("protein")}</p>
+              </div>
+            </div>
+
+            {/* Meals Logged Counter */}
+            <div className="mt-5 pt-5 border-t border-white/10 text-center">
+              <p className="text-white/60 text-xs mb-1">{t("meals_logged_today")}</p>
+              <p className="text-white text-xl font-bold">{todayMeals.length}/3</p>
+            </div>
+          </motion.div>
+
+          {/* Primary CTA */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Button
+              onClick={() => navigate(createPageUrl("CameraScreen"))}
+              className="w-full h-16 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white font-bold text-lg rounded-2xl shadow-2xl shadow-emerald-500/30"
             >
-              <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                <p className="text-white/80 text-sm">"{profile.status_text}"</p>
+              <Camera size={24} className="mr-3" />
+              {t("log_your_meal")}
+            </Button>
+          </motion.div>
+
+          {/* Friend Activity Highlights */}
+          {friends.length > 0 && (
+            <motion.button
+              onClick={() => navigate(createPageUrl("Social"))}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="w-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 text-left"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Users size={24} className="text-purple-300" />
+                  <div>
+                    <p className="text-white font-semibold">{t("friends_active")}</p>
+                    <p className="text-white/60 text-sm">{friends.length} {t("friends")}</p>
+                  </div>
+                </div>
+                <div className="flex -space-x-2">
+                  {friends.slice(0, 3).map((friend, i) => (
+                    <div
+                      key={i}
+                      className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 border-2 border-slate-900 flex items-center justify-center text-white font-bold text-sm"
+                    >
+                      {friend.display_name?.charAt(0) || "?"}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.button>
+          )}
+
+          {/* Recent Activity */}
+          {todayMeals.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-white/5 backdrop-blur-xl rounded-2xl p-5 border border-white/10"
+            >
+              <h3 className="text-white font-bold mb-4">{t("recent_activity")}</h3>
+              <div className="space-y-3">
+                {todayMeals.slice(0, 3).map((meal, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    {meal.photo_url && (
+                      <img src={meal.photo_url} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                    )}
+                    <div className="flex-1">
+                      <p className="text-white text-sm font-medium">{meal.meal_type || t("meal")}</p>
+                      <p className="text-white/60 text-xs">{meal.estimated_calories || 0} kcal</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </motion.div>
-          );
-        })()}
+          )}
+        </div>
 
-        {/* Momentum Hero Card */}
-        <MomentumHeroCard 
-          streak={profile?.current_streak || 0} 
-          profile={profile}
-        />
-
-        {/* Next Action Card */}
-        <NextActionCard 
-          todayMeals={todayMeals}
-          caloriesGoal={caloriesGoal}
-          totalCalories={totalCaloriesToday}
-          friendsCount={friendsList.length}
-        />
-
-        {/* Daily Macro Ring - Enhanced nutrition view */}
-        <DailyMacroRing 
-          consumed={totalCaloriesToday} 
-          goal={caloriesGoal}
-          protein={totalProtein}
-          carbs={totalCarbs}
-          fats={totalFats}
-        />
-
-        {/* AI Insight Clickable */}
-        <AIInsightClickable 
-          todayMeals={todayMeals} 
-          profile={profile}
-          caloriesGoal={caloriesGoal}
-        />
-
-        {/* Daily Missions - Only show if has meals */}
-        {todayMeals.length > 0 && (
-          <MemoizedMissions
-            todayMeals={todayMeals}
-            consumed={totalCaloriesToday}
-            goal={caloriesGoal}
-            profile={profile}
-          />
-        )}
-
-        {/* Social Highlight */}
-        <SocialHighlight 
-          friendsCount={friendsList.length}
-          topFriendStreak={friendsList.length > 0 ? Math.max(...friendsList.map(f => f.current_streak || 0)) : 0}
-        />
+        {previewUrl && <MealResultCard profile={profile} onSave={handleMealSaved} />}
+        <FireIncreaseAnimation show={showFireAnimation} amount={fireAmount} onComplete={() => setShowFireAnimation(false)} />
+        <MealSavedCelebration show={showCelebration} onComplete={() => setShowCelebration(false)} />
+        <MicroProgressPulse show={showMicroPulse} message={microPulseMessage} onComplete={() => setShowMicroPulse(false)} />
       </div>
-
-      {/* Meal Result Modal */}
-      {previewUrl && (
-        <MealResultCard
-          profile={profile}
-          onSave={handleMealSaved}
-        />
-      )}
-
-      {/* Fire Animation */}
-      <FireIncreaseAnimation 
-        show={showFireAnimation} 
-        amount={fireAmount}
-        onComplete={() => setShowFireAnimation(false)}
-      />
-
-      {/* Meal Saved Celebration */}
-      <MealSavedCelebration 
-        show={showCelebration}
-        onComplete={() => setShowCelebration(false)}
-      />
-
-      {/* Micro Progress Pulse */}
-      <MicroProgressPulse 
-        show={showMicroPulse}
-        message={microPulseMessage}
-        onComplete={() => setShowMicroPulse(false)}
-      />
-
-      {/* Floating Quick Add Button */}
-      <QuickAddButton onClick={() => navigate(createPageUrl("CameraScreen"))} />
-      </div>
-      </ErrorBoundary>
-      );
-      }
+    </ErrorBoundary>
+  );
+}
