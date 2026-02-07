@@ -1,257 +1,240 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronRight, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { useTranslation } from "@/components/TranslationProvider";
-import { Target, Users, User, Zap, Leaf, Mountain, ArrowRight, Check } from "lucide-react";
-
-const steps = [
-  {
-    id: "language",
-    title: "Choose your language",
-    subtitle: "You can change this anytime in settings.",
-    options: [
-      { value: "en", label: "🇬🇧 English", icon: null, color: "bg-blue-500" },
-      { value: "es", label: "🇪🇸 Español", icon: null, color: "bg-red-500" },
-    ],
-  },
-  {
-    id: "primary_goal",
-    title: "What do you want to improve?",
-    subtitle: "This helps us set the right starting point.",
-    options: [
-      { value: "consistency", label: "Stay consistent", icon: Target, color: "bg-teal-500" },
-      { value: "weight_loss", label: "Lose weight", icon: Leaf, color: "bg-emerald-500" },
-      { value: "healthy_habits", label: "Build healthy habits", icon: Zap, color: "bg-orange-500" },
-      { value: "stay_active", label: "Stay active", icon: Mountain, color: "bg-purple-500" },
-    ],
-  },
-  {
-    id: "social_mode",
-    title: "How will you use Balancen?",
-    subtitle: "You can change this later.",
-    options: [
-      { value: "just_me", label: "Just me", icon: User, color: "bg-indigo-500" },
-      { value: "with_friends", label: "With friends", icon: Users, color: "bg-pink-500" },
-      { value: "with_team", label: "With my team", icon: Users, color: "bg-rose-500" },
-    ],
-  },
-];
+import { toast } from "sonner";
 
 export default function Onboarding() {
-  const [currentStep, setCurrentStep] = useState(-1);
-  const [selections, setSelections] = useState({});
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
   const [user, setUser] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const { changeLanguage } = useTranslation();
+  const [formData, setFormData] = useState({
+    display_name: "",
+    primary_goal: "consistency",
+    intensity_level: "normal",
+    social_mode: "just_me",
+  });
 
   useEffect(() => {
     base44.auth.me().then(setUser);
+    
+    // Check for referral code in URL
+    const params = new URLSearchParams(window.location.search);
+    const inviteCode = params.get("invite");
+    if (inviteCode) {
+      localStorage.setItem("pending_referral", inviteCode);
+    }
   }, []);
 
-  const step = currentStep >= 0 ? steps[currentStep] : null;
-
-  const handleSelect = (value) => {
-    setSelections({ ...selections, [step.id]: value });
-    
-    // Change language immediately if language selection
-    if (step.id === "language") {
-      changeLanguage(value);
-    }
-  };
-
   const handleComplete = async () => {
-    setSaving(true);
-    
-    const OWNER_EMAIL = "imgonzaloa@gmail.com";
-    
-    // Owner gets premium automatically
-    const isOwner = user.email?.toLowerCase() === OWNER_EMAIL.toLowerCase();
-    
-    console.log("🔐 Onboarding - Creating profile for:", user.email, "isOwner:", isOwner);
-    
-    // Check if invited as collaborator
-    const collaborators = await base44.entities.Collaborator.filter({
-      email: user.email.toLowerCase(),
-      has_registered: false
-    });
-    const isCollaborator = collaborators.length > 0;
-    
-    await base44.entities.UserProfile.create({
-      display_name: user?.full_name?.split(" ")[0] || "User",
-      role: isOwner ? "owner" : "user",
-      language: selections.language || "en",
-      primary_goal: selections.primary_goal,
-      social_mode: selections.social_mode,
-      current_streak: 0,
-      longest_streak: 0,
-      total_checkins: 0,
-      onboarding_completed: true,
-      badges: [],
-      is_premium: isOwner || isCollaborator,
-      premium_status: (isOwner || isCollaborator) ? "active" : undefined,
-    });
-    
-    // Marcar colaborador como registrado
-    if (isCollaborator) {
-      await base44.entities.Collaborator.update(collaborators[0].id, {
-        has_registered: true
+    try {
+      await base44.entities.UserProfile.create({
+        ...formData,
+        onboarding_completed: true,
       });
+
+      // Process referral if exists
+      const pendingReferral = localStorage.getItem("pending_referral");
+      if (pendingReferral) {
+        try {
+          await base44.functions.invoke("handleReferralSignup", {
+            invite_code: pendingReferral,
+          });
+          localStorage.removeItem("pending_referral");
+        } catch (err) {
+          console.error("Referral processing failed:", err);
+        }
+      }
+
+      navigate(createPageUrl("Home"));
+    } catch (error) {
+      toast.error("Error creating profile");
     }
-    
-    window.location.href = createPageUrl("OnboardingTransition");
   };
 
-  const handleNext = async () => {
-    if (currentStep === -1) {
-      setCurrentStep(0);
-    } else if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      await handleComplete();
-    }
-  };
+  const goals = [
+    { value: "consistency", label: "Be more consistent", emoji: "🎯" },
+    { value: "eat_better", label: "Eat better", emoji: "🥗" },
+    { value: "move_more", label: "Move more", emoji: "🏃" },
+    { value: "train_regularly", label: "Train regularly", emoji: "💪" },
+  ];
 
-  const isLastStep = currentStep === steps.length - 1;
-  const hasSelection = currentStep === -1 || selections[step?.id];
+  const intensities = [
+    { value: "easy", label: "Easy", desc: "Gentle pace" },
+    { value: "normal", label: "Normal", desc: "Balanced approach" },
+    { value: "challenging", label: "Challenging", desc: "Push yourself" },
+  ];
+
+  const socialModes = [
+    { value: "just_me", label: "Solo", emoji: "🧘", desc: "Private journey" },
+    { value: "with_friends", label: "With Friends", emoji: "👥", desc: "Share progress" },
+    { value: "with_team", label: "Team", emoji: "🏆", desc: "Join groups" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden flex flex-col">
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      </div>
-
-      {/* Progress */}
-      {currentStep >= 0 && (
-        <div className="px-6 pt-8 relative z-10">
-          <div className="flex gap-2">
-            {steps.map((_, i) => (
-              <div
-                key={i}
-                className={`flex-1 h-1 rounded-full transition-colors ${
-                  i <= currentStep ? "bg-teal-400" : "bg-white/20"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="flex-1 px-6 py-8 relative z-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center p-6">
+      <div className="max-w-md w-full">
         <AnimatePresence mode="wait">
-          {currentStep === -1 ? (
+          {step === 1 && (
             <motion.div
-              key="welcome"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              className="text-center flex flex-col items-center justify-center h-full"
-            >
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <h1 className="text-5xl font-black bg-gradient-to-r from-white to-teal-100 bg-clip-text text-transparent mb-6">
-                  Welcome to Balancen
-                </h1>
-                <p className="text-2xl text-teal-200 font-semibold mb-8">
-                  Build consistency, not perfection.
-                </p>
-              </motion.div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key={step.id}
+              key="step1"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              className="space-y-6"
             >
-              <h1 className="text-2xl font-bold text-white mb-2">
-                {step.title}
-              </h1>
-              <p className="text-teal-200 mb-8">{step.subtitle}</p>
+              <div className="text-center mb-8">
+                <Sparkles className="w-16 h-16 text-teal-400 mx-auto mb-4" />
+                <h1 className="text-3xl font-black text-white mb-2">Welcome!</h1>
+                <p className="text-white/60">Let's personalize your experience</p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20">
+                <label className="text-white font-semibold mb-3 block">What should we call you?</label>
+                <Input
+                  value={formData.display_name}
+                  onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
+                  placeholder="Your name"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-12 text-lg"
+                />
+              </div>
+
+              <Button
+                onClick={() => setStep(2)}
+                disabled={!formData.display_name}
+                className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-lg rounded-2xl"
+              >
+                Continue <ChevronRight className="ml-2" />
+              </Button>
+            </motion.div>
+          )}
+
+          {step === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-black text-white mb-2">What's your main goal?</h2>
+                <p className="text-white/60">Choose what matters most</p>
+              </div>
 
               <div className="space-y-3">
-                {step.options.map((option) => {
-                  const Icon = option.icon;
-                  const isSelected = selections[step.id] === option.value;
-
-                  return (
-                    <motion.button
-                      key={option.value}
-                      onClick={() => handleSelect(option.value)}
-                      className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 transition-all ${
-                        isSelected
-                          ? "border-teal-400 bg-white/20 backdrop-blur-sm"
-                          : "border-white/20 bg-white/10 backdrop-blur-sm hover:border-white/40"
-                      }`}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                    >
-                      {Icon && (
-                        <div
-                          className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                            isSelected ? option.color : "bg-white/10"
-                          }`}
-                        >
-                          <Icon
-                            size={24}
-                            className={isSelected ? "text-white" : "text-white/60"}
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1 text-left">
-                        <p className={`font-semibold ${isSelected ? "text-white" : "text-white/80"}`}>
-                          {option.label}
-                        </p>
-                        {option.description && (
-                          <p className="text-sm text-white/60">{option.description}</p>
-                        )}
-                      </div>
-                      {isSelected && (
-                        <div className="w-6 h-6 rounded-full bg-teal-400 flex items-center justify-center">
-                          <Check size={14} className="text-white" strokeWidth={3} />
-                        </div>
-                      )}
-                    </motion.button>
-                  );
-                })}
+                {goals.map((goal) => (
+                  <button
+                    key={goal.value}
+                    onClick={() => setFormData({ ...formData, primary_goal: goal.value })}
+                    className={`w-full p-4 rounded-2xl border-2 transition-all ${
+                      formData.primary_goal === goal.value
+                        ? "border-teal-400 bg-teal-500/20"
+                        : "border-white/20 bg-white/5"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">{goal.emoji}</span>
+                      <span className="text-white font-semibold">{goal.label}</span>
+                    </div>
+                  </button>
+                ))}
               </div>
+
+              <Button
+                onClick={() => setStep(3)}
+                className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-lg rounded-2xl"
+              >
+                Continue <ChevronRight className="ml-2" />
+              </Button>
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-black text-white mb-2">Choose your pace</h2>
+                <p className="text-white/60">How challenging should it be?</p>
+              </div>
+
+              <div className="space-y-3">
+                {intensities.map((intensity) => (
+                  <button
+                    key={intensity.value}
+                    onClick={() => setFormData({ ...formData, intensity_level: intensity.value })}
+                    className={`w-full p-4 rounded-2xl border-2 transition-all ${
+                      formData.intensity_level === intensity.value
+                        ? "border-teal-400 bg-teal-500/20"
+                        : "border-white/20 bg-white/5"
+                    }`}
+                  >
+                    <p className="text-white font-semibold">{intensity.label}</p>
+                    <p className="text-white/60 text-sm">{intensity.desc}</p>
+                  </button>
+                ))}
+              </div>
+
+              <Button
+                onClick={() => setStep(4)}
+                className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-lg rounded-2xl"
+              >
+                Continue <ChevronRight className="ml-2" />
+              </Button>
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div
+              key="step4"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-black text-white mb-2">How do you prefer to use the app?</h2>
+                <p className="text-white/60">You can change this later</p>
+              </div>
+
+              <div className="space-y-3">
+                {socialModes.map((mode) => (
+                  <button
+                    key={mode.value}
+                    onClick={() => setFormData({ ...formData, social_mode: mode.value })}
+                    className={`w-full p-4 rounded-2xl border-2 transition-all ${
+                      formData.social_mode === mode.value
+                        ? "border-teal-400 bg-teal-500/20"
+                        : "border-white/20 bg-white/5"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-1">
+                      <span className="text-2xl">{mode.emoji}</span>
+                      <span className="text-white font-semibold">{mode.label}</span>
+                    </div>
+                    <p className="text-white/60 text-sm text-left ml-11">{mode.desc}</p>
+                  </button>
+                ))}
+              </div>
+
+              <Button
+                onClick={handleComplete}
+                className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-lg rounded-2xl"
+              >
+                Get Started <ChevronRight className="ml-2" />
+              </Button>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      {/* Bottom */}
-      <div className="px-6 pb-8 relative z-10">
-        <motion.button
-          onClick={handleNext}
-          disabled={!hasSelection || saving}
-          className={`w-full py-5 rounded-2xl font-semibold text-lg flex items-center justify-center gap-2 transition-all ${
-            hasSelection
-              ? "bg-gradient-to-r from-teal-400 to-emerald-500 text-white shadow-xl shadow-teal-500/50"
-              : "bg-white/10 text-white/40 border-2 border-white/20"
-          }`}
-          whileHover={hasSelection ? { scale: 1.02 } : {}}
-          whileTap={hasSelection ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <motion.div
-              className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-            />
-          ) : (
-            <>
-              {currentStep === -1 ? "Get started" : isLastStep ? "Start" : "Continue"}
-              <ArrowRight size={20} />
-            </>
-          )}
-        </motion.button>
       </div>
     </div>
   );

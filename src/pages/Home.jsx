@@ -214,29 +214,21 @@ export default function Home() {
           profile={profile}
         />
 
-        {/* Empty state for no meals - show during loading too */}
-        {todayMeals.length === 0 && !mealsLoading && (
+        {/* Empty state for no meals */}
+        {todayMeals.length === 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 text-center"
+            className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-md rounded-3xl p-8 border border-purple-500/20 text-center"
           >
-            <div className="text-5xl mb-3">🍽️</div>
-            <h3 className="text-white font-bold text-lg mb-2">
+            <div className="text-6xl mb-4">🍽️</div>
+            <h3 className="text-white font-bold text-xl mb-2">
               {t("no_meals_yet")}
             </h3>
-            <p className="text-white/60 text-sm mb-4">
+            <p className="text-white/60 text-sm">
               {t("tap_to_add_meal")}
             </p>
           </motion.div>
-        )}
-        
-        {/* Loading skeleton for meals */}
-        {mealsLoading && todayMeals.length === 0 && (
-          <div className="bg-white/5 rounded-2xl p-6 border border-white/10 animate-pulse">
-            <div className="h-4 bg-white/10 rounded w-32 mb-3" />
-            <div className="h-20 bg-white/10 rounded" />
-          </div>
         )}
 
         {/* Daily Macro Ring - Enhanced nutrition view */}
@@ -267,13 +259,15 @@ export default function Home() {
           onClick={() => navigate(createPageUrl("CameraScreen"))}
         />
 
-        {/* Daily Missions */}
-        <MemoizedMissions
-          todayMeals={todayMeals}
-          consumed={totalCaloriesToday}
-          goal={caloriesGoal}
-          profile={profile}
-        />
+        {/* Daily Missions - Only show if has meals */}
+        {todayMeals.length > 0 && (
+          <MemoizedMissions
+            todayMeals={todayMeals}
+            consumed={totalCaloriesToday}
+            goal={caloriesGoal}
+            profile={profile}
+          />
+        )}
 
         {/* Group Leaderboard Shortcut */}
         {topGroupMembers.length > 0 && (

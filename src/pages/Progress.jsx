@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -6,28 +6,25 @@ import { TrendingUp, Target, Calendar } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { ProgressSkeleton } from "@/components/ui/ScreenSkeleton";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { useAppState } from "@/components/AppStateContext";
 
 export default function Progress() {
   const { t, lang } = useTranslation();
-  const [user, setUser] = useState(null);
+  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
 
-  React.useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
-
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const { data: profile } = useQuery({
     queryKey: ["profile", user?.email],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
       return profiles[0] || null;
     },
-    enabled: !!user?.email,
-    keepPreviousData: true,
+    enabled: !!user?.email && !cachedProfile,
+    initialData: cachedProfile,
   });
 
   const today = new Date().toISOString().split("T")[0];
 
-  const { data: todayMeals = [], isLoading: mealsLoading } = useQuery({
+  const { data: todayMeals = [] } = useQuery({
     queryKey: ["meals", today, user?.email],
     queryFn: async () => {
       return base44.entities.MealLog.filter(
@@ -35,8 +32,8 @@ export default function Progress() {
         "-meal_time"
       );
     },
-    enabled: !!user?.email,
-    keepPreviousData: true,
+    enabled: !!user?.email && !cachedMeals,
+    initialData: cachedMeals || [],
   });
 
   // Memoize all calculations - must be before early returns
@@ -83,7 +80,7 @@ export default function Progress() {
     daysToGoal
   } = calculations;
 
-  if (!user || (profileLoading && !profile)) {
+  if (!isInitialized || !profile) {
     return <ProgressSkeleton />;
   }
 
