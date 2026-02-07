@@ -237,22 +237,40 @@ export default function Groups() {
                         </button>
                       </div>
 
-                      {/* Top performers */}
-                      <div className="space-y-2">
-                        {sortedMembers.slice(0, 3).map((member, i) => (
-                          <div key={member.id} className="flex items-center justify-between bg-white/5 rounded-lg p-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              {i === 0 && <Medal size={16} className="text-yellow-400" />}
-                              {i === 1 && <Medal size={16} className="text-gray-300" />}
-                              {i === 2 && <Medal size={16} className="text-orange-400" />}
-                              <div className="min-w-0">
-                                <p className="text-white font-medium text-sm truncate">{member.profile?.display_name || member.display_name}</p>
+                      {/* Members Grid with Avatars */}
+                      <div className="grid grid-cols-4 gap-3">
+                        {sortedMembers.slice(0, 8).map((member, i) => (
+                          <div key={member.id} className="flex flex-col items-center">
+                            {/* Avatar */}
+                            <div className="relative">
+                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg border-2 border-white/20">
+                                {(member.profile?.display_name || member.display_name || "?").charAt(0).toUpperCase()}
                               </div>
+                              {/* Rank Badge */}
+                              {i < 3 && (
+                                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center">
+                                  {i === 0 && <Medal size={12} className="text-yellow-400" />}
+                                  {i === 1 && <Medal size={12} className="text-gray-300" />}
+                                  {i === 2 && <Medal size={12} className="text-orange-400" />}
+                                </div>
+                              )}
                             </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <Flame size={14} className="text-orange-400" />
-                              <span className="text-white font-bold text-sm">{member.profile?.current_streak || 0}</span>
+                            {/* Name + Fire */}
+                            <p className="text-white/80 text-xs mt-1 truncate w-full text-center">
+                              {(member.profile?.display_name || member.display_name || "").split(" ")[0]}
+                            </p>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <Flame size={10} className="text-orange-400" />
+                              <span className="text-white text-xs font-bold tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>
+                                {member.profile?.fire_total || 0}
+                              </span>
                             </div>
+                            {/* Status Text */}
+                            {member.profile?.status_text && (
+                              <p className="text-[9px] text-purple-200/60 mt-0.5 truncate w-full text-center italic">
+                                {member.profile.status_text}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>

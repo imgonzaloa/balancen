@@ -208,9 +208,11 @@ export default function MealResultCard({ profile, onSave }) {
       // Clear capture state
       clearCapture();
 
-      // Trigger parent callback
+      const caloriesAdded = parseInt(editedCalories) || 0;
+      
+      // Trigger parent callback with calories
       if (onSave) {
-        onSave();
+        onSave(caloriesAdded);
       }
 
       toast.success(t("meal_saved"));

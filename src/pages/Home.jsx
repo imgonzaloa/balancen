@@ -15,6 +15,7 @@ import SocialPreview from "@/components/home/SocialPreview";
 import MealResultCard from "@/components/home/MealResultCard";
 import LastMealPreview from "@/components/home/LastMealPreview";
 import FireIncreaseAnimation from "@/components/home/FireIncreaseAnimation";
+import GroupLeaderboardShortcut from "@/components/home/GroupLeaderboardShortcut";
 import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 
 export default function Home() {
@@ -72,6 +73,25 @@ export default function Home() {
       return members;
     },
     enabled: !!user?.email,
+  });
+
+  const { data: topGroupMembers = [] } = useQuery({
+    queryKey: ["topGroupMembers", groupsList],
+    queryFn: async () => {
+      if (groupsList.length === 0) return [];
+      
+      // Get first group's top members
+      const firstGroupId = groupsList[0].group_id;
+      const members = await base44.entities.GroupMember.filter({ group_id: firstGroupId });
+      const profiles = await Promise.all(
+        members.map(async (m) => {
+          const p = await base44.entities.UserProfile.filter({ created_by: m.user_email });
+          return { name: m.display_name, fire: p[0]?.fire_total || 0 };
+        })
+      );
+      return profiles.sort((a, b) => b.fire - a.fire);
+    },
+    enabled: groupsList.length > 0,
   });
 
   if (!profileLoading && !profile && user) {
@@ -166,6 +186,11 @@ export default function Home() {
           goal={caloriesGoal}
           profile={profile}
         />
+
+        {/* Group Leaderboard Shortcut */}
+        {topGroupMembers.length > 0 && (
+          <GroupLeaderboardShortcut topMembers={topGroupMembers} />
+        )}
 
         {/* Social Preview */}
         <SocialPreview
