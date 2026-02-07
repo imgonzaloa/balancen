@@ -11,6 +11,8 @@ import PerformanceMonitor from "@/components/PerformanceMonitor";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AppStateProvider } from "@/components/AppStateContext";
 import AppErrorBoundary from "@/components/AppErrorBoundary";
+import VersionGate from "@/components/VersionGate";
+import iOSOptimizer from "@/components/iOSOptimizer";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -63,10 +65,12 @@ export default function Layout({ children, currentPageName }) {
 
 
   return (
-    <AppStateProvider>
-      <AppErrorBoundary>
-        <ErrorBoundary screen={currentPageName}>
-          <MealProvider>
+    <VersionGate>
+      <AppStateProvider>
+        <AppErrorBoundary>
+          <ErrorBoundary screen={currentPageName}>
+            <MealProvider>
+            {iOSOptimizer()}
           <div className="min-h-screen bg-background select-none">
           <Toaster position="top-center" richColors />
           <PerformanceMonitor />
@@ -154,9 +158,10 @@ export default function Layout({ children, currentPageName }) {
         </nav>
         )}
         </div>
-        </MealProvider>
-        </ErrorBoundary>
+          </MealProvider>
+          </ErrorBoundary>
         </AppErrorBoundary>
         </AppStateProvider>
+        </VersionGate>
         );
         }

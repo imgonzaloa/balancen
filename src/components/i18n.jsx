@@ -83,6 +83,10 @@ const resources = {
       optional_leave_empty: "Optional - leave empty if unsure",
       goals_targets: "Goals & Targets",
       set_daily_goals: "Set your daily goals",
+      session_expired: "Session expired",
+      please_login_again: "Please login again",
+      connection_error: "Connection error",
+      check_internet: "Check your internet connection",
       
       // Referral
       invite_friends: "Invite Friends",
@@ -200,6 +204,10 @@ const resources = {
       optional_leave_empty: "Opcional - dejalo vacío si no estás seguro",
       goals_targets: "Objetivos y Metas",
       set_daily_goals: "Configurar objetivos diarios",
+      session_expired: "Sesión expirada",
+      please_login_again: "Por favor ingresá de nuevo",
+      connection_error: "Error de conexión",
+      check_internet: "Revisá tu conexión a internet",
       
       // Referral
       invite_friends: "Invitar Amigos",
