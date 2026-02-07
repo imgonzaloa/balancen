@@ -27,6 +27,23 @@ export function AppStateProvider({ children }) {
         clearTimeout(timeout);
         setUser(currentUser);
         logger.log('AUTH_CHECK_SUCCESS', { email: currentUser?.email });
+        
+        // Check first-time setup
+        if (currentUser?.email) {
+          const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
+          
+          // No profile = new user, go to language selector
+          if (!profiles?.[0]) {
+            window.location.href = '/LanguageSelector';
+            return;
+          }
+          
+          // Profile exists but onboarding not completed
+          if (!profiles[0].onboarding_completed) {
+            window.location.href = '/Onboarding';
+            return;
+          }
+        }
       } catch (err) {
         clearTimeout(timeout);
         logger.error('AUTH_CHECK_ERROR', err);
