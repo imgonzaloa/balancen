@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
+import LiveDetectionOverlay from "@/components/camera/LiveDetectionOverlay";
 
 export default function CameraScreen() {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export default function CameraScreen() {
   const [cameraError, setCameraError] = useState(null);
   const [videoReady, setVideoReady] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [showFlash, setShowFlash] = useState(false);
 
   useEffect(() => {
     initCamera();
@@ -81,6 +83,15 @@ export default function CameraScreen() {
     }
 
     setIsCapturing(true);
+
+    // Flash effect
+    setShowFlash(true);
+    setTimeout(() => setShowFlash(false), 200);
+
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
 
     try {
       const video = videoRef.current;
@@ -206,6 +217,9 @@ export default function CameraScreen() {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
+      {/* Live Detection Overlay - AI working before capture */}
+      {videoReady && <LiveDetectionOverlay videoRef={videoRef} />}
+
       {/* Live Framing Assist Overlay */}
       {videoReady && (
         <div className="absolute inset-0 z-[5] flex items-center justify-center pointer-events-none">
@@ -225,6 +239,11 @@ export default function CameraScreen() {
         </div>
       )}
 
+      {/* Flash effect */}
+      {showFlash && (
+        <div className="absolute inset-0 bg-white z-[20] animate-flash" />
+      )}
+
       {/* Close button */}
       <button
         onClick={handleClose}
@@ -238,7 +257,7 @@ export default function CameraScreen() {
         <div className="flex gap-3">
           <button
             onClick={handleClose}
-            className="flex-1 py-4 rounded-xl bg-white/10 border border-white/20 text-white font-semibold"
+            className="flex-1 py-4 rounded-xl bg-white/10 border border-white/20 text-white font-semibold transition-transform active:scale-95"
           >
             {t("cancel")}
           </button>
@@ -246,7 +265,7 @@ export default function CameraScreen() {
           <button
             onClick={capturePhoto}
             disabled={!videoReady || isCapturing}
-            className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-transform active:scale-95 shadow-lg shadow-emerald-500/30"
           >
             {isCapturing ? t("capturing") : t("capture")}
           </button>
