@@ -39,9 +39,16 @@ export default function DailyCalorieGoal({ consumed, goal }) {
           </div>
           <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
             <p className="text-xs text-white/60 mb-3 font-semibold">{t("remaining")}</p>
-            <p className={`text-4xl font-bold leading-none mb-2 tabular-nums ${isExceeded ? "text-red-400" : "text-emerald-400"}`} style={{ fontVariantNumeric: "tabular-nums" }}>
+            <motion.p 
+              key={remaining}
+              initial={{ scale: 1.2, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className={`text-4xl font-bold leading-none mb-2 tabular-nums ${isExceeded ? "text-red-400" : "text-emerald-400"}`} 
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
               {Math.round(remaining)}
-            </p>
+            </motion.p>
             <p className="text-xs text-white/40">kcal</p>
           </div>
           <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
@@ -74,22 +81,29 @@ export default function DailyCalorieGoal({ consumed, goal }) {
           </div>
           </div>
 
-          {/* Status message */}
-          {!isExceeded && !isComplete && (
-          <p className="text-sm text-emerald-300 text-center font-medium">
-          🎯 {t("keep_going")} {Math.round(remaining)} {t("kcal_left")}
-          </p>
-          )}
-          {isComplete && !isExceeded && (
-          <p className="text-sm text-emerald-300 text-center font-medium">
-          ✨ {t("goal_reached_perfect")}
-          </p>
-          )}
-          {isExceeded && (
-          <p className="text-sm text-red-300 text-center font-medium">
-          ⚠️ {t("goal_exceeded_back_on_track")}
-          </p>
-          )}
+          {/* Motivational micro-copy */}
+          <motion.div
+            key={isComplete ? "complete" : isExceeded ? "exceeded" : "ongoing"}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            {!isExceeded && !isComplete && (
+              <p className="text-sm text-emerald-300 font-medium">
+                🎯 {t("keep_going") || "Keep going"} — {t("building_consistency") || "you're building consistency"}
+              </p>
+            )}
+            {isComplete && !isExceeded && (
+              <p className="text-sm text-emerald-300 font-medium">
+                ✨ {t("goal_reached_perfect") || "Perfect! Goal reached"}
+              </p>
+            )}
+            {isExceeded && (
+              <p className="text-sm text-red-300 font-medium">
+                ⚠️ {t("goal_exceeded_back_on_track") || "Over goal — back on track tomorrow"}
+              </p>
+            )}
+          </motion.div>
     </motion.div>
   );
 }

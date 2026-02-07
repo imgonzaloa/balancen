@@ -19,6 +19,7 @@ import GroupLeaderboardShortcut from "@/components/home/GroupLeaderboardShortcut
 import OwnerRoleChecker from "@/components/OwnerRoleChecker";
 import StatusBubble from "@/components/home/StatusBubble";
 import RecentActivityTimeline from "@/components/home/RecentActivityTimeline";
+import MealSavedCelebration from "@/components/home/MealSavedCelebration";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [showFireAnimation, setShowFireAnimation] = useState(false);
   const [fireAmount, setFireAmount] = useState(0);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -124,6 +126,9 @@ export default function Home() {
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
     queryClient.invalidateQueries({ queryKey: ["profile"] });
     
+    // Show celebration
+    setShowCelebration(true);
+    
     // Award fire for meal photo
     if (addedCalories > 0) {
       setFireAmount(2);
@@ -136,8 +141,6 @@ export default function Home() {
         });
       }
     }
-    
-    toast.success("🍽️ " + t("meal_saved"));
   };
 
   return (
@@ -226,6 +229,12 @@ export default function Home() {
         show={showFireAnimation} 
         amount={fireAmount}
         onComplete={() => setShowFireAnimation(false)}
+      />
+
+      {/* Meal Saved Celebration */}
+      <MealSavedCelebration 
+        show={showCelebration}
+        onComplete={() => setShowCelebration(false)}
       />
     </div>
   );
