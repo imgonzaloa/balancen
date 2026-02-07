@@ -42,18 +42,21 @@ export default function Onboarding() {
 
   const handleComplete = async () => {
     try {
-      // Get or create profile with onboarding data
+      // Get or create profile with onboarding data + MARK AS COMPLETED
       const existingProfile = await base44.entities.UserProfile.filter({ created_by: user?.email });
       
       if (existingProfile?.length > 0) {
-        // Update existing profile with onboarding answers
+        // Update existing profile: answers + onboarding_completed=true
         await base44.entities.UserProfile.update(existingProfile[0].id, {
           ...formData,
+          onboarding_completed: true, // CRITICAL: Mark as complete
         });
       } else {
-        // Create new profile with onboarding answers
+        // Create new profile with onboarding answers + completed flag
         await base44.entities.UserProfile.create({
           ...formData,
+          display_name: user?.full_name || 'User',
+          onboarding_completed: true, // CRITICAL: Mark as complete
         });
       }
 
@@ -70,8 +73,8 @@ export default function Onboarding() {
         }
       }
 
-      // Go to profile setup (photo + username + onboarding_completed flag)
-      navigate(createPageUrl("ProfileSetup"));
+      // Onboarding complete: go straight to Home (not ProfileSetup)
+      navigate(createPageUrl("Home"));
     } catch (error) {
       toast.error("Error creating profile");
     }
