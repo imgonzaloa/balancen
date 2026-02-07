@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Heart, TrendingUp, Flame, Award } from "lucide-react";
+import { Heart, TrendingUp, Flame, Award, Users } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Social() {
@@ -134,75 +134,87 @@ export default function Social() {
         {hasFriends && activityFeed.length > 0 && (
           <div className="space-y-4 px-4">
             {activityFeed.map((activity, idx) => (
-            <motion.div
-              key={activity.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              {activity.type === "meal" && activity.image && (
-                <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10">
-                  {/* User header */}
-                  <div className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl">
-                      {activity.user.avatar}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-white font-semibold text-sm">{activity.user.name}</p>
-                      <p className="text-white/50 text-xs">{activity.timestamp}</p>
-                    </div>
-                  </div>
-
-                  {/* Meal image */}
-                  <div className="relative h-64 bg-black">
-                    <img 
-                      src={activity.image} 
-                      alt="Meal"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  {/* Meal info */}
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <p className="text-emerald-400 text-2xl font-black tabular-nums">
-                        {activity.calories || 0} <span className="text-white/40 text-sm">kcal</span>
-                      </p>
-                    </div>
-
-                    {/* Macros */}
-                    <div className="flex gap-3">
-                      <div className="flex-1 bg-blue-500/20 rounded-lg px-3 py-2 border border-blue-500/30">
-                        <p className="text-blue-300 text-xs">{lang === "es" ? "Proteína" : "Protein"}</p>
-                        <p className="text-white font-bold">{activity.protein || 0}g</p>
+              <motion.div
+                key={activity.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+              >
+                {activity.type === "meal" && activity.image && (
+                  <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10">
+                    {/* User header */}
+                    <div className="p-4 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl">
+                        {activity.user.avatar}
                       </div>
-                      <div className="flex-1 bg-orange-500/20 rounded-lg px-3 py-2 border border-orange-500/30">
-                        <p className="text-orange-300 text-xs">{lang === "es" ? "Carbos" : "Carbs"}</p>
-                        <p className="text-white font-bold">{activity.carbs || 0}g</p>
-                      </div>
-                      <div className="flex-1 bg-purple-500/20 rounded-lg px-3 py-2 border border-purple-500/30">
-                        <p className="text-purple-300 text-xs">{lang === "es" ? "Grasas" : "Fats"}</p>
-                        <p className="text-white font-bold">{activity.fats || 0}g</p>
+                      <div className="flex-1">
+                        <p className="text-white font-semibold text-sm">{activity.user.name}</p>
+                        <p className="text-white/50 text-xs">{activity.timestamp}</p>
                       </div>
                     </div>
 
-                    {/* Reaction buttons */}
-                    <div className="flex gap-2 pt-2 border-t border-white/10">
-                      <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-white/5 hover:bg-white/10">
-                        <Flame size={16} className="text-orange-400" />
-                        <span className="text-white text-sm font-medium">🔥</span>
-                      </button>
-                      <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-white/5 hover:bg-white/10">
-                        <Heart size={16} className="text-red-400" />
-                        <span className="text-white text-sm font-medium">👍</span>
-                      </button>
+                    {/* Meal image */}
+                    <div className="relative h-64 bg-black">
+                      <img 
+                        src={activity.image} 
+                        alt="Meal"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    {/* Meal info */}
+                    <div className="p-4 space-y-3">
+                      <div>
+                        <p className="text-emerald-400 text-2xl font-black tabular-nums">
+                          {activity.calories || 0} <span className="text-white/40 text-sm">kcal</span>
+                        </p>
+                      </div>
+
+                      {/* Macros */}
+                      <div className="flex gap-3">
+                        <div className="flex-1 bg-blue-500/20 rounded-lg px-3 py-2 border border-blue-500/30">
+                          <p className="text-blue-300 text-xs">{lang === "es" ? "Proteína" : "Protein"}</p>
+                          <p className="text-white font-bold">{activity.protein || 0}g</p>
+                        </div>
+                        <div className="flex-1 bg-orange-500/20 rounded-lg px-3 py-2 border border-orange-500/30">
+                          <p className="text-orange-300 text-xs">{lang === "es" ? "Carbos" : "Carbs"}</p>
+                          <p className="text-white font-bold">{activity.carbs || 0}g</p>
+                        </div>
+                        <div className="flex-1 bg-purple-500/20 rounded-lg px-3 py-2 border border-purple-500/30">
+                          <p className="text-purple-300 text-xs">{lang === "es" ? "Grasas" : "Fats"}</p>
+                          <p className="text-white font-bold">{activity.fats || 0}g</p>
+                        </div>
+                      </div>
+
+                      {/* Reaction buttons */}
+                      <div className="flex gap-2 pt-2 border-t border-white/10">
+                        <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-white/5 hover:bg-white/10">
+                          <Flame size={16} className="text-orange-400" />
+                          <span className="text-white text-sm font-medium">🔥</span>
+                        </button>
+                        <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-white/5 hover:bg-white/10">
+                          <Heart size={16} className="text-red-400" />
+                          <span className="text-white text-sm font-medium">👍</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </motion.div>
-          ))}
-        </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* No activity from friends yet */}
+        {hasFriends && activityFeed.length === 0 && (
+          <div className="px-6 py-12 text-center">
+            <p className="text-white/60">
+              {lang === "es" 
+                ? "Tus amigos aún no han registrado comidas."
+                : "Your friends haven't logged meals yet."}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
