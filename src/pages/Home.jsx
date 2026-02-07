@@ -445,15 +445,15 @@ export default function Home() {
               </div>
             </motion.div>
           )}
-        </div>
+          </div>
 
           {previewUrl && <MealResultCard profile={profile} onSave={handleMealSaved} />}
           <FireIncreaseAnimation show={showFireAnimation} amount={fireAmount} onComplete={() => setShowFireAnimation(false)} />
           <MealSavedCelebration show={showCelebration} onComplete={() => setShowCelebration(false)} />
           <MicroProgressPulse show={showMicroPulse} message={microPulseMessage} onComplete={() => setShowMicroPulse(false)} />
           <QuickActionButton />
-        </div>
-      </PullToRefresh>
-    </ErrorBoundary>
-  );
-}
+          </div>
+          </PullToRefresh>
+          </ErrorBoundary>
+          );
+          }
