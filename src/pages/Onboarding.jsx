@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Sparkles } from "lucide-react";
+    import { base44 } from "@/api/base44Client";
+    import { motion, AnimatePresence } from "framer-motion";
+    import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
@@ -13,14 +13,24 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
-    display_name: "",
     primary_goal: "consistency",
     intensity_level: "normal",
     social_mode: "just_me",
   });
 
   useEffect(() => {
-    base44.auth.me().then(setUser);
+    const init = async () => {
+      const u = await base44.auth.me();
+      setUser(u);
+      
+      // Check if profile already exists and is completed
+      const profiles = await base44.entities.UserProfile.filter({ created_by: u?.email });
+      if (profiles?.[0]?.onboarding_completed) {
+        navigate(createPageUrl('Home'));
+        return;
+      }
+    };
+    init();
     
     // Check for referral code in URL
     const params = new URLSearchParams(window.location.search);
@@ -32,20 +42,18 @@ export default function Onboarding() {
 
   const handleComplete = async () => {
     try {
-      // Get existing profile and update it with onboarding completion
+      // Get or create profile with onboarding data
       const existingProfile = await base44.entities.UserProfile.filter({ created_by: user?.email });
       
       if (existingProfile?.length > 0) {
-        // Update existing profile
+        // Update existing profile with onboarding answers
         await base44.entities.UserProfile.update(existingProfile[0].id, {
           ...formData,
-          onboarding_completed: true,
         });
       } else {
-        // Create new profile
+        // Create new profile with onboarding answers
         await base44.entities.UserProfile.create({
           ...formData,
-          onboarding_completed: true,
         });
       }
 
@@ -62,7 +70,7 @@ export default function Onboarding() {
         }
       }
 
-      // Go to profile setup (photo + username)
+      // Go to profile setup (photo + username + onboarding_completed flag)
       navigate(createPageUrl("ProfileSetup"));
     } catch (error) {
       toast.error("Error creating profile");
@@ -101,49 +109,21 @@ export default function Onboarding() {
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <Sparkles className="w-16 h-16 text-teal-400 mx-auto mb-4" />
-                <h1 className="text-3xl font-black text-white mb-2">Welcome!</h1>
-                <p className="text-white/60">Let's personalize your experience</p>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20">
-                <label className="text-white font-semibold mb-3 block">What should we call you?</label>
-                <Input
-                  value={formData.display_name}
-                  onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
-                  placeholder="Your name"
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-12 text-lg"
-                />
-              </div>
-
-              <Button
-                onClick={() => setStep(2)}
-                disabled={!formData.display_name}
-                className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-lg rounded-2xl"
-              >
-                Continue <ChevronRight className="ml-2" />
-              </Button>
-            </motion.div>
-          )}
-
-          {step === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-black text-white mb-2">What's your main goal?</h2>
-                <p className="text-white/60">Choose what matters most</p>
+                <div className="w-16 h-16 rounded-lg bg-black flex items-center justify-center mx-auto mb-4 border-2 border-white">
+                  <span className="text-4xl font-black text-white">B</span>
+                </div>
+                <h1 className="text-3xl font-black text-white mb-2">Let's get started</h1>
+                <p className="text-white/60">What's your main goal?</p>
               </div>
 
               <div className="space-y-3">
                 {goals.map((goal) => (
                   <button
                     key={goal.value}
-                    onClick={() => setFormData({ ...formData, primary_goal: goal.value })}
+                    onClick={() => {
+                      setFormData({ ...formData, primary_goal: goal.value });
+                      setStep(2);
+                    }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all ${
                       formData.primary_goal === goal.value
                         ? "border-teal-400 bg-teal-500/20"
@@ -157,19 +137,12 @@ export default function Onboarding() {
                   </button>
                 ))}
               </div>
-
-              <Button
-                onClick={() => setStep(3)}
-                className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-lg rounded-2xl"
-              >
-                Continue <ChevronRight className="ml-2" />
-              </Button>
             </motion.div>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <motion.div
-              key="step3"
+              key="step2"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -184,7 +157,10 @@ export default function Onboarding() {
                 {intensities.map((intensity) => (
                   <button
                     key={intensity.value}
-                    onClick={() => setFormData({ ...formData, intensity_level: intensity.value })}
+                    onClick={() => {
+                      setFormData({ ...formData, intensity_level: intensity.value });
+                      setStep(3);
+                    }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all ${
                       formData.intensity_level === intensity.value
                         ? "border-teal-400 bg-teal-500/20"
@@ -196,17 +172,10 @@ export default function Onboarding() {
                   </button>
                 ))}
               </div>
-
-              <Button
-                onClick={() => setStep(4)}
-                className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-lg rounded-2xl"
-              >
-                Continue <ChevronRight className="ml-2" />
-              </Button>
             </motion.div>
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             <motion.div
               key="step4"
               initial={{ opacity: 0, x: 20 }}

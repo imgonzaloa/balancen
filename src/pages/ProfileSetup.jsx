@@ -70,6 +70,7 @@ export default function ProfileSetup() {
     try {
       const updateData = {
         display_name: displayName,
+        onboarding_completed: true, // Mark onboarding as complete
       };
       if (profilePhoto) {
         updateData.profile_photo = profilePhoto;
@@ -93,11 +94,14 @@ export default function ProfileSetup() {
         className="max-w-md w-full"
       >
         <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-lg bg-black flex items-center justify-center mx-auto mb-4 border-2 border-white">
+            <span className="text-4xl font-black text-white">B</span>
+          </div>
           <h1 className="text-3xl font-black text-white mb-2">
             {lang === 'es' ? 'Tu Perfil' : 'Your Profile'}
           </h1>
           <p className="text-white/60">
-            {lang === 'es' ? 'Configura tu perfil' : 'Set up your profile'}
+            {lang === 'es' ? 'Casi listo' : 'Almost done'}
           </p>
         </div>
 

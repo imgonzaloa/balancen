@@ -4,8 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Globe } from 'lucide-react';
+    import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useTranslation } from '@/components/TranslationProvider';
@@ -25,22 +24,15 @@ export default function LanguageSelector() {
   }, []);
 
   const handleLanguageSelect = async (lang) => {
-    if (!user?.email) {
-      toast.error('User not found');
-      return;
-    }
-
     setIsLoading(true);
     try {
-      // Save to user profile
-      const profile = await base44.entities.UserProfile.create({
-        language: lang,
-      });
-
-      // Change app language
+      // Change app language immediately
       await changeLanguage(lang);
+      
+      // Save language to localStorage for quick access
+      localStorage.setItem('app_language', lang);
 
-      // Navigate to onboarding
+      // Navigate to onboarding (profile not created yet)
       navigate(createPageUrl('Onboarding'));
     } catch (error) {
       console.error('Error setting language:', error);
@@ -56,13 +48,13 @@ export default function LanguageSelector() {
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-md w-full text-center"
       >
-        {/* Icon */}
+        {/* Balancen Logo */}
         <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center mx-auto mb-6"
+          animate={{ scale: [1, 1.02, 1] }}
+          transition={{ duration: 3, repeat: Infinity }}
+          className="w-16 h-16 rounded-lg bg-black flex items-center justify-center mx-auto mb-6 border-2 border-white"
         >
-          <Globe size={32} className="text-white" />
+          <span className="text-4xl font-black text-white">B</span>
         </motion.div>
 
         {/* Title */}
