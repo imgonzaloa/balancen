@@ -74,36 +74,19 @@ export default function Profile() {
     base44.auth.logout();
   };
 
-  const handleAvatarUpload = async (e) => {
-    const file = e.target.files?.[0];
+  const handleAvatarUpload = async (file) => {
     if (!file) return;
 
-    console.log('[PROFILE_UPLOAD] Started', {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      platform: navigator.userAgent
-    });
-
     setUploadingAvatar(true);
-    const loadingToast = toast.loading(lang === "es" ? "Procesando imagen..." : "Processing image...");
+    logger.log('AVATAR_PROCESS_START', { fileName: file.name, sizeKb: (file.size / 1024).toFixed(1) });
     
-    // Save current avatar for rollback
+    const loadingToast = toast.loading(lang === "es" ? "Procesando imagen..." : "Processing image...");
     const previousAvatar = profile?.profile_photo || profile?.avatar_url;
     
     try {
       // Step 1: Process image (HEIC conversion + resize + compress)
-      const imageProcessor = new ImageProcessor();
-      const processedFile = await imageProcessor.processImage(file);
-      
-      console.log('[PROFILE_UPLOAD] Processed', {
-        originalSize: file.size,
-        processedSize: processedFile.size,
-        reduction: ((1 - processedFile.size / file.size) * 100).toFixed(1) + '%'
-      });
-
-      // Update toast
-      toast.loading(lang === "es" ? "Subiendo foto..." : "Uploading photo...", { id: loadingToast });
+      logger.log('AVATAR_PROCESSING');
+      const processedFile = await processImage(file);
       
       // Step 2: Optimistic UI update FIRST (instant feedback)
       const tempUrl = URL.createObjectURL(processedFile);
@@ -113,38 +96,37 @@ export default function Profile() {
         avatar_url: tempUrl
       });
       
-      // Step 3: Upload with retry logic
-      const uploader = new RobustUploader();
-      const uploadResult = await uploader.upload(base44, processedFile);
+      toast.loading(lang === "es" ? "Subiendo foto..." : "Uploading photo...", { id: loadingToast });
       
-      console.log('[PROFILE_UPLOAD] Uploaded', {
-        fileUrl: uploadResult.file_url,
-        uploadSize: processedFile.size
+      // Step 3: Upload with retry logic
+      logger.log('AVATAR_UPLOADING');
+      const response = await uploadAvatar(processedFile, (progress) => {
+        // Could track progress here if needed
       });
-
-      // Step 4: Update with real URL
+      
+      // Step 4: Update with real URL (cache bust)
+      const cachedUrl = response.avatar_url + `?v=${Date.now()}`;
       queryClient.setQueryData(["profile"], {
         ...profile,
-        profile_photo: uploadResult.file_url,
-        avatar_url: uploadResult.file_url
+        profile_photo: cachedUrl,
+        avatar_url: cachedUrl
       });
       
       // Step 5: Persist to backend (fire and forget with error handling)
       base44.entities.UserProfile.update(profile.id, { 
-        profile_photo: uploadResult.file_url,
-        avatar_url: uploadResult.file_url 
+        profile_photo: cachedUrl,
+        avatar_url: cachedUrl 
       }).then(() => {
-        console.log('[PROFILE_UPLOAD] Persisted to DB');
+        logger.log('AVATAR_PERSISTED');
       }).catch((err) => {
-        console.error('[PROFILE_UPLOAD] DB persist failed', err);
-        // Don't show error to user - optimistic UI is already showing the image
+        logger.error('AVATAR_PERSIST_FAILED', err);
       });
       
       // Step 6: Cache avatar in localStorage for instant loading next time
       try {
-        localStorage.setItem(`avatar_cache_${user?.email}`, uploadResult.file_url);
+        localStorage.setItem(`avatar_cache_${user?.email}`, cachedUrl);
       } catch (e) {
-        console.warn('[PROFILE_UPLOAD] LocalStorage cache failed', e);
+        logger.log('AVATAR_CACHE_FAILED', e);
       }
       
       // Cleanup
@@ -153,24 +135,17 @@ export default function Profile() {
       toast.success(lang === "es" ? "✨ Foto actualizada" : "✨ Photo updated");
       
     } catch (error) {
-      console.error("[PROFILE_UPLOAD] Error", {
-        error: error.message,
-        stack: error.stack,
-        fileName: file.name
-      });
+      logger.error('AVATAR_UPLOAD_ERROR', error);
       
       toast.dismiss(loadingToast);
       
       // User-friendly error message
-      const errorMessage = getUploadErrorMessage(error, lang);
+      const errorMessage = getUploadErrorMessage(error.status, error);
       toast.error(errorMessage, {
         duration: 4000,
         action: {
           label: lang === "es" ? "Reintentar" : "Retry",
-          onClick: () => {
-            // Trigger file input again
-            document.getElementById('avatar-upload')?.click();
-          }
+          onClick: () => setShowPhotoPicker(true)
         }
       });
       
@@ -182,8 +157,6 @@ export default function Profile() {
       });
     } finally {
       setUploadingAvatar(false);
-      // Clear file input so same file can be selected again
-      e.target.value = '';
     }
   };
 
@@ -206,7 +179,7 @@ export default function Profile() {
   };
   
   const handlePhotoSelected = (file) => {
-    handleAvatarUpload({ target: { files: [file] } });
+    handleAvatarUpload(file);
   };
 
   const goalLabels = {
