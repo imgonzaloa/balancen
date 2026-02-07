@@ -122,6 +122,25 @@ const resources = {
       uploading_photo: "Uploading photo...",
       photo_updated: "Photo updated",
       
+      // Onboarding
+      select_language: "Choose your language",
+      whats_your_goal: "What's your goal?",
+      select_primary_goal: "Select your primary focus",
+      choose_pace: "Choose your pace",
+      how_challenging: "How challenging should it be?",
+      how_use_app: "How do you prefer to use the app?",
+      can_change_later: "You can change this later",
+      easy_desc: "Gentle pace",
+      normal_desc: "Balanced approach",
+      challenging_desc: "Push yourself",
+      just_me: "Solo",
+      just_me_desc: "Private journey",
+      with_friends: "With Friends",
+      with_friends_desc: "Share progress",
+      with_team: "Team",
+      with_team_desc: "Join groups",
+      safe_mode_active: "Safe Mode: Simplified",
+
       // Missing translations
       ai_recommendations: "AI Recommendations",
       personalized_tips: "Personalized tips for you",
@@ -254,6 +273,25 @@ const resources = {
       uploading_photo: "Subiendo foto...",
       photo_updated: "Foto actualizada",
       
+      // Onboarding
+      select_language: "Elige tu idioma",
+      whats_your_goal: "¿Cuál es tu objetivo?",
+      select_primary_goal: "Selecciona tu enfoque principal",
+      choose_pace: "Elige tu ritmo",
+      how_challenging: "¿Qué tan desafiante debe ser?",
+      how_use_app: "¿Cómo prefieres usar la app?",
+      can_change_later: "Podés cambiar esto después",
+      easy_desc: "Ritmo suave",
+      normal_desc: "Enfoque balanceado",
+      challenging_desc: "Desafíate a vos mismo",
+      just_me: "Solo",
+      just_me_desc: "Viaje privado",
+      with_friends: "Con Amigos",
+      with_friends_desc: "Compartir progreso",
+      with_team: "Equipo",
+      with_team_desc: "Únete a grupos",
+      safe_mode_active: "Modo Seguro: Simplificado",
+
       // Missing translations
       ai_recommendations: "Recomendaciones IA",
       personalized_tips: "Tips personalizados para vos",
