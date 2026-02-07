@@ -448,14 +448,20 @@ export default function MealResultCard({ profile, onSave }) {
                 </div>
               )}
               
-              {/* Trust reinforcement */}
-              <div className="mt-3 pt-3 border-t border-white/10">
-                <p className="text-white/50 text-[10px] leading-relaxed">
-                  {t("analysis_trust") || (lang === "es" 
-                    ? "Estimación basada en miles de análisis nutricionales."
-                    : "Estimation based on thousands of nutritional analyses.")}
-                </p>
-              </div>
+            </motion.div>
+            
+            {/* Trust badge */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
+            >
+              <p className="text-emerald-300 text-xs text-center leading-relaxed">
+                {lang === "es" 
+                  ? "✓ Análisis completado usando visión AI + base nutricional validada"
+                  : "✓ Analysis completed using AI vision + validated nutrition database"}
+              </p>
             </motion.div>
             {/* Calories Card with portion hint */}
             <motion.div

@@ -19,7 +19,9 @@ export default function DailyMacroRing({ consumed, goal, protein = 0, carbs = 0,
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-6"
+      whileHover={{ scale: 1.005 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className="bg-gradient-to-br from-slate-800/60 via-slate-900/60 to-black/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl"
     >
       <div className="flex items-center gap-6">
         {/* Progress ring */}

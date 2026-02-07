@@ -49,8 +49,9 @@ export default function RecentActivityTimeline({ recentMeals, profile }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.005 }}
       transition={{ delay: 0.3 }}
-      className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+      className="bg-gradient-to-br from-slate-800/40 via-slate-900/40 to-black/40 backdrop-blur-xl rounded-2xl p-4 border border-white/10 shadow-lg"
     >
       <h3 className="text-white/70 text-xs font-semibold uppercase tracking-wide mb-3">
         {t("recent_activity")}
