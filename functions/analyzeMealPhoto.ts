@@ -33,6 +33,9 @@ Responde en español. Sé preciso pero realista con las estimaciones.`,
       response_json_schema: {
         type: "object",
         properties: {
+          foodName: { type: "string" },
+          confidence: { type: "number" },
+          description: { type: "string" },
           detectedItems: {
             type: "array",
             items: {
@@ -65,6 +68,9 @@ Responde en español. Sé preciso pero realista con las estimaciones.`,
 
     // Transform to expected format
     const result = {
+      foodName: analysisResult.foodName || (analysisResult.detectedItems?.[0]?.name || 'Comida detectada'),
+      confidence: analysisResult.confidence || (analysisResult.detectedItems?.[0]?.confidence || 0.85),
+      description: analysisResult.description || '',
       calories: analysisResult.caloriesTotal || 0,
       protein: analysisResult.macros?.protein_g || 0,
       carbs: analysisResult.macros?.carbs_g || 0,

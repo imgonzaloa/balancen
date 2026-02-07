@@ -14,8 +14,15 @@ export default function StreakBanner({ streak, fireTotal }) {
     >
       {/* Flame animation */}
       <motion.div
-        animate={{ scale: [1, 1.1, 1] }}
-        transition={{ repeat: Infinity, duration: 2 }}
+        animate={{ 
+          scale: [1, 1.15, 1],
+          rotate: [0, 5, -5, 0]
+        }}
+        transition={{ 
+          repeat: Infinity, 
+          duration: 2.5,
+          ease: "easeInOut"
+        }}
         className="text-6xl inline-block"
       >
         🔥

@@ -28,6 +28,7 @@ export default function MealResultCard({ profile, onSave }) {
   const [editedCarbs, setEditedCarbs] = useState("");
   const [editedFats, setEditedFats] = useState("");
   const [saving, setSaving] = useState(false);
+  const [analysisStep, setAnalysisStep] = useState(0);
 
   // Update editable fields when result changes
   useEffect(() => {
@@ -86,8 +87,15 @@ export default function MealResultCard({ profile, onSave }) {
 
       setUploadedUrl(imageUrl);
 
-      // STEP 2: Analyze by URL
+      // STEP 2: Analyze by URL with progressive feedback
       updateStatus("analyzing");
+      
+      // Progressive analysis feedback
+      setAnalysisStep(0);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setAnalysisStep(1);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setAnalysisStep(2);
 
       console.log("[MEAL] analyze request", { imageUrl });
 
@@ -110,7 +118,13 @@ export default function MealResultCard({ profile, onSave }) {
         throw new Error(t("no_food_detected"));
       }
 
+      // Small delay for smooth UX even if AI is fast
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       setAnalysisResult({
+        foodName: data.foodName || "Comida detectada",
+        confidence: data.confidence || 0.85,
+        description: data.description || "",
         calories: data.calories || 0,
         protein: data.protein || 0,
         carbs: data.carbs || 0,
@@ -283,8 +297,24 @@ export default function MealResultCard({ profile, onSave }) {
 
         {status === "analyzing" ? (
           <div className="p-6 text-center">
-            <Loader2 className="w-12 h-12 mx-auto mb-4 text-emerald-400 animate-spin" />
-            <p className="text-white font-semibold mb-2">{t("analyzing_food")}</p>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            >
+              <Loader2 className="w-12 h-12 mx-auto mb-4 text-emerald-400" />
+            </motion.div>
+            <motion.div
+              key={analysisStep}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <p className="text-white font-semibold mb-2">
+                {analysisStep === 0 && t("analyzing_food_step")}
+                {analysisStep === 1 && t("estimating_calories_step")}
+                {analysisStep === 2 && t("calculating_macros_step")}
+              </p>
+            </motion.div>
             <p className="text-white/60 text-sm">{t("please_wait")}</p>
           </div>
         ) : null}
@@ -308,11 +338,66 @@ export default function MealResultCard({ profile, onSave }) {
 
         {/* Results */}
         {status === "done" && result ? (
-          <div className="p-6 space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="p-6 space-y-5"
+          >
+            {/* Food Identification */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-center bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl p-5"
+            >
+              <p className="text-emerald-300 text-xs font-medium mb-2">{t("detected_food")}</p>
+              <h2 className="text-3xl font-black text-white mb-2">{result.foodName}</h2>
+              {result.confidence > 0 && (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${result.confidence * 100}%` }}
+                      transition={{ delay: 0.3, duration: 0.6 }}
+                      className="h-full bg-gradient-to-r from-emerald-400 to-teal-400"
+                    />
+                  </div>
+                  <span className="text-emerald-300 text-xs font-semibold">
+                    {Math.round(result.confidence * 100)}%
+                  </span>
+                </div>
+              )}
+              {result.description && (
+                <p className="text-white/60 text-xs mt-2">{result.description}</p>
+              )}
+              
+              {/* Secondary Items as Tags */}
+              {result.items && result.items.length > 1 && (
+                <div className="flex flex-wrap gap-2 justify-center mt-3">
+                  {result.items.slice(1, 4).map((item, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-white/10 rounded-full text-white/70 text-xs">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </motion.div>
             {/* Calories Card */}
-            <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 rounded-2xl p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-gradient-to-br from-orange-500/20 to-red-500/10 border border-orange-500/30 rounded-2xl p-6"
+            >
               <div className="flex flex-col items-center justify-center text-center">
-                <Flame className="text-orange-400 mb-2" size={32} />
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                >
+                  <Flame className="text-orange-400 mb-2" size={32} />
+                </motion.div>
                 <p className="text-white/60 text-sm mb-1">{t("estimated_calories")}</p>
                 <input
                   type="number"
@@ -322,11 +407,17 @@ export default function MealResultCard({ profile, onSave }) {
                   placeholder="0"
                   style={{ fontVariantNumeric: "tabular-nums" }}
                 />
+                <p className="text-white/50 text-xs mt-1">kcal</p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Macros */}
-            <div className="grid grid-cols-3 gap-3">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="grid grid-cols-3 gap-3"
+            >
               <div className="bg-slate-800/50 rounded-xl p-4 border border-white/5 flex flex-col items-center justify-center text-center">
                 <p className="text-white/50 text-xs mb-2">{t("protein")}</p>
                 <input
@@ -365,9 +456,9 @@ export default function MealResultCard({ profile, onSave }) {
                 />
                 <p className="text-white/40 text-xs mt-1">g</p>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Detected Items */}
+            {/* Notes */}
             {result.items && result.items.length > 0 ? (
               <div className="bg-slate-800/30 rounded-xl p-4 border border-white/5">
                 <p className="text-white/60 text-sm mb-3">{t("detected_items")}</p>
