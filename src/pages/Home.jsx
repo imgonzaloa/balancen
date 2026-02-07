@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import AINutritionConfidence from "@/components/home/AINutritionConfidence";
 import QuickActionButton from "@/components/QuickActionButton";
 import HomeErrorFallback from "@/components/HomeErrorFallback";
+import PullToRefresh from "@/components/PullToRefresh";
 
 // Import optimized fetcher with timeout and retry
 import { fetchWithRetry, withTimeout, useSafeQuery } from "@/components/DataFetcher";
@@ -204,13 +205,14 @@ export default function Home() {
 
   return (
     <ErrorBoundary screen="Home">
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-          <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        </div>
+      <PullToRefresh>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20 pointer-events-none">
+            <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+            <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          </div>
 
-        <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 space-y-6">
+          <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 space-y-6">
           {/* Streak Card - Premium Design */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}

@@ -8,6 +8,7 @@ import InviteSystemCard from "@/components/social/InviteSystemCard";
 import { useTranslation } from "@/components/TranslationProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useAppState } from "@/components/AppStateContext";
+import PullToRefresh from "@/components/PullToRefresh";
 
 const ActivityCard = React.memo(({ activity, lang }) => (
   <motion.div
@@ -125,8 +126,9 @@ export default function Social() {
 
   return (
     <ErrorBoundary screen="Social">
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">
-        <div className="max-w-2xl mx-auto p-6 space-y-6">
+      <PullToRefresh>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">
+          <div className="max-w-2xl mx-auto p-6 space-y-6">
           {/* Header */}
           <div>
             <h1 className="text-3xl font-black text-white mb-2">
@@ -200,8 +202,9 @@ export default function Social() {
               </p>
             </motion.div>
           )}
+          </div>
         </div>
-      </div>
+      </PullToRefresh>
     </ErrorBoundary>
   );
 }
