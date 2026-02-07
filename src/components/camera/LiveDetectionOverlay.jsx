@@ -20,7 +20,7 @@ export default function LiveDetectionOverlay({ videoRef }) {
       if (videoRef.current && videoRef.current.readyState === 4) {
         processFrame();
       }
-    }, 400); // Sample every 400ms for responsive switching without lag
+    }, 1500); // Every 1.5s - balanced between responsiveness and performance
 
     return () => {
       if (intervalRef.current) {

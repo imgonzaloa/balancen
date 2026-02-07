@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Users } from "lucide-react";
 import { SocialSkeleton } from "@/components/ui/ScreenSkeleton";
-import InviteFriendsCard from "@/components/social/InviteFriendsCard";
+import InviteSystemCard from "@/components/social/InviteSystemCard";
 import { useTranslation } from "@/components/TranslationProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useAppState } from "@/components/AppStateContext";
@@ -132,8 +132,8 @@ export default function Social() {
             </p>
           </div>
 
-          {/* Invite Friends Card - Always visible */}
-          <InviteFriendsCard profile={profile} />
+          {/* Invite System Card - Always visible */}
+          <InviteSystemCard profile={profile} />
 
           {/* Friend Activities or Empty State */}
           {activitiesLoading ? (

@@ -70,34 +70,19 @@ export default function Layout({ children, currentPageName }) {
           <PerformanceMonitor />
           
           <React.Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />}>
-            {isPersistentPage ? (
-              // Persistent tabs - keep mounted, just toggle visibility
-              <div className={hideNav ? "" : "pb-20"}>
-                {persistentPages.map(pageName => (
-                  <div
-                    key={pageName}
-                    style={{
-                      display: currentPageName === pageName ? 'block' : 'none',
-                      willChange: 'opacity'
-                    }}
-                  >
-                    {mountedPages[pageName] && children}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              // Non-persistent pages - normal rendering
-              <motion.main
-                key={currentPageName}
-                initial={{ opacity: 0.95 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.15 }}
-                className={hideNav ? "" : "pb-20"}
-                style={{ willChange: 'opacity' }}
-              >
-                {children}
-              </motion.main>
-            )}
+            <motion.main
+              key={currentPageName}
+              initial={{ opacity: 0.98 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.1 }}
+              className={hideNav ? "" : "pb-20"}
+              style={{ 
+                willChange: 'opacity',
+                visibility: isPersistentPage && mountedPages[currentPageName] ? 'visible' : undefined
+              }}
+            >
+              {children}
+            </motion.main>
           </React.Suspense>
 
       {!hideNav && (

@@ -217,8 +217,8 @@ export default function CameraScreen() {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Live Detection Overlay - AI working before capture */}
-      {videoReady && <LiveDetectionOverlay videoRef={videoRef} />}
+      {/* Live Detection Overlay - Real-time food detection */}
+      {videoReady && <RealTimeFoodDetection videoRef={videoRef} isActive={true} />}
 
       {/* Live Framing Assist Overlay - Subtle */}
       {videoReady && (

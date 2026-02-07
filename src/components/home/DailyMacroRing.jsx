@@ -55,7 +55,7 @@ const DailyMacroRing = React.memo(function DailyMacroRing({ consumed, goal, prot
               strokeDasharray={circumference}
               initial={{ strokeDashoffset: circumference }}
               animate={{ strokeDashoffset }}
-              transition={{ duration: 1, ease: "easeOut" }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
             />
             
             <defs>
