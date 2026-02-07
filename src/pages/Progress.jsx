@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { TrendingUp, Target, Calendar } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { ProgressSkeleton } from "@/components/ui/ScreenSkeleton";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function Progress() {
   const { t, lang } = useTranslation();
@@ -87,8 +88,9 @@ export default function Progress() {
   } = calculations;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">
-      <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <ErrorBoundary screen="Progress">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">
+        <div className="max-w-2xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-black text-white mb-2">
