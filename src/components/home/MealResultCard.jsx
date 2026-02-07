@@ -459,19 +459,12 @@ export default function MealResultCard({ profile, onSave }) {
             </motion.div>
 
             {/* Notes */}
-            {result.items && result.items.length > 0 ? (
-              <div className="bg-slate-800/30 rounded-xl p-4 border border-white/5">
-                <p className="text-white/60 text-sm mb-3">{t("detected_items")}</p>
-                <div className="space-y-2">
-                  {result.items.map((item, idx) => (
-                    <div key={idx} className="text-white text-sm">
-                      • {item}
-                    </div>
-                  ))}
-                </div>
+            {result.notes && (
+              <div className="bg-white/5 rounded-xl p-3">
+                <p className="text-white/70 text-xs">{result.notes}</p>
               </div>
-            ) : null}
-          </div>
+            )}
+          </motion.div>
         ) : null}
 
         {/* Action Buttons */}
