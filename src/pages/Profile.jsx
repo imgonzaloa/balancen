@@ -151,9 +151,28 @@ export default function Profile() {
           <div className="relative z-10">
             <div className="flex items-center gap-4 mb-6">
               <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                  {profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}
-                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
+                  className="relative w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg overflow-hidden"
+                >
+                  {profile?.profile_photo ? (
+                    <img src={profile.profile_photo} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}</span>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Camera size={20} className="text-white" />
+                  </div>
+                </motion.button>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
               </div>
               <div className="flex-1">
                 {editMode ? (

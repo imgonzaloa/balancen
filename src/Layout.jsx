@@ -19,6 +19,7 @@ export default function Layout({ children, currentPageName }) {
   const { t, lang } = useTranslation();
   const [direction, setDirection] = useState(0);
   const [prevPage, setPrevPage] = useState(currentPageName);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Register service worker for PWA
   useEffect(() => {
@@ -93,7 +94,17 @@ export default function Layout({ children, currentPageName }) {
                     if (isActive) {
                       e.preventDefault();
                       window.scrollTo({ top: 0, behavior: 'smooth' });
+                      return;
                     }
+
+                    // Debounce navigation
+                    if (isNavigating) {
+                      e.preventDefault();
+                      return;
+                    }
+
+                    setIsNavigating(true);
+                    setTimeout(() => setIsNavigating(false), 300);
                   }}
                   className="relative flex flex-col items-center py-2 px-4 touch-manipulation active:scale-90 transition-transform"
                   aria-label={item.label}
