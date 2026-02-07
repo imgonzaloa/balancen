@@ -72,14 +72,42 @@ export default function Profile() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic'];
+    if (!validTypes.includes(file.type)) {
+      toast.error(lang === "es" ? "Formato no válido. Usá JPG, PNG o HEIC" : "Invalid format. Use JPG, PNG or HEIC");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(lang === "es" ? "La imagen es muy grande. Máximo 5MB" : "Image too large. Max 5MB");
+      return;
+    }
+
+    const loadingToast = toast.loading(lang === "es" ? "Subiendo foto..." : "Uploading photo...");
+    
     try {
-      toast.loading("Uploading photo...");
       const { data } = await base44.integrations.Core.UploadFile({ file });
-      await base44.entities.UserProfile.update(profile.id, { profile_photo: data.file_url });
-      queryClient.invalidateQueries(["profile"]);
-      toast.success("Photo updated");
+      
+      await base44.entities.UserProfile.update(profile.id, { 
+        profile_photo: data.file_url,
+        avatar_url: data.file_url 
+      });
+      
+      // Optimistic update
+      queryClient.setQueryData(["profile"], {
+        ...profile,
+        profile_photo: data.file_url,
+        avatar_url: data.file_url
+      });
+      
+      toast.dismiss(loadingToast);
+      toast.success(lang === "es" ? "Foto actualizada" : "Photo updated");
     } catch (error) {
-      toast.error("Failed to upload photo");
+      console.error("Upload error:", error);
+      toast.dismiss(loadingToast);
+      toast.error(lang === "es" ? "No pudimos subir la imagen. Intentá otra vez" : "Couldn't upload image. Try again");
     }
   };
 

@@ -24,8 +24,11 @@ const DailyMacroRing = React.memo(function DailyMacroRing({ consumed, goal, prot
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.005 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="bg-gradient-to-br from-slate-800/60 via-slate-900/60 to-black/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl"
+      className="relative bg-gradient-to-br from-slate-800/60 via-slate-900/60 to-black/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl overflow-hidden"
     >
+      {/* Soft inner glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-teal-500/5 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-teal-400/10 rounded-full blur-3xl" />
       <div className="flex items-center gap-6">
         {/* Progress ring */}
         <div className="relative">
@@ -69,9 +72,10 @@ const DailyMacroRing = React.memo(function DailyMacroRing({ consumed, goal, prot
               key={consumed}
               initial={{ scale: 1.2, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="text-3xl font-black text-white tabular-nums"
+              className="text-3xl font-black text-white tabular-nums relative"
             >
-              {Math.round(consumed)}
+              <span className="relative z-10">{Math.round(consumed)}</span>
+              <div className="absolute inset-0 blur-lg bg-emerald-400/20 scale-150" />
             </motion.p>
             <p className="text-xs text-white/40 mb-1">
               {t("goal_text") || (lang === "es" ? "de" : "of")} {goal}

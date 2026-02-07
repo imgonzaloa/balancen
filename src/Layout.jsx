@@ -18,12 +18,25 @@ const navItemsBase = [
   { name: "Profile", icon: User, key: "profile" },
 ];
 
+// Persistent tab containers
+const persistentPages = ["Home", "Social", "Progress", "Profile"];
+
 export default function Layout({ children, currentPageName }) {
   const hideNav = ["Onboarding", "Paywall", "CameraScreen", "MealResult"].includes(currentPageName);
   const { t, lang } = useTranslation();
   const [direction, setDirection] = useState(0);
   const [prevPage, setPrevPage] = useState(currentPageName);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [mountedPages, setMountedPages] = useState({});
+
+  // Keep tabs mounted for instant switching
+  const isPersistentPage = persistentPages.includes(currentPageName);
+  
+  useEffect(() => {
+    if (isPersistentPage && !mountedPages[currentPageName]) {
+      setMountedPages(prev => ({ ...prev, [currentPageName]: true }));
+    }
+  }, [currentPageName, isPersistentPage]);
 
   // Register service worker for PWA
   useEffect(() => {
@@ -57,17 +70,35 @@ export default function Layout({ children, currentPageName }) {
           <PerformanceMonitor />
           
           <React.Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />}>
-            <motion.main
-            key={currentPageName}
-            initial={{ opacity: 0.95 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.15 }}
-            className={hideNav ? "" : "pb-20"}
-            style={{ willChange: 'opacity' }}
-          >
-            {children}
-          </motion.main>
-        </React.Suspense>
+            {isPersistentPage ? (
+              // Persistent tabs - keep mounted, just toggle visibility
+              <div className={hideNav ? "" : "pb-20"}>
+                {persistentPages.map(pageName => (
+                  <div
+                    key={pageName}
+                    style={{
+                      display: currentPageName === pageName ? 'block' : 'none',
+                      willChange: 'opacity'
+                    }}
+                  >
+                    {mountedPages[pageName] && children}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Non-persistent pages - normal rendering
+              <motion.main
+                key={currentPageName}
+                initial={{ opacity: 0.95 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.15 }}
+                className={hideNav ? "" : "pb-20"}
+                style={{ willChange: 'opacity' }}
+              >
+                {children}
+              </motion.main>
+            )}
+          </React.Suspense>
 
       {!hideNav && (
         <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-4 py-2 z-50 safe-area-inset-bottom">
