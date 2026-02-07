@@ -189,32 +189,28 @@ export default function Onboarding() {
               </div>
 
               <div className="space-y-3">
-                {socialModes.map((mode) => (
-                  <button
-                    key={mode.value}
-                    onClick={() => {
-                      setFormData({ ...formData, social_mode: mode.value });
-                      handleComplete();
-                    }}
-                    className={`w-full p-4 rounded-2xl border-2 transition-all ${
-                      formData.social_mode === mode.value
-                        ? "border-teal-400 bg-teal-500/20"
-                        : "border-white/20 bg-white/5"
-                    }`}
-                    >
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className="text-2xl">{mode.emoji}</span>
-                      <span className="text-white font-semibold">{mode.label}</span>
-                    </div>
-                    <p className="text-white/60 text-sm text-left ml-11">{mode.desc}</p>
-                    </button>
-                    ))}
-                    </div>
-                className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-lg rounded-2xl"
-              >
-                Get Started <ChevronRight className="ml-2" />
-              </Button>
-            </motion.div>
+               {socialModes.map((mode) => (
+                 <button
+                   key={mode.value}
+                   onClick={() => {
+                     setFormData({ ...formData, social_mode: mode.value });
+                     handleComplete();
+                   }}
+                   className={`w-full p-4 rounded-2xl border-2 transition-all ${
+                     formData.social_mode === mode.value
+                       ? "border-teal-400 bg-teal-500/20"
+                       : "border-white/20 bg-white/5"
+                   }`}
+                 >
+                   <div className="flex items-center gap-3 mb-1">
+                     <span className="text-2xl">{mode.emoji}</span>
+                     <span className="text-white font-semibold">{mode.label}</span>
+                   </div>
+                   <p className="text-white/60 text-sm text-left ml-11">{mode.desc}</p>
+                 </button>
+               ))}
+              </div>
+              </motion.div>
           )}
         </AnimatePresence>
       </div>
