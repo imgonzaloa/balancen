@@ -11,6 +11,11 @@ import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
 import DailyCalorieGoal from "@/components/home/DailyCalorieGoal";
 import DailyMissions from "@/components/home/DailyMissions";
+
+// Memoize to prevent recreating on every render
+const MemoizedMissions = React.memo(DailyMissions);
+const MemoizedSocialPreview = React.memo(SocialPreview);
+const MemoizedGroupLeaderboard = React.memo(GroupLeaderboardShortcut);
 import StreakBanner from "@/components/home/StreakBanner";
 import SocialPreview from "@/components/home/SocialPreview";
 import MealResultCard from "@/components/home/MealResultCard";
@@ -212,8 +217,8 @@ export default function Home() {
           profile={profile}
         />
 
-        {/* Empty state for no meals */}
-        {todayMeals.length === 0 && (
+        {/* Empty state for no meals - show during loading too */}
+        {todayMeals.length === 0 && !mealsLoading && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -227,6 +232,14 @@ export default function Home() {
               {t("tap_to_add_meal")}
             </p>
           </motion.div>
+        )}
+        
+        {/* Loading skeleton for meals */}
+        {mealsLoading && todayMeals.length === 0 && (
+          <div className="bg-white/5 rounded-2xl p-6 border border-white/10 animate-pulse">
+            <div className="h-4 bg-white/10 rounded w-32 mb-3" />
+            <div className="h-20 bg-white/10 rounded" />
+          </div>
         )}
 
         {/* Daily Macro Ring - Enhanced nutrition view */}
@@ -258,7 +271,7 @@ export default function Home() {
         />
 
         {/* Daily Missions */}
-        <DailyMissions
+        <MemoizedMissions
           todayMeals={todayMeals}
           consumed={totalCaloriesToday}
           goal={caloriesGoal}
@@ -267,11 +280,11 @@ export default function Home() {
 
         {/* Group Leaderboard Shortcut */}
         {topGroupMembers.length > 0 && (
-          <GroupLeaderboardShortcut topMembers={topGroupMembers} />
+          <MemoizedGroupLeaderboard topMembers={topGroupMembers} />
         )}
 
         {/* Social Preview */}
-        <SocialPreview
+        <MemoizedSocialPreview
           friendsCount={friendsList.length}
           groupsCount={groupsList.length}
           userStreak={profile?.current_streak || 0}

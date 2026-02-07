@@ -15,12 +15,12 @@ export default function LiveDetectionOverlay({ videoRef }) {
     // Initialize service
     serviceRef.current = new LiveDetectionService();
 
-    // Start detection loop - faster for continuous updates
+    // Start detection loop - optimized interval
     intervalRef.current = setInterval(() => {
       if (videoRef.current && videoRef.current.readyState === 4) {
         processFrame();
       }
-    }, 500); // Sample every 500ms for more responsive switching
+    }, 400); // Sample every 400ms for responsive switching without lag
 
     return () => {
       if (intervalRef.current) {
