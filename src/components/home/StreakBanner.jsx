@@ -24,7 +24,7 @@ export default function StreakBanner({ streak, fireTotal }) {
       {/* Streak number */}
        <div className="space-y-2 flex flex-col items-center justify-center">
          <p className="text-sm text-white/70 font-semibold uppercase tracking-wide">{t("current_streak")}</p>
-         <p className="text-6xl font-black bg-gradient-to-r from-orange-300 to-red-300 bg-clip-text text-transparent leading-none">
+         <p className="text-6xl font-black bg-gradient-to-r from-orange-300 to-red-300 bg-clip-text text-transparent leading-none tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>
            {streak}
          </p>
          <p className="text-white/60 text-sm font-medium">{t("days")} {t("on_fire")}</p>
@@ -33,7 +33,7 @@ export default function StreakBanner({ streak, fireTotal }) {
       {/* Fire total */}
       <div className="flex items-center justify-center gap-2 bg-black/40 rounded-full px-5 py-2.5 w-fit mx-auto border border-orange-400/20">
         <Flame size={16} className="text-orange-400" />
-        <span className="text-white font-bold text-sm">{fireTotal || 0} {t("total_fire")}</span>
+        <span className="text-white font-bold text-sm tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>{fireTotal || 0} {t("fire")}</span>
       </div>
 
       {/* Motivation message */}

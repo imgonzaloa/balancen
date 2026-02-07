@@ -34,19 +34,19 @@ export default function DailyCalorieGoal({ consumed, goal }) {
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
             <p className="text-xs text-white/60 mb-3 font-semibold">{t("consumed")}</p>
-            <p className="text-4xl font-bold text-white leading-none mb-2">{Math.round(consumed)}</p>
+            <p className="text-4xl font-bold text-white leading-none mb-2 tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>{Math.round(consumed)}</p>
             <p className="text-xs text-white/40">kcal</p>
           </div>
           <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
             <p className="text-xs text-white/60 mb-3 font-semibold">{t("remaining")}</p>
-            <p className={`text-4xl font-bold leading-none mb-2 ${isExceeded ? "text-red-400" : "text-emerald-400"}`}>
+            <p className={`text-4xl font-bold leading-none mb-2 tabular-nums ${isExceeded ? "text-red-400" : "text-emerald-400"}`} style={{ fontVariantNumeric: "tabular-nums" }}>
               {Math.round(remaining)}
             </p>
             <p className="text-xs text-white/40">kcal</p>
           </div>
           <div className="bg-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[140px]">
             <p className="text-xs text-white/60 mb-3 font-semibold">{t("goal")}</p>
-            <p className="text-4xl font-bold text-white leading-none mb-2">{goal}</p>
+            <p className="text-4xl font-bold text-white leading-none mb-2 tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>{goal}</p>
             <p className="text-xs text-white/40">kcal</p>
           </div>
       </div>
