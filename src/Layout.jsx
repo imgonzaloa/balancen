@@ -78,12 +78,13 @@ export default function Layout({ children, currentPageName }) {
 
 
   return (
-    <VersionGate>
-      <SafeModeProvider>
-        <AppStateProvider>
-          <AppErrorBoundary>
-            <ErrorBoundary screen={currentPageName}>
-              <TabErrorBoundary tabName={currentPageName}>
+          <GlobalErrorBoundary>
+            <VersionGate>
+              <SafeModeProvider>
+                <AppStateProvider>
+                  <AppErrorBoundary>
+                    <ErrorBoundary screen={currentPageName}>
+                      <TabErrorBoundary tabName={currentPageName}>
                 <MealProvider>
                                 {iOSOptimizer()}
                           <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`}>
@@ -173,12 +174,13 @@ export default function Layout({ children, currentPageName }) {
         </nav>
         )}
         </div>
-              </MealProvider>
-              </TabErrorBoundary>
-            </ErrorBoundary>
-          </AppErrorBoundary>
-        </AppStateProvider>
+                </MealProvider>
+                </TabErrorBoundary>
+              </ErrorBoundary>
+            </AppErrorBoundary>
+          </AppStateProvider>
         </SafeModeProvider>
         </VersionGate>
+        </GlobalErrorBoundary>
         );
         }
