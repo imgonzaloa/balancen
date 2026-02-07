@@ -1,83 +1,82 @@
 /**
- * Mobile-aware Select wrapper
- * Uses Drawer on mobile, standard Select on desktop
+ * Mobile-friendly Select Wrapper
+ * Uses Drawer (bottom sheet) on mobile, regular Select on desktop
  */
 
 import React, { useState } from 'react';
-import { useWindowSize } from '@/hooks/useWindowSize';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
 
-export default function MobileSelectWrapper({
+export function MobileSelect({
   value,
   onValueChange,
   children,
-  trigger,
+  placeholder,
   label,
+  triggerClassName,
+  contentClassName,
   ...props
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [open, setOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(value);
 
   if (!isMobile) {
+    // Desktop: use regular Select
     return (
       <Select value={value} onValueChange={onValueChange} {...props}>
-        {trigger}
-        <SelectContent>
+        <SelectTrigger className={triggerClassName}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className={contentClassName}>
           {children}
         </SelectContent>
       </Select>
     );
   }
 
-  // Extract items from children
-  const items = React.Children.toArray(children).filter(
-    child => child?.type?.name === 'SelectItem'
-  );
-
+  // Mobile: use Drawer
   return (
     <>
       <button
-        onClick={() => setIsOpen(true)}
-        className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-left flex items-center justify-between hover:bg-white/15 transition-colors"
+        onClick={() => setOpen(true)}
+        className={triggerClassName || 'w-full px-3 py-2 rounded-md border border-input bg-transparent text-sm'}
       >
-        <span className="text-sm">
-          {items.find(item => item.props.value === value)?.props.children || trigger}
+        <span className="text-muted-foreground">
+          {value ? value : placeholder}
         </span>
-        <span className="text-white/60">›</span>
       </button>
 
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <Drawer open={open} onOpenChange={setOpen}>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>{label || 'Select option'}</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-6 space-y-2">
-            {items.map(item => (
-              <Button
-                key={item.props.value}
-                onClick={() => {
-                  onValueChange(item.props.value);
-                  setIsOpen(false);
-                }}
-                variant="ghost"
-                className={`w-full justify-between h-12 ${
-                  value === item.props.value
-                    ? 'bg-teal-500/20 text-teal-300'
-                    : 'text-white hover:bg-white/10'
-                }`}
-              >
-                {item.props.children}
-                {value === item.props.value && (
-                  <Check size={18} className="text-teal-300" />
-                )}
-              </Button>
-            ))}
+          <div className="flex flex-col gap-2 p-4">
+            {React.Children.map(children, (child) => {
+              if (!child || child.type !== SelectItem) return child;
+              
+              return (
+                <Button
+                  key={child.props.value}
+                  onClick={() => {
+                    onValueChange(child.props.value);
+                    setOpen(false);
+                  }}
+                  variant={value === child.props.value ? 'default' : 'outline'}
+                  className="justify-start h-10"
+                >
+                  {child.props.children}
+                </Button>
+              );
+            })}
           </div>
         </DrawerContent>
       </Drawer>
     </>
   );
 }
+
+export default MobileSelect;

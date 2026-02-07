@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import MobileSelect from "@/components/MobileSelectWrapper";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -223,20 +224,16 @@ export default function Settings() {
               </div>
             </div>
             
-            <Select
+            <MobileSelect
               value={lang}
               onValueChange={handleLanguageChange}
+              placeholder="Select language"
+              label={lang === "es" ? "Idioma" : "Language"}
+              triggerClassName="w-full px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl"
             >
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                <SelectValue>
-                  {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">🇬🇧 English</SelectItem>
-                <SelectItem value="es">🇪🇸 Español</SelectItem>
-              </SelectContent>
-            </Select>
+              <SelectItem value="en">🇬🇧 English</SelectItem>
+              <SelectItem value="es">🇪🇸 Español</SelectItem>
+            </MobileSelect>
           </div>
         </motion.div>
 
@@ -264,25 +261,23 @@ export default function Settings() {
                 <Label className="text-white text-sm mb-2 block">
                   {lang === "es" ? "Compartir comidas" : "Share meals"}
                 </Label>
-                <Select
+                <MobileSelect
                   value={profile?.share_meals || "private"}
                   onValueChange={(value) => handleToggle("share_meals", value)}
+                  placeholder="Select privacy"
+                  label={lang === "es" ? "Quién puede ver tus comidas" : "Who can see your meals"}
+                  triggerClassName="w-full px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl"
                 >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="private">
-                      {lang === "es" ? "🔒 Privado" : "🔒 Private"}
-                    </SelectItem>
-                    <SelectItem value="friends">
-                      {lang === "es" ? "👥 Amigos" : "👥 Friends"}
-                    </SelectItem>
-                    <SelectItem value="groups">
-                      {lang === "es" ? "👥 Grupos" : "👥 Groups"}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                  <SelectItem value="private">
+                    {lang === "es" ? "🔒 Privado" : "🔒 Private"}
+                  </SelectItem>
+                  <SelectItem value="friends">
+                    {lang === "es" ? "👥 Amigos" : "👥 Friends"}
+                  </SelectItem>
+                  <SelectItem value="groups">
+                    {lang === "es" ? "👥 Grupos" : "👥 Groups"}
+                  </SelectItem>
+                </MobileSelect>
               </div>
               
               <div className="flex items-center justify-between">
