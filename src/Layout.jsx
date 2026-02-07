@@ -13,6 +13,9 @@ import { AppStateProvider } from "@/components/AppStateContext";
 import AppErrorBoundary from "@/components/AppErrorBoundary";
 import VersionGate from "@/components/VersionGate";
 import iOSOptimizer from "@/components/iOSOptimizer";
+import { SafeModeProvider } from "@/components/SafeModeProvider";
+import TabErrorBoundary from "@/components/TabErrorBoundary";
+import { logger } from "@/components/logger";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -66,11 +69,13 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <VersionGate>
-      <AppStateProvider>
-        <AppErrorBoundary>
-          <ErrorBoundary screen={currentPageName}>
-            <MealProvider>
-            {iOSOptimizer()}
+      <SafeModeProvider>
+        <AppStateProvider>
+          <AppErrorBoundary>
+            <ErrorBoundary screen={currentPageName}>
+              <TabErrorBoundary tabName={currentPageName}>
+                <MealProvider>
+                {iOSOptimizer()}
           <div className="min-h-screen bg-background select-none">
           <Toaster position="top-center" richColors />
           <PerformanceMonitor />
@@ -158,10 +163,12 @@ export default function Layout({ children, currentPageName }) {
         </nav>
         )}
         </div>
-          </MealProvider>
-          </ErrorBoundary>
-        </AppErrorBoundary>
+              </MealProvider>
+              </TabErrorBoundary>
+            </ErrorBoundary>
+          </AppErrorBoundary>
         </AppStateProvider>
+        </SafeModeProvider>
         </VersionGate>
         );
         }

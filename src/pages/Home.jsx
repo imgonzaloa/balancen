@@ -24,6 +24,7 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { previewUrl } = useMeal();
   const { user, profile: cachedProfile, todayMeals: cachedMeals, friends: cachedFriends, isInitialized } = useAppState();
+  const [safeMode, setSafeMode] = React.useState(localStorage.getItem('SAFE_MODE') === '1');
   const [showFireAnimation, setShowFireAnimation] = useState(false);
   const [fireAmount, setFireAmount] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -107,6 +108,47 @@ export default function Home() {
     
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
   };
+
+  // SAFE MODE: minimal rendering
+  if (safeMode) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">
+        <div className="max-w-lg mx-auto px-5 pt-8 space-y-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
+            <h1 className="text-3xl font-black text-white mb-2">{t('home')}</h1>
+            <p className="text-white/60 text-sm">Modo seguro activado</p>
+          </motion.div>
+          
+          {profile && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white/10 rounded-2xl p-6 border border-white/20"
+            >
+              <p className="text-white/60 text-sm mb-1">{t('calories')}</p>
+              <p className="text-white text-2xl font-bold">
+                {todayMeals?.reduce((sum, m) => sum + (m.estimated_calories || 0), 0) || 0} kcal
+              </p>
+            </motion.div>
+          )}
+          
+          <Button
+            onClick={() => navigate(createPageUrl("CameraScreen"))}
+            className="w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500"
+          >
+            {t('log_your_meal')}
+          </Button>
+          
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full h-12 bg-white/10 text-white rounded-xl hover:bg-white/20 transition"
+          >
+            Recargar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!isInitialized || !profile) {
     return <HomeSkeleton />;

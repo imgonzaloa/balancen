@@ -14,9 +14,10 @@ import { useTranslation } from "@/components/TranslationProvider";
 import SetStatusModal from "@/components/groups/SetStatusModal";
 import ReferralProgress from "@/components/profile/ReferralProgress";
 import { useAppState } from "@/components/AppStateContext";
-import { ImageProcessor, getUploadErrorMessage } from "@/components/utils/ImageProcessor";
-import { RobustUploader } from "@/components/utils/RobustUploader";
+import { processImage, getUploadErrorMessage } from "@/components/ImageProcessor";
+import { uploadAvatar } from "@/components/utils/RobustUploader";
 import PhotoPicker from "@/components/profile/PhotoPicker";
+import { logger } from "@/components/logger";
 
 export default function Profile() {
   const { t, lang } = useTranslation();

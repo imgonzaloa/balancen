@@ -1,97 +1,81 @@
 /**
- * Robust uploader with retry logic, timeout, and CORS handling
+ * Robust uploader with retry logic and error handling
  */
 
-export class RobustUploader {
-  constructor() {
-    this.timeout = 30000; // 30s
-    this.maxRetries = 2;
-    this.retryDelay = 800; // ms
-  }
+import { logger } from '@/components/logger';
 
-  log(stage, data) {
-    console.log(`[ROBUST_UPLOADER:${stage}]`, {
-      timestamp: new Date().toISOString(),
-      ...data
-    });
-  }
-
-  /**
-   * Wait for exponential backoff
-   */
-  async wait(attempt) {
-    const delay = this.retryDelay * Math.pow(2, attempt);
-    this.log('RETRY_WAIT', { attempt, delayMs: delay });
-    return new Promise(resolve => setTimeout(resolve, delay));
-  }
-
-  /**
-   * Upload with timeout
-   */
-  async uploadWithTimeout(uploadFn) {
-    return Promise.race([
-      uploadFn(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('TIMEOUT_ERROR')), this.timeout)
-      )
-    ]);
-  }
-
-  /**
-   * Upload file to Base44 storage
-   */
-  async upload(base44, file, onProgress) {
-    let lastError;
-
-    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
-      try {
-        if (attempt > 0) {
-          await this.wait(attempt - 1);
+export async function uploadAvatar(file, onProgress) {
+  const maxRetries = 3;
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      logger.log('AVATAR_UPLOAD_START', { attempt, sizeKb: file.size / 1024 });
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const xhr = new XMLHttpRequest();
+      
+      // Track progress
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          onProgress?.(percentComplete);
+          logger.log('AVATAR_UPLOAD_PROGRESS', { percent: percentComplete });
         }
-
-        this.log('ATTEMPT', { 
-          attempt: attempt + 1, 
-          maxRetries: this.maxRetries + 1,
-          fileSize: file.size,
-          fileName: file.name
+      });
+      
+      return await new Promise((resolve, reject) => {
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const response = JSON.parse(xhr.responseText);
+              logger.log('AVATAR_UPLOAD_SUCCESS', { status: xhr.status, url: response.avatar_url });
+              resolve(response);
+            } catch (e) {
+              reject(new Error('Invalid response format'));
+            }
+          } else {
+            const errorMsg = xhr.responseText ? ` ${xhr.responseText}` : '';
+            reject(new Error(`Upload failed: ${xhr.status}${errorMsg}`));
+          }
         });
-
-        // Call upload with timeout
-        const result = await this.uploadWithTimeout(async () => {
-          const { data } = await base44.integrations.Core.UploadFile({ file });
-          return data;
-        });
-
-        this.log('SUCCESS', { 
-          attempt: attempt + 1,
-          fileUrl: result.file_url 
-        });
-
-        return result;
-
-      } catch (error) {
-        lastError = error;
         
-        this.log('ATTEMPT_FAILED', {
-          attempt: attempt + 1,
-          error: error.message,
-          willRetry: attempt < this.maxRetries
+        xhr.addEventListener('error', () => {
+          reject(new Error('Network error'));
         });
-
-        // Don't retry on certain errors
-        if (error.message === 'FILE_TOO_LARGE' || 
-            error.message === 'UNSUPPORTED_FORMAT') {
-          throw error;
-        }
+        
+        xhr.addEventListener('abort', () => {
+          reject(new Error('Upload cancelled'));
+        });
+        
+        // Set timeout: 30s
+        const timeout = setTimeout(() => {
+          xhr.abort();
+          reject(new Error('Upload timeout'));
+        }, 30000);
+        
+        xhr.upload.addEventListener('loadend', () => clearTimeout(timeout));
+        
+        xhr.open('POST', '/api/profile/avatar', true);
+        xhr.send(formData);
+      });
+      
+    } catch (error) {
+      lastError = error;
+      logger.error(`AVATAR_UPLOAD_ATTEMPT_${attempt}`, error);
+      
+      // Exponential backoff: 500ms, 1s, 2s
+      const delayMs = Math.min(500 * Math.pow(2, attempt - 1), 5000);
+      
+      if (attempt < maxRetries) {
+        console.log(`[UPLOAD] Retry ${attempt + 1}/${maxRetries} in ${delayMs}ms`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
       }
     }
-
-    // All retries exhausted
-    this.log('ALL_RETRIES_FAILED', { 
-      totalAttempts: this.maxRetries + 1,
-      lastError: lastError?.message 
-    });
-    
-    throw lastError || new Error('UPLOAD_FAILED');
   }
+  
+  logger.error('AVATAR_UPLOAD_FAILED', lastError);
+  throw lastError;
 }

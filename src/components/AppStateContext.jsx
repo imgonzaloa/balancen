@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { logger } from "@/components/logger";
 
 const AppStateContext = createContext(null);
 
@@ -14,8 +15,9 @@ export function AppStateProvider({ children }) {
   // Initialize user on mount with timeout
   useEffect(() => {
     const initUser = async () => {
+      logger.log('AUTH_CHECK_START');
       const timeout = setTimeout(() => {
-        console.warn('[APP_STATE] Auth check timeout');
+        logger.log('AUTH_CHECK_TIMEOUT');
         setUser(null);
         setIsInitialized(true);
       }, 3000);
@@ -24,9 +26,10 @@ export function AppStateProvider({ children }) {
         const currentUser = await base44.auth.me();
         clearTimeout(timeout);
         setUser(currentUser);
+        logger.log('AUTH_CHECK_SUCCESS', { email: currentUser?.email });
       } catch (err) {
         clearTimeout(timeout);
-        console.error("Error initializing user:", err);
+        logger.error('AUTH_CHECK_ERROR', err);
         setUser(null);
       } finally {
         setIsInitialized(true);
