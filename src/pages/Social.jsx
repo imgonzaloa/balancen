@@ -7,8 +7,11 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { SocialSkeleton } from "@/components/ui/ScreenSkeleton";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import InviteModal from "@/components/invite/InviteModal";
 
 export default function Social() {
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const { t, lang } = useTranslation();
   const [user, setUser] = useState(null);
 
@@ -75,8 +78,9 @@ export default function Social() {
   const hasFriends = friendsList.length > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">
-      <div className="max-w-2xl mx-auto">
+    <ErrorBoundary screen="Social">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">
+        <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="p-6 pb-4">
           <h1 className="text-3xl font-black text-white mb-2">
@@ -240,15 +244,14 @@ export default function Social() {
             </p>
           </div>
         )}
-      </div>
+        </div>
 
-      {/* Invite Modal */}
-      <InviteModal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-        profile={profile}
-      />
-    </div>
+        {/* Invite Modal */}
+        <InviteModal
+          isOpen={showInviteModal}
+          onClose={() => setShowInviteModal(false)}
+        />
+      </div>
     </ErrorBoundary>
   );
 }
