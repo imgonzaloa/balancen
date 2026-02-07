@@ -4,6 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Heart, TrendingUp, Flame, Award, Users } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function Social() {
   const { t, lang } = useTranslation();
@@ -23,7 +25,7 @@ export default function Social() {
     enabled: !!user?.email,
   });
 
-  // Fetch real activity feed from friends' meals
+  // Fetch real activity feed from friends' meals (respecting privacy)
   const { data: activityFeed = [] } = useQuery({
     queryKey: ["friendsActivity", friendsList],
     queryFn: async () => {
@@ -31,6 +33,13 @@ export default function Social() {
       
       const activities = [];
       for (const friend of friendsList) {
+        // Get friend's profile to check privacy settings
+        const friendProfiles = await base44.entities.UserProfile.filter({ created_by: friend.friend_user_id });
+        const friendProfile = friendProfiles[0];
+        
+        // Respect privacy: only show if share_meals includes "friends"
+        if (!friendProfile || friendProfile.share_meals === "private") continue;
+        
         const meals = await base44.entities.MealLog.filter(
           { created_by: friend.friend_user_id },
           "-created_date",
@@ -46,10 +55,10 @@ export default function Social() {
               avatar: friend.avatar_url || "👤"
             },
             image: meal.photo_url,
-            calories: meal.estimated_calories,
-            protein: meal.estimated_protein,
-            carbs: meal.estimated_carbs,
-            fats: meal.estimated_fats,
+            calories: friendProfile?.share_calories ? meal.estimated_calories : null,
+            protein: friendProfile?.share_macros ? meal.estimated_protein : null,
+            carbs: friendProfile?.share_macros ? meal.estimated_carbs : null,
+            fats: friendProfile?.share_macros ? meal.estimated_fats : null,
             timestamp: new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           });
         });
@@ -69,10 +78,10 @@ export default function Social() {
         {/* Header */}
         <div className="p-6 pb-4">
           <h1 className="text-3xl font-black text-white mb-2">
-            {lang === "es" ? "Actividad Social" : "Social Feed"}
+            {t("social_feed") || (lang === "es" ? "Actividad Social" : "Social Feed")}
           </h1>
           <p className="text-white/60 text-sm">
-            {lang === "es" ? "Ve qué están logrando tus amigos" : "See what your friends are achieving"}
+            {t("see_friends_progress") || (lang === "es" ? "Ve qué están logrando tus amigos" : "See what your friends are achieving")}
           </p>
         </div>
 
@@ -111,20 +120,24 @@ export default function Social() {
                 <Users size={48} className="text-white/40" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-3">
-                {lang === "es" ? "Todavía no tienes actividad social" : "No social activity yet"}
+                {t("no_social_activity") || (lang === "es" ? "Todavía no tienes actividad social" : "No social activity yet")}
               </h2>
               <p className="text-white/60 mb-8">
-                {lang === "es" 
+                {t("connect_friends_share") || (lang === "es" 
                   ? "Conecta con amigos para compartir progreso."
-                  : "Connect with friends to share progress."}
+                  : "Connect with friends to share progress.")}
               </p>
               <div className="flex flex-col gap-3">
-                <button className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold">
-                  {lang === "es" ? "Invitar amigos" : "Invite friends"}
-                </button>
-                <button className="w-full py-3 rounded-xl bg-white/10 border border-white/20 text-white font-semibold">
-                  {lang === "es" ? "Crear grupo" : "Create group"}
-                </button>
+                <Link to={createPageUrl("Friends")} className="w-full">
+                  <button className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold">
+                    {t("invite_friends") || (lang === "es" ? "Invitar amigos" : "Invite friends")}
+                  </button>
+                </Link>
+                <Link to={createPageUrl("Groups")} className="w-full">
+                  <button className="w-full py-3 rounded-xl bg-white/10 border border-white/20 text-white font-semibold">
+                    {t("create_group")}
+                  </button>
+                </Link>
               </div>
             </motion.div>
           </div>
@@ -164,27 +177,37 @@ export default function Social() {
 
                     {/* Meal info */}
                     <div className="p-4 space-y-3">
-                      <div>
-                        <p className="text-emerald-400 text-2xl font-black tabular-nums">
-                          {activity.calories || 0} <span className="text-white/40 text-sm">kcal</span>
-                        </p>
-                      </div>
+                      {activity.calories !== null && (
+                        <div>
+                          <p className="text-emerald-400 text-2xl font-black tabular-nums">
+                            {activity.calories || 0} <span className="text-white/40 text-sm">kcal</span>
+                          </p>
+                        </div>
+                      )}
 
-                      {/* Macros */}
-                      <div className="flex gap-3">
-                        <div className="flex-1 bg-blue-500/20 rounded-lg px-3 py-2 border border-blue-500/30">
-                          <p className="text-blue-300 text-xs">{lang === "es" ? "Proteína" : "Protein"}</p>
-                          <p className="text-white font-bold">{activity.protein || 0}g</p>
+                      {/* Macros - only if shared */}
+                      {(activity.protein !== null || activity.carbs !== null || activity.fats !== null) && (
+                        <div className="flex gap-3">
+                          {activity.protein !== null && (
+                            <div className="flex-1 bg-blue-500/20 rounded-lg px-3 py-2 border border-blue-500/30">
+                              <p className="text-blue-300 text-xs">{t("protein")}</p>
+                              <p className="text-white font-bold">{activity.protein || 0}g</p>
+                            </div>
+                          )}
+                          {activity.carbs !== null && (
+                            <div className="flex-1 bg-orange-500/20 rounded-lg px-3 py-2 border border-orange-500/30">
+                              <p className="text-orange-300 text-xs">{t("carbs")}</p>
+                              <p className="text-white font-bold">{activity.carbs || 0}g</p>
+                            </div>
+                          )}
+                          {activity.fats !== null && (
+                            <div className="flex-1 bg-purple-500/20 rounded-lg px-3 py-2 border border-purple-500/30">
+                              <p className="text-purple-300 text-xs">{t("fats")}</p>
+                              <p className="text-white font-bold">{activity.fats || 0}g</p>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1 bg-orange-500/20 rounded-lg px-3 py-2 border border-orange-500/30">
-                          <p className="text-orange-300 text-xs">{lang === "es" ? "Carbos" : "Carbs"}</p>
-                          <p className="text-white font-bold">{activity.carbs || 0}g</p>
-                        </div>
-                        <div className="flex-1 bg-purple-500/20 rounded-lg px-3 py-2 border border-purple-500/30">
-                          <p className="text-purple-300 text-xs">{lang === "es" ? "Grasas" : "Fats"}</p>
-                          <p className="text-white font-bold">{activity.fats || 0}g</p>
-                        </div>
-                      </div>
+                      )}
 
                       {/* Reaction buttons */}
                       <div className="flex gap-2 pt-2 border-t border-white/10">
@@ -208,10 +231,10 @@ export default function Social() {
         {/* No activity from friends yet */}
         {hasFriends && activityFeed.length === 0 && (
           <div className="px-6 py-12 text-center">
-            <p className="text-white/60">
-              {lang === "es" 
-                ? "Tus amigos aún no han registrado comidas."
-                : "Your friends haven't logged meals yet."}
+            <p className="text-white/60 mb-4">
+              {t("friends_no_meals") || (lang === "es" 
+                ? "Tus amigos aún no han registrado comidas o tienen perfil privado."
+                : "Your friends haven't logged meals yet or have private profiles.")}
             </p>
           </div>
         )}

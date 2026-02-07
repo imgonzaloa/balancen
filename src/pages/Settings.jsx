@@ -238,22 +238,70 @@ export default function Settings() {
           </div>
         </motion.div>
 
-        {/* Privacy */}
+        {/* Privacy & Social Sharing */}
         <motion.div
           className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-              <Shield size={20} className="text-emerald-300" />
+          <div className="relative z-10 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                <Shield size={20} className="text-emerald-300" />
+              </div>
+              <div>
+                <Label className="text-white font-semibold">{t('privacy')}</Label>
+                <p className="text-xs text-white/60">{t('data_encrypted')}</p>
+              </div>
             </div>
-            <div>
-              <Label className="text-white font-semibold">{t('privacy')}</Label>
-              <p className="text-xs text-white/60">
-                {t('data_encrypted')}
-              </p>
+            
+            {/* Social sharing controls */}
+            <div className="pl-13 space-y-3 pt-3 border-t border-white/10">
+              <div>
+                <Label className="text-white text-sm mb-2 block">
+                  {lang === "es" ? "Compartir comidas" : "Share meals"}
+                </Label>
+                <Select
+                  value={profile?.share_meals || "private"}
+                  onValueChange={(value) => handleToggle("share_meals", value)}
+                >
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="private">
+                      {lang === "es" ? "🔒 Privado" : "🔒 Private"}
+                    </SelectItem>
+                    <SelectItem value="friends">
+                      {lang === "es" ? "👥 Amigos" : "👥 Friends"}
+                    </SelectItem>
+                    <SelectItem value="groups">
+                      {lang === "es" ? "👥 Grupos" : "👥 Groups"}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label className="text-white text-sm">
+                  {lang === "es" ? "Compartir macros" : "Share macros"}
+                </Label>
+                <Switch
+                  checked={profile?.share_macros ?? false}
+                  onCheckedChange={(checked) => handleToggle("share_macros", checked)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label className="text-white text-sm">
+                  {lang === "es" ? "Compartir calorías" : "Share calories"}
+                </Label>
+                <Switch
+                  checked={profile?.share_calories ?? false}
+                  onCheckedChange={(checked) => handleToggle("share_calories", checked)}
+                />
+              </div>
             </div>
           </div>
         </motion.div>
