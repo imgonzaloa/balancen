@@ -18,6 +18,16 @@ import { Button } from "@/components/ui/button";
 import AINutritionConfidence from "@/components/home/AINutritionConfidence";
 import QuickActionButton from "@/components/QuickActionButton";
 
+// Timeout wrapper for data fetching
+const fetchWithTimeout = (promise, timeoutMs = 8000) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Timeout')), timeoutMs)
+    ),
+  ]);
+};
+
 export default function Home() {
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
@@ -31,11 +41,18 @@ export default function Home() {
   const [showMicroPulse, setShowMicroPulse] = useState(false);
   const [microPulseMessage, setMicroPulseMessage] = useState("");
 
-  const { data: profile } = useQuery({
+  const { data: profile = null, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", user?.email],
     queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
-      return profiles[0] || null;
+      try {
+        const result = await fetchWithTimeout(
+          base44.entities.UserProfile.filter({ created_by: user?.email })
+        );
+        return result[0] || null;
+      } catch (err) {
+        console.warn('[HOME] Profile fetch timeout/error', err);
+        return null;
+      }
     },
     enabled: !!user?.email && !cachedProfile,
     initialData: cachedProfile,
@@ -45,13 +62,20 @@ export default function Home() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  const { data: todayMeals = [] } = useQuery({
+  const { data: todayMeals = [], isLoading: mealsLoading } = useQuery({
     queryKey: ["meals", today, user?.email],
     queryFn: async () => {
-      return base44.entities.MealLog.filter(
-        { created_by: user?.email, date: today },
-        "-meal_time"
-      );
+      try {
+        return await fetchWithTimeout(
+          base44.entities.MealLog.filter(
+            { created_by: user?.email, date: today },
+            "-meal_time"
+          )
+        );
+      } catch (err) {
+        console.warn('[HOME] Meals fetch timeout/error', err);
+        return [];
+      }
     },
     enabled: !!user?.email && !cachedMeals,
     initialData: cachedMeals || [],
@@ -59,15 +83,22 @@ export default function Home() {
     keepPreviousData: true,
   });
 
-  const { data: friends = [] } = useQuery({
+  const { data: friends = [], isLoading: friendsLoading } = useQuery({
     queryKey: ["friends", user?.email],
     queryFn: async () => {
-      const sent = await base44.entities.Friend.filter({ created_by: user?.email });
-      return sent.filter(f => f.status === "accepted");
+      try {
+        const sent = await fetchWithTimeout(
+          base44.entities.Friend.filter({ created_by: user?.email })
+        );
+        return sent.filter(f => f.status === "accepted");
+      } catch (err) {
+        console.warn('[HOME] Friends fetch timeout/error', err);
+        return [];
+      }
     },
     enabled: !!user?.email && !cachedFriends,
     initialData: cachedFriends || [],
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
     keepPreviousData: true,
   });
 
@@ -150,11 +181,13 @@ export default function Home() {
     );
   }
 
-  if (!isInitialized || !profile) {
+  // Show skeleton only if initializing AND profile fetch is loading (not profile is empty)
+  if (!isInitialized && profileLoading) {
     return <HomeSkeleton />;
   }
 
-  if (!profile && user) {
+  // If fully initialized but no profile, redirect to onboarding
+  if (isInitialized && !profile && user) {
     window.location.href = "/Onboarding";
     return null;
   }
