@@ -120,4 +120,23 @@
   .animate-flash {
     animation: flash 0.2s ease-out forwards;
   }
+
+  /* Shimmer loading animation */
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(to right, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 100%);
+    background-size: 1000px 100%;
+  }
+
+  /* Instant button feedback */
+  .touch-feedback {
+    transition: transform 0.05s ease-out;
+  }
+  .touch-feedback:active {
+    transform: scale(0.97);
+  }
   }

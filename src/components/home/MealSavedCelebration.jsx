@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Sparkles } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function MealSavedCelebration({ show, onComplete }) {
+const MealSavedCelebration = React.memo(function MealSavedCelebration({ show, onComplete }) {
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
@@ -99,4 +99,6 @@ export default function MealSavedCelebration({ show, onComplete }) {
       )}
     </AnimatePresence>
   );
-}
+});
+
+export default MealSavedCelebration;

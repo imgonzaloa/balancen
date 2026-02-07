@@ -20,6 +20,8 @@ export default function Progress() {
     },
     enabled: !!user?.email && !cachedProfile,
     initialData: cachedProfile,
+    staleTime: 5 * 60 * 1000,
+    keepPreviousData: true,
   });
 
   const today = new Date().toISOString().split("T")[0];
@@ -34,6 +36,8 @@ export default function Progress() {
     },
     enabled: !!user?.email && !cachedMeals,
     initialData: cachedMeals || [],
+    staleTime: 2 * 60 * 1000,
+    keepPreviousData: true,
   });
 
   // Memoize all calculations - must be before early returns

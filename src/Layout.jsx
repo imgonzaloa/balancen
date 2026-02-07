@@ -103,16 +103,16 @@ export default function Layout({ children, currentPageName }) {
                       return;
                     }
 
-                    // Debounce navigation
+                    // Instant feedback - no debounce for perceived speed
                     if (isNavigating) {
                       e.preventDefault();
                       return;
                     }
 
                     setIsNavigating(true);
-                    setTimeout(() => setIsNavigating(false), 300);
+                    setTimeout(() => setIsNavigating(false), 150);
                   }}
-                  className="relative flex flex-col items-center py-2 px-4 touch-manipulation active:scale-90 transition-transform"
+                  className="relative flex flex-col items-center py-2 px-4 touch-manipulation transition-transform duration-75 active:scale-90"
                   aria-label={item.label}
                   aria-current={isActive ? "page" : undefined}
                 >

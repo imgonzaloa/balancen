@@ -26,10 +26,9 @@ const DailyMacroRing = React.memo(function DailyMacroRing({ consumed, goal, prot
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative bg-gradient-to-br from-slate-800/60 via-slate-900/60 to-black/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl overflow-hidden"
     >
-      {/* Soft inner glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-teal-500/5 pointer-events-none" />
       <div className="absolute top-0 right-0 w-32 h-32 bg-teal-400/10 rounded-full blur-3xl" />
-      <div className="flex items-center gap-6">
+      <div className="relative z-10 flex items-center gap-6">
         {/* Progress ring */}
         <div className="relative">
           <svg width="160" height="160" className="transform -rotate-90">

@@ -33,4 +33,6 @@ export default function FireIncreaseAnimation({ show, amount = 1, onComplete }) 
       )}
     </AnimatePresence>
   );
-}
+});
+
+export default FireIncreaseAnimation;

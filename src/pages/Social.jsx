@@ -13,7 +13,7 @@ const ActivityCard = React.memo(({ activity, lang }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+    className="bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm rounded-2xl p-5 border border-white/10 shadow-lg hover:border-white/20 transition-colors"
   >
     <div className="flex items-start gap-3">
       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold flex-shrink-0">
@@ -28,7 +28,8 @@ const ActivityCard = React.memo(({ activity, lang }) => (
           <img 
             src={activity.meal.photo_url} 
             alt="Meal"
-            className="mt-2 w-full h-32 object-cover rounded-xl"
+            className="mt-3 w-full h-36 object-cover rounded-xl shadow-md"
+            loading="lazy"
           />
         )}
         {activity.meal?.estimated_calories && (
@@ -46,7 +47,7 @@ export default function Social() {
   const { t, lang } = useTranslation();
   const { user, profile, friends: cachedFriends, isInitialized, refreshFriends } = useAppState();
 
-  const { data: friends = cachedFriends || [] } = useQuery({
+  const { data: friends = [] } = useQuery({
     queryKey: ["friends", user?.email],
     queryFn: async () => {
       const friendsList = await base44.entities.Friend.filter({ created_by: user?.email });
@@ -54,6 +55,8 @@ export default function Social() {
     },
     enabled: !!user?.email && !cachedFriends,
     initialData: cachedFriends || [],
+    keepPreviousData: true, // Prevent disappearing content
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: activities = [], isLoading: activitiesLoading } = useQuery({
@@ -64,15 +67,17 @@ export default function Social() {
       const today = new Date().toISOString().split("T")[0];
       const friendActivities = [];
 
+      // Limit to 10 friends for performance
       const friendsToCheck = friends.slice(0, 10);
 
-      for (const friend of friendsToCheck) {
+      // Parallel fetch for faster loading
+      await Promise.all(friendsToCheck.map(async (friend) => {
         try {
           const friendProfile = await base44.entities.UserProfile.filter({ 
             created_by: friend.friend_email || friend.user_email 
           });
 
-          if (friendProfile[0]?.share_meals === "private") continue;
+          if (friendProfile[0]?.share_meals === "private") return;
 
           const friendMeals = await base44.entities.MealLog.filter({
             created_by: friend.friend_email || friend.user_email,
@@ -101,13 +106,15 @@ export default function Social() {
         } catch (err) {
           console.error("Error fetching friend activity:", err);
         }
-      }
+      }));
 
       return friendActivities.sort((a, b) => 
         new Date(b.time) - new Date(a.time)
       ).slice(0, 20);
     },
     enabled: friends.length > 0,
+    keepPreviousData: true, // CRITICAL: Prevent disappearing content
+    staleTime: 2 * 60 * 1000,
   });
 
   const isLoading = !isInitialized || !profile;
@@ -136,14 +143,15 @@ export default function Social() {
           <InviteSystemCard profile={profile} />
 
           {/* Friend Activities or Empty State */}
-          {activitiesLoading ? (
+          {activitiesLoading && activities.length === 0 ? (
             <div className="space-y-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white/5 rounded-2xl p-4 animate-pulse">
-                  <div className="flex gap-3">
+              {[1, 2].map(i => (
+                <div key={i} className="bg-white/5 rounded-2xl p-4 overflow-hidden relative">
+                  <div className="absolute inset-0 animate-shimmer" />
+                  <div className="flex gap-3 relative">
                     <div className="w-10 h-10 rounded-full bg-white/10" />
-                    <div className="flex-1">
-                      <div className="h-4 bg-white/10 rounded w-32 mb-2" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-white/10 rounded w-32" />
                       <div className="h-3 bg-white/10 rounded w-48" />
                     </div>
                   </div>
@@ -152,19 +160,22 @@ export default function Social() {
             </div>
           ) : friends.length === 0 ? (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 text-center"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl rounded-3xl p-10 border border-purple-500/20 shadow-lg text-center relative overflow-hidden"
             >
-              <Users size={64} className="text-white/30 mx-auto mb-4" />
-              <h3 className="text-white font-bold text-lg mb-2">
-                {lang === "es" ? "Aún no agregaste amigos" : "You haven't added friends yet"}
-              </h3>
-              <p className="text-white/60 text-sm mb-4">
-                {lang === "es" 
-                  ? "Invita a alguien y empieza a compartir progreso juntos."
-                  : "Invite someone and start sharing progress together."}
-              </p>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-400/10 rounded-full blur-3xl" />
+              <div className="relative z-10">
+                <div className="text-7xl mb-4">🚀</div>
+                <h3 className="text-white font-bold text-xl mb-2">
+                  {lang === "es" ? "Entrenar con amigos aumenta la constancia" : "Training with friends increases consistency"}
+                </h3>
+                <p className="text-white/70 text-sm">
+                  {lang === "es" 
+                    ? "Invita a alguien y empieza a compartir progreso juntos"
+                    : "Invite someone and start sharing progress together"}
+                </p>
+              </div>
             </motion.div>
           ) : activities.length > 0 ? (
             <div className="space-y-4">
@@ -174,15 +185,18 @@ export default function Social() {
             </div>
           ) : (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white/5 backdrop-blur-xl rounded-3xl p-10 border border-white/10 text-center"
             >
-              <Users size={48} className="text-white/30 mx-auto mb-4" />
-              <p className="text-white/60">
+              <div className="text-6xl mb-4">😴</div>
+              <h3 className="text-white font-bold text-lg mb-2">
+                {lang === "es" ? "Aún sin actividad hoy" : "No activity yet today"}
+              </h3>
+              <p className="text-white/60 text-sm">
                 {lang === "es" 
-                  ? "Tus amigos aún no han registrado comidas hoy"
-                  : "Your friends haven't logged meals yet today"}
+                  ? "Tus amigos aún no han registrado comidas"
+                  : "Your friends haven't logged meals yet"}
               </p>
             </motion.div>
           )}

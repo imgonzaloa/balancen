@@ -3,8 +3,9 @@ import { motion } from "framer-motion";
 
 export function CardSkeleton({ className = "" }) {
   return (
-    <div className={`bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-white/10 ${className}`}>
-      <div className="animate-pulse space-y-3">
+    <div className={`bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-white/10 overflow-hidden relative ${className}`}>
+      <div className="absolute inset-0 animate-shimmer" />
+      <div className="relative space-y-3">
         <div className="h-4 bg-white/10 rounded w-1/3" />
         <div className="h-8 bg-white/10 rounded w-2/3" />
         <div className="h-3 bg-white/10 rounded w-1/2" />
@@ -15,12 +16,13 @@ export function CardSkeleton({ className = "" }) {
 
 export function RingSkeleton() {
   return (
-    <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
-      <div className="flex items-center gap-6">
-        <div className="relative w-40 h-40 rounded-full bg-white/5 animate-pulse" />
+    <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-6 overflow-hidden relative">
+      <div className="absolute inset-0 animate-shimmer" />
+      <div className="flex items-center gap-6 relative">
+        <div className="relative w-40 h-40 rounded-full bg-white/5" />
         <div className="flex-1 space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-12 bg-white/5 rounded-xl animate-pulse" />
+            <div key={i} className="h-12 bg-white/5 rounded-xl" />
           ))}
         </div>
       </div>

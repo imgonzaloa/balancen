@@ -68,38 +68,72 @@ export default function Profile() {
     base44.auth.logout();
   };
 
+  const compressImage = async (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Resize to max 1024px
+          const maxSize = 1024;
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = (height / width) * maxSize;
+              width = maxSize;
+            } else {
+              width = (width / height) * maxSize;
+              height = maxSize;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob((blob) => {
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          }, 'image/jpeg', 0.85);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleAvatarUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic'];
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      toast.error(lang === "es" ? "Formato no válido. Usá JPG, PNG o HEIC" : "Invalid format. Use JPG, PNG or HEIC");
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error(lang === "es" ? "La imagen es muy grande. Máximo 5MB" : "Image too large. Max 5MB");
+      toast.error(lang === "es" ? "Formato no válido" : "Invalid format");
       return;
     }
 
     const loadingToast = toast.loading(lang === "es" ? "Subiendo foto..." : "Uploading photo...");
     
     try {
-      const { data } = await base44.integrations.Core.UploadFile({ file });
+      // Compress image before upload
+      const compressedFile = await compressImage(file);
       
-      await base44.entities.UserProfile.update(profile.id, { 
-        profile_photo: data.file_url,
-        avatar_url: data.file_url 
-      });
+      const { data } = await base44.integrations.Core.UploadFile({ file: compressedFile });
       
-      // Optimistic update
+      // Optimistic update FIRST
       queryClient.setQueryData(["profile"], {
         ...profile,
         profile_photo: data.file_url,
         avatar_url: data.file_url
+      });
+      
+      // Then persist to backend
+      await base44.entities.UserProfile.update(profile.id, { 
+        profile_photo: data.file_url,
+        avatar_url: data.file_url 
       });
       
       toast.dismiss(loadingToast);
@@ -108,6 +142,8 @@ export default function Profile() {
       console.error("Upload error:", error);
       toast.dismiss(loadingToast);
       toast.error(lang === "es" ? "No pudimos subir la imagen. Intentá otra vez" : "Couldn't upload image. Try again");
+      // Revert optimistic update
+      queryClient.invalidateQueries(["profile"]);
     }
   };
 

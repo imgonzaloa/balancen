@@ -8,13 +8,15 @@ import { motion } from "framer-motion";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
-import { Camera, Flame, Target, Users } from "lucide-react";
+import { Camera, Flame } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import MealResultCard from "@/components/home/MealResultCard";
 import FireIncreaseAnimation from "@/components/home/FireIncreaseAnimation";
 import MealSavedCelebration from "@/components/home/MealSavedCelebration";
 import MicroProgressPulse from "@/components/home/MicroProgressPulse";
 import { Button } from "@/components/ui/button";
+import AINutritionConfidence from "@/components/home/AINutritionConfidence";
+import QuickActionButton from "@/components/QuickActionButton";
 
 export default function Home() {
   const { t, lang } = useTranslation();
@@ -36,6 +38,8 @@ export default function Home() {
     },
     enabled: !!user?.email && !cachedProfile,
     initialData: cachedProfile,
+    staleTime: 5 * 60 * 1000,
+    keepPreviousData: true,
   });
 
   const today = new Date().toISOString().split("T")[0];
@@ -50,6 +54,8 @@ export default function Home() {
     },
     enabled: !!user?.email && !cachedMeals,
     initialData: cachedMeals || [],
+    staleTime: 1 * 60 * 1000,
+    keepPreviousData: true,
   });
 
   const { data: friends = [] } = useQuery({
@@ -60,6 +66,8 @@ export default function Home() {
     },
     enabled: !!user?.email && !cachedFriends,
     initialData: cachedFriends || [],
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    keepPreviousData: true,
   });
 
   const { totalCaloriesToday, totalProtein } = useMemo(() => ({
@@ -118,13 +126,15 @@ export default function Home() {
         </div>
 
         <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 space-y-6">
-          {/* Streak Card */}
+          {/* Streak Card - Premium Design */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-orange-500/20 via-red-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-6 border border-orange-500/30 shadow-2xl relative overflow-hidden"
+            className="bg-gradient-to-br from-orange-500/20 via-red-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-7 border border-orange-500/30 shadow-2xl shadow-orange-500/10 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-400/10 rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-orange-400/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-red-400/10 rounded-full blur-3xl" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 to-pink-500 rounded-full" />
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <motion.div
@@ -161,14 +171,15 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* Daily Progress Rings */}
+          {/* Daily Progress Rings - Premium Design */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-xl relative overflow-hidden"
+            className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-3xl p-7 border border-white/10 shadow-2xl shadow-slate-900/50 relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5" />
-            <h3 className="text-white font-bold text-lg mb-5 relative z-10">{t("today_progress")}</h3>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-400/10 rounded-full blur-3xl" />
+            <h3 className="text-white font-bold text-xl mb-6 relative z-10">{t("today_progress")}</h3>
             <div className="grid grid-cols-2 gap-4 relative z-10">
               {/* Calories Ring */}
               <div className="text-center">
@@ -258,6 +269,9 @@ export default function Home() {
             </div>
           </motion.div>
 
+          {/* Precision Confidence - Interactive */}
+          <AINutritionConfidence todayMeals={todayMeals} profile={profile} />
+
           {/* Primary CTA */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -266,64 +280,80 @@ export default function Home() {
           >
             <Button
               onClick={() => navigate(createPageUrl("CameraScreen"))}
-              className="w-full h-16 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white font-bold text-lg rounded-2xl shadow-2xl shadow-emerald-500/30"
+              className="w-full h-16 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white font-bold text-lg rounded-2xl shadow-2xl shadow-emerald-500/30 active:scale-[0.98] transition-transform"
             >
               <Camera size={24} className="mr-3" />
               {t("log_your_meal")}
             </Button>
           </motion.div>
 
-          {/* Friend Activity Highlights */}
+          {/* Friend Activity Highlights - ONLY if real friends exist */}
           {friends.length > 0 && (
             <motion.button
               onClick={() => navigate(createPageUrl("Social"))}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="w-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 text-left"
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 shadow-lg text-left active:scale-[0.98] transition-transform"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Users size={24} className="text-purple-300" />
-                  <div>
-                    <p className="text-white font-semibold">{t("friends_active")}</p>
-                    <p className="text-white/60 text-sm">{friends.length} {t("friends")}</p>
-                  </div>
-                </div>
-                <div className="flex -space-x-2">
+              <div className="flex items-center gap-4">
+                <div className="flex -space-x-3">
                   {friends.slice(0, 3).map((friend, i) => (
-                    <div
+                    <motion.div
                       key={i}
-                      className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 border-2 border-slate-900 flex items-center justify-center text-white font-bold text-sm"
+                      initial={{ scale: 0, x: -10 }}
+                      animate={{ scale: 1, x: 0 }}
+                      transition={{ delay: 0.3 + i * 0.1 }}
+                      className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 border-3 border-slate-900 flex items-center justify-center text-white font-bold shadow-lg"
                     >
                       {friend.display_name?.charAt(0) || "?"}
-                    </div>
+                    </motion.div>
                   ))}
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-bold text-sm mb-0.5">{t("friends_active")}</p>
+                  <p className="text-purple-200 text-xs">{friends.length} {t("friends")}</p>
+                </div>
+                <div className="text-purple-300 text-xs font-semibold">
+                  {lang === "es" ? "Ver →" : "View →"}
                 </div>
               </div>
             </motion.button>
           )}
 
-          {/* Recent Activity */}
+          {/* Recent Activity - Premium Design */}
           {todayMeals.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-white/5 backdrop-blur-xl rounded-2xl p-5 border border-white/10"
+              className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-xl rounded-3xl p-6 border border-blue-500/20 shadow-lg relative overflow-hidden"
             >
-              <h3 className="text-white font-bold mb-4">{t("recent_activity")}</h3>
-              <div className="space-y-3">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-400/10 rounded-full blur-3xl" />
+              <h3 className="text-white font-bold text-lg mb-4 relative z-10">{t("recent_activity")}</h3>
+              <div className="space-y-3 relative z-10">
                 {todayMeals.slice(0, 3).map((meal, i) => (
-                  <div key={i} className="flex items-center gap-3">
+                  <motion.div 
+                    key={i} 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="flex items-center gap-4 bg-white/5 rounded-xl p-3 border border-white/10"
+                  >
                     {meal.photo_url && (
-                      <img src={meal.photo_url} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                      <img 
+                        src={meal.photo_url} 
+                        alt="" 
+                        className="w-14 h-14 rounded-xl object-cover shadow-md" 
+                        loading="lazy"
+                      />
                     )}
                     <div className="flex-1">
-                      <p className="text-white text-sm font-medium">{meal.meal_type || t("meal")}</p>
-                      <p className="text-white/60 text-xs">{meal.estimated_calories || 0} kcal</p>
+                      <p className="text-white text-sm font-semibold">{meal.meal_type || t("meal")}</p>
+                      <p className="text-cyan-300 text-xs font-medium">{meal.estimated_calories || 0} kcal</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
@@ -334,7 +364,8 @@ export default function Home() {
         <FireIncreaseAnimation show={showFireAnimation} amount={fireAmount} onComplete={() => setShowFireAnimation(false)} />
         <MealSavedCelebration show={showCelebration} onComplete={() => setShowCelebration(false)} />
         <MicroProgressPulse show={showMicroPulse} message={microPulseMessage} onComplete={() => setShowMicroPulse(false)} />
-      </div>
-    </ErrorBoundary>
-  );
-}
+        <QuickActionButton />
+        </div>
+        </ErrorBoundary>
+        );
+        }
