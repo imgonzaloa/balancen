@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAppState } from "@/components/AppStateContext";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -37,28 +38,24 @@ export default function Home() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { previewUrl } = useMeal();
-  const [user, setUser] = useState(null);
+  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
   const [showFireAnimation, setShowFireAnimation] = useState(false);
   const [fireAmount, setFireAmount] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
 
-  useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => setUser(null));
-  }, []);
-
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const { data: profile } = useQuery({
     queryKey: ["profile", user?.email],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
       return profiles[0] || null;
     },
-    enabled: !!user?.email,
-    keepPreviousData: true,
+    enabled: !!user?.email && !cachedProfile,
+    initialData: cachedProfile,
   });
 
   const today = new Date().toISOString().split("T")[0];
 
-  const { data: todayMeals = [], isLoading: mealsLoading } = useQuery({
+  const { data: todayMeals = [] } = useQuery({
     queryKey: ["meals", today, user?.email],
     queryFn: async () => {
       return base44.entities.MealLog.filter(
@@ -66,8 +63,8 @@ export default function Home() {
         "-meal_time"
       );
     },
-    enabled: !!user?.email,
-    keepPreviousData: true,
+    enabled: !!user?.email && !cachedMeals,
+    initialData: cachedMeals || [],
   });
 
   const { data: friendsList = [] } = useQuery({
@@ -155,15 +152,15 @@ export default function Home() {
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
   };
 
-  // Early returns AFTER all hooks
-  if (!profileLoading && !profile && user) {
-    window.location.href = "/Onboarding";
-    return null;
+  // Show skeleton while loading
+  if (!isInitialized || !profile) {
+    return <HomeSkeleton />;
   }
 
-  // Show skeleton while loading initial data
-  if (!user || (profileLoading && !profile)) {
-    return <HomeSkeleton />;
+  // Redirect to onboarding if no profile
+  if (!profile && user) {
+    window.location.href = "/Onboarding";
+    return null;
   }
 
   return (
