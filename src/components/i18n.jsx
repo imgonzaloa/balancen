@@ -412,7 +412,8 @@ const resources = {
       great_job: "Great job tracking",
       social: "Social",
       progress: "Progress",
-      not_accurate_edit: "Not accurate? Edit manually."
+      not_accurate_edit: "Not accurate? Edit manually.",
+      analysis_trust: "Estimation based on thousands of nutritional analyses."
       }
       },
   es: {
@@ -806,7 +807,8 @@ const resources = {
       great_job: "Gran trabajo registrando",
       social: "Social",
       progress: "Progreso",
-      not_accurate_edit: "¿No es preciso? Edita manualmente."
+      not_accurate_edit: "¿No es preciso? Edita manualmente.",
+      analysis_trust: "Estimación basada en miles de análisis nutricionales."
       }
       }
       };

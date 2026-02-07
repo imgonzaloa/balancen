@@ -161,30 +161,55 @@ export default function Home() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pb-24 pt-6 relative z-10 space-y-6">
-        {/* Header with greeting and status bubble */}
+        {/* Header with greeting */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-start justify-between gap-4"
+          className="text-center space-y-1"
         >
-          <div className="flex-1 text-center space-y-1">
-            <p className="text-teal-200 text-xs font-semibold uppercase tracking-wide">
-              {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
-            </p>
-            <h1 className="text-4xl font-black text-white">
-              {profile?.display_name || t("welcome")}
-            </h1>
-          </div>
-          
-          {/* Status Bubble */}
-          <StatusBubble 
-            profile={profile} 
-            onUpdate={() => queryClient.invalidateQueries(["profile"])} 
-          />
+          <p className="text-teal-200 text-xs font-semibold uppercase tracking-wide">
+            {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+          </p>
+          <h1 className="text-4xl font-black text-white">
+            {profile?.display_name || t("welcome")}
+          </h1>
         </motion.div>
+
+        {/* Note of the day - only here */}
+        {profile?.status_text && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex justify-center"
+          >
+            <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <p className="text-white/80 text-sm">"{profile.status_text}"</p>
+            </div>
+          </motion.div>
+        )}
 
         {/* CORE: Streak Banner */}
         <StreakBanner streak={profile?.current_streak || 0} fireTotal={profile?.fire_total || 0} />
+
+        {/* Empty state for no meals */}
+        {todayMeals.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 text-center"
+          >
+            <div className="text-5xl mb-3">🍽️</div>
+            <h3 className="text-white font-bold text-lg mb-2">
+              {t("no_meals_yet") || (lang === "es" ? "Sin comidas registradas" : "No meals yet")}
+            </h3>
+            <p className="text-white/60 text-sm mb-4">
+              {lang === "es" 
+                ? "Empieza registrando tu primera comida."
+                : "Start by logging your first meal."}
+            </p>
+          </motion.div>
+        )}
 
         {/* Daily Macro Ring - Enhanced nutrition view */}
         <DailyMacroRing 
