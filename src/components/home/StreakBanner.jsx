@@ -3,7 +3,9 @@ import { motion } from "framer-motion";
 import { Flame } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function StreakBanner({ streak, fireTotal }) {
+const StreakBanner = React.memo(function StreakBanner({ streak, fireTotal }) {
+
+
   const { t } = useTranslation();
 
   return (

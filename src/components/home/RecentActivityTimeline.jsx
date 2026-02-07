@@ -3,7 +3,9 @@ import { motion } from "framer-motion";
 import { Utensils, Flame, Trophy } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function RecentActivityTimeline({ recentMeals, profile }) {
+const RecentActivityTimeline = React.memo(function RecentActivityTimeline({ recentMeals, profile }) {
+
+
   const { t } = useTranslation();
 
   const activities = [];
@@ -84,4 +86,6 @@ export default function RecentActivityTimeline({ recentMeals, profile }) {
       </div>
     </motion.div>
   );
-}
+});
+
+export default RecentActivityTimeline;

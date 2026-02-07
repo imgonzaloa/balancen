@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import React from "react";
@@ -73,6 +73,7 @@ export default function Home() {
       return [...sent, ...received].filter(f => f.status === "accepted");
     },
     enabled: !!user?.email,
+    keepPreviousData: true,
   });
 
   const { data: groupsList = [] } = useQuery({
@@ -82,6 +83,7 @@ export default function Home() {
       return members;
     },
     enabled: !!user?.email,
+    keepPreviousData: true,
   });
 
   const { data: topGroupMembers = [] } = useQuery({
@@ -93,7 +95,7 @@ export default function Home() {
       const firstGroupId = groupsList[0].group_id;
       const members = await base44.entities.GroupMember.filter({ group_id: firstGroupId });
       const profiles = await Promise.all(
-        members.map(async (m) => {
+        members.slice(0, 5).map(async (m) => { // Limit to 5 for performance
           const p = await base44.entities.UserProfile.filter({ created_by: m.user_email });
           return { name: m.display_name, fire: p[0]?.fire_total || 0 };
         })
@@ -101,6 +103,7 @@ export default function Home() {
       return profiles.sort((a, b) => b.fire - a.fire);
     },
     enabled: groupsList.length > 0,
+    keepPreviousData: true,
   });
 
   if (!profileLoading && !profile && user) {
@@ -113,21 +116,20 @@ export default function Home() {
     return <HomeSkeleton />;
   }
 
-  const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
-  const caloriesGoal = profile?.calories_goal || 2000;
+  // Memoize expensive calculations
+  const { totalCaloriesToday, totalProtein, totalCarbs, totalFats } = useMemo(() => ({
+    totalCaloriesToday: todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0),
+    totalProtein: todayMeals.reduce((sum, meal) => sum + (meal.estimated_protein || 0), 0),
+    totalCarbs: todayMeals.reduce((sum, meal) => sum + (meal.estimated_carbs || 0), 0),
+    totalFats: todayMeals.reduce((sum, meal) => sum + (meal.estimated_fats || 0), 0),
+  }), [todayMeals]);
   
-  // Calculate total macros from today's meals
-  const totalProtein = todayMeals.reduce((sum, meal) => sum + (meal.estimated_protein || 0), 0);
-  const totalCarbs = todayMeals.reduce((sum, meal) => sum + (meal.estimated_carbs || 0), 0);
-  const totalFats = todayMeals.reduce((sum, meal) => sum + (meal.estimated_fats || 0), 0);
+  const caloriesGoal = profile?.calories_goal || 2000;
 
 
 
-  const handleMealSaved = (addedCalories) => {
-    queryClient.invalidateQueries({ queryKey: ["meals", today] });
-    queryClient.invalidateQueries({ queryKey: ["profile"] });
-    
-    // Show celebration
+  const handleMealSaved = async (addedCalories) => {
+    // Optimistic update - show celebration immediately
     setShowCelebration(true);
     
     // Award fire for meal photo
@@ -135,13 +137,29 @@ export default function Home() {
       setFireAmount(2);
       setShowFireAnimation(true);
       
-      // Update fire total in profile
+      // Optimistic fire update
       if (profile) {
+        const newFireTotal = (profile.fire_total || 0) + 2;
+        
+        // Update cache immediately
+        queryClient.setQueryData(["profile", user?.email], {
+          ...profile,
+          fire_total: newFireTotal
+        });
+        
+        // Sync to backend in background
         base44.entities.UserProfile.update(profile.id, {
-          fire_total: (profile.fire_total || 0) + 2
+          fire_total: newFireTotal
+        }).catch(err => {
+          console.error("Fire update failed:", err);
+          // Revert on error
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
         });
       }
     }
+    
+    // Invalidate to refresh with real data
+    queryClient.invalidateQueries({ queryKey: ["meals", today] });
   };
 
   return (

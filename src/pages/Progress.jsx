@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -42,24 +42,49 @@ export default function Progress() {
     return <ProgressSkeleton />;
   }
 
-  const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
-  const totalProtein = todayMeals.reduce((sum, meal) => sum + (meal.estimated_protein || 0), 0);
-  const totalCarbs = todayMeals.reduce((sum, meal) => sum + (meal.estimated_carbs || 0), 0);
-  const totalFats = todayMeals.reduce((sum, meal) => sum + (meal.estimated_fats || 0), 0);
-  const caloriesGoal = profile?.calories_goal || 2000;
-
-  // Momentum calculation
-  const trackingConsistency = Math.min((todayMeals.length / 3) * 100, 100);
-  const goalAdherence = Math.min((totalCaloriesToday / caloriesGoal) * 100, 100);
-  const macroBalance = 85; // Simplified
-  const frequency = 90; // Based on logging frequency
+  // Memoize all calculations
+  const calculations = useMemo(() => {
+    const totalCaloriesToday = todayMeals.reduce((sum, meal) => sum + (meal.estimated_calories || 0), 0);
+    const totalProtein = todayMeals.reduce((sum, meal) => sum + (meal.estimated_protein || 0), 0);
+    const totalCarbs = todayMeals.reduce((sum, meal) => sum + (meal.estimated_carbs || 0), 0);
+    const totalFats = todayMeals.reduce((sum, meal) => sum + (meal.estimated_fats || 0), 0);
+    const caloriesGoal = profile?.calories_goal || 2000;
+    
+    const trackingConsistency = Math.min((todayMeals.length / 3) * 100, 100);
+    const goalAdherence = Math.min((totalCaloriesToday / caloriesGoal) * 100, 100);
+    const macroBalance = 85;
+    const frequency = 90;
+    
+    const momentumScore = Math.round(
+      (trackingConsistency * 0.3 + goalAdherence * 0.3 + macroBalance * 0.2 + frequency * 0.2)
+    );
+    
+    const daysToGoal = Math.ceil((caloriesGoal * 7 - totalCaloriesToday * 7) / (caloriesGoal - totalCaloriesToday) || 0);
+    
+    return {
+      totalCaloriesToday,
+      totalProtein,
+      totalCarbs,
+      totalFats,
+      caloriesGoal,
+      trackingConsistency,
+      goalAdherence,
+      momentumScore,
+      daysToGoal
+    };
+  }, [todayMeals, profile?.calories_goal]);
   
-  const momentumScore = Math.round(
-    (trackingConsistency * 0.3 + goalAdherence * 0.3 + macroBalance * 0.2 + frequency * 0.2)
-  );
-
-  // Projection
-  const daysToGoal = Math.ceil((caloriesGoal * 7 - totalCaloriesToday * 7) / (caloriesGoal - totalCaloriesToday) || 0);
+  const { 
+    totalCaloriesToday, 
+    totalProtein, 
+    totalCarbs, 
+    totalFats,
+    caloriesGoal,
+    trackingConsistency,
+    goalAdherence,
+    momentumScore,
+    daysToGoal
+  } = calculations;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 pb-24">

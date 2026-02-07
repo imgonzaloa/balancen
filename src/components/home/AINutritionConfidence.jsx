@@ -3,7 +3,9 @@ import { motion } from "framer-motion";
 import { Shield, Info } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function AINutritionConfidence({ todayMeals, profile }) {
+const AINutritionConfidence = React.memo(function AINutritionConfidence({ todayMeals, profile }) {
+
+
   const { t, lang } = useTranslation();
   const [showModal, setShowModal] = React.useState(false);
   
@@ -205,4 +207,6 @@ export default function AINutritionConfidence({ todayMeals, profile }) {
       )}
     </>
   );
-}
+});
+
+export default AINutritionConfidence;
