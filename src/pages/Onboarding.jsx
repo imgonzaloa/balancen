@@ -32,10 +32,22 @@ export default function Onboarding() {
 
   const handleComplete = async () => {
     try {
-      await base44.entities.UserProfile.create({
-        ...formData,
-        onboarding_completed: true,
-      });
+      // Get existing profile and update it with onboarding completion
+      const existingProfile = await base44.entities.UserProfile.filter({ created_by: user?.email });
+      
+      if (existingProfile?.length > 0) {
+        // Update existing profile
+        await base44.entities.UserProfile.update(existingProfile[0].id, {
+          ...formData,
+          onboarding_completed: true,
+        });
+      } else {
+        // Create new profile
+        await base44.entities.UserProfile.create({
+          ...formData,
+          onboarding_completed: true,
+        });
+      }
 
       // Process referral if exists
       const pendingReferral = localStorage.getItem("pending_referral");
@@ -50,7 +62,8 @@ export default function Onboarding() {
         }
       }
 
-      navigate(createPageUrl("Home"));
+      // Go to profile setup (photo + username)
+      navigate(createPageUrl("ProfileSetup"));
     } catch (error) {
       toast.error("Error creating profile");
     }

@@ -64,6 +64,8 @@ import Progress from './pages/Progress';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
 import UserManagement from './pages/UserManagement';
+import LanguageSelector from './pages/LanguageSelector';
+import ProfileSetup from './pages/ProfileSetup';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +87,8 @@ export const PAGES = {
     "Settings": Settings,
     "Social": Social,
     "UserManagement": UserManagement,
+    "LanguageSelector": LanguageSelector,
+    "ProfileSetup": ProfileSetup,
 }
 
 export const pagesConfig = {
