@@ -14,8 +14,8 @@ import { useTranslation } from "@/components/TranslationProvider";
 import SetStatusModal from "@/components/groups/SetStatusModal";
 import ReferralProgress from "@/components/profile/ReferralProgress";
 import { useAppState } from "@/components/AppStateContext";
-import { processImage } from "@/components/ImageProcessor";
-import PhotoPicker from "@/components/profile/PhotoPicker";
+import PhotoPickerModal from "@/components/profile/PhotoPickerModal";
+import { uploadProfilePhoto } from "@/components/profile/PhotoUploadHandler";
 import { logger } from "@/components/logger";
 
 // Note: Avatar upload now uses base44.integrations.Core.UploadFile directly (no RobustUploader needed)
@@ -79,71 +79,53 @@ export default function Profile() {
     if (!file) return;
 
     setUploadingAvatar(true);
-    logger.log('AVATAR_PROCESS_START', { fileName: file.name, sizeKb: (file.size / 1024).toFixed(1) });
-    
-    const loadingToast = toast.loading(lang === "es" ? "Procesando imagen..." : "Processing image...");
     const previousAvatar = profile?.profile_photo || profile?.avatar_url;
     
     try {
-      // Step 1: Process image (HEIC conversion + resize + compress)
-      logger.log('AVATAR_PROCESSING');
-      const processedFile = await processImage(file);
-      
-      // Step 2: Optimistic UI update FIRST (instant feedback)
-      const tempUrl = URL.createObjectURL(processedFile);
+      // Optimistic UI: show temp preview
+      const tempUrl = URL.createObjectURL(file);
       queryClient.setQueryData(["profile"], {
         ...profile,
         profile_photo: tempUrl,
         avatar_url: tempUrl
       });
       
-      toast.loading(lang === "es" ? "Subiendo foto..." : "Uploading photo...", { id: loadingToast });
+      const loadingToast = toast.loading(lang === "es" ? "Subiendo..." : "Uploading...");
       
-      // Step 3: Upload with retry logic
-      logger.log('AVATAR_UPLOADING');
-      const response = await uploadAvatar(processedFile, (progress) => {
-        // Could track progress here if needed
-      });
-      
-      // Step 4: Update with real URL (cache bust)
-      const cachedUrl = response.avatar_url + `?v=${Date.now()}`;
-      queryClient.setQueryData(["profile"], {
-        ...profile,
-        profile_photo: cachedUrl,
-        avatar_url: cachedUrl
-      });
-      
-      // Step 5: Persist to backend (fire and forget with error handling)
-      base44.entities.UserProfile.update(profile.id, { 
-        profile_photo: cachedUrl,
-        avatar_url: cachedUrl 
-      }).then(() => {
-        logger.log('AVATAR_PERSISTED');
-      }).catch((err) => {
-        logger.error('AVATAR_PERSIST_FAILED', err);
-      });
-      
-      // Step 6: Cache avatar in localStorage for instant loading next time
-      try {
-        localStorage.setItem(`avatar_cache_${user?.email}`, cachedUrl);
-      } catch (e) {
-        logger.log('AVATAR_CACHE_FAILED', e);
+      // Upload with client-side processing
+      const result = await uploadProfilePhoto(file);
+      toast.dismiss(loadingToast);
+
+      if (result.success && result.fileUrl) {
+        // Update with real URL
+        const finalUrl = result.fileUrl + `?v=${Date.now()}`;
+        queryClient.setQueryData(["profile"], {
+          ...profile,
+          profile_photo: finalUrl,
+          avatar_url: finalUrl
+        });
+        
+        // Persist to backend
+        base44.entities.UserProfile.update(profile.id, {
+          profile_photo: finalUrl,
+          avatar_url: finalUrl
+        }).catch(err => logger.error('AVATAR_PERSIST_FAILED', err));
+        
+        // Cache locally
+        try {
+          localStorage.setItem(`avatar_cache_${user?.email}`, finalUrl);
+        } catch (e) {
+          logger.log('AVATAR_CACHE_FAILED', e);
+        }
+        
+        URL.revokeObjectURL(tempUrl);
+        toast.success(lang === "es" ? "✨ Foto actualizada" : "✨ Photo updated");
+      } else {
+        throw new Error(result.error || 'Upload failed');
       }
-      
-      // Cleanup
-      URL.revokeObjectURL(tempUrl);
-      toast.dismiss(loadingToast);
-      toast.success(lang === "es" ? "✨ Foto actualizada" : "✨ Photo updated");
-      
     } catch (error) {
-      console.error('[AVATAR] Upload failed:', error);
       logger.error('AVATAR_UPLOAD_ERROR', error);
-      
-      toast.dismiss(loadingToast);
-      
-      // User-friendly error
-      const errorMsg = error.message || (lang === 'es' ? 'No pudimos subir la foto' : 'Failed to upload photo');
-      toast.error(errorMsg, {
+      toast.error(error.message || (lang === 'es' ? 'Error al subir foto' : 'Upload failed'), {
         duration: 4000,
         action: {
           label: lang === "es" ? "Reintentar" : "Retry",
@@ -151,7 +133,7 @@ export default function Profile() {
         }
       });
       
-      // Rollback optimistic update
+      // Rollback
       queryClient.setQueryData(["profile"], {
         ...profile,
         profile_photo: previousAvatar,
@@ -514,11 +496,11 @@ export default function Profile() {
         onUpdate={() => queryClient.invalidateQueries(["profile"])}
       />
       
-      {/* Photo Picker */}
-      <PhotoPicker
+      {/* Photo Picker Modal - Gallery first, Camera secondary */}
+      <PhotoPickerModal
         isOpen={showPhotoPicker}
         onClose={() => setShowPhotoPicker(false)}
-        onSelect={handlePhotoSelected}
+        onSelectFile={handleAvatarUpload}
       />
     </div>
   );
