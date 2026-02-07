@@ -13,20 +13,29 @@ export function MealProvider({ children }) {
   useEffect(() => {
     const storedDataUrl = localStorage.getItem("meal_last_capture_dataurl");
     if (storedDataUrl && !file) {
+      console.log("Restoring file from localStorage dataURL");
       try {
-        // Convert dataUrl back to File
+        // Convert dataUrl back to File correctly
         fetch(storedDataUrl)
           .then(res => res.blob())
           .then(blob => {
+            if (blob.size === 0) {
+              console.error("Restored blob has 0 size");
+              localStorage.removeItem("meal_last_capture_dataurl");
+              return;
+            }
             const restoredFile = new File([blob], "meal.jpg", { type: "image/jpeg" });
+            console.log("Restored file size:", restoredFile.size);
             setFile(restoredFile);
             setPreviewUrl(URL.createObjectURL(restoredFile));
             setStatus("captured");
           })
-          .catch(() => {
+          .catch(err => {
+            console.error("Failed to restore file:", err);
             localStorage.removeItem("meal_last_capture_dataurl");
           });
       } catch (err) {
+        console.error("Failed to restore file:", err);
         localStorage.removeItem("meal_last_capture_dataurl");
       }
     }

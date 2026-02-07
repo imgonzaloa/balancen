@@ -47,7 +47,22 @@ export default function MealResultCard({ profile, onSave }) {
   }, [status, file, result, error]);
 
   const analyzePhoto = async () => {
-    if (!file) return;
+    if (!file) {
+      console.error("No file to analyze");
+      setAnalysisError("No hay archivo para analizar");
+      return;
+    }
+
+    // Validate file
+    if (file.size === 0) {
+      console.error("File size is 0");
+      setAnalysisError("Archivo inválido - tamaño 0");
+      toast.error("Archivo inválido");
+      return;
+    }
+
+    console.log("FILE SIZE:", file.size);
+    console.log("FILE TYPE:", file.type);
 
     try {
       updateStatus("uploading");
@@ -55,18 +70,25 @@ export default function MealResultCard({ profile, onSave }) {
       const formData = new FormData();
       formData.append("file", file, "meal.jpg");
 
+      console.log("Uploading to /ai/meal-analysis...");
+
       const response = await fetch("/ai/meal-analysis", {
         method: "POST",
         body: formData,
       });
 
+      console.log("Response status:", response.status);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Upload failed:", errorText);
         throw new Error(t("analysis_failed"));
       }
 
       updateStatus("analyzing");
 
       const data = await response.json();
+      console.log("Analysis result:", data);
 
       if (!data.calories && !data.items) {
         throw new Error(t("no_food_detected"));
