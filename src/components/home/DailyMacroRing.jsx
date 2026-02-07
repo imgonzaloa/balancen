@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "@/components/TranslationProvider";
 
 export default function DailyMacroRing({ consumed, goal, protein = 0, carbs = 0, fats = 0 }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   
   const percentage = Math.min((consumed / goal) * 100, 100);
   const circumference = 2 * Math.PI * 70;
@@ -68,7 +68,9 @@ export default function DailyMacroRing({ consumed, goal, protein = 0, carbs = 0,
             >
               {Math.round(consumed)}
             </motion.p>
-            <p className="text-xs text-white/40 mb-1">of {goal}</p>
+            <p className="text-xs text-white/40 mb-1">
+              {t("goal_text") || (lang === "es" ? "de" : "of")} {goal}
+            </p>
             <p className="text-[10px] text-white/30 uppercase tracking-wide">kcal</p>
           </div>
         </div>

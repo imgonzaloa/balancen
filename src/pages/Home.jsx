@@ -21,6 +21,7 @@ import RecentActivityTimeline from "@/components/home/RecentActivityTimeline";
 import MealSavedCelebration from "@/components/home/MealSavedCelebration";
 import DailyMacroRing from "@/components/home/DailyMacroRing";
 import QuickAddButton from "@/components/home/QuickAddButton";
+import AINutritionConfidence from "@/components/home/AINutritionConfidence";
 
 export default function Home() {
   const { t, lang } = useTranslation();
@@ -175,19 +176,23 @@ export default function Home() {
           </h1>
         </motion.div>
 
-        {/* Note of the day - only here */}
-        {profile?.status_text && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex justify-center"
-          >
-            <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-              <p className="text-white/80 text-sm">"{profile.status_text}"</p>
-            </div>
-          </motion.div>
-        )}
+        {/* Note of the day - only in Home, check 24h expiry */}
+        {profile?.status_text && (() => {
+          const isExpired = profile?.status_updated_at ? 
+            (new Date() - new Date(profile.status_updated_at)) / (1000 * 60 * 60) >= 24 : true;
+          return !isExpired && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex justify-center"
+            >
+              <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                <p className="text-white/80 text-sm">"{profile.status_text}"</p>
+              </div>
+            </motion.div>
+          );
+        })()}
 
         {/* CORE: Streak Banner */}
         <StreakBanner streak={profile?.current_streak || 0} fireTotal={profile?.fire_total || 0} />
@@ -217,7 +222,10 @@ export default function Home() {
           carbs={totalCarbs}
           fats={totalFats}
         />
-        
+
+        {/* AI Nutrition Confidence Score */}
+        <AINutritionConfidence todayMeals={todayMeals} profile={profile} />
+
         {/* Recent Activity Timeline */}
         <RecentActivityTimeline recentMeals={todayMeals} profile={profile} />
         
