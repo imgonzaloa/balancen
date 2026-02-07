@@ -39,56 +39,72 @@ export default function MealResultCard({ profile, onSave }) {
     }
   }, [result]);
 
+  const [uploadedUrl, setUploadedUrl] = useState(null);
+
   // Auto-start analysis when captured
   useEffect(() => {
-    if (status === "captured" && file && !result && !error) {
-      analyzePhoto();
+    if (status === "captured" && file && !result && !error && !uploadedUrl) {
+      uploadAndAnalyze();
     }
-  }, [status, file, result, error]);
+  }, [status, file, result, error, uploadedUrl]);
 
-  const analyzePhoto = async () => {
+  const uploadAndAnalyze = async () => {
     if (!file) {
-      console.error("No file to analyze");
+      console.error("[MEAL] No file to analyze");
       setAnalysisError("No hay archivo para analizar");
       return;
     }
 
     // Validate file
     if (file.size === 0) {
-      console.error("File size is 0");
+      console.error("[MEAL] File size is 0");
       setAnalysisError("Archivo inválido - tamaño 0");
       toast.error("Archivo inválido");
       return;
     }
 
-    console.log("FILE SIZE:", file.size);
-    console.log("FILE TYPE:", file.type);
+    console.log("[MEAL] file", { size: file.size, type: file.type });
 
     try {
+      // STEP 1: Upload image to get URL
       updateStatus("uploading");
 
-      const formData = new FormData();
-      formData.append("file", file, "meal.jpg");
-
-      console.log("Uploading to /ai/meal-analysis...");
-
-      const response = await fetch("/ai/meal-analysis", {
-        method: "POST",
-        body: formData,
-      });
-
-      console.log("Response status:", response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Upload failed:", errorText);
-        throw new Error(t("analysis_failed"));
+      console.log("[MEAL] Uploading image...");
+      const uploadResult = await base44.integrations.Core.UploadFile({ file });
+      
+      if (!uploadResult?.file_url) {
+        throw new Error("No se recibió URL del archivo");
       }
 
+      const imageUrl = uploadResult.file_url;
+      console.log("[MEAL] uploaded url", imageUrl);
+      
+      // Validate URL
+      if (!imageUrl.startsWith("http")) {
+        throw new Error("URL de imagen inválida");
+      }
+
+      setUploadedUrl(imageUrl);
+
+      // STEP 2: Analyze by URL
       updateStatus("analyzing");
 
-      const data = await response.json();
-      console.log("Analysis result:", data);
+      console.log("[MEAL] analyze request", { imageUrl });
+
+      const response = await base44.functions.invoke("analyzeMealPhoto", {
+        imageUrl
+      });
+
+      console.log("[MEAL] analyze response status", response.status);
+
+      if (response.status !== 200) {
+        const errorText = response.data?.error || "Error desconocido";
+        console.error("[MEAL] Analysis failed:", errorText);
+        throw new Error(errorText);
+      }
+
+      const data = response.data;
+      console.log("[MEAL] Analysis result:", data);
 
       if (!data.calories && !data.items) {
         throw new Error(t("no_food_detected"));
@@ -100,18 +116,61 @@ export default function MealResultCard({ profile, onSave }) {
         carbs: data.carbs || 0,
         fats: data.fats || 0,
         items: data.items || [],
+        notes: data.notes || "",
+        warnings: data.warnings || []
       });
 
       toast.success(t("analysis_complete"));
     } catch (err) {
-      console.error("Analysis error:", err);
+      console.error("[MEAL] Error:", err);
       setAnalysisError(err.message || t("analysis_failed"));
       toast.error(err.message || t("analysis_failed"));
     }
   };
 
+  const retryAnalysis = async () => {
+    if (uploadedUrl) {
+      // Already uploaded, just re-run analysis
+      console.log("[MEAL] Retrying analysis with existing URL:", uploadedUrl);
+      
+      try {
+        updateStatus("analyzing");
+        setAnalysisError(null);
+
+        const response = await base44.functions.invoke("analyzeMealPhoto", {
+          imageUrl: uploadedUrl
+        });
+
+        if (response.status !== 200) {
+          throw new Error(response.data?.error || "Error desconocido");
+        }
+
+        const data = response.data;
+        
+        setAnalysisResult({
+          calories: data.calories || 0,
+          protein: data.protein || 0,
+          carbs: data.carbs || 0,
+          fats: data.fats || 0,
+          items: data.items || [],
+          notes: data.notes || "",
+          warnings: data.warnings || []
+        });
+
+        toast.success(t("analysis_complete"));
+      } catch (err) {
+        console.error("[MEAL] Retry error:", err);
+        setAnalysisError(err.message || t("analysis_failed"));
+        toast.error(err.message || t("analysis_failed"));
+      }
+    } else {
+      // Need to upload again
+      uploadAndAnalyze();
+    }
+  };
+
   const handleSave = async () => {
-    if (!file || !previewUrl) {
+    if (!previewUrl) {
       toast.error(t("no_photo_captured"));
       return;
     }
@@ -119,15 +178,18 @@ export default function MealResultCard({ profile, onSave }) {
     setSaving(true);
 
     try {
-      // Upload photo first
-      const uploadFormData = new FormData();
-      uploadFormData.append("file", file, "meal.jpg");
+      // Use already uploaded URL or upload now
+      let photoUrl = uploadedUrl;
+      
+      if (!photoUrl && file) {
+        console.log("[MEAL] Uploading for save...");
+        const uploadResponse = await base44.integrations.Core.UploadFile({ file });
+        photoUrl = uploadResponse.file_url;
+      }
 
-      const uploadResponse = await base44.integrations.Core.UploadFile({
-        file: file,
-      });
-
-      const photoUrl = uploadResponse.file_url;
+      if (!photoUrl) {
+        throw new Error("No se pudo obtener URL de la foto");
+      }
 
       // Save meal log
       const today = new Date().toISOString().split("T")[0];
@@ -153,7 +215,7 @@ export default function MealResultCard({ profile, onSave }) {
 
       toast.success(t("meal_saved"));
     } catch (err) {
-      console.error("Save error:", err);
+      console.error("[MEAL] Save error:", err);
       toast.error(t("error_saving_meal"));
     } finally {
       setSaving(false);
@@ -209,7 +271,15 @@ export default function MealResultCard({ profile, onSave }) {
         </div>
 
         {/* Analysis Status */}
-        {status === "uploading" || status === "analyzing" ? (
+        {status === "uploading" ? (
+          <div className="p-6 text-center">
+            <Loader2 className="w-12 h-12 mx-auto mb-4 text-emerald-400 animate-spin" />
+            <p className="text-white font-semibold mb-2">{t("uploading_photo")}</p>
+            <p className="text-white/60 text-sm">{t("please_wait")}</p>
+          </div>
+        ) : null}
+
+        {status === "analyzing" ? (
           <div className="p-6 text-center">
             <Loader2 className="w-12 h-12 mx-auto mb-4 text-emerald-400 animate-spin" />
             <p className="text-white font-semibold mb-2">{t("analyzing_food")}</p>
@@ -221,11 +291,12 @@ export default function MealResultCard({ profile, onSave }) {
         {status === "error" && error ? (
           <div className="p-6">
             <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
-              <p className="text-red-400 text-sm">{error}</p>
+              <p className="text-red-400 text-sm font-medium mb-1">{t("analysis_failed")}</p>
+              <p className="text-red-300/70 text-xs">{error}</p>
             </div>
             <button
-              onClick={analyzePhoto}
-              className="w-full py-3 rounded-xl bg-white/10 border border-white/20 text-white font-semibold flex items-center justify-center gap-2"
+              onClick={retryAnalysis}
+              className="w-full py-3 rounded-xl bg-white/10 border border-white/20 text-white font-semibold flex items-center justify-center gap-2 hover:bg-white/20"
             >
               <RefreshCw size={18} />
               {t("retry_analysis")}
@@ -238,57 +309,59 @@ export default function MealResultCard({ profile, onSave }) {
           <div className="p-6 space-y-6">
             {/* Calories Card */}
             <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Flame className="text-orange-400" size={28} />
-                <div>
-                  <p className="text-white/60 text-sm">{t("estimated_calories")}</p>
-                  <input
-                    type="number"
-                    value={editedCalories}
-                    onChange={(e) => setEditedCalories(e.target.value)}
-                    className="text-4xl font-black text-white bg-transparent border-none outline-none w-32"
-                    placeholder="0"
-                  />
-                </div>
+              <div className="flex flex-col items-center justify-center text-center">
+                <Flame className="text-orange-400 mb-2" size={32} />
+                <p className="text-white/60 text-sm mb-1">{t("estimated_calories")}</p>
+                <input
+                  type="number"
+                  value={editedCalories}
+                  onChange={(e) => setEditedCalories(e.target.value)}
+                  className="text-5xl font-black text-white bg-transparent border-none outline-none w-full text-center tabular-nums"
+                  placeholder="0"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
+                />
               </div>
             </div>
 
             {/* Macros */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/5">
-                <p className="text-white/50 text-xs mb-1">{t("protein")}</p>
+              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/5 flex flex-col items-center justify-center text-center">
+                <p className="text-white/50 text-xs mb-2">{t("protein")}</p>
                 <input
                   type="number"
                   value={editedProtein}
                   onChange={(e) => setEditedProtein(e.target.value)}
-                  className="text-xl font-bold text-white bg-transparent border-none outline-none w-full"
+                  className="text-2xl font-bold text-white bg-transparent border-none outline-none w-full text-center tabular-nums"
                   placeholder="0"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
                 />
-                <p className="text-white/40 text-xs">g</p>
+                <p className="text-white/40 text-xs mt-1">g</p>
               </div>
 
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/5">
-                <p className="text-white/50 text-xs mb-1">{t("carbs")}</p>
+              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/5 flex flex-col items-center justify-center text-center">
+                <p className="text-white/50 text-xs mb-2">{t("carbs")}</p>
                 <input
                   type="number"
                   value={editedCarbs}
                   onChange={(e) => setEditedCarbs(e.target.value)}
-                  className="text-xl font-bold text-white bg-transparent border-none outline-none w-full"
+                  className="text-2xl font-bold text-white bg-transparent border-none outline-none w-full text-center tabular-nums"
                   placeholder="0"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
                 />
-                <p className="text-white/40 text-xs">g</p>
+                <p className="text-white/40 text-xs mt-1">g</p>
               </div>
 
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/5">
-                <p className="text-white/50 text-xs mb-1">{t("fats")}</p>
+              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/5 flex flex-col items-center justify-center text-center">
+                <p className="text-white/50 text-xs mb-2">{t("fats")}</p>
                 <input
                   type="number"
                   value={editedFats}
                   onChange={(e) => setEditedFats(e.target.value)}
-                  className="text-xl font-bold text-white bg-transparent border-none outline-none w-full"
+                  className="text-2xl font-bold text-white bg-transparent border-none outline-none w-full text-center tabular-nums"
                   placeholder="0"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
                 />
-                <p className="text-white/40 text-xs">g</p>
+                <p className="text-white/40 text-xs mt-1">g</p>
               </div>
             </div>
 
