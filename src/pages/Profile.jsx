@@ -18,6 +18,8 @@ import { processImage } from "@/components/ImageProcessor";
 import PhotoPicker from "@/components/profile/PhotoPicker";
 import { logger } from "@/components/logger";
 
+// Note: Avatar upload now uses base44.integrations.Core.UploadFile directly (no RobustUploader needed)
+
 export default function Profile() {
   const { t, lang } = useTranslation();
   const { user: cachedUser, profile: cachedProfile, isInitialized } = useAppState();
