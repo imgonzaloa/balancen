@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -31,8 +31,11 @@ export default function InviteCollaborators() {
   });
 
   // OWNER-ONLY ACCESS CHECK
-  const OWNER_EMAIL = "imgonzaloa@gmail.com";
-  const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && profile?.role === "owner";
+  const isOwner = useMemo(() => {
+    return user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && profile?.role === "owner";
+  }, [user?.email, profile?.role]);
+
+  const appUrl = useMemo(() => window.location.origin, []);
   
   if (user && profile && !isOwner) {
     return (
@@ -52,8 +55,6 @@ export default function InviteCollaborators() {
       </div>
     );
   }
-
-  const appUrl = window.location.origin;
 
   const handleInvite = async () => {
     // Double-check owner permission on action
