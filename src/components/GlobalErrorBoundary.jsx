@@ -41,6 +41,7 @@ class GlobalErrorBoundary extends React.Component {
 
   handleReload = () => {
     localStorage.setItem('ERROR_COUNT', '0');
+    // CRITICAL: Manual reload only - never auto
     window.location.reload();
   };
 
@@ -53,7 +54,7 @@ class GlobalErrorBoundary extends React.Component {
       });
     }
     // Clear local storage app data (but keep critical)
-    const critical = ['language', 'onboarding_completed'];
+    const critical = ['language', 'onboarding_completed', 'app_language'];
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
       if (!critical.includes(key)) {
@@ -62,6 +63,13 @@ class GlobalErrorBoundary extends React.Component {
     });
     window.location.href = '/';
   };
+
+  componentDidUpdate(prevProps, prevState) {
+    // CRITICAL: prevent auto-reload loops
+    if (this.state.hasError && !prevState.hasError) {
+      logger.log('ERROR_BOUNDARY_CAUGHT_PREVENTING_LOOP');
+    }
+  }
 
   render() {
     if (this.state.hasError) {

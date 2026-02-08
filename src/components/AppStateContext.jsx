@@ -101,6 +101,8 @@ export function AppStateProvider({ children }) {
   useEffect(() => {
     if (!user?.email) return;
     
+    let isMounted = true; // Prevent state updates after unmount
+    
     const fetchWithTimeout = (promise, timeoutMs = 10000) => {
       return Promise.race([
         promise,
@@ -114,31 +116,38 @@ export function AppStateProvider({ children }) {
     Promise.all([
       fetchWithTimeout(
         base44.entities.UserProfile.filter({ created_by: user.email })
-      ).then(profiles => setProfile(profiles[0] || null))
-        .catch((err) => {
-          console.warn('[APP_STATE] Profile fetch failed', err);
-          setProfile(null);
-        }),
+      ).then(profiles => {
+        if (isMounted) setProfile(profiles[0] || null);
+      }).catch((err) => {
+        console.warn('[APP_STATE] Profile fetch failed', err);
+        if (isMounted) setProfile(null);
+      }),
       
       fetchWithTimeout(
         base44.entities.Friend.filter({ created_by: user.email })
-      ).then(friendsList => setFriends(friendsList))
-        .catch((err) => {
-          console.warn('[APP_STATE] Friends fetch failed', err);
-          setFriends([]);
-        }),
+      ).then(friendsList => {
+        if (isMounted) setFriends(friendsList);
+      }).catch((err) => {
+        console.warn('[APP_STATE] Friends fetch failed', err);
+        if (isMounted) setFriends([]);
+      }),
       
       fetchWithTimeout(
         base44.entities.MealLog.filter(
           { created_by: user.email, date: new Date().toISOString().split("T")[0] },
           "-meal_time"
         )
-      ).then(setTodayMeals)
-        .catch((err) => {
-          console.warn('[APP_STATE] Meals fetch failed', err);
-          setTodayMeals([]);
-        })
+      ).then(meals => {
+        if (isMounted) setTodayMeals(meals);
+      }).catch((err) => {
+        console.warn('[APP_STATE] Meals fetch failed', err);
+        if (isMounted) setTodayMeals([]);
+      })
     ]);
+
+    return () => {
+      isMounted = false;
+    };
   }, [user?.email]);
 
   const refreshProfile = async () => {

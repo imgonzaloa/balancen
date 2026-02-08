@@ -41,6 +41,7 @@ export default function Layout({ children, currentPageName }) {
     const [isNavigating, setIsNavigating] = useState(false);
     const [mountedPages, setMountedPages] = useState({});
     const [darkMode, setDarkMode] = useState(false);
+    const [hasRouted, setHasRouted] = useState(false);
 
   // Keep tabs mounted for instant switching
   const isPersistentPage = persistentPages.includes(currentPageName);
@@ -81,17 +82,16 @@ export default function Layout({ children, currentPageName }) {
     setPrevPage(currentPageName);
   }, [currentPageName]);
 
-  // Render the app wrapped in BootGate
-  const renderApp = (bootState) => {
+  // Render the app
+  const renderApp = () => {
 
     return (
-      <AppStateProvider>
-        <AppErrorBoundary>
-          <ErrorBoundary screen={currentPageName}>
-            <TabErrorBoundary tabName={currentPageName}>
-              <MealProvider>
-                {iOSOptimizer()}
-                <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0)' }}>
+      <AppErrorBoundary>
+        <ErrorBoundary screen={currentPageName}>
+          <TabErrorBoundary tabName={currentPageName}>
+            <MealProvider>
+              {iOSOptimizer()}
+              <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`}>
                           <Toaster position="top-center" richColors />
                           <PerformanceMonitor />
 
@@ -177,12 +177,11 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </nav>
         )}
-        </div>
-              </MealProvider>
-            </TabErrorBoundary>
-          </ErrorBoundary>
-        </AppErrorBoundary>
-      </AppStateProvider>
+      </div>
+            </MealProvider>
+          </TabErrorBoundary>
+        </ErrorBoundary>
+      </AppErrorBoundary>
     );
   };
 
@@ -192,23 +191,33 @@ export default function Layout({ children, currentPageName }) {
         <SafeModeProvider>
           <BootGate>
             {({ bootState }) => {
-              // Apply language sync
-              if (bootState.language && lang !== bootState.language) {
-                setTimeout(() => changeLanguage(bootState.language), 0);
+              // Language sync (once per boot state change)
+              if (bootState.language && lang !== bootState.language && !hasRouted) {
+                changeLanguage(bootState.language);
               }
 
-              // Route enforcement
-              if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
-                setTimeout(() => window.location.href = '/', 0);
-              } else if (bootState.type === 'LANGUAGE_SELECTION' && currentPageName !== 'LanguageSelector') {
-                setTimeout(() => navigate(createPageUrl('LanguageSelector')), 0);
-              } else if (bootState.type === 'ONBOARDING_REQUIRED' && currentPageName !== 'Onboarding') {
-                setTimeout(() => navigate(createPageUrl('Onboarding')), 0);
-              } else if (bootState.type === 'HOME_READY' && ['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
-                setTimeout(() => navigate(createPageUrl('Home')), 0);
+              // Route enforcement (prevent loops with guard)
+              if (!hasRouted) {
+                if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
+                  setHasRouted(true);
+                  setTimeout(() => window.location.href = '/', 0);
+                } else if (bootState.type === 'LANGUAGE_SELECTION' && currentPageName !== 'LanguageSelector') {
+                  setHasRouted(true);
+                  setTimeout(() => navigate(createPageUrl('LanguageSelector')), 0);
+                } else if (bootState.type === 'ONBOARDING_REQUIRED' && currentPageName !== 'Onboarding') {
+                  setHasRouted(true);
+                  setTimeout(() => navigate(createPageUrl('Onboarding')), 0);
+                } else if (bootState.type === 'HOME_READY' && ['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
+                  setHasRouted(true);
+                  setTimeout(() => navigate(createPageUrl('Home')), 0);
+                }
               }
 
-              return renderApp(bootState);
+              return (
+                <AppStateProvider>
+                  {renderApp()}
+                </AppStateProvider>
+              );
             }}
           </BootGate>
         </SafeModeProvider>

@@ -66,6 +66,7 @@ import Progress from './pages/Progress';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
 import UserManagement from './pages/UserManagement';
+import HomeSafe from './pages/HomeSafe';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +90,7 @@ export const PAGES = {
     "Settings": Settings,
     "Social": Social,
     "UserManagement": UserManagement,
+    "HomeSafe": HomeSafe,
 }
 
 export const pagesConfig = {
