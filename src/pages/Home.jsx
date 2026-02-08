@@ -210,14 +210,12 @@ export default function Home() {
     );
   }
 
-  // If fully initialized but no profile, redirect to language selector (for new users)
+  // CONDITIONAL RENDERING AFTER ALL HOOKS
   if (isInitialized && !profile && user) {
     window.location.href = "/LanguageSelector";
     return null;
   }
 
-  // Safe Mode: if errors keep occurring, show minimal version
-  const errorCount = parseInt(localStorage.getItem('ERROR_COUNT') || '0');
   if (errorCount >= 2) {
     return <SafeModeHome />;
   }
