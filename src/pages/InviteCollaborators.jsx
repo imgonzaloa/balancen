@@ -12,13 +12,14 @@ import { toast } from "sonner";
 const OWNER_EMAIL = "imgonzaloa@gmail.com";
 
 export default function InviteCollaborators() {
+  // ALL HOOKS UNCONDITIONALLY AT TOP
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    base44.auth.me().then(setUser);
+    base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
   const { data: profile } = useQuery({
@@ -36,8 +37,11 @@ export default function InviteCollaborators() {
   }, [user?.email, profile?.role]);
 
   const appUrl = useMemo(() => window.location.origin, []);
+
+  // CONDITIONAL RENDERING AFTER ALL HOOKS
+  const accessDenied = user && profile && !isOwner;
   
-  if (user && profile && !isOwner) {
+  if (accessDenied) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 flex items-center justify-center px-5">
         <div className="text-center">
