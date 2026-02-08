@@ -9,6 +9,8 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { useAppState } from "@/components/AppStateContext";
 
 export default function Progress() {
+  return null;
+}
   const { t, lang } = useTranslation();
   const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
 

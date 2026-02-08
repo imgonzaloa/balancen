@@ -21,6 +21,8 @@ import { logger } from "@/components/logger";
 // Note: Avatar upload now uses base44.integrations.Core.UploadFile directly (no RobustUploader needed)
 
 export default function Profile() {
+  return null;
+}
   const { t, lang } = useTranslation();
   const { user: cachedUser, profile: cachedProfile, isInitialized } = useAppState();
   const [editMode, setEditMode] = useState(false);

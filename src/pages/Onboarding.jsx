@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Onboarding() {
+  return null;
+}
   const navigate = useNavigate();
   const { t, lang } = useTranslation();
   const [step, setStep] = useState(0); // Start at language selection

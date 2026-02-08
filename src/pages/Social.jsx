@@ -10,7 +10,9 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { useAppState } from "@/components/AppStateContext";
 import PullToRefresh from "@/components/PullToRefresh";
 
-const ActivityCard = React.memo(({ activity, lang }) => (
+export default function Social() {
+  return null;
+}
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
