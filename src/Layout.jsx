@@ -83,29 +83,6 @@ export default function Layout({ children, currentPageName }) {
 
   // Render the app wrapped in BootGate
   const renderApp = (bootState) => {
-    // Apply language if needed
-    if (bootState.language && lang !== bootState.language) {
-      changeLanguage(bootState.language);
-    }
-
-    // Route enforcement (no early returns here - just redirects)
-    if (bootState.type === 'AUTH_REQUIRED') {
-      if (currentPageName !== 'Home') {
-        setTimeout(() => window.location.href = '/', 0);
-      }
-    } else if (bootState.type === 'LANGUAGE_SELECTION') {
-      if (currentPageName !== 'LanguageSelector') {
-        setTimeout(() => navigate(createPageUrl('LanguageSelector')), 0);
-      }
-    } else if (bootState.type === 'ONBOARDING_REQUIRED') {
-      if (currentPageName !== 'Onboarding') {
-        setTimeout(() => navigate(createPageUrl('Onboarding')), 0);
-      }
-    } else if (bootState.type === 'HOME_READY') {
-      if (['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
-        setTimeout(() => navigate(createPageUrl('Home')), 0);
-      }
-    }
 
     return (
       <AppStateProvider>
@@ -214,7 +191,25 @@ export default function Layout({ children, currentPageName }) {
       <VersionGate>
         <SafeModeProvider>
           <BootGate>
-            {({ bootState }) => renderApp(bootState)}
+            {({ bootState }) => {
+              // Apply language sync
+              if (bootState.language && lang !== bootState.language) {
+                setTimeout(() => changeLanguage(bootState.language), 0);
+              }
+
+              // Route enforcement
+              if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
+                setTimeout(() => window.location.href = '/', 0);
+              } else if (bootState.type === 'LANGUAGE_SELECTION' && currentPageName !== 'LanguageSelector') {
+                setTimeout(() => navigate(createPageUrl('LanguageSelector')), 0);
+              } else if (bootState.type === 'ONBOARDING_REQUIRED' && currentPageName !== 'Onboarding') {
+                setTimeout(() => navigate(createPageUrl('Onboarding')), 0);
+              } else if (bootState.type === 'HOME_READY' && ['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
+                setTimeout(() => navigate(createPageUrl('Home')), 0);
+              }
+
+              return renderApp(bootState);
+            }}
           </BootGate>
         </SafeModeProvider>
       </VersionGate>
