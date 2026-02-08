@@ -180,6 +180,25 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Goals Section */}
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
+          <h3 className="font-semibold text-white mb-4">{t('your_goals')}</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
+              <span className="text-teal-200 text-sm">{t('main_goal')}</span>
+              <span className="font-medium text-white">
+                {goalLabels[lang]?.[profile?.primary_goal] || t('not_defined')}
+              </span>
+            </div>
+            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
+              <span className="text-teal-200 text-sm">{t('intensity')}</span>
+              <span className="font-medium text-white">
+                {intensityLabels[lang]?.[profile?.intensity_level] || t('not_defined')}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Settings Button */}
         <button
           onClick={() => navigate(createPageUrl('Settings'))}
@@ -190,8 +209,8 @@ export default function Profile() {
               <Settings size={20} className="text-teal-300" />
             </div>
             <div className="text-left">
-              <p className="font-semibold text-white">{lang === "es" ? "Configuración" : "Settings"}</p>
-              <p className="text-xs text-teal-200">{lang === "es" ? "Preferencias" : "Preferences"}</p>
+              <p className="font-semibold text-white">{t('settings')}</p>
+              <p className="text-xs text-teal-200">{t('settings_desc')}</p>
             </div>
           </div>
         </button>
@@ -202,7 +221,7 @@ export default function Profile() {
           className="w-full rounded-2xl py-6 bg-red-500/20 border border-red-400/30 text-red-300 hover:bg-red-500/30"
         >
           <LogOut size={18} className="mr-2" />
-          {lang === "es" ? "Cerrar sesión" : "Logout"}
+          {t('logout')}
         </Button>
       </div>
     </div>
