@@ -46,9 +46,15 @@ export default function Layout({ children, currentPageName }) {
     const [darkMode, setDarkMode] = useState(false);
     const [routingComplete, setRoutingComplete] = useState(false);
 
-  const hideNav = noNavPages.includes(currentPageName);
-  const isPersistentPage = persistentPages.includes(currentPageName);
+  // Memoize derived values
+  const hideNav = useMemo(() => noNavPages.includes(currentPageName), [currentPageName]);
+  const isPersistentPage = useMemo(() => persistentPages.includes(currentPageName), [currentPageName]);
+  const navItems = useMemo(() => navItemsBase.map(item => ({
+    ...item,
+    label: t(item.key)
+  })), [t]);
   
+  // ALL EFFECTS - Must be called unconditionally before any returns
   // Keep tabs mounted for instant switching
   useEffect(() => {
     if (isPersistentPage && !mountedPages[currentPageName]) {
@@ -71,11 +77,6 @@ export default function Layout({ children, currentPageName }) {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   }, []);
-  
-  const navItems = useMemo(() => navItemsBase.map(item => ({
-    ...item,
-    label: t(item.key)
-  })), [t]);
 
   useEffect(() => {
     const currentIndex = navItems.findIndex(item => item.name === currentPageName);
@@ -132,11 +133,6 @@ export default function Layout({ children, currentPageName }) {
       setRoutingComplete(true);
     }
   }, [bootState.stage, bootState.isAuthenticated, bootState.language, bootState.onboardingCompleted, currentPageName, routingComplete, lang, changeLanguage, navigate]);
-
-  // Additional effect placeholder to maintain hook count
-  useEffect(() => {
-    // No-op effect to maintain consistent hook count
-  }, []);
 
   // Show splash while booting (AFTER all hooks)
   if (bootState.stage !== 'READY') {
