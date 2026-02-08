@@ -1,205 +1,149 @@
-import { Camera, TrendingUp } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Camera, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAppState } from "@/components/AppStateContext";
+import { useTranslation } from "@/components/TranslationProvider";
+import { base44 } from "@/api/base44Client";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 
 export default function Home() {
+  // ALL HOOKS AT TOP - UNCONDITIONALLY
+  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
+  const { t, lang } = useTranslation();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState(cachedProfile);
+  const [todayMeals, setTodayMeals] = useState(cachedMeals || []);
+  const [loading, setLoading] = useState(!cachedProfile);
+
+  // Fetch profile and meals once user is available
+  useEffect(() => {
+    if (!user?.email || cachedProfile) return;
+
+    const fetchData = async () => {
+      try {
+        const [profileData, mealsData] = await Promise.all([
+          base44.entities.UserProfile.filter({ created_by: user.email }),
+          base44.entities.MealLog.filter({
+            created_by: user.email,
+            date: new Date().toISOString().split("T")[0]
+          }, "-meal_time")
+        ]);
+
+        setProfile(profileData[0] || null);
+        setTodayMeals(mealsData || []);
+      } catch (err) {
+        console.error("Failed to fetch home data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user?.email, cachedProfile]);
+
+  // Calculate metrics
+  const metrics = useMemo(() => {
+    const totalCalories = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
+    const totalProtein = todayMeals.reduce((sum, m) => sum + (m.estimated_protein || 0), 0);
+    const totalCarbs = todayMeals.reduce((sum, m) => sum + (m.estimated_carbs || 0), 0);
+    const totalFats = todayMeals.reduce((sum, m) => sum + (m.estimated_fats || 0), 0);
+    const caloriesGoal = profile?.calories_goal || 2000;
+    const progress = Math.min((totalCalories / caloriesGoal) * 100, 100);
+    const strokeDashoffset = 440 - (progress / 100) * 440;
+
+    return { totalCalories, totalProtein, totalCarbs, totalFats, caloriesGoal, strokeDashoffset };
+  }, [todayMeals, profile?.calories_goal]);
+
+  // Loading state
+  if (!isInitialized || loading) {
+    return <HomeSkeleton />;
+  }
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #0f172a, #134e4a, #047857)',
-      paddingBottom: '96px'
-    }}>
-      <div style={{ maxWidth: '672px', margin: '0 auto', padding: '24px' }}>
+    <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div className="max-w-2xl mx-auto p-6 space-y-6">
         {/* Header */}
-        <div style={{ marginBottom: '24px' }}>
-          <h1 style={{
-            fontSize: '28px',
-            fontWeight: '900',
-            color: 'white',
-            marginBottom: '4px'
-          }}>
-            Welcome back
+        <div>
+          <h1 className="text-3xl font-black text-white mb-2">
+            {lang === "es" ? "Hola de nuevo" : "Welcome back"}
           </h1>
-          <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)' }}>
-            Keep your momentum going
+          <p className="text-white/60 text-sm">
+            {lang === "es" ? "Mantén tu ritmo" : "Keep your momentum going"}
           </p>
         </div>
 
-        {/* Fire Score Card */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(249, 115, 22, 0.2))',
-          backdropFilter: 'blur(40px)',
-          borderRadius: '24px',
-          padding: '24px',
-          border: '1px solid rgba(251, 146, 60, 0.3)',
-          marginBottom: '24px'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '16px'
-          }}>
+        {/* Streak Card */}
+        <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-3xl p-6 border border-amber-500/30">
+          <div className="flex items-center justify-between">
             <div>
-              <p style={{
-                fontSize: '12px',
-                color: 'rgba(251, 146, 60, 0.9)',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}>
-                Current Streak
+              <p className="text-amber-300 text-sm font-semibold uppercase tracking-wide mb-1">
+                {lang === "es" ? "Racha actual" : "Current Streak"}
               </p>
-              <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', marginTop: '4px' }}>
-                Keep going!
-              </p>
+              <p className="text-white/50 text-xs">{lang === "es" ? "¡Sigue así!" : "Keep going!"}</p>
             </div>
-            <div style={{
-              fontSize: '48px',
-              fontWeight: '900',
-              color: 'white',
-              fontFamily: 'monospace'
-            }}>
-              🔥 0
+            <div className="text-5xl font-black text-white">
+              🔥 {profile?.current_streak || 0}
             </div>
           </div>
         </div>
 
-        {/* Progress Ring */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(40px)',
-          borderRadius: '24px',
-          padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          marginBottom: '24px'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              width: '160px',
-              height: '160px',
-              margin: '0 auto 16px',
-              position: 'relative'
-            }}>
-              <svg width="160" height="160" style={{ transform: 'rotate(-90deg)' }}>
+        {/* Calories Ring */}
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
+          <div className="text-center">
+            <div className="w-40 h-40 mx-auto mb-4 relative">
+              <svg width="160" height="160" className="transform -rotate-90">
+                <circle cx="80" cy="80" r="70" stroke="rgba(255,255,255,0.1)" strokeWidth="12" fill="none" />
                 <circle
                   cx="80"
                   cy="80"
                   r="70"
-                  stroke="rgba(255,255,255,0.1)"
-                  strokeWidth="12"
-                  fill="none"
-                />
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  stroke="url(#gradient)"
+                  stroke="url(#gradientHome)"
                   strokeWidth="12"
                   fill="none"
                   strokeLinecap="round"
                   strokeDasharray="440"
-                  strokeDashoffset="440"
+                  strokeDashoffset={metrics.strokeDashoffset}
+                  style={{ transition: 'stroke-dashoffset 1s ease' }}
                 />
                 <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient id="gradientHome" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#f97316" />
                     <stop offset="100%" stopColor="#ef4444" />
                   </linearGradient>
                 </defs>
               </svg>
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  fontSize: '32px',
-                  fontWeight: '900',
-                  color: 'white'
-                }}>
-                  0
-                </div>
-                <div style={{
-                  fontSize: '11px',
-                  color: 'rgba(255, 255, 255, 0.4)'
-                }}>
-                  / 2000 kcal
-                </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="text-3xl font-black text-white">{Math.round(metrics.totalCalories)}</div>
+                <div className="text-xs text-white/40">/ {metrics.caloriesGoal}</div>
               </div>
             </div>
-            <p style={{
-              fontSize: '14px',
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontWeight: '600'
-            }}>
-              Daily Calories
+            <p className="text-white/70 font-semibold text-sm">
+              {lang === "es" ? "Calorías diarias" : "Daily Calories"}
             </p>
           </div>
         </div>
 
         {/* Add Meal Button */}
         <Button
-          style={{
-            width: '100%',
-            padding: '20px',
-            borderRadius: '16px',
-            background: 'linear-gradient(to right, #14b8a6, #10b981)',
-            border: 'none',
-            color: 'white',
-            fontSize: '16px',
-            fontWeight: '700',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 10px 25px rgba(20, 184, 166, 0.3)'
-          }}
+          onClick={() => navigate(createPageUrl('CameraScreen'))}
+          className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-teal-500/30"
         >
           <Camera size={20} />
-          Log Meal
+          {lang === "es" ? "Registrar comida" : "Log Meal"}
         </Button>
 
-        {/* Quick Stats */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '12px',
-          marginTop: '24px'
-        }}>
+        {/* Macros */}
+        <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Protein', value: '0g', color: '#3b82f6' },
-            { label: 'Carbs', value: '0g', color: '#f97316' },
-            { label: 'Fats', value: '0g', color: '#a855f7' }
+            { label: lang === "es" ? "Proteína" : "Protein", value: `${Math.round(metrics.totalProtein)}g`, color: "blue" },
+            { label: lang === "es" ? "Carbos" : "Carbs", value: `${Math.round(metrics.totalCarbs)}g`, color: "orange" },
+            { label: lang === "es" ? "Grasas" : "Fats", value: `${Math.round(metrics.totalFats)}g`, color: "purple" }
           ].map((stat, i) => (
-            <div
-              key={i}
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(40px)',
-                borderRadius: '16px',
-                padding: '16px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                textAlign: 'center'
-              }}
-            >
-              <div style={{
-                fontSize: '20px',
-                fontWeight: '900',
-                color: 'white',
-                marginBottom: '4px'
-              }}>
-                {stat.value}
-              </div>
-              <div style={{
-                fontSize: '11px',
-                color: 'rgba(255, 255, 255, 0.5)',
-                fontWeight: '600'
-              }}>
-                {stat.label}
-              </div>
+            <div key={i} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
+              <div className="text-2xl font-black text-white mb-1">{stat.value}</div>
+              <div className="text-xs text-white/50 font-semibold">{stat.label}</div>
             </div>
           ))}
         </div>

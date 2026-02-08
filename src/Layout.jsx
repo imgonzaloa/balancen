@@ -1,83 +1,99 @@
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, Users, Award, User } from "lucide-react";
+import { Toaster } from "sonner";
+import { TranslationProvider, useTranslation } from "@/components/TranslationProvider";
+import { MealProvider } from "@/components/MealContext";
+import { AppStateProvider } from "@/components/AppStateContext";
+import BootGate from "@/components/BootGate";
+import VersionGate from "@/components/VersionGate";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
-export default function Layout({ children, currentPageName }) {
-  const hideNav = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"].includes(currentPageName);
+const navItems = [
+  { name: "Home", icon: Home, label: "Home" },
+  { name: "Social", icon: Users, label: "Social" },
+  { name: "Progress", icon: Award, label: "Progress" },
+  { name: "Profile", icon: User, label: "Profile" }
+];
+
+const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
+
+function LayoutInner({ children, currentPageName, bootState }) {
+  const navigate = useNavigate();
+  const { t, lang, changeLanguage } = useTranslation();
+  
+  // ALL HOOKS UNCONDITIONALLY AT TOP
+  const hideNav = noNavPages.includes(currentPageName);
   const isActive = (pageName) => currentPageName === pageName;
 
+  // ROUTING LOGIC (after hooks, based on boot state)
+  React.useEffect(() => {
+    if (!bootState) return;
+
+    if (bootState.type === 'AUTH_REQUIRED') {
+      // Not logged in - stay on home (login page)
+      if (currentPageName !== 'Home') {
+        navigate(createPageUrl('Home'), { replace: true });
+      }
+      return;
+    }
+
+    if (bootState.type === 'LANGUAGE_SELECTION') {
+      if (currentPageName !== 'LanguageSelector') {
+        navigate(createPageUrl('LanguageSelector'), { replace: true });
+      }
+      return;
+    }
+
+    if (bootState.type === 'ONBOARDING_REQUIRED') {
+      if (currentPageName !== 'Onboarding') {
+        navigate(createPageUrl('Onboarding'), { replace: true });
+      }
+      return;
+    }
+
+    if (bootState.type === 'HOME_READY') {
+      // Sync language
+      if (bootState.language && lang !== bootState.language) {
+        changeLanguage(bootState.language);
+      }
+      
+      // Redirect away from onboarding/language if somehow still there
+      if (['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
+        navigate(createPageUrl('Home'), { replace: true });
+      }
+    }
+  }, [bootState?.type, currentPageName, bootState?.language, lang, navigate, changeLanguage]);
+
+  // RENDER (no conditional returns)
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#ffffff' }}>
-      {/* Main Content */}
-      <main style={{ paddingBottom: hideNav ? 0 : '80px' }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
+      <Toaster position="top-center" richColors />
+      
+      <main className={hideNav ? "" : "pb-20"}>
         {children}
       </main>
 
-      {/* Bottom Navigation */}
       {!hideNav && (
-        <nav style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: 'rgba(15, 23, 42, 0.95)',
-          backdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-          padding: '8px 0',
-          zIndex: 50
-        }}>
-          <div style={{
-            maxWidth: '512px',
-            margin: '0 auto',
-            display: 'flex',
-            justifyContent: 'space-around',
-            alignItems: 'center',
-            paddingBottom: 'env(safe-area-inset-bottom, 8px)'
-          }}>
-            {[
-              { name: "Home", icon: Home, label: "Home" },
-              { name: "Social", icon: Users, label: "Social" },
-              { name: "Progress", icon: Award, label: "Progress" },
-              { name: "Profile", icon: User, label: "Profile" }
-            ].map((item) => {
+        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
+          <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
+            {navItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.name);
               return (
                 <Link
                   key={item.name}
                   to={createPageUrl(item.name)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    padding: '8px 16px',
-                    textDecoration: 'none',
-                    color: active ? '#5eead4' : '#94a3b8',
-                    position: 'relative'
-                  }}
+                  className="relative flex flex-col items-center py-2 px-4 touch-manipulation transition-transform duration-75 active:scale-90"
                 >
                   {active && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '-4px',
-                      width: '48px',
-                      height: '4px',
-                      background: 'linear-gradient(to right, #2dd4bf, #10b981)',
-                      borderRadius: '999px'
-                    }} />
+                    <div className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full" />
                   )}
-                  <div style={{
-                    padding: '10px',
-                    borderRadius: '16px',
-                    background: active ? 'rgba(20, 184, 166, 0.2)' : 'transparent'
-                  }}>
-                    <Icon size={22} />
+                  <div className={`p-2.5 rounded-2xl ${active ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/20" : ""}`}>
+                    <Icon size={22} className={active ? "text-teal-300" : "text-slate-400"} />
                   </div>
-                  <span style={{
-                    fontSize: '10px',
-                    marginTop: '2px',
-                    fontWeight: '600'
-                  }}>
+                  <span className={`text-[10px] mt-0.5 font-semibold ${active ? "text-teal-300" : "text-slate-500"}`}>
                     {item.label}
                   </span>
                 </Link>
@@ -87,5 +103,27 @@ export default function Layout({ children, currentPageName }) {
         </nav>
       )}
     </div>
+  );
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <VersionGate>
+      <ErrorBoundary screen="Layout">
+        <BootGate>
+          {({ bootState }) => (
+            <TranslationProvider>
+              <AppStateProvider>
+                <MealProvider>
+                  <LayoutInner currentPageName={currentPageName} bootState={bootState}>
+                    {children}
+                  </LayoutInner>
+                </MealProvider>
+              </AppStateProvider>
+            </TranslationProvider>
+          )}
+        </BootGate>
+      </ErrorBoundary>
+    </VersionGate>
   );
 }

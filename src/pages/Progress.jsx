@@ -1,269 +1,145 @@
-import { TrendingUp, Target, Calendar } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { TrendingUp, Target } from "lucide-react";
+import { useAppState } from "@/components/AppStateContext";
+import { useTranslation } from "@/components/TranslationProvider";
+import { base44 } from "@/api/base44Client";
+import { ProgressSkeleton } from "@/components/ui/ScreenSkeleton";
 
 export default function Progress() {
+  // ALL HOOKS AT TOP
+  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
+  const { t, lang } = useTranslation();
+  const [profile, setProfile] = useState(cachedProfile);
+  const [todayMeals, setTodayMeals] = useState(cachedMeals || []);
+  const [loading, setLoading] = useState(!cachedProfile);
+
+  useEffect(() => {
+    if (!user?.email || cachedProfile) return;
+
+    const fetchData = async () => {
+      try {
+        const [profileData, mealsData] = await Promise.all([
+          base44.entities.UserProfile.filter({ created_by: user.email }),
+          base44.entities.MealLog.filter({
+            created_by: user.email,
+            date: new Date().toISOString().split("T")[0]
+          }, "-meal_time")
+        ]);
+
+        setProfile(profileData[0] || null);
+        setTodayMeals(mealsData || []);
+      } catch (err) {
+        console.error("Failed to fetch progress data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user?.email, cachedProfile]);
+
+  const calculations = useMemo(() => {
+    const totalCaloriesToday = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
+    const totalProtein = todayMeals.reduce((sum, m) => sum + (m.estimated_protein || 0), 0);
+    const caloriesGoal = profile?.calories_goal || 2000;
+    const trackingConsistency = Math.min((todayMeals.length / 3) * 100, 100);
+    const goalAdherence = Math.min((totalCaloriesToday / caloriesGoal) * 100, 100);
+    const momentumScore = Math.round((trackingConsistency * 0.5 + goalAdherence * 0.5));
+    const caloriesProgress = Math.min((totalCaloriesToday / caloriesGoal) * 100, 100);
+    const proteinProgress = Math.min((totalProtein / 150) * 100, 100);
+
+    return { totalCaloriesToday, totalProtein, caloriesGoal, trackingConsistency, goalAdherence, momentumScore, caloriesProgress, proteinProgress };
+  }, [todayMeals, profile?.calories_goal]);
+
+  if (!isInitialized || loading) {
+    return <ProgressSkeleton />;
+  }
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #0f172a, #134e4a, #047857)',
-      paddingBottom: '96px'
-    }}>
-      <div style={{ maxWidth: '672px', margin: '0 auto', padding: '24px' }}>
-        {/* Header */}
-        <div style={{ marginBottom: '24px' }}>
-          <h1 style={{
-            fontSize: '28px',
-            fontWeight: '900',
-            color: 'white',
-            marginBottom: '4px'
-          }}>
-            Your Progress
+    <div className="min-h-screen pb-24" style={{ minHeight: '100dvh', overflowY: 'auto' }}>
+      <div className="max-w-2xl mx-auto p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-black text-white mb-2">
+            {lang === "es" ? "Tu Progreso" : "Your Progress"}
           </h1>
-          <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)' }}>
-            Complete analysis of your evolution
+          <p className="text-white/60 text-sm">
+            {lang === "es" ? "Análisis completo de tu evolución" : "Complete analysis of your evolution"}
           </p>
         </div>
 
         {/* Momentum Score */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(20, 184, 166, 0.2))',
-          backdropFilter: 'blur(40px)',
-          borderRadius: '24px',
-          padding: '24px',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          marginBottom: '24px'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '16px'
-          }}>
+        <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/30">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <p style={{
-                fontSize: '12px',
-                color: 'rgba(52, 211, 153, 1)',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                Momentum Score
-                <span style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '10px',
-                  color: 'rgba(255, 255, 255, 0.6)'
-                }}>
-                  ?
-                </span>
+              <p className="text-emerald-300 text-sm font-semibold uppercase tracking-wide">
+                {lang === "es" ? "Momentum Score" : "Momentum Score"}
               </p>
-              <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)', marginTop: '4px' }}>
-                Never resets to zero
+              <p className="text-white/50 text-xs mt-1">
+                {lang === "es" ? "Nunca vuelve a cero" : "Never resets"}
               </p>
             </div>
-            <div style={{
-              fontSize: '48px',
-              fontWeight: '900',
-              color: 'white',
-              fontFamily: 'monospace'
-            }}>
-              0
-            </div>
+            <div className="text-5xl font-black text-white">{calculations.momentumScore}</div>
           </div>
-          <div style={{
-            height: '12px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '999px',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              width: '0%',
-              height: '100%',
-              background: 'linear-gradient(to right, #34d399, #14b8a6)'
-            }} />
+          <div className="h-3 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-400" style={{ width: `${calculations.momentumScore}%`, transition: 'width 1s ease' }} />
           </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '12px',
-            marginTop: '16px'
-          }}>
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '12px',
-              padding: '12px'
-            }}>
-              <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>Consistency</p>
-              <p style={{ fontSize: '16px', fontWeight: '700', color: 'white' }}>0%</p>
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="bg-white/5 rounded-lg p-3">
+              <p className="text-white/60 text-xs">{lang === "es" ? "Consistencia" : "Consistency"}</p>
+              <p className="text-white font-bold">{Math.round(calculations.trackingConsistency)}%</p>
             </div>
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '12px',
-              padding: '12px'
-            }}>
-              <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>Adherence</p>
-              <p style={{ fontSize: '16px', fontWeight: '700', color: 'white' }}>0%</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Projection Card */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(168, 85, 247, 0.2))',
-          backdropFilter: 'blur(40px)',
-          borderRadius: '20px',
-          padding: '20px',
-          border: '1px solid rgba(59, 130, 246, 0.3)',
-          marginBottom: '24px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: 'rgba(59, 130, 246, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <TrendingUp size={20} style={{ color: '#93c5fd' }} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <p style={{
-                fontSize: '11px',
-                color: 'rgba(147, 197, 253, 1)',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                marginBottom: '4px'
-              }}>
-                Goal projection
-              </p>
-              <p style={{
-                fontSize: '18px',
-                fontWeight: '700',
-                color: 'white'
-              }}>
-                ~0 days
-              </p>
-              <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)', marginTop: '4px' }}>
-                At current tracking pace
-              </p>
+            <div className="bg-white/5 rounded-lg p-3">
+              <p className="text-white/60 text-xs">{lang === "es" ? "Adherencia" : "Adherence"}</p>
+              <p className="text-white font-bold">{Math.round(calculations.goalAdherence)}%</p>
             </div>
           </div>
         </div>
 
         {/* Progress Rings */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '16px',
-          marginBottom: '24px'
-        }}>
+        <div className="grid grid-cols-2 gap-4">
           {[
-            { label: 'Calories', value: '0', goal: '2000', color: '#f97316' },
-            { label: 'Protein', value: '0g', color: '#3b82f6' }
+            { label: lang === "es" ? "Calorías" : "Calories", value: calculations.totalCaloriesToday, goal: calculations.caloriesGoal, progress: calculations.caloriesProgress, color: "#f97316" },
+            { label: lang === "es" ? "Proteína" : "Protein", value: `${Math.round(calculations.totalProtein)}g`, progress: calculations.proteinProgress, color: "#3b82f6" }
           ].map((item, i) => (
-            <div
-              key={i}
-              style={{
-                background: 'rgba(30, 41, 59, 0.5)',
-                backdropFilter: 'blur(40px)',
-                borderRadius: '20px',
-                padding: '20px',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}
-            >
-              <div style={{
-                width: '112px',
-                height: '112px',
-                margin: '0 auto 12px',
-                position: 'relative'
-              }}>
-                <svg width="112" height="112" style={{ transform: 'rotate(-90deg)' }}>
+            <div key={i} className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-5 border border-white/10">
+              <div className="w-28 h-28 mx-auto relative">
+                <svg width="112" height="112" className="transform -rotate-90">
+                  <circle cx="56" cy="56" r="48" stroke="rgba(255,255,255,0.1)" strokeWidth="10" fill="none" />
                   <circle
                     cx="56"
                     cy="56"
                     r="48"
-                    stroke="rgba(255,255,255,0.1)"
+                    stroke={item.color}
                     strokeWidth="10"
                     fill="none"
+                    strokeLinecap="round"
+                    strokeDasharray="301"
+                    strokeDashoffset={301 - (item.progress / 100) * 301}
+                    style={{ transition: 'stroke-dashoffset 1s ease' }}
                   />
                 </svg>
-                <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  textAlign: 'center'
-                }}>
-                  <div style={{
-                    fontSize: '24px',
-                    fontWeight: '900',
-                    color: 'white'
-                  }}>
-                    {item.value}
-                  </div>
-                  {item.goal && (
-                    <div style={{
-                      fontSize: '10px',
-                      color: 'rgba(255, 255, 255, 0.4)'
-                    }}>
-                      / {item.goal}
-                    </div>
-                  )}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="text-2xl font-black text-white">{typeof item.value === 'number' ? Math.round(item.value) : item.value}</div>
+                  {item.goal && <div className="text-[10px] text-white/40">/ {item.goal}</div>}
                 </div>
               </div>
-              <p style={{
-                fontSize: '12px',
-                color: 'rgba(255, 255, 255, 0.6)',
-                textAlign: 'center'
-              }}>
-                {item.label}
-              </p>
+              <p className="text-white/60 text-xs text-center mt-2">{item.label}</p>
             </div>
           ))}
         </div>
 
         {/* AI Insight */}
-        <div style={{
-          background: 'linear-gradient(to right, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2))',
-          backdropFilter: 'blur(40px)',
-          borderRadius: '16px',
-          padding: '16px',
-          border: '1px solid rgba(168, 85, 247, 0.3)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: 'rgba(168, 85, 247, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <Target size={16} style={{ color: '#c084fc' }} />
+        <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-4 border border-purple-500/30">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-purple-500/30 flex items-center justify-center flex-shrink-0">
+              <Target size={16} className="text-purple-300" />
             </div>
             <div>
-              <p style={{
-                fontSize: '11px',
-                color: 'rgba(192, 132, 252, 1)',
-                fontWeight: '600',
-                marginBottom: '4px'
-              }}>
-                AI Coach
+              <p className="text-purple-300 text-xs font-semibold mb-1">
+                {lang === "es" ? "IA Coach" : "AI Coach"}
               </p>
-              <p style={{ fontSize: '14px', color: 'white' }}>
-                Start tracking meals to get personalized insights
+              <p className="text-white text-sm">
+                {lang === "es" ? "Buen progreso hoy. Mantén el ritmo." : "Good progress today. Keep it up."}
               </p>
             </div>
           </div>

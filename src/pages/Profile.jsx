@@ -1,271 +1,181 @@
-import { ChevronLeft, Settings, LogOut, Award } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Camera, Settings, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAppState } from "@/components/AppStateContext";
+import { useTranslation } from "@/components/TranslationProvider";
+import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function Profile() {
+  // ALL HOOKS AT TOP
+  const { user, profile: cachedProfile, isInitialized, refreshProfile } = useAppState();
+  const { t, lang } = useTranslation();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState(cachedProfile);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  useEffect(() => {
+    if (!user?.email || cachedProfile) return;
+
+    const fetchProfile = async () => {
+      try {
+        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+        setProfile(profiles[0] || null);
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user?.email, cachedProfile]);
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile?.id) return;
+
+    setUploadingPhoto(true);
+    const prevPhoto = profile.profile_photo;
+
+    try {
+      // Optimistic update
+      const tempUrl = URL.createObjectURL(file);
+      setProfile({ ...profile, profile_photo: tempUrl });
+
+      // Upload with compression
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const { data } = await base44.integrations.Core.UploadFile({ file });
+      
+      if (data?.file_url) {
+        const finalUrl = data.file_url + `?v=${Date.now()}`;
+        await base44.entities.UserProfile.update(profile.id, {
+          profile_photo: finalUrl,
+          avatar_url: finalUrl
+        });
+
+        setProfile({ ...profile, profile_photo: finalUrl, avatar_url: finalUrl });
+        localStorage.setItem(`avatar_cache_${user.email}`, finalUrl);
+        URL.revokeObjectURL(tempUrl);
+        toast.success(lang === "es" ? "✨ Foto actualizada" : "✨ Photo updated");
+        
+        if (refreshProfile) refreshProfile();
+      }
+    } catch (err) {
+      console.error("Photo upload failed:", err);
+      setProfile({ ...profile, profile_photo: prevPhoto });
+      toast.error(lang === "es" ? "Error al subir foto" : "Upload failed");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handleLogout = () => {
+    base44.auth.logout();
+  };
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #0f172a, #134e4a, #047857)',
-      paddingBottom: '96px',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Animated Background */}
-      <div style={{ position: 'absolute', inset: 0, opacity: 0.3 }}>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: '-16px',
-          width: '288px',
-          height: '288px',
-          background: '#14b8a6',
-          borderRadius: '50%',
-          filter: 'blur(60px)'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-32px',
-          left: '80px',
-          width: '288px',
-          height: '288px',
-          background: '#06b6d4',
-          borderRadius: '50%',
-          filter: 'blur(60px)'
-        }} />
+    <div className="min-h-screen pb-24 relative overflow-hidden" style={{ minHeight: '100dvh', overflowY: 'auto' }}>
+      {/* Background */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full blur-3xl" />
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full blur-3xl" />
       </div>
 
-      <div style={{
-        maxWidth: '512px',
-        margin: '0 auto',
-        padding: '16px 16px 96px',
-        position: 'relative',
-        zIndex: 10
-      }}>
-        {/* Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '32px'
-        }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '700', color: 'white' }}>
-            My Profile
-          </h1>
-        </div>
+      <div className="max-w-lg mx-auto px-4 py-8 relative z-10">
+        <h1 className="text-2xl font-bold text-white mb-8">
+          {lang === "es" ? "Mi Perfil" : "My Profile"}
+        </h1>
 
         {/* Profile Header */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(40px)',
-          borderRadius: '24px',
-          padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          marginBottom: '24px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-40px',
-            right: '-40px',
-            width: '128px',
-            height: '128px',
-            background: 'linear-gradient(135deg, rgba(45, 212, 191, 0.3), rgba(16, 185, 129, 0.3))',
-            borderRadius: '50%',
-            filter: 'blur(40px)'
-          }} />
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-teal-400/30 to-emerald-400/30 rounded-full blur-2xl" />
           
-          <div style={{ position: 'relative', zIndex: 10 }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              marginBottom: '24px'
-            }}>
-              <div style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #2dd4bf, #10b981)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '32px',
-                fontWeight: '700',
-                flexShrink: 0
-              }}>
-                U
-              </div>
-              <div style={{ flex: 1 }}>
-                <h2 style={{
-                  fontSize: '20px',
-                  fontWeight: '700',
-                  color: 'white'
-                }}>
-                  User
-                </h2>
-                <p style={{ fontSize: '14px', color: '#5eead4' }}>
-                  user@example.com
-                </p>
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-6">
+              <label className="relative cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                  disabled={uploadingPhoto}
+                />
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative">
+                  {profile?.profile_photo || profile?.avatar_url ? (
+                    <img src={profile.profile_photo || profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}</span>
+                  )}
+                  {uploadingPhoto ? (
+                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera size={20} className="text-white" />
+                    </div>
+                  )}
+                </div>
+              </label>
+              <div>
+                <h2 className="text-xl font-bold text-white">{profile?.display_name || user?.full_name}</h2>
+                <p className="text-teal-200 text-sm">{user?.email}</p>
               </div>
             </div>
 
             {/* Stats */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '12px'
-            }}>
-              <div style={{
-                background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(249, 115, 22, 0.2))',
-                backdropFilter: 'blur(20px)',
-                borderRadius: '16px',
-                padding: '20px',
-                textAlign: 'center',
-                border: '1px solid rgba(251, 146, 60, 0.3)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '140px'
-              }}>
-                <div style={{
-                  fontSize: '48px',
-                  marginBottom: '12px'
-                }}>
-                  🔥
-                </div>
-                <p style={{
-                  fontSize: '11px',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  fontWeight: '600'
-                }}>
-                  Current Streak
-                </p>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-sm rounded-2xl p-5 text-center border border-amber-400/30 min-h-[140px] flex flex-col items-center justify-center">
+                <div className="text-5xl mb-3">🔥</div>
+                <p className="text-xs text-white/70 font-semibold">{lang === "es" ? "Racha" : "Streak"}</p>
               </div>
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
-                borderRadius: '16px',
-                padding: '20px',
-                textAlign: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '140px'
-              }}>
-                <p style={{
-                  fontSize: '40px',
-                  fontWeight: '700',
-                  color: '#5eead4',
-                  lineHeight: 1,
-                  marginBottom: '8px'
-                }}>
-                  0
-                </p>
-                <p style={{
-                  fontSize: '11px',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  fontWeight: '600'
-                }}>
-                  Best Streak
-                </p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20 min-h-[140px] flex flex-col items-center justify-center">
+                <p className="text-4xl font-bold text-teal-300 mb-2">{profile?.longest_streak || 0}</p>
+                <p className="text-xs text-white/70 font-semibold">{lang === "es" ? "Mejor" : "Best"}</p>
               </div>
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
-                borderRadius: '16px',
-                padding: '20px',
-                textAlign: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '140px'
-              }}>
-                <p style={{
-                  fontSize: '40px',
-                  fontWeight: '700',
-                  color: 'white',
-                  lineHeight: 1,
-                  marginBottom: '8px'
-                }}>
-                  0
-                </p>
-                <p style={{
-                  fontSize: '11px',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  fontWeight: '600'
-                }}>
-                  Total Check-ins
-                </p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20 min-h-[140px] flex flex-col items-center justify-center">
+                <p className="text-4xl font-bold text-white mb-2">{profile?.total_checkins || 0}</p>
+                <p className="text-xs text-white/70 font-semibold">{lang === "es" ? "Total" : "Total"}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Settings Button */}
-        <div style={{ marginBottom: '24px' }}>
-          <button style={{
-            width: '100%',
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(40px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '24px',
-            padding: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            cursor: 'pointer',
-            color: 'white'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Settings size={20} style={{ color: '#5eead4' }} />
-              </div>
-              <div style={{ textAlign: 'left' }}>
-                <p style={{ fontWeight: '600', fontSize: '16px' }}>Settings</p>
-                <p style={{ fontSize: '12px', color: '#5eead4' }}>App preferences</p>
-              </div>
+        <button
+          onClick={() => navigate(createPageUrl('Settings'))}
+          className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 mb-6 flex items-center justify-between hover:bg-white/20 transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+              <Settings size={20} className="text-teal-300" />
             </div>
-            <ChevronLeft size={20} style={{
-              color: 'rgba(255, 255, 255, 0.6)',
-              transform: 'rotate(180deg)'
-            }} />
-          </button>
-        </div>
-
-        {/* Logout Button */}
-        <button style={{
-          width: '100%',
-          borderRadius: '16px',
-          padding: '20px',
-          background: 'rgba(239, 68, 68, 0.2)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          color: '#fca5a5',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          cursor: 'pointer',
-          fontSize: '16px',
-          fontWeight: '600'
-        }}>
-          <LogOut size={18} />
-          Logout
+            <div className="text-left">
+              <p className="font-semibold text-white">{lang === "es" ? "Configuración" : "Settings"}</p>
+              <p className="text-xs text-teal-200">{lang === "es" ? "Preferencias" : "Preferences"}</p>
+            </div>
+          </div>
         </button>
+
+        {/* Logout */}
+        <Button
+          onClick={handleLogout}
+          className="w-full rounded-2xl py-6 bg-red-500/20 border border-red-400/30 text-red-300 hover:bg-red-500/30"
+        >
+          <LogOut size={18} className="mr-2" />
+          {lang === "es" ? "Cerrar sesión" : "Logout"}
+        </Button>
       </div>
     </div>
   );
