@@ -72,10 +72,10 @@ export default function Layout({ children, currentPageName }) {
     }
   }, []);
   
-  const navItems = navItemsBase.map(item => ({
+  const navItems = useMemo(() => navItemsBase.map(item => ({
     ...item,
     label: t(item.key)
-  }));
+  })), [t]);
 
   useEffect(() => {
     const currentIndex = navItems.findIndex(item => item.name === currentPageName);
@@ -84,7 +84,7 @@ export default function Layout({ children, currentPageName }) {
       setDirection(currentIndex > prevIndex ? 1 : -1);
     }
     setPrevPage(currentPageName);
-  }, [currentPageName, prevPage, navItems]);
+  }, [currentPageName, navItems, prevPage]);
 
   // Routing logic (run once when boot is ready)
   useEffect(() => {
