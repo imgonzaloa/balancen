@@ -58,9 +58,6 @@ export default function InviteCollaborators() {
 
   const handleInvite = async () => {
     // Double-check owner permission on action
-    const OWNER_EMAIL = "imgonzaloa@gmail.com";
-    const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && profile?.role === "owner";
-    
     if (!isOwner) {
       toast.error("Access denied");
       return;
