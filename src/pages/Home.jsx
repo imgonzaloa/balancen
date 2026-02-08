@@ -40,6 +40,7 @@ export default function Home() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [showMicroPulse, setShowMicroPulse] = useState(false);
   const [microPulseMessage, setMicroPulseMessage] = useState("");
+  const [showTimeout, setShowTimeout] = React.useState(false);
 
   const { data: profile = null, isLoading: profileLoading } = useQuery({
    queryKey: ["profile", user?.email],
