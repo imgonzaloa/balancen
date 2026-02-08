@@ -1,36 +1,23 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { Home, Users, Award, User } from "lucide-react";
-import { motion } from "framer-motion";
-import { Toaster } from "sonner";
-import { useTranslation } from "@/components/TranslationProvider";
-import { MealProvider } from "@/components/MealContext";
-import { useState, useEffect, useMemo } from "react";
-import React from "react";
-import PerformanceMonitor from "@/components/PerformanceMonitor";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import { AppStateProvider } from "@/components/AppStateContext";
-import AppErrorBoundary from "@/components/AppErrorBoundary";
-import VersionGate from "@/components/VersionGate";
-import iOSOptimizer from "@/components/iOSOptimizer";
-import { SafeModeProvider } from "@/components/SafeModeProvider";
-import TabErrorBoundary from "@/components/TabErrorBoundary";
-import { logger } from "@/components/logger";
-import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
-import { useBootSequence } from "@/components/BootSequence";
-import BootSplash from "@/components/BootSplash";
-import { SafeBootManager } from "@/components/SafeBootManager";
+export default function Layout({ children }) {
+  return (
+    <div style={{ minHeight: '100vh', background: '#0b0f14', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+      {/* Top Bar */}
+      <div style={{ background: '#1a1f26', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 24px' }}>
+        <h1 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>Balancen (Safe Mode)</h1>
+      </div>
 
-const navItemsBase = [
-  { name: "Home", icon: Home, key: "home" },
-  { name: "Social", icon: Users, key: "social" },
-  { name: "Progress", icon: Award, key: "progress" },
-  { name: "Profile", icon: User, key: "profile" },
-];
+      {/* Main Content */}
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        {children}
+      </div>
 
-const persistentPages = ["Home", "Social", "Progress", "Profile"];
-const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
-
-export default function Layout({ children, currentPageName }) {
-  return null;
+      {/* Bottom Navigation */}
+      <nav style={{ background: '#1a1f26', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '12px 0', display: 'flex', justifyContent: 'space-around' }}>
+        <a href="/" style={{ color: '#14b8a6', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Home</a>
+        <a href="/Social" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Social</a>
+        <a href="/Progress" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Progress</a>
+        <a href="/Profile" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Profile</a>
+      </nav>
+    </div>
+  );
 }

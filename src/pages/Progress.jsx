@@ -1,13 +1,8 @@
-import React, { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
-import { TrendingUp, Target, Calendar } from "lucide-react";
-import { useTranslation } from "@/components/TranslationProvider";
-import { ProgressSkeleton } from "@/components/ui/ScreenSkeleton";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import { useAppState } from "@/components/AppStateContext";
-
 export default function Progress() {
-  return null;
+  return (
+    <div style={{ background: '#0b0f14', color: '#ffffff', minHeight: '100vh', padding: '24px' }}>
+      <h1 style={{ fontSize: '32px', fontWeight: '900', marginBottom: '8px' }}>Progress</h1>
+      <p style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.6)' }}>Rendering OK</p>
+    </div>
+  );
 }

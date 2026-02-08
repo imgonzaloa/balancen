@@ -1,23 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
-import { ChevronLeft, Scale, Ruler, LogOut, Save, Settings, Crown, Camera } from "lucide-react";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import StreakFire from "@/components/ui/StreakFire";
-import { useTranslation } from "@/components/TranslationProvider";
-import SetStatusModal from "@/components/groups/SetStatusModal";
-import ReferralProgress from "@/components/profile/ReferralProgress";
-import { useAppState } from "@/components/AppStateContext";
-import PhotoPickerModal from "@/components/profile/PhotoPickerModal";
-import { uploadProfilePhoto } from "@/components/profile/PhotoUploadHandler";
-import { logger } from "@/components/logger";
-
 export default function Profile() {
-  return null;
+  return (
+    <div style={{ background: '#0b0f14', color: '#ffffff', minHeight: '100vh', padding: '24px' }}>
+      <h1 style={{ fontSize: '32px', fontWeight: '900', marginBottom: '8px' }}>Profile</h1>
+      <p style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.6)' }}>Rendering OK</p>
+    </div>
+  );
 }

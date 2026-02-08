@@ -1,15 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
-import { Users } from "lucide-react";
-import { SocialSkeleton } from "@/components/ui/ScreenSkeleton";
-import InviteSystemCard from "@/components/social/InviteSystemCard";
-import { useTranslation } from "@/components/TranslationProvider";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import { useAppState } from "@/components/AppStateContext";
-import PullToRefresh from "@/components/PullToRefresh";
-
 export default function Social() {
-  return null;
+  return (
+    <div style={{ background: '#0b0f14', color: '#ffffff', minHeight: '100vh', padding: '24px' }}>
+      <h1 style={{ fontSize: '32px', fontWeight: '900', marginBottom: '8px' }}>Social</h1>
+      <p style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.6)' }}>Rendering OK</p>
+    </div>
+  );
 }
