@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, Users, Award, User } from "lucide-react";
 import { motion } from "framer-motion";
@@ -17,6 +17,7 @@ import { SafeModeProvider } from "@/components/SafeModeProvider";
 import TabErrorBoundary from "@/components/TabErrorBoundary";
 import { logger } from "@/components/logger";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
+import BootGate from "@/components/BootGate";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -32,8 +33,9 @@ const persistentPages = ["Home", "Social", "Progress", "Profile"];
 const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
 
 export default function Layout({ children, currentPageName }) {
+    const navigate = useNavigate();
     const hideNav = noNavPages.includes(currentPageName);
-    const { t, lang } = useTranslation();
+    const { t, lang, changeLanguage } = useTranslation();
     const [direction, setDirection] = useState(0);
     const [prevPage, setPrevPage] = useState(currentPageName);
     const [isNavigating, setIsNavigating] = useState(false);
@@ -85,13 +87,49 @@ export default function Layout({ children, currentPageName }) {
           <GlobalErrorBoundary>
             <VersionGate>
               <SafeModeProvider>
-                <AppStateProvider>
-                  <AppErrorBoundary>
-                    <ErrorBoundary screen={currentPageName}>
-                      <TabErrorBoundary tabName={currentPageName}>
-                <MealProvider>
+                <BootGate>
+                  {({ bootState }) => {
+                    // Boot gate routing logic: ONLY ONE screen can render
+                    if (bootState.type === 'AUTH_REQUIRED') {
+                      // Not authenticated: force to auth/login
+                      if (currentPageName !== 'Home') {
+                        setTimeout(() => window.location.href = '/', 0);
+                      }
+                    } else if (bootState.type === 'LANGUAGE_SELECTION') {
+                      // Needs language: force to LanguageSelector
+                      if (currentPageName !== 'LanguageSelector') {
+                        setTimeout(() => navigate(createPageUrl('LanguageSelector')), 0);
+                        return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />;
+                      }
+                    } else if (bootState.type === 'ONBOARDING_REQUIRED') {
+                      // Needs onboarding: force to Onboarding
+                      if (bootState.language && lang !== bootState.language) {
+                        changeLanguage(bootState.language);
+                      }
+                      if (currentPageName !== 'Onboarding') {
+                        setTimeout(() => navigate(createPageUrl('Onboarding')), 0);
+                        return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />;
+                      }
+                    } else if (bootState.type === 'HOME_READY') {
+                      // Fully set up: apply language and allow navigation
+                      if (bootState.language && lang !== bootState.language) {
+                        changeLanguage(bootState.language);
+                      }
+                      // If user lands on Onboarding/LanguageSelector, redirect to Home
+                      if (['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
+                        setTimeout(() => navigate(createPageUrl('Home')), 0);
+                        return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />;
+                      }
+                    }
+
+                    return (
+                      <AppStateProvider>
+                        <AppErrorBoundary>
+                          <ErrorBoundary screen={currentPageName}>
+                            <TabErrorBoundary tabName={currentPageName}>
+                              <MealProvider>
                                 {iOSOptimizer()}
-                          <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`}>
+                                <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0)' }}>
                           <Toaster position="top-center" richColors />
                           <PerformanceMonitor />
 
@@ -101,11 +139,10 @@ export default function Layout({ children, currentPageName }) {
                               initial={{ opacity: 0.98 }}
                               animate={{ opacity: 1 }}
                               transition={{ duration: 0.1 }}
-                              className={`${hideNav ? "" : "pb-20"} safe-area-inset-top`}
+                              className={hideNav ? "" : "pb-20"}
                               style={{ 
                                 willChange: 'opacity',
                                 visibility: isPersistentPage && mountedPages[currentPageName] ? 'visible' : undefined,
-                                paddingTop: 'env(safe-area-inset-top, 0)',
                               }}
                             >
                               {children}
@@ -178,14 +215,17 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </nav>
         )}
-        </div>
-                </MealProvider>
-                </TabErrorBoundary>
-              </ErrorBoundary>
-            </AppErrorBoundary>
-          </AppStateProvider>
-        </SafeModeProvider>
-        </VersionGate>
-        </GlobalErrorBoundary>
+                                </div>
+                              </MealProvider>
+                            </TabErrorBoundary>
+                          </ErrorBoundary>
+                        </AppErrorBoundary>
+                      </AppStateProvider>
+                    );
+                  }}
+                </BootGate>
+              </SafeModeProvider>
+            </VersionGate>
+          </GlobalErrorBoundary>
         );
         }
