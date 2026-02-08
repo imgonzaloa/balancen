@@ -5,6 +5,7 @@ import { logger } from "@/components/logger";
 const AppStateContext = createContext(null);
 
 export function AppStateProvider({ children }) {
+  // ALL HOOKS AT TOP - ALWAYS CALLED UNCONDITIONALLY
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [friends, setFriends] = useState(null);
@@ -14,6 +15,8 @@ export function AppStateProvider({ children }) {
 
   // Initialize user on mount with timeout
   useEffect(() => {
+    let timeout;
+    
     const initUser = async () => {
       logger.log('AUTH_CHECK_START');
       
@@ -21,7 +24,7 @@ export function AppStateProvider({ children }) {
       const savedOnboarding = localStorage.getItem('onboarding_completed');
       const savedLanguage = localStorage.getItem('app_language');
       
-      const timeout = setTimeout(() => {
+      timeout = setTimeout(() => {
         logger.log('AUTH_CHECK_TIMEOUT');
         setUser(null);
         setIsInitialized(true);
@@ -95,6 +98,10 @@ export function AppStateProvider({ children }) {
     };
 
     initUser();
+    
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, []);
 
   // Parallel data fetching when user loads with timeout
