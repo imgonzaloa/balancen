@@ -114,7 +114,7 @@ export default function Social() {
                   <div className="flex-1">
                     <p className="text-white font-semibold text-sm">{activity.userName}</p>
                     <p className="text-white/60 text-xs">
-                      {lang === "es" ? "Registró una comida" : "Logged a meal"} • {activity.time}
+                      {t('meal_logged')} • {activity.time}
                     </p>
                     {activity.meal?.photo_url && (
                       <img src={activity.meal.photo_url} alt="Meal" className="mt-3 w-full h-36 object-cover rounded-xl" loading="lazy" />

@@ -199,21 +199,24 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Settings Button */}
-        <button
-          onClick={() => navigate(createPageUrl('Settings'))}
-          className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 mb-6 flex items-center justify-between hover:bg-white/20 transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-              <Settings size={20} className="text-teal-300" />
-            </div>
-            <div className="text-left">
-              <p className="font-semibold text-white">{t('settings')}</p>
-              <p className="text-xs text-teal-200">{t('settings_desc')}</p>
-            </div>
-          </div>
-        </button>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <button
+            onClick={() => navigate(createPageUrl('Notes'))}
+            className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:from-purple-500/30 hover:to-pink-500/30 transition-all text-left"
+          >
+            <div className="text-3xl mb-2">📝</div>
+            <p className="text-white font-semibold text-sm">{lang === "es" ? "Notas" : "Notes"}</p>
+          </button>
+          
+          <button
+            onClick={() => navigate(createPageUrl('Settings'))}
+            className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 hover:bg-white/20 transition-all text-left"
+          >
+            <Settings size={28} className="text-teal-300 mb-2" />
+            <p className="text-white font-semibold text-sm">{t('settings')}</p>
+          </button>
+        </div>
 
         {/* Logout */}
         <Button
