@@ -82,7 +82,7 @@ export default function Social() {
         <div>
           <h1 className="text-3xl font-black text-white mb-2">{t('social')}</h1>
           <p className="text-white/60 text-sm">
-            {lang === "es" ? "Comparte progreso con amigos" : "Share progress with friends"}
+            {t('invite_friends_to_join')}
           </p>
         </div>
 
@@ -96,10 +96,10 @@ export default function Social() {
             <div className="relative z-10">
               <div className="text-7xl mb-4">🚀</div>
               <h3 className="text-white font-bold text-xl mb-2">
-                {lang === "es" ? "Entrenar con amigos aumenta la constancia" : "Training with friends increases consistency"}
+                {lang === "es" ? "Entrena con amigos y aumenta tu constancia" : "Train with friends and boost consistency"}
               </h3>
               <p className="text-white/70 text-sm">
-                {lang === "es" ? "Invita a alguien y empieza a compartir progreso juntos" : "Invite someone and start sharing progress together"}
+                {t('invite_friends_to_join')}
               </p>
             </div>
           </div>
@@ -131,10 +131,10 @@ export default function Social() {
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-10 border border-white/10 text-center">
             <div className="text-6xl mb-4">😴</div>
             <h3 className="text-white font-bold text-lg mb-2">
-              {lang === "es" ? "Aún sin actividad hoy" : "No activity yet today"}
+              {t('no_friends_yet')}
             </h3>
             <p className="text-white/60 text-sm">
-              {lang === "es" ? "Tus amigos aún no han registrado comidas" : "Your friends haven't logged meals yet"}
+              {t('invite_friends_to_join')}
             </p>
           </div>
         )}

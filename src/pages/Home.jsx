@@ -157,6 +157,27 @@ export default function Home() {
           ))}
         </div>
 
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => navigate(createPageUrl('Notes'))}
+            className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:from-purple-500/30 hover:to-pink-500/30 transition-all text-left"
+          >
+            <div className="text-3xl mb-2">📝</div>
+            <p className="text-white font-semibold text-sm">{lang === "es" ? "Notas" : "Notes"}</p>
+            <p className="text-white/60 text-xs">{lang === "es" ? "Escribe tus pensamientos" : "Write your thoughts"}</p>
+          </button>
+          
+          <button
+            onClick={() => navigate(createPageUrl('Progress'))}
+            className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl p-5 border border-blue-500/30 hover:from-blue-500/30 hover:to-cyan-500/30 transition-all text-left"
+          >
+            <div className="text-3xl mb-2">📊</div>
+            <p className="text-white font-semibold text-sm">{t('progress')}</p>
+            <p className="text-white/60 text-xs">{lang === "es" ? "Ver tu evolución" : "See your evolution"}</p>
+          </button>
+        </div>
+
         {/* Social Preview */}
         <SocialPreview friends={friends} profile={profile} />
       </div>
