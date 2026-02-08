@@ -210,7 +210,6 @@ export default function Home() {
     );
   }
 
-  // CONDITIONAL RENDERING AFTER ALL HOOKS
   if (isInitialized && !profile && user) {
     window.location.href = "/LanguageSelector";
     return null;
