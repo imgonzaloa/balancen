@@ -84,7 +84,7 @@ export default function Layout({ children, currentPageName }) {
       setDirection(currentIndex > prevIndex ? 1 : -1);
     }
     setPrevPage(currentPageName);
-  }, [currentPageName]);
+  }, [currentPageName, prevPage, navItems]);
 
   // Routing logic (run once when boot is ready)
   useEffect(() => {
