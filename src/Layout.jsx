@@ -1,23 +1,91 @@
-export default function Layout({ children }) {
-  return (
-    <div style={{ minHeight: '100vh', background: '#0b0f14', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Bar */}
-      <div style={{ background: '#1a1f26', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 24px' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>Balancen (Safe Mode)</h1>
-      </div>
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Home, Users, Award, User } from "lucide-react";
 
+export default function Layout({ children, currentPageName }) {
+  const hideNav = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"].includes(currentPageName);
+  const isActive = (pageName) => currentPageName === pageName;
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#ffffff' }}>
       {/* Main Content */}
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      <main style={{ paddingBottom: hideNav ? 0 : '80px' }}>
         {children}
-      </div>
+      </main>
 
       {/* Bottom Navigation */}
-      <nav style={{ background: '#1a1f26', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '12px 0', display: 'flex', justifyContent: 'space-around' }}>
-        <a href="/" style={{ color: '#14b8a6', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Home</a>
-        <a href="/Social" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Social</a>
-        <a href="/Progress" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Progress</a>
-        <a href="/Profile" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Profile</a>
-      </nav>
+      {!hideNav && (
+        <nav style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: 'rgba(15, 23, 42, 0.95)',
+          backdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          padding: '8px 0',
+          zIndex: 50
+        }}>
+          <div style={{
+            maxWidth: '512px',
+            margin: '0 auto',
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            paddingBottom: 'env(safe-area-inset-bottom, 8px)'
+          }}>
+            {[
+              { name: "Home", icon: Home, label: "Home" },
+              { name: "Social", icon: Users, label: "Social" },
+              { name: "Progress", icon: Award, label: "Progress" },
+              { name: "Profile", icon: User, label: "Profile" }
+            ].map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.name);
+              return (
+                <Link
+                  key={item.name}
+                  to={createPageUrl(item.name)}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '8px 16px',
+                    textDecoration: 'none',
+                    color: active ? '#5eead4' : '#94a3b8',
+                    position: 'relative'
+                  }}
+                >
+                  {active && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      width: '48px',
+                      height: '4px',
+                      background: 'linear-gradient(to right, #2dd4bf, #10b981)',
+                      borderRadius: '999px'
+                    }} />
+                  )}
+                  <div style={{
+                    padding: '10px',
+                    borderRadius: '16px',
+                    background: active ? 'rgba(20, 184, 166, 0.2)' : 'transparent'
+                  }}>
+                    <Icon size={22} />
+                  </div>
+                  <span style={{
+                    fontSize: '10px',
+                    marginTop: '2px',
+                    fontWeight: '600'
+                  }}>
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </div>
   );
 }
