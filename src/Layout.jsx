@@ -134,6 +134,9 @@ export default function Layout({ children, currentPageName }) {
     }
   }, [bootState.stage, bootState.isAuthenticated, bootState.language, bootState.onboardingCompleted, currentPageName, routingComplete, lang, changeLanguage, navigate]);
 
+  // Placeholder effect to stabilize hook count across render paths
+  useEffect(() => {}, []);
+
   // Show splash while booting (AFTER all hooks)
   if (bootState.stage !== 'READY') {
     return (
