@@ -195,17 +195,6 @@ export default function Home() {
     return <HomeSkeleton />;
   }
 
-  // Timeout fallback after 3 seconds of loading with no profile
-  const [showTimeout, setShowTimeout] = React.useState(false);
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      if (profileLoading && !profile) {
-        setShowTimeout(true);
-      }
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [profileLoading, profile]);
-
   if (showTimeout && profileLoading && !profile) {
     return (
       <HomeErrorFallback
