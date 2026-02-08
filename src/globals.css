@@ -69,6 +69,17 @@
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior-y: none;
     touch-action: pan-y;
+    min-height: 100vh;
+    min-height: 100dvh; /* iOS dynamic viewport */
+  }
+  
+  /* iOS Safe Area Support */
+  #root {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: rgb(15 23 42); /* Match slate-900 to prevent black bar */
   }
   
   /* iOS-style smooth scrolling */

@@ -17,7 +17,9 @@ import { SafeModeProvider } from "@/components/SafeModeProvider";
 import TabErrorBoundary from "@/components/TabErrorBoundary";
 import { logger } from "@/components/logger";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
-import BootGate from "@/components/BootGate";
+import { useBootSequence } from "@/components/BootSequence";
+import BootSplash from "@/components/BootSplash";
+import { SafeBootManager } from "@/components/SafeBootManager";
 
 const navItemsBase = [
   { name: "Home", icon: Home, key: "home" },
@@ -34,6 +36,7 @@ const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "Lang
 
 export default function Layout({ children, currentPageName }) {
     const navigate = useNavigate();
+    const bootState = useBootSequence();
     const hideNav = noNavPages.includes(currentPageName);
     const { t, lang, changeLanguage } = useTranslation();
     const [direction, setDirection] = useState(0);
@@ -41,7 +44,7 @@ export default function Layout({ children, currentPageName }) {
     const [isNavigating, setIsNavigating] = useState(false);
     const [mountedPages, setMountedPages] = useState({});
     const [darkMode, setDarkMode] = useState(false);
-    const [hasRouted, setHasRouted] = useState(false);
+    const [routingComplete, setRoutingComplete] = useState(false);
 
   // Keep tabs mounted for instant switching
   const isPersistentPage = persistentPages.includes(currentPageName);
@@ -185,41 +188,83 @@ export default function Layout({ children, currentPageName }) {
     );
   };
 
+  // Routing logic (run once when boot is ready)
+  useEffect(() => {
+    if (bootState.stage !== 'READY' || routingComplete) return;
+
+    // Sync language
+    if (bootState.language && lang !== bootState.language) {
+      changeLanguage(bootState.language);
+    }
+
+    // Route enforcement: no loops, no flashing
+    let shouldRoute = false;
+    let targetPage = null;
+
+    if (!bootState.isAuthenticated) {
+      // Not authenticated -> Home page handles login
+      if (currentPageName !== 'Home') {
+        targetPage = 'Home';
+        shouldRoute = true;
+      }
+    } else if (!bootState.language) {
+      // Need language selection
+      if (currentPageName !== 'LanguageSelector') {
+        targetPage = 'LanguageSelector';
+        shouldRoute = true;
+      }
+    } else if (!bootState.onboardingCompleted) {
+      // Need onboarding
+      if (currentPageName !== 'Onboarding') {
+        targetPage = 'Onboarding';
+        shouldRoute = true;
+      }
+    } else {
+      // All complete -> go to Home if on onboarding/language screens
+      if (['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
+        targetPage = 'Home';
+        shouldRoute = true;
+      }
+    }
+
+    if (shouldRoute && targetPage) {
+      setTimeout(() => {
+        if (targetPage === 'Home') {
+          window.location.href = '/';
+        } else {
+          navigate(createPageUrl(targetPage), { replace: true });
+        }
+        setRoutingComplete(true);
+      }, 0);
+    } else {
+      setRoutingComplete(true);
+    }
+  }, [bootState.stage, bootState.isAuthenticated, bootState.language, bootState.onboardingCompleted, currentPageName, routingComplete]);
+
+  // Show splash while booting
+  if (bootState.stage !== 'READY') {
+    return (
+      <GlobalErrorBoundary>
+        <VersionGate>
+          <BootSplash stage={bootState.stage} safeMode={bootState.safeMode} />
+        </VersionGate>
+      </GlobalErrorBoundary>
+    );
+  }
+
+  // Render app after boot
   return (
     <GlobalErrorBoundary>
       <VersionGate>
         <SafeModeProvider>
-          <BootGate>
-            {({ bootState }) => {
-              // Language sync (once per boot state change)
-              if (bootState.language && lang !== bootState.language && !hasRouted) {
-                changeLanguage(bootState.language);
-              }
-
-              // Route enforcement (prevent loops with guard)
-              if (!hasRouted) {
-                if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
-                  setHasRouted(true);
-                  setTimeout(() => window.location.href = '/', 0);
-                } else if (bootState.type === 'LANGUAGE_SELECTION' && currentPageName !== 'LanguageSelector') {
-                  setHasRouted(true);
-                  setTimeout(() => navigate(createPageUrl('LanguageSelector')), 0);
-                } else if (bootState.type === 'ONBOARDING_REQUIRED' && currentPageName !== 'Onboarding') {
-                  setHasRouted(true);
-                  setTimeout(() => navigate(createPageUrl('Onboarding')), 0);
-                } else if (bootState.type === 'HOME_READY' && ['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
-                  setHasRouted(true);
-                  setTimeout(() => navigate(createPageUrl('Home')), 0);
-                }
-              }
-
-              return (
-                <AppStateProvider>
-                  {renderApp()}
-                </AppStateProvider>
-              );
-            }}
-          </BootGate>
+          <AppStateProvider>
+            {bootState.safeMode && (
+              <div className="fixed top-0 left-0 right-0 bg-amber-500/90 text-white text-center py-1 text-xs z-50" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.25rem)' }}>
+                ⚠️ Safe Mode Active
+              </div>
+            )}
+            {renderApp()}
+          </AppStateProvider>
         </SafeModeProvider>
       </VersionGate>
     </GlobalErrorBoundary>

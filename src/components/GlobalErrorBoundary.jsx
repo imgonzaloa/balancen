@@ -46,30 +46,33 @@ class GlobalErrorBoundary extends React.Component {
   };
 
   handleHardRefresh = () => {
-    localStorage.setItem('ERROR_COUNT', '0');
+    // Exit safe mode and clear everything
+    SafeBootManager.exitSafeMode();
+    SafeBootManager.clearCrashLog();
+    
     // Clear service worker cache
     if ('caches' in window) {
       caches.keys().then(names => {
         names.forEach(name => caches.delete(name));
       });
     }
+    
     // Clear local storage app data (but keep critical)
-    const critical = ['language', 'onboarding_completed', 'app_language'];
+    const critical = ['onboarding_completed', 'app_language'];
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
       if (!critical.includes(key)) {
         localStorage.removeItem(key);
       }
     });
+    
     window.location.href = '/';
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    // CRITICAL: prevent auto-reload loops
-    if (this.state.hasError && !prevState.hasError) {
-      logger.log('ERROR_BOUNDARY_CAUGHT_PREVENTING_LOOP');
-    }
-  }
+  handleTryAgain = () => {
+    // Reset error state without full reload
+    this.setState({ hasError: false, error: null });
+  };
 
   render() {
     if (this.state.hasError) {
