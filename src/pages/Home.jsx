@@ -7,32 +7,37 @@ import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
+import StreakFire from "@/components/ui/StreakFire";
+import SocialPreview from "@/components/home/SocialPreview";
 
 export default function Home() {
   // ALL HOOKS AT TOP - UNCONDITIONALLY
-  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
+  const { user, profile: cachedProfile, todayMeals: cachedMeals, friends: cachedFriends, isInitialized } = useAppState();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
   const [todayMeals, setTodayMeals] = useState(cachedMeals || []);
+  const [friends, setFriends] = useState(cachedFriends || []);
   const [loading, setLoading] = useState(!cachedProfile);
 
-  // Fetch profile and meals once user is available
+  // Fetch profile, meals, and friends once user is available
   useEffect(() => {
     if (!user?.email || cachedProfile) return;
 
     const fetchData = async () => {
       try {
-        const [profileData, mealsData] = await Promise.all([
+        const [profileData, mealsData, friendsData] = await Promise.all([
           base44.entities.UserProfile.filter({ created_by: user.email }),
           base44.entities.MealLog.filter({
             created_by: user.email,
             date: new Date().toISOString().split("T")[0]
-          }, "-meal_time")
+          }, "-meal_time"),
+          base44.entities.Friend.filter({ created_by: user.email }).catch(() => [])
         ]);
 
         setProfile(profileData[0] || null);
         setTodayMeals(mealsData || []);
+        setFriends(friendsData || []);
       } catch (err) {
         console.error("Failed to fetch home data:", err);
       } finally {
@@ -67,25 +72,26 @@ export default function Home() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-black text-white mb-2">
-            {lang === "es" ? "Hola de nuevo" : "Welcome back"}
+            {t('home')}
           </h1>
           <p className="text-white/60 text-sm">
             {lang === "es" ? "Mantén tu ritmo" : "Keep your momentum going"}
           </p>
         </div>
 
-        {/* Streak Card */}
+        {/* Fire Score Card */}
         <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-3xl p-6 border border-amber-500/30">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-amber-300 text-sm font-semibold uppercase tracking-wide mb-1">
-                {lang === "es" ? "Racha actual" : "Current Streak"}
+                {t('current_streak')}
               </p>
               <p className="text-white/50 text-xs">{lang === "es" ? "¡Sigue así!" : "Keep going!"}</p>
             </div>
-            <div className="text-5xl font-black text-white">
-              🔥 {profile?.current_streak || 0}
-            </div>
+            <StreakFire streak={profile?.current_streak || 0} size="large" />
+          </div>
+          <div className="text-sm text-white/60">
+            {t('total_fire')}: <span className="font-bold text-white">{profile?.fire_total || 0}</span>
           </div>
         </div>
 
@@ -120,7 +126,10 @@ export default function Home() {
               </div>
             </div>
             <p className="text-white/70 font-semibold text-sm">
-              {lang === "es" ? "Calorías diarias" : "Daily Calories"}
+              {t('calories')}
+            </p>
+            <p className="text-white/40 text-xs mt-1">
+              {t('meals_logged_today')}: {todayMeals.length}
             </p>
           </div>
         </div>
@@ -131,15 +140,15 @@ export default function Home() {
           className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-teal-500/30"
         >
           <Camera size={20} />
-          {lang === "es" ? "Registrar comida" : "Log Meal"}
+          {t('log_your_meal')}
         </Button>
 
         {/* Macros */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: lang === "es" ? "Proteína" : "Protein", value: `${Math.round(metrics.totalProtein)}g`, color: "blue" },
-            { label: lang === "es" ? "Carbos" : "Carbs", value: `${Math.round(metrics.totalCarbs)}g`, color: "orange" },
-            { label: lang === "es" ? "Grasas" : "Fats", value: `${Math.round(metrics.totalFats)}g`, color: "purple" }
+            { label: t('protein'), value: `${Math.round(metrics.totalProtein)}g` },
+            { label: lang === "es" ? "Carbos" : "Carbs", value: `${Math.round(metrics.totalCarbs)}g` },
+            { label: lang === "es" ? "Grasas" : "Fats", value: `${Math.round(metrics.totalFats)}g` }
           ].map((stat, i) => (
             <div key={i} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
               <div className="text-2xl font-black text-white mb-1">{stat.value}</div>
@@ -147,6 +156,9 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        {/* Social Preview */}
+        <SocialPreview friends={friends} profile={profile} />
       </div>
     </div>
   );

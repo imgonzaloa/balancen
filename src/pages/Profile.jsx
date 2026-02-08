@@ -76,6 +76,34 @@ export default function Profile() {
     base44.auth.logout();
   };
 
+  const goalLabels = {
+    en: {
+      consistency: "Be more consistent",
+      weight_loss: "Lose weight",
+      healthy_habits: "Build healthy habits",
+      stay_active: "Stay active"
+    },
+    es: {
+      consistency: "Ser más consistente",
+      weight_loss: "Bajar de peso",
+      healthy_habits: "Hábitos saludables",
+      stay_active: "Mantenerse activo"
+    }
+  };
+
+  const intensityLabels = {
+    en: {
+      easy: "Easy",
+      normal: "Normal",
+      challenging: "Challenging"
+    },
+    es: {
+      easy: "Fácil",
+      normal: "Normal",
+      challenging: "Desafiante"
+    }
+  };
+
   if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">

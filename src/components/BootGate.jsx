@@ -123,17 +123,6 @@ export default function BootGate({ children }) {
     );
   }
 
-  // Dev debug bar (only in development)
-  const DevDebug = process.env.NODE_ENV === 'development' ? (
-    <div className="fixed top-0 left-0 right-0 bg-black/90 text-white text-[9px] p-1 z-[9999] font-mono">
-      Boot: {bootState.type} | Auth: {bootState.user?.email || 'none'} | Lang: {bootState.language || 'none'} | Onboarding: {bootState.onboardingComplete ? 'Y' : 'N'}
-    </div>
-  ) : null;
-
-  return (
-    <>
-      {DevDebug}
-      {children({ bootState })}
-    </>
-  );
+  // No debug bar in production
+  return children({ bootState });
 }

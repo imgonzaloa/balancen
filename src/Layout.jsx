@@ -54,9 +54,12 @@ function LayoutInner({ children, currentPageName, bootState }) {
     }
 
     if (bootState.type === 'HOME_READY') {
-      // Sync language
+      // Sync language ONCE on boot
       if (bootState.language && lang !== bootState.language) {
-        changeLanguage(bootState.language);
+        changeLanguage(bootState.language).catch(() => {
+          // Fallback if language change fails
+          console.warn('Language change failed, using default');
+        });
       }
       
       // Redirect away from onboarding/language if somehow still there
@@ -64,7 +67,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
         navigate(createPageUrl('Home'), { replace: true });
       }
     }
-  }, [bootState?.type, currentPageName, bootState?.language, lang, navigate, changeLanguage]);
+  }, [bootState?.type, currentPageName]);
 
   // RENDER (no conditional returns)
   return (

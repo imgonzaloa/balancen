@@ -344,28 +344,7 @@ export default function Settings() {
               </div>
             </motion.div>
 
-            {/* Invite Collaborators */}
-            <Link to={createPageUrl("InviteCollaborators")}>
-              <motion.div
-                className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl border border-amber-400/30 hover:from-amber-500/30 hover:to-orange-500/30 transition-all"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.65 }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                      <UserPlus size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <Label className="text-white font-semibold">{t('invite_collaborators')}</Label>
-                      <p className="text-xs text-amber-200">{t('grant_free_premium')}</p>
-                    </div>
-                  </div>
-                  <ChevronLeft size={20} className="text-white rotate-180" />
-                </div>
-              </motion.div>
-            </Link>
+            {/* Invite Collaborators - Removed (not implemented) */}
 
             {/* User Management */}
             <Link to={createPageUrl("UserManagement")}>
