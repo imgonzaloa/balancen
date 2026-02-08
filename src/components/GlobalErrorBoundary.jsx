@@ -3,6 +3,7 @@ import { AlertCircle, RotateCcw, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { logger } from '@/components/logger';
+import { SafeBootManager } from './SafeBootManager';
 
 class GlobalErrorBoundary extends React.Component {
   constructor(props) {
@@ -10,7 +11,7 @@ class GlobalErrorBoundary extends React.Component {
     this.state = { 
       hasError: false, 
       error: null,
-      errorCount: parseInt(localStorage.getItem('ERROR_COUNT') || '0')
+      errorCount: 0
     };
   }
 
@@ -25,23 +26,14 @@ class GlobalErrorBoundary extends React.Component {
       componentStack: errorInfo.componentStack
     });
 
-    // Track error count for Safe Mode
-    const count = parseInt(localStorage.getItem('ERROR_COUNT') || '0') + 1;
-    localStorage.setItem('ERROR_COUNT', count.toString());
-    
-    // Reset error count after 10 seconds (not truly repeated)
-    setTimeout(() => {
-      if (parseInt(localStorage.getItem('ERROR_COUNT') || '0') === count) {
-        localStorage.setItem('ERROR_COUNT', '0');
-      }
-    }, 10000);
-
-    this.setState({ errorCount: count });
+    // Record crash and activate safe mode if threshold reached
+    const crashCount = SafeBootManager.recordCrash();
+    this.setState({ errorCount: crashCount });
   }
 
   handleReload = () => {
-    localStorage.setItem('ERROR_COUNT', '0');
     // CRITICAL: Manual reload only - never auto
+    SafeBootManager.clearCrashLog();
     window.location.reload();
   };
 
@@ -89,9 +81,9 @@ class GlobalErrorBoundary extends React.Component {
               <p className="text-white/60 text-sm mb-4">
                 We've logged this error to help fix it.
               </p>
-              {this.state.errorCount >= 2 && (
+              {SafeBootManager.isInSafeMode() && (
                 <p className="text-amber-300 text-xs bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
-                  ⚠️ Safe Mode active: simplified interface
+                  ⚠️ Safe Mode active: {this.state.errorCount} crashes detected
                 </p>
               )}
             </div>
@@ -108,6 +100,15 @@ class GlobalErrorBoundary extends React.Component {
             )}
 
             <div className="space-y-3">
+              {!SafeBootManager.isInSafeMode() && (
+                <Button
+                  onClick={this.handleTryAgain}
+                  className="w-full h-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-xl"
+                >
+                  Try Again (No Reload)
+                </Button>
+              )}
+              
               <Button
                 onClick={this.handleReload}
                 className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2"
@@ -122,7 +123,7 @@ class GlobalErrorBoundary extends React.Component {
                 className="w-full h-12 border-white/20 text-white hover:bg-white/10 rounded-xl flex items-center justify-center gap-2"
               >
                 <Trash2 size={18} />
-                Clear cache & reload
+                Clear All Data & Reload
               </Button>
             </div>
 
