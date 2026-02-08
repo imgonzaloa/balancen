@@ -81,55 +81,40 @@ export default function Layout({ children, currentPageName }) {
     setPrevPage(currentPageName);
   }, [currentPageName]);
 
+  // Render the app wrapped in BootGate
+  const renderApp = (bootState) => {
+    // Apply language if needed
+    if (bootState.language && lang !== bootState.language) {
+      changeLanguage(bootState.language);
+    }
 
+    // Route enforcement (no early returns here - just redirects)
+    if (bootState.type === 'AUTH_REQUIRED') {
+      if (currentPageName !== 'Home') {
+        setTimeout(() => window.location.href = '/', 0);
+      }
+    } else if (bootState.type === 'LANGUAGE_SELECTION') {
+      if (currentPageName !== 'LanguageSelector') {
+        setTimeout(() => navigate(createPageUrl('LanguageSelector')), 0);
+      }
+    } else if (bootState.type === 'ONBOARDING_REQUIRED') {
+      if (currentPageName !== 'Onboarding') {
+        setTimeout(() => navigate(createPageUrl('Onboarding')), 0);
+      }
+    } else if (bootState.type === 'HOME_READY') {
+      if (['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
+        setTimeout(() => navigate(createPageUrl('Home')), 0);
+      }
+    }
 
-  return (
-          <GlobalErrorBoundary>
-            <VersionGate>
-              <SafeModeProvider>
-                <BootGate>
-                  {({ bootState }) => {
-                    // Boot gate routing logic: ONLY ONE screen can render
-                    if (bootState.type === 'AUTH_REQUIRED') {
-                      // Not authenticated: force to auth/login
-                      if (currentPageName !== 'Home') {
-                        setTimeout(() => window.location.href = '/', 0);
-                      }
-                    } else if (bootState.type === 'LANGUAGE_SELECTION') {
-                      // Needs language: force to LanguageSelector
-                      if (currentPageName !== 'LanguageSelector') {
-                        setTimeout(() => navigate(createPageUrl('LanguageSelector')), 0);
-                        return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />;
-                      }
-                    } else if (bootState.type === 'ONBOARDING_REQUIRED') {
-                      // Needs onboarding: force to Onboarding
-                      if (bootState.language && lang !== bootState.language) {
-                        changeLanguage(bootState.language);
-                      }
-                      if (currentPageName !== 'Onboarding') {
-                        setTimeout(() => navigate(createPageUrl('Onboarding')), 0);
-                        return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />;
-                      }
-                    } else if (bootState.type === 'HOME_READY') {
-                      // Fully set up: apply language and allow navigation
-                      if (bootState.language && lang !== bootState.language) {
-                        changeLanguage(bootState.language);
-                      }
-                      // If user lands on Onboarding/LanguageSelector, redirect to Home
-                      if (['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
-                        setTimeout(() => navigate(createPageUrl('Home')), 0);
-                        return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" />;
-                      }
-                    }
-
-                    return (
-                      <AppStateProvider>
-                        <AppErrorBoundary>
-                          <ErrorBoundary screen={currentPageName}>
-                            <TabErrorBoundary tabName={currentPageName}>
-                              <MealProvider>
-                                {iOSOptimizer()}
-                                <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0)' }}>
+    return (
+      <AppStateProvider>
+        <AppErrorBoundary>
+          <ErrorBoundary screen={currentPageName}>
+            <TabErrorBoundary tabName={currentPageName}>
+              <MealProvider>
+                {iOSOptimizer()}
+                <div className={`min-h-screen bg-background select-none ${darkMode ? 'dark' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0)' }}>
                           <Toaster position="top-center" richColors />
                           <PerformanceMonitor />
 
@@ -215,17 +200,24 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </nav>
         )}
-                                </div>
-                              </MealProvider>
-                            </TabErrorBoundary>
-                          </ErrorBoundary>
-                        </AppErrorBoundary>
-                      </AppStateProvider>
-                    );
-                  }}
-                </BootGate>
-              </SafeModeProvider>
-            </VersionGate>
-          </GlobalErrorBoundary>
-        );
-        }
+        </div>
+              </MealProvider>
+            </TabErrorBoundary>
+          </ErrorBoundary>
+        </AppErrorBoundary>
+      </AppStateProvider>
+    );
+  };
+
+  return (
+    <GlobalErrorBoundary>
+      <VersionGate>
+        <SafeModeProvider>
+          <BootGate>
+            {({ bootState }) => renderApp(bootState)}
+          </BootGate>
+        </SafeModeProvider>
+      </VersionGate>
+    </GlobalErrorBoundary>
+  );
+}
