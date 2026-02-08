@@ -36,25 +36,13 @@ export default [
     },
     rules: {
       "no-unused-vars": "off",
-      "react/jsx-uses-vars": "error",
-      "react/jsx-uses-react": "error",
-      "unused-imports/no-unused-imports": "error",
-      "unused-imports/no-unused-vars": [
+      "unused-imports/no-unused-imports": "error"
+      "unused-imports/no-unused-vars":[
         "warn",
-        {
-          vars: "all",
-          varsIgnorePattern: "^_",
-          args: "after-used",
-          argsIgnorePattern: "^_",
-        },
+        {"vars": "all", "args": "after-used"}
       ],
-      "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
-      "react/no-unknown-property": [
-        "error",
-        { ignore: ["cmdk-input-wrapper", "toast-close"] },
-      ],
-      "react-hooks/rules-of-hooks": "error",
-    },
-  },
-];
+      "react/jsx-uses-react": "off",
+      "react-hooks/rules-of-hooks": "error"
+    }
+     
