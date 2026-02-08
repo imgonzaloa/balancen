@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useAppState } from "@/components/AppStateContext";
-import { Plus, Edit2, Trash2, StickyNote } from "lucide-react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function Notes() {
   const { user, isInitialized } = useAppState();
@@ -155,14 +154,8 @@ export default function Notes() {
         </div>
 
         {/* Note Form */}
-        <AnimatePresence>
-          {showForm && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20"
-            >
+        {showForm && (
+          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20">
               <textarea
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
@@ -190,9 +183,8 @@ export default function Notes() {
                   {lang === "es" ? "Guardar" : "Save"}
                 </Button>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
 
         {/* Notes List */}
         {notes.length === 0 ? (
@@ -208,10 +200,8 @@ export default function Notes() {
         ) : (
           <div className="space-y-4">
             {notes.map((note) => (
-              <motion.div
+              <div
                 key={note.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
                 className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/20"
               >
                 <div className="flex items-start justify-between gap-3">
@@ -241,7 +231,7 @@ export default function Notes() {
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
