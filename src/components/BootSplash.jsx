@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import BrandMark from '@/components/BrandMark';
 
 /**
  * BootSplash: Stable loading screen during boot
@@ -16,14 +16,18 @@ export default function BootSplash({ stage = 'LOADING', safeMode = false }) {
       }}
     >
       <div className="text-center space-y-6 px-6">
-        {/* App Icon */}
-        <div className="w-24 h-24 rounded-3xl bg-black flex items-center justify-center mx-auto border-2 border-white shadow-2xl">
-          <span className="text-6xl font-black text-white">B</span>
+        {/* Brand Mark */}
+        <div className="flex justify-center mb-4">
+          <BrandMark size={32} />
         </div>
         
         {/* Loading Indicator */}
         <div className="space-y-3">
-          <Loader2 className="w-8 h-8 text-white animate-spin mx-auto" />
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+            <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+            <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+          </div>
           <p className="text-white/80 text-sm">
             {stage === 'INIT' && 'Iniciando...'}
             {stage === 'LOADING' && 'Cargando...'}

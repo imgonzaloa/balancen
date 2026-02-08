@@ -57,7 +57,7 @@ export default function Progress() {
 
   return (
     <div className="min-h-screen pb-24" style={{ minHeight: '100dvh', overflowY: 'auto' }}>
-      <div className="max-w-2xl mx-auto p-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-6 pt-2 pb-6 space-y-6">
         <div>
           <h1 className="text-3xl font-black text-white mb-2">
             {lang === "es" ? "Tu Progreso" : "Your Progress"}
