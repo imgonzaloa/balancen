@@ -195,6 +195,7 @@ export default function Home() {
     return <HomeSkeleton />;
   }
 
+  // Timeout fallback after 3 seconds
   if (showTimeout && profileLoading && !profile) {
     return (
       <HomeErrorFallback
