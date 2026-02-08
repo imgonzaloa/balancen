@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Toaster } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { MealProvider } from "@/components/MealContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import React from "react";
 import PerformanceMonitor from "@/components/PerformanceMonitor";
 import ErrorBoundary from "@/components/ErrorBoundary";
