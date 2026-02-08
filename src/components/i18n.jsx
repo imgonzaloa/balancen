@@ -12,9 +12,11 @@ const resources = {
       
       // Home
       current_streak: "Current Streak",
-      days_in_a_row: "days in a row",
+      days_in_a_row: "Keep going!",
       total_fire: "Total Fire",
-      today_progress: "Today's Progress",
+      today_progress: "Keep your momentum going",
+      carbs: "Carbs",
+      fats: "Fats",
       calories: "Calories",
       protein: "Protein",
       meals_logged_today: "Meals logged today",
@@ -166,9 +168,11 @@ const resources = {
       
       // Home
       current_streak: "Racha Actual",
-      days_in_a_row: "días seguidos",
+      days_in_a_row: "¡Sigue así!",
       total_fire: "Fuego Total",
-      today_progress: "Progreso de Hoy",
+      today_progress: "Mantén tu ritmo",
+      carbs: "Carbohidratos",
+      fats: "Grasas",
       calories: "Calorías",
       protein: "Proteína",
       meals_logged_today: "Comidas registradas hoy",

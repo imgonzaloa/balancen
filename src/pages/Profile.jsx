@@ -120,9 +120,9 @@ export default function Profile() {
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full blur-3xl" />
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-8 relative z-10">
+      <div className="max-w-lg mx-auto px-4 pt-2 pb-8 relative z-10">
         <h1 className="text-2xl font-bold text-white mb-8">
-          {lang === "es" ? "Mi Perfil" : "My Profile"}
+          {t('my_profile')}
         </h1>
 
         {/* Profile Header */}
@@ -166,15 +166,15 @@ export default function Profile() {
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-sm rounded-2xl p-5 text-center border border-amber-400/30 min-h-[140px] flex flex-col items-center justify-center">
                 <div className="text-5xl mb-3">🔥</div>
-                <p className="text-xs text-white/70 font-semibold">{lang === "es" ? "Racha" : "Streak"}</p>
+                <p className="text-xs text-white/70 font-semibold">{t('current_streak')}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20 min-h-[140px] flex flex-col items-center justify-center">
                 <p className="text-4xl font-bold text-teal-300 mb-2">{profile?.longest_streak || 0}</p>
-                <p className="text-xs text-white/70 font-semibold">{lang === "es" ? "Mejor" : "Best"}</p>
+                <p className="text-xs text-white/70 font-semibold">{t('best_streak')}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20 min-h-[140px] flex flex-col items-center justify-center">
                 <p className="text-4xl font-bold text-white mb-2">{profile?.total_checkins || 0}</p>
-                <p className="text-xs text-white/70 font-semibold">{lang === "es" ? "Total" : "Total"}</p>
+                <p className="text-xs text-white/70 font-semibold">{t('total_checkins')}</p>
               </div>
             </div>
           </div>

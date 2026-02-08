@@ -75,7 +75,7 @@ export default function Home() {
             {t('home')}
           </h1>
           <p className="text-white/60 text-sm">
-            {lang === "es" ? "Mantén tu ritmo" : "Keep your momentum going"}
+            {t('today_progress')}
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export default function Home() {
               <p className="text-amber-300 text-sm font-semibold uppercase tracking-wide mb-1">
                 {t('current_streak')}
               </p>
-              <p className="text-white/50 text-xs">{lang === "es" ? "¡Sigue así!" : "Keep going!"}</p>
+              <p className="text-white/50 text-xs">{t('days_in_a_row')}</p>
             </div>
             <StreakFire streak={profile?.current_streak || 0} size="large" />
           </div>
@@ -147,8 +147,8 @@ export default function Home() {
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: t('protein'), value: `${Math.round(metrics.totalProtein)}g` },
-            { label: lang === "es" ? "Carbos" : "Carbs", value: `${Math.round(metrics.totalCarbs)}g` },
-            { label: lang === "es" ? "Grasas" : "Fats", value: `${Math.round(metrics.totalFats)}g` }
+            { label: t('carbs'), value: `${Math.round(metrics.totalCarbs)}g` },
+            { label: t('fats'), value: `${Math.round(metrics.totalFats)}g` }
           ].map((stat, i) => (
             <div key={i} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
               <div className="text-2xl font-black text-white mb-1">{stat.value}</div>

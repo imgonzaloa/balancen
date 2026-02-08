@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
-import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Trash2 } from "lucide-react";
+import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -11,12 +11,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import MobileSelect from "@/components/MobileSelectWrapper";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
   const { changeLanguage, lang, t } = useTranslation();
 
@@ -310,24 +308,7 @@ export default function Settings() {
           </div>
         </motion.div>
 
-        {/* Delete Account */}
-        <motion.button
-          onClick={() => setShowDeleteDialog(true)}
-          className="w-full relative overflow-hidden rounded-3xl p-5 mb-6 bg-gradient-to-br from-red-500/20 to-red-600/20 backdrop-blur-xl border border-red-500/30 hover:from-red-500/30 hover:to-red-600/30 transition-all active:scale-95"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
-        >
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
-              <Trash2 size={20} className="text-red-400" />
-            </div>
-            <div className="text-left">
-              <p className="text-white font-semibold">{lang === 'es' ? 'Eliminar Cuenta' : 'Delete Account'}</p>
-              <p className="text-xs text-red-300">{lang === 'es' ? 'Esta acción es irreversible' : 'This action is permanent'}</p>
-            </div>
-          </div>
-        </motion.button>
+
 
         {/* ADMIN TOOLS - OWNER ONLY */}
         {profile?.role === "owner" && user?.email?.toLowerCase() === "imgonzaloa@gmail.com" && (
@@ -389,12 +370,6 @@ export default function Settings() {
           </div>
         </motion.div>
 
-        {/* Delete Account Dialog */}
-        <DeleteAccountDialog 
-          isOpen={showDeleteDialog} 
-          onClose={() => setShowDeleteDialog(false)}
-          email={user?.email}
-        />
       </div>
     </div>
   );
