@@ -139,6 +139,16 @@ export default function Home() {
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
   };
 
+  // Timeout fallback effect
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (profileLoading && !profile) {
+        setShowTimeout(true);
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [profileLoading, profile]);
+
   // SAFE MODE: minimal rendering
   if (safeMode) {
     return (
