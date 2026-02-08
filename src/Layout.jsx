@@ -35,9 +35,9 @@ const persistentPages = ["Home", "Social", "Progress", "Profile"];
 const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
 
 export default function Layout({ children, currentPageName }) {
+    // CRITICAL: ALL hooks must be called unconditionally BEFORE any returns
     const navigate = useNavigate();
     const bootState = useBootSequence();
-    const hideNav = noNavPages.includes(currentPageName);
     const { t, lang, changeLanguage } = useTranslation();
     const [direction, setDirection] = useState(0);
     const [prevPage, setPrevPage] = useState(currentPageName);
@@ -46,9 +46,10 @@ export default function Layout({ children, currentPageName }) {
     const [darkMode, setDarkMode] = useState(false);
     const [routingComplete, setRoutingComplete] = useState(false);
 
-  // Keep tabs mounted for instant switching
+  const hideNav = noNavPages.includes(currentPageName);
   const isPersistentPage = persistentPages.includes(currentPageName);
   
+  // Keep tabs mounted for instant switching
   useEffect(() => {
     if (isPersistentPage && !mountedPages[currentPageName]) {
       setMountedPages(prev => ({ ...prev, [currentPageName]: true }));
@@ -84,6 +85,66 @@ export default function Layout({ children, currentPageName }) {
     }
     setPrevPage(currentPageName);
   }, [currentPageName]);
+
+  // Routing logic (run once when boot is ready)
+  useEffect(() => {
+    if (bootState.stage !== 'READY' || routingComplete) return;
+
+    // Sync language
+    if (bootState.language && lang !== bootState.language) {
+      changeLanguage(bootState.language);
+    }
+
+    // Route enforcement: no loops, no flashing
+    let shouldRoute = false;
+    let targetPage = null;
+
+    if (!bootState.isAuthenticated) {
+      if (currentPageName !== 'Home') {
+        targetPage = 'Home';
+        shouldRoute = true;
+      }
+    } else if (!bootState.language) {
+      if (currentPageName !== 'LanguageSelector') {
+        targetPage = 'LanguageSelector';
+        shouldRoute = true;
+      }
+    } else if (!bootState.onboardingCompleted) {
+      if (currentPageName !== 'Onboarding') {
+        targetPage = 'Onboarding';
+        shouldRoute = true;
+      }
+    } else {
+      if (['Onboarding', 'LanguageSelector'].includes(currentPageName)) {
+        targetPage = 'Home';
+        shouldRoute = true;
+      }
+    }
+
+    if (shouldRoute && targetPage) {
+      setTimeout(() => {
+        if (targetPage === 'Home') {
+          window.location.href = '/';
+        } else {
+          navigate(createPageUrl(targetPage), { replace: true });
+        }
+        setRoutingComplete(true);
+      }, 0);
+    } else {
+      setRoutingComplete(true);
+    }
+  }, [bootState.stage, bootState.isAuthenticated, bootState.language, bootState.onboardingCompleted, currentPageName, routingComplete]);
+
+  // Show splash while booting (AFTER all hooks)
+  if (bootState.stage !== 'READY') {
+    return (
+      <GlobalErrorBoundary>
+        <VersionGate>
+          <BootSplash stage={bootState.stage} safeMode={bootState.safeMode} />
+        </VersionGate>
+      </GlobalErrorBoundary>
+    );
+  }
 
   // Render the app
   const renderApp = () => {
@@ -252,7 +313,7 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // Render app after boot
+  // Render app after boot (all hooks already called above)
   return (
     <GlobalErrorBoundary>
       <VersionGate>
