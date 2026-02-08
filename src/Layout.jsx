@@ -133,6 +133,11 @@ export default function Layout({ children, currentPageName }) {
     }
   }, [bootState.stage, bootState.isAuthenticated, bootState.language, bootState.onboardingCompleted, currentPageName, routingComplete, lang, changeLanguage, navigate]);
 
+  // Additional effect placeholder to maintain hook count
+  useEffect(() => {
+    // No-op effect to maintain consistent hook count
+  }, []);
+
   // Show splash while booting (AFTER all hooks)
   if (bootState.stage !== 'READY') {
     return (
