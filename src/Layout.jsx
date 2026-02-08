@@ -32,22 +32,8 @@ const persistentPages = ["Home", "Social", "Progress", "Profile"];
 const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
 
 export default function Layout({ children, currentPageName }) {
-    const navigate = useNavigate();
-    const bootState = useBootSequence();
-    const { t, lang, changeLanguage } = useTranslation();
-    const [direction, setDirection] = useState(0);
-    const [prevPage, setPrevPage] = useState(currentPageName);
-    const [isNavigating, setIsNavigating] = useState(false);
-    const [mountedPages, setMountedPages] = useState({});
-    const [darkMode, setDarkMode] = useState(false);
-    const [routingComplete, setRoutingComplete] = useState(false);
-
-  const hideNav = useMemo(() => noNavPages.includes(currentPageName), [currentPageName]);
-  const isPersistentPage = useMemo(() => persistentPages.includes(currentPageName), [currentPageName]);
-  const navItems = useMemo(() => navItemsBase.map(item => ({
-    ...item,
-    label: t(item.key)
-  })), [t]);
+  return null;
+}
   
   useEffect(() => {
     if (isPersistentPage && !mountedPages[currentPageName]) {
