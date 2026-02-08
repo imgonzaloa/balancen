@@ -371,6 +371,24 @@ export default function Settings() {
           </>
         )}
 
+        {/* About Section */}
+        <motion.div
+          className="relative overflow-hidden rounded-3xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center">
+              <span className="text-3xl font-black text-white">B</span>
+            </div>
+            <div>
+              <p className="text-white font-semibold text-lg">Balancen</p>
+              <p className="text-white/40 text-xs">v1.0.0</p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Delete Account Dialog */}
         <DeleteAccountDialog 
           isOpen={showDeleteDialog} 

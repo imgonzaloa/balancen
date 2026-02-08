@@ -9,6 +9,7 @@ import { AppStateProvider } from "@/components/AppStateContext";
 import BootGate from "@/components/BootGate";
 import VersionGate from "@/components/VersionGate";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import BrandMark from "@/components/BrandMark";
 
 const navItems = [
   { name: "Home", icon: Home, label: "Home" },
@@ -18,6 +19,7 @@ const navItems = [
 ];
 
 const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
+const showBrandPages = ["Home", "Social", "Progress", "Profile"];
 
 function LayoutInner({ children, currentPageName, bootState }) {
   const navigate = useNavigate();
@@ -74,7 +76,16 @@ function LayoutInner({ children, currentPageName, bootState }) {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
       <Toaster position="top-center" richColors />
       
-      <main className={hideNav ? "" : "pb-20"}>
+      {/* Brand Mark - shown on main tabs */}
+      {showBrandPages.includes(currentPageName) && (
+        <div className="fixed top-0 left-0 right-0 z-40 pt-safe" style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 8px)' }}>
+          <div className="max-w-2xl mx-auto px-6 py-3">
+            <BrandMark size={18} />
+          </div>
+        </div>
+      )}
+      
+      <main className={hideNav ? "" : "pb-20"} style={{ paddingTop: showBrandPages.includes(currentPageName) ? '60px' : '0' }}>
         {children}
       </main>
 
