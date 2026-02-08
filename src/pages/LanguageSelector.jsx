@@ -30,6 +30,9 @@ export default function LanguageSelector() {
     setLoading(true);
     try {
       setSelectedLang(lang);
+      
+      // CRITICAL: Persist immediately
+      localStorage.setItem('app_language', lang);
       await changeLanguage(lang);
       
       // Create or update profile with language

@@ -68,8 +68,9 @@ export default function Onboarding() {
         });
       }
 
-      // Persist onboarding flag to localStorage immediately
+      // CRITICAL: Persist immediately to prevent re-showing
       localStorage.setItem('onboarding_completed', 'true');
+      localStorage.setItem('onboarding_version', 'v1');
 
       // Process referral if exists
       const pendingReferral = localStorage.getItem("pending_referral");
