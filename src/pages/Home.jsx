@@ -29,6 +29,7 @@ const fetchWithTimeout = (promise, timeoutMs = 8000) => {
 };
 
 export default function Home() {
+  // ALL HOOKS AT TOP - UNCONDITIONALLY
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -111,6 +112,8 @@ export default function Home() {
 
   const caloriesPercent = Math.min((totalCaloriesToday / caloriesGoal) * 100, 100);
   const proteinPercent = Math.min((totalProtein / proteinGoal) * 100, 100);
+  
+  const errorCount = useMemo(() => parseInt(localStorage.getItem('ERROR_COUNT') || '0'), []);
 
   const handleMealSaved = async (addedCalories) => {
     setShowCelebration(true);
@@ -139,7 +142,6 @@ export default function Home() {
     queryClient.invalidateQueries({ queryKey: ["meals", today] });
   };
 
-  // Timeout fallback effect
   React.useEffect(() => {
     const timer = setTimeout(() => {
       if (profileLoading && !profile) {
