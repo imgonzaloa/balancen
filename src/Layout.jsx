@@ -54,7 +54,7 @@ export default function Layout({ children, currentPageName }) {
     if (isPersistentPage && !mountedPages[currentPageName]) {
       setMountedPages(prev => ({ ...prev, [currentPageName]: true }));
     }
-  }, [currentPageName, isPersistentPage]);
+  }, [currentPageName, isPersistentPage, mountedPages]);
 
   // Detect system dark mode preference
   useEffect(() => {
