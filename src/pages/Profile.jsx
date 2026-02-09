@@ -272,17 +272,19 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Goals Section - Editable */}
+        {/* Goals Section - FREE USERS: READ-ONLY */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-white">{t('your_goals')}</h3>
-            <button
-              onClick={() => setShowGoalsEdit(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-300 hover:bg-teal-500/30 transition-colors"
-            >
-              <Target size={14} />
-              <span className="text-xs font-semibold">{t('edit_goals')}</span>
-            </button>
+            {(profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
+              <button
+                onClick={() => setShowGoalsEdit(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-300 hover:bg-teal-500/30 transition-colors"
+              >
+                <Target size={14} />
+                <span className="text-xs font-semibold">{t('edit_goals')}</span>
+              </button>
+            )}
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
@@ -363,14 +365,13 @@ export default function Profile() {
         </button>
       </div>
 
-      {/* Goals Edit Modal */}
-      {showGoalsEdit && (
+      {/* Goals Edit Modal - PREMIUM ONLY */}
+      {showGoalsEdit && (profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
         <ProfileGoalsEdit
           profile={profile}
           onClose={() => setShowGoalsEdit(false)}
           onUpdate={() => {
             refreshProfile?.();
-            // Re-fetch profile
             base44.entities.UserProfile.filter({ created_by: user.email })
               .then(profiles => setProfile(profiles[0] || null));
           }}
