@@ -270,6 +270,15 @@ const resources = {
       finish_setup: "Finish Setup",
       skip_for_now: "Skip for now",
       
+      // Delete account
+      delete_warning: "This action is irreversible. All your data will be deleted.",
+      type_delete: "Type DELETE",
+      type_delete_confirm: "Type DELETE to confirm",
+      account_deleted: "Account deleted",
+      delete_account_error: "Error deleting account",
+      deleting: "Deleting...",
+      delete: "Delete",
+      
       // Camera
       camera_access_denied: "Camera access denied",
       camera_permission_denied: "Camera permission denied",
@@ -731,6 +740,15 @@ const resources = {
       set_calorie_limit: "Establece tu límite de calorías diarias",
       finish_setup: "Finalizar Configuración",
       skip_for_now: "Omitir por ahora",
+      
+      // Delete account
+      delete_warning: "Esta acción es irreversible. Todos tus datos serán eliminados.",
+      type_delete: "Escribe DELETE",
+      type_delete_confirm: "Escribe DELETE para confirmar",
+      account_deleted: "Cuenta eliminada",
+      delete_account_error: "Error al eliminar cuenta",
+      deleting: "Eliminando...",
+      delete: "Eliminar",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",
