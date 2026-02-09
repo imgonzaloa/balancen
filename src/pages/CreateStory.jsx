@@ -3,16 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
-import { ArrowLeft, Camera, Upload, Send } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
+import { ArrowLeft, Send, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
+import PhotoPicker from "@/components/PhotoPicker";
 
 export default function CreateStory() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, profile } = useAppState();
+  const { t } = useTranslation();
   const [caption, setCaption] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
