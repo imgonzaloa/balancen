@@ -25,7 +25,7 @@ export function useTranslation() {
     if (result === key) {
       // Try English fallback
       const englishResult = i18n.t(key, { ...options, lng: 'en' });
-      return englishResult !== key ? englishResult : key;
+      return englishResult !== key ? englishResult : '';
     }
     return result;
   };
