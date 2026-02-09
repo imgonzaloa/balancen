@@ -59,11 +59,11 @@ export default function Progress() {
     <div className="min-h-screen pb-24" style={{ minHeight: '100dvh', overflowY: 'auto' }}>
       <div className="max-w-2xl mx-auto px-6 pt-2 pb-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-black text-white mb-2">
-            {t('your_progress')}
+          <h1 className="text-3xl font-black text-white mb-1">
+            {t('progress')}
           </h1>
           <p className="text-white/60 text-sm">
-            {t('complete_analysis')}
+            {t('track_your_journey')}
           </p>
         </div>
 

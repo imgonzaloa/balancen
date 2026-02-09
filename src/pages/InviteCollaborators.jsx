@@ -78,7 +78,7 @@ export default function InviteCollaborators() {
         await base44.integrations.Core.SendEmail({
           to: email.toLowerCase(),
           subject: t('premium_invitation_subject'),
-          body: t('premium_invitation_body', { email: email.toLowerCase() })
+          body: (t('premium_invitation_body') || "").replace('{{email}}', email.toLowerCase())
         });
       } catch (emailErr) {
         console.error("Email send failed:", emailErr);
