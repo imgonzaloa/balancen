@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Settings, LogOut, Edit2, Target } from "lucide-react";
+import { Camera, Settings, LogOut, Edit2, Target, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";

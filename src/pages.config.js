@@ -67,6 +67,7 @@ import Progress from './pages/Progress';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
 import UserManagement from './pages/UserManagement';
+import GoalsAssistant from './pages/GoalsAssistant';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +92,7 @@ export const PAGES = {
     "Settings": Settings,
     "Social": Social,
     "UserManagement": UserManagement,
+    "GoalsAssistant": GoalsAssistant,
 }
 
 export const pagesConfig = {
