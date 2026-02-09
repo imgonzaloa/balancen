@@ -28,6 +28,13 @@ const resources = {
       meal_logged: "Meal logged!",
       meal_saved: "Meal Saved!",
       great_job: "Great job tracking",
+      logged_meals: "Logged Meals",
+      social_feed: "Social Feed",
+      active_friends: "active friends",
+      ai_coach: "AI Coach",
+      ai_coach_goal_reached: "Amazing work! You hit your calorie goal. Continue this consistency to maximize results.",
+      ai_coach_halfway: "Good progress. You're halfway there. Log your next meal to reach your goal.",
+      ai_coach_start: "Start by logging your meals. Each photo brings you closer to understanding your nutrition.",
       
       // Camera
       camera_access_denied: "Camera access denied",
@@ -67,6 +74,11 @@ const resources = {
       optional: "Optional",
       not_defined: "Not set",
       logout: "Logout",
+      status: "Status",
+      status_placeholder: "What's on your mind?",
+      your_goal: "Your Goal",
+      primary_goal: "Primary goal",
+      daily_goal: "Daily goal",
       
       // Goals
       consistency: "Be more consistent",
@@ -117,6 +129,7 @@ const resources = {
       no_friends_yet: "No activity yet today",
       invite_friends_to_join: "Invite friends to join you",
       meal_logged: "Logged a meal",
+      train_with_friends: "Train with friends and boost consistency",
       
       // Precision
       estimated_accuracy: "Estimated Accuracy",
@@ -165,6 +178,15 @@ const resources = {
       upgrade_to_premium_title: "Upgrade to Premium",
       unlock_all_features: "Unlock all features",
       language_updated: "Language updated",
+      
+      // Progress
+      your_progress: "Your Progress",
+      complete_analysis: "Complete analysis of your evolution",
+      momentum_score: "Momentum Score",
+      never_resets: "Never resets",
+      consistency_label: "Consistency",
+      adherence_label: "Adherence",
+      good_progress_today: "Good progress today. Keep it up.",
       
       // Premium
       upgrade_to_premium: "Upgrade to Premium",
@@ -219,6 +241,13 @@ const resources = {
       meal_logged: "¡Comida registrada!",
       meal_saved: "¡Comida Guardada!",
       great_job: "¡Excelente trabajo!",
+      logged_meals: "Comidas Registradas",
+      social_feed: "Feed Social",
+      active_friends: "amigos activos",
+      ai_coach: "IA Coach",
+      ai_coach_goal_reached: "¡Increíble trabajo! Alcanzaste tu meta de calorías. Continúa con esta consistencia para maximizar resultados.",
+      ai_coach_halfway: "Buen progreso. Estás a mitad de camino. Registra tu siguiente comida para llegar a la meta.",
+      ai_coach_start: "Comienza registrando tus comidas. Cada foto te acerca a entender mejor tu nutrición.",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",
@@ -258,6 +287,11 @@ const resources = {
       optional: "Opcional",
       not_defined: "No definido",
       logout: "Cerrar Sesión",
+      status: "Estado",
+      status_placeholder: "¿Qué estás pensando?",
+      your_goal: "Tu Meta",
+      primary_goal: "Objetivo principal",
+      daily_goal: "Meta diaria",
       
       // Goals
       consistency: "Ser más consistente",
@@ -308,6 +342,7 @@ const resources = {
       no_friends_yet: "Aún sin actividad hoy",
       invite_friends_to_join: "Invitá amigos a unirse",
       meal_logged: "Registró una comida",
+      train_with_friends: "Entrena con amigos y aumenta tu constancia",
       
       // Precision
       estimated_accuracy: "Precisión Estimada",
@@ -356,6 +391,15 @@ const resources = {
       upgrade_to_premium_title: "Actualizar a Premium",
       unlock_all_features: "Desbloquear todas las funciones",
       language_updated: "Idioma actualizado",
+      
+      // Progress
+      your_progress: "Tu Progreso",
+      complete_analysis: "Análisis completo de tu evolución",
+      momentum_score: "Momentum Score",
+      never_resets: "Nunca vuelve a cero",
+      consistency_label: "Consistencia",
+      adherence_label: "Adherencia",
+      good_progress_today: "Buen progreso hoy. Mantén el ritmo.",
       
       // Premium
       upgrade_to_premium: "Actualizar a Premium",
