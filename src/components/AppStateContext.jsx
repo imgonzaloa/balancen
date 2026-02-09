@@ -19,6 +19,8 @@ export function AppStateProvider({ children }) {
 
   // Initialize user on mount with timeout
   useEffect(() => {
+    if (isInitialized) return; // PREVENT DOUBLE-RUN
+    
     let timeout;
     
     const initUser = async () => {
@@ -32,7 +34,7 @@ export function AppStateProvider({ children }) {
         logger.log('AUTH_CHECK_TIMEOUT');
         setUser(null);
         setIsInitialized(true);
-      }, 5000);
+      }, 3000); // Reduced to 3s
       
       try {
         const currentUser = await base44.auth.me();
@@ -118,63 +120,37 @@ export function AppStateProvider({ children }) {
     return () => {
       if (timeout) clearTimeout(timeout);
     };
-  }, []);
+  }, [isInitialized]);
 
-  // Parallel data fetching when user loads with timeout
+  // Data fetching - ONLY ONCE per user
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email || profile !== null) return; // Skip if already loaded
     
     let isMounted = true;
-    
-    const fetchWithTimeout = (promise, timeoutMs = 10000) => {
-      return Promise.race([
-        promise,
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout')), timeoutMs)
-        )
-      ]);
-    };
-    
-    // Debounced fetch to prevent rapid repeated calls
     const timeoutId = setTimeout(() => {
       Promise.all([
-        fetchWithTimeout(
-          base44.entities.UserProfile.filter({ created_by: user.email })
-        ).then(profiles => {
-          if (isMounted) setProfile(profiles[0] || null);
-        }).catch((err) => {
-          console.warn('[APP_STATE] Profile fetch failed', err);
-          if (isMounted) setProfile(null);
-        }),
+        base44.entities.UserProfile.filter({ created_by: user.email })
+          .then(profiles => { if (isMounted) setProfile(profiles[0] || null); })
+          .catch(() => { if (isMounted) setProfile(null); }),
         
-        fetchWithTimeout(
-          base44.entities.Friend.filter({ created_by: user.email })
-        ).then(friendsList => {
-          if (isMounted) setFriends(friendsList);
-        }).catch((err) => {
-          console.warn('[APP_STATE] Friends fetch failed', err);
-          if (isMounted) setFriends([]);
-        }),
+        base44.entities.Friend.filter({ created_by: user.email })
+          .then(friendsList => { if (isMounted) setFriends(friendsList); })
+          .catch(() => { if (isMounted) setFriends([]); }),
         
-        fetchWithTimeout(
-          base44.entities.MealLog.filter(
-            { created_by: user.email, date: new Date().toISOString().split("T")[0] },
-            "-meal_time"
-          )
-        ).then(meals => {
-          if (isMounted) setTodayMeals(meals);
-        }).catch((err) => {
-          console.warn('[APP_STATE] Meals fetch failed', err);
-          if (isMounted) setTodayMeals([]);
-        })
+        base44.entities.MealLog.filter(
+          { created_by: user.email, date: new Date().toISOString().split("T")[0] },
+          "-meal_time"
+        )
+          .then(meals => { if (isMounted) setTodayMeals(meals); })
+          .catch(() => { if (isMounted) setTodayMeals([]); })
       ]);
-    }, 100); // 100ms debounce
+    }, 200);
 
     return () => {
       isMounted = false;
       clearTimeout(timeoutId);
     };
-  }, [user?.email]);
+  }, [user?.email, profile]);
 
   const refreshProfile = async () => {
     if (!user?.email) return;
