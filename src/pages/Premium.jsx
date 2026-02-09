@@ -11,6 +11,10 @@ import { toast } from "sonner";
 const featuresData = [
   { icon: Flame, key: "fire_system" },
   { icon: Sparkles, key: "advanced_ai" },
+  { icon: Sparkles, key: "ai_meal_planner_feature" },
+  { icon: Sparkles, key: "ai_workout_generator_feature" },
+  { icon: Users, key: "social_feed_feature" },
+  { icon: Heart, key: "enhanced_friends_feature" },
   { icon: TrendingUp, key: "progressive_overload" },
   { icon: Users, key: "exclusive_challenges" },
   { icon: Target, key: "analytics" },

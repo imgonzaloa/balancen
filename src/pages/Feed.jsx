@@ -44,6 +44,47 @@ export default function Feed() {
     );
   }
 
+  // Check premium
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen relative overflow-hidden pb-24" style={{ minHeight: '100dvh' }}>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-20 right-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-500 rounded-full blur-3xl" />
+        </div>
+        
+        <div className="max-w-2xl mx-auto px-4 pt-6 pb-8 relative z-10">
+          <div className="flex items-center gap-3 mb-6">
+            <button
+              onClick={() => navigate(createPageUrl('Social'))}
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
+            >
+              <ArrowLeft size={20} className="text-white" />
+            </button>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 text-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
+              <Users size={32} className="text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{t('premium_feature') || 'Premium Feature'}</h3>
+            <p className="text-white/70 text-sm mb-6">
+              {t('unlock_social_feed') || 'Unlock social feed to share and connect with friends'}
+            </p>
+            <button
+              onClick={() => navigate(createPageUrl('Premium'))}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold px-8 py-3 rounded-2xl"
+            >
+              {t('upgrade_now') || 'Upgrade Now'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen relative overflow-hidden pb-24" style={{ minHeight: '100dvh' }}>
       {/* Background */}
