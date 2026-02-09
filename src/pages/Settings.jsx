@@ -201,10 +201,10 @@ export default function Settings() {
                   type="number"
                   value={profile?.calories_goal || ""}
                   onChange={(e) => updateMutation.mutate({ calories_goal: parseInt(e.target.value) || null })}
-                  className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:border-orange-300 outline-none"
+                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-orange-300 outline-none text-base"
                   placeholder={lang === "es" ? "Ej.: 2000" : "e.g., 2000"}
                 />
-                <p className="text-xs text-white/40 mt-1">{t('optional_leave_empty')}</p>
+                <p className="text-xs text-white/50 mt-1">{t('optional_leave_empty')}</p>
               </div>
             </div>
           </div>
@@ -233,9 +233,10 @@ export default function Settings() {
             <MobileSelect
               value={lang}
               onValueChange={handleLanguageChange}
-              placeholder="Select language"
-              label={lang === "es" ? "Idioma" : "Language"}
-              triggerClassName="w-full px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl"
+              placeholder={t('select_language')}
+              label={t('language')}
+              triggerClassName="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl"
+              valueClassName="text-white font-semibold"
             >
               <SelectItem value="en">🇬🇧 English</SelectItem>
               <SelectItem value="es">🇪🇸 Español</SelectItem>
@@ -270,25 +271,26 @@ export default function Settings() {
                 <MobileSelect
                   value={profile?.share_meals || "private"}
                   onValueChange={(value) => handleToggle("share_meals", value)}
-                  placeholder="Select privacy"
-                  label={lang === "es" ? "Quién puede ver tus comidas" : "Who can see your meals"}
-                  triggerClassName="w-full px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl"
+                  placeholder={t('privacy')}
+                  label={lang === "es" ? "Privacidad de comidas" : "Meal privacy"}
+                  triggerClassName="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl"
+                  valueClassName="text-white font-semibold"
                 >
                   <SelectItem value="private">
-                    {lang === "es" ? "🔒 Privado" : "🔒 Private"}
+                    🔒 {t('private_mode')}
                   </SelectItem>
                   <SelectItem value="friends">
-                    {lang === "es" ? "👥 Amigos" : "👥 Friends"}
+                    👥 {t('friends_mode')}
                   </SelectItem>
                   <SelectItem value="groups">
-                    {lang === "es" ? "👥 Grupos" : "👥 Groups"}
+                    🏢 {t('groups_mode')}
                   </SelectItem>
                 </MobileSelect>
               </div>
               
               <div className="flex items-center justify-between">
-                <Label className="text-white text-sm">
-                  {lang === "es" ? "Compartir macros" : "Share macros"}
+                <Label className="text-white/90 text-sm">
+                  {lang === "es" ? "Mostrar macros" : "Show macros"}
                 </Label>
                 <Switch
                   checked={profile?.share_macros ?? false}
@@ -297,8 +299,8 @@ export default function Settings() {
               </div>
               
               <div className="flex items-center justify-between">
-                <Label className="text-white text-sm">
-                  {lang === "es" ? "Compartir calorías" : "Share calories"}
+                <Label className="text-white/90 text-sm">
+                  {lang === "es" ? "Mostrar calorías" : "Show calories"}
                 </Label>
                 <Switch
                   checked={profile?.share_calories ?? false}

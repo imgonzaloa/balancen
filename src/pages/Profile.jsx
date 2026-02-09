@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Settings, LogOut, Edit2 } from "lucide-react";
+import { Camera, Settings, LogOut, Edit2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -7,6 +7,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import ProfileGoalsEdit from "@/components/profile/ProfileGoalsEdit";
 
 function StatusEditor({ profile, lang, onUpdate }) {
   const { t } = useTranslation();
@@ -86,6 +87,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showGoalsEdit, setShowGoalsEdit] = useState(false);
 
   useEffect(() => {
     if (!user?.email || cachedProfile) return;
@@ -237,7 +239,7 @@ export default function Profile() {
             {(profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite") && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center gap-2">
                 <span className="text-purple-300 text-xs font-bold">
-                  {lang === 'es' ? '👑 Premium (Colaborador)' : '👑 Premium (Collaborator)'}
+                  👑 {t('premium_active')} ({t('role') === 'collaborator' ? t('collaborator') : 'Collaborator'})
                 </span>
               </div>
             )}
@@ -260,22 +262,37 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Goals Section */}
+        {/* Goals Section - Editable */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
-          <h3 className="font-semibold text-white mb-4">{t('your_goals')}</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-white">{t('your_goals')}</h3>
+            <button
+              onClick={() => setShowGoalsEdit(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-300 hover:bg-teal-500/30 transition-colors"
+            >
+              <Target size={14} />
+              <span className="text-xs font-semibold">{t('edit_goals')}</span>
+            </button>
+          </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
-              <span className="text-teal-200 text-sm">{t('main_goal')}</span>
-              <span className="font-medium text-white">
+              <span className="text-white/70 text-sm">{t('main_goal')}</span>
+              <span className="font-semibold text-white">
                 {goalLabels[lang]?.[profile?.primary_goal] || t('not_defined')}
               </span>
             </div>
             <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
-              <span className="text-teal-200 text-sm">{t('intensity')}</span>
-              <span className="font-medium text-white">
+              <span className="text-white/70 text-sm">{t('intensity')}</span>
+              <span className="font-semibold text-white">
                 {intensityLabels[lang]?.[profile?.intensity_level] || t('not_defined')}
               </span>
             </div>
+            {profile?.calories_goal && (
+              <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
+                <span className="text-white/70 text-sm">{t('daily_goal')}</span>
+                <span className="font-semibold text-white">{profile.calories_goal} kcal</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -331,6 +348,20 @@ export default function Profile() {
           {t('logout')}
         </Button>
       </div>
+
+      {/* Goals Edit Modal */}
+      {showGoalsEdit && (
+        <ProfileGoalsEdit
+          profile={profile}
+          onClose={() => setShowGoalsEdit(false)}
+          onUpdate={() => {
+            refreshProfile?.();
+            // Re-fetch profile
+            base44.entities.UserProfile.filter({ created_by: user.email })
+              .then(profiles => setProfile(profiles[0] || null));
+          }}
+        />
+      )}
     </div>
   );
 }

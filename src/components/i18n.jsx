@@ -39,6 +39,14 @@ const resources = {
       last_meal: "Last Meal",
       stay_within_goal: "Stay within calorie goal",
       log_three_meals: "Log 3 meals today",
+      edit_goals: "Edit Goals",
+      save_changes: "Save Changes",
+      goal_updated: "Goals updated",
+      primary: "Primary",
+      secondary: "Secondary",
+      private_mode: "Private",
+      friends_mode: "Friends Only",
+      groups_mode: "Groups",
       
       // Camera
       camera_access_denied: "Camera access denied",
@@ -267,6 +275,14 @@ const resources = {
       last_meal: "Última Comida",
       stay_within_goal: "Cumplir meta de calorías",
       log_three_meals: "Registrar 3 comidas",
+      edit_goals: "Editar Objetivos",
+      save_changes: "Guardar Cambios",
+      goal_updated: "Objetivos actualizados",
+      primary: "Principal",
+      secondary: "Secundario",
+      private_mode: "Privado",
+      friends_mode: "Solo Amigos",
+      groups_mode: "Grupos",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",
