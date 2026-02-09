@@ -50,9 +50,9 @@ export default function MealResult() {
       });
 
       // Analyze with AI
-      const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this food photo and provide detailed nutritional estimates. Return JSON with: { items: [{name: "food name", calories: estimated, protein: grams, carbs: grams, fats: grams, portion: "size estimate"}, ...], total_calories: sum, total_protein: sum, total_carbs: sum, total_fats: sum, health_score: 0-100, confidence: 0-100 }`,
-        file_urls: [file_url],
+       const analysis = await base44.integrations.Core.InvokeLLM({
+         prompt: `Analyze this food photo and provide detailed nutritional estimates in JSON format: { items: [{name: "food name", calories: number, protein: number, carbs: number, fats: number, portion: "size estimate"}, ...], total_calories: number, total_protein: number, total_carbs: number, total_fats: number, health_score: 0-100, confidence: 0-100 }. Provide realistic estimates.`,
+         file_urls: [file_url],
         response_json_schema: {
           type: "object",
           properties: {
@@ -152,6 +152,7 @@ export default function MealResult() {
   };
 
   if (!capturedFile) {
+    navigate(createPageUrl("Home"));
     return null;
   }
 
