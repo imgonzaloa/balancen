@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { TranslationProvider, useTranslation } from "@/components/TranslationProvider";
 import { MealProvider } from "@/components/MealContext";
 import { AppStateProvider } from "@/components/AppStateContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import BootGate from "@/components/BootGate";
 import VersionGate from "@/components/VersionGate";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -124,21 +125,36 @@ function LayoutInner({ children, currentPageName, bootState }) {
   );
 }
 
+// Global React Query client with optimized settings to prevent rate limits
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60000, // 1 minute - data stays fresh, reduces refetches
+      cacheTime: 300000, // 5 minutes - keep in cache
+      refetchOnWindowFocus: false, // Don't refetch on every focus
+      refetchOnMount: false, // Don't refetch on every mount
+      retry: 1, // Only retry once on failure
+    },
+  },
+});
+
 export default function Layout({ children, currentPageName }) {
   return (
     <VersionGate>
       <ErrorBoundary screen="Layout">
         <BootGate>
           {({ bootState }) => (
-            <TranslationProvider>
-              <AppStateProvider>
-                <MealProvider>
-                  <LayoutInner currentPageName={currentPageName} bootState={bootState}>
-                    {children}
-                  </LayoutInner>
-                </MealProvider>
-              </AppStateProvider>
-            </TranslationProvider>
+            <QueryClientProvider client={queryClient}>
+              <TranslationProvider>
+                <AppStateProvider>
+                  <MealProvider>
+                    <LayoutInner currentPageName={currentPageName} bootState={bootState}>
+                      {children}
+                    </LayoutInner>
+                  </MealProvider>
+                </AppStateProvider>
+              </TranslationProvider>
+            </QueryClientProvider>
           )}
         </BootGate>
       </ErrorBoundary>
