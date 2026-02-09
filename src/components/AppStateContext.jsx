@@ -51,28 +51,40 @@ export function AppStateProvider({ children }) {
     return () => { isMounted = false; };
   }, []);
 
-  // Data fetching - ONLY ONCE per user
+  // Data fetching - ONLY ONCE per user with staggered loading
   useEffect(() => {
     if (!user?.email || profile !== null) return; // Skip if already loaded
     
     let isMounted = true;
     
-    Promise.all([
-      base44.entities.UserProfile.filter({ created_by: user.email })
-        .then(profiles => { if (isMounted) setProfile(profiles[0] || null); })
-        .catch(() => { if (isMounted) setProfile(null); }),
-      
-      base44.entities.Friend.filter({ created_by: user.email })
-        .then(friendsList => { if (isMounted) setFriends(friendsList); })
-        .catch(() => { if (isMounted) setFriends([]); }),
-      
-      base44.entities.MealLog.filter(
-        { created_by: user.email, date: new Date().toISOString().split("T")[0] },
-        "-meal_time"
-      )
-        .then(meals => { if (isMounted) setTodayMeals(meals); })
-        .catch(() => { if (isMounted) setTodayMeals([]); })
-    ]);
+    // Fetch profile first
+    base44.entities.UserProfile.filter({ created_by: user.email })
+      .then(profiles => { 
+        if (isMounted) {
+          setProfile(profiles[0] || null);
+          
+          // Then fetch friends and meals with delay to avoid rate limit
+          setTimeout(() => {
+            if (!isMounted) return;
+            
+            base44.entities.Friend.filter({ created_by: user.email })
+              .then(friendsList => { if (isMounted) setFriends(friendsList); })
+              .catch(() => { if (isMounted) setFriends([]); });
+          }, 300);
+          
+          setTimeout(() => {
+            if (!isMounted) return;
+            
+            base44.entities.MealLog.filter(
+              { created_by: user.email, date: new Date().toISOString().split("T")[0] },
+              "-meal_time"
+            )
+              .then(meals => { if (isMounted) setTodayMeals(meals); })
+              .catch(() => { if (isMounted) setTodayMeals([]); });
+          }, 600);
+        }
+      })
+      .catch(() => { if (isMounted) setProfile(null); });
 
     return () => { isMounted = false; };
   }, [user?.email, profile]);

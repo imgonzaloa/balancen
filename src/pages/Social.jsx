@@ -43,8 +43,8 @@ export default function Social() {
       return groups.flat();
     },
     enabled: !!user?.email && (!!profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator'),
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
   });
 
   const { data: friends = [] } = useQuery({
@@ -57,8 +57,8 @@ export default function Social() {
       return [...sent, ...received].filter(f => f);
     },
     enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
   });
 
   const { data: friendProfiles = [] } = useQuery({
@@ -68,14 +68,18 @@ export default function Social() {
         f.created_by === user?.email ? f.friend_user_id : f.created_by
       );
       if (friendIds.length === 0) return [];
-      const profiles = await Promise.all(
-        friendIds.map(id => base44.entities.UserProfile.filter({ created_by: id }))
-      );
-      return profiles.flat().filter(Boolean);
+      // Fetch profiles with small delays to avoid rate limit
+      const profiles = [];
+      for (let i = 0; i < friendIds.length; i++) {
+        if (i > 0) await new Promise(resolve => setTimeout(resolve, 100));
+        const p = await base44.entities.UserProfile.filter({ created_by: friendIds[i] });
+        profiles.push(p[0]);
+      }
+      return profiles.filter(Boolean);
     },
     enabled: friends.length > 0,
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
   });
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';

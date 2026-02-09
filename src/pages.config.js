@@ -49,7 +49,9 @@
  */
 import Badges from './pages/Badges';
 import CameraScreen from './pages/CameraScreen';
+import Feed from './pages/Feed';
 import Friends from './pages/Friends';
+import GoalsAssistant from './pages/GoalsAssistant';
 import GroupDetail from './pages/GroupDetail';
 import Groups from './pages/Groups';
 import Home from './pages/Home';
@@ -67,15 +69,15 @@ import Progress from './pages/Progress';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
 import UserManagement from './pages/UserManagement';
-import GoalsAssistant from './pages/GoalsAssistant';
-import Feed from './pages/Feed';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Badges": Badges,
     "CameraScreen": CameraScreen,
+    "Feed": Feed,
     "Friends": Friends,
+    "GoalsAssistant": GoalsAssistant,
     "GroupDetail": GroupDetail,
     "Groups": Groups,
     "Home": Home,
@@ -93,8 +95,6 @@ export const PAGES = {
     "Settings": Settings,
     "Social": Social,
     "UserManagement": UserManagement,
-    "GoalsAssistant": GoalsAssistant,
-    "Feed": Feed,
 }
 
 export const pagesConfig = {

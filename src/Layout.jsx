@@ -123,17 +123,18 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
         // Global React Query client with aggressive caching to prevent rate limits
         const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh
-      cacheTime: 10 * 60 * 1000, // 10 minutes cache
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      retry: false, // No retries - prevents rate limit cascade
-    },
-  },
-});
+          defaultOptions: {
+            queries: {
+              staleTime: 10 * 60 * 1000, // 10 minutes - data stays fresh longer
+              cacheTime: 30 * 60 * 1000, // 30 minutes cache
+              refetchOnWindowFocus: false,
+              refetchOnMount: false,
+              refetchOnReconnect: false,
+              retry: false, // No retries - prevents rate limit cascade
+              retryOnMount: false,
+            },
+          },
+        });
 
 export default function Layout({ children, currentPageName }) {
   return (
