@@ -66,9 +66,9 @@ export default function BootGate({ children }) {
 
       // Step 4: Determine boot state
       if (!profile) {
-        // New user: needs language selection → will create profile
-        logger.log('BOOT_NEW_USER_NEEDS_LANGUAGE');
-        setBootState({ type: 'LANGUAGE_SELECTION', user });
+        // New user: goes directly to onboarding (language selection is step 0)
+        logger.log('BOOT_NEW_USER_NEEDS_ONBOARDING');
+        setBootState({ type: 'ONBOARDING_REQUIRED', user, language: cachedLanguage || 'en' });
         setBootReady(true);
         return;
       }

@@ -40,7 +40,7 @@ export default function Social() {
       );
       return groups.flat();
     },
-    enabled: !!user?.email && !!profile?.is_premium,
+    enabled: !!user?.email && (!!profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator'),
   });
 
   const { data: friends = [] } = useQuery({

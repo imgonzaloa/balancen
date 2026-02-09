@@ -45,8 +45,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
     }
 
     if (bootState.type === 'LANGUAGE_SELECTION') {
-      if (currentPageName !== 'LanguageSelector') {
-        navigate(createPageUrl('LanguageSelector'), { replace: true });
+      // Language is now selected in onboarding, skip separate screen
+      if (currentPageName !== 'Onboarding') {
+        navigate(createPageUrl('Onboarding'), { replace: true });
       }
       return;
     }

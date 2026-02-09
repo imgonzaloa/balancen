@@ -376,6 +376,9 @@ const resources = {
       // Premium differentiation
       free_limited_history: "Today's data only",
       premium_full_history: "Complete history & analytics",
+      week_view: "Week View",
+      month_view: "Month View",
+      year_view: "Year View",
       ai_food_recognition: "AI-powered food recognition",
       adaptive_targets: "Adaptive calorie & macro targets",
       social_competition: "Social competition & teams",
@@ -858,6 +861,9 @@ const resources = {
       // Premium differentiation
       free_limited_history: "Solo datos de hoy",
       premium_full_history: "Historial completo y análisis",
+      week_view: "Vista Semanal",
+      month_view: "Vista Mensual",
+      year_view: "Vista Anual",
       ai_food_recognition: "Reconocimiento de comida con IA",
       adaptive_targets: "Objetivos adaptativos de calorías y macros",
       social_competition: "Competencia social y equipos",
