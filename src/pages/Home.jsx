@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Camera, Lock, Sparkles } from "lucide-react";
+import { Camera, Lock, Sparkles, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -165,14 +165,23 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Primary CTA - Log Meal */}
-        <Button
-          onClick={() => navigate(createPageUrl('CameraScreen'))}
-          className="w-full h-16 rounded-3xl bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 hover:shadow-2xl hover:shadow-teal-500/40 text-white font-bold text-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <Camera size={24} strokeWidth={2.5} />
-          {t('log_meal')}
-        </Button>
+        {/* Primary CTAs */}
+         <div className="grid grid-cols-2 gap-3">
+           <Button
+             onClick={() => navigate(createPageUrl('CameraScreen'))}
+             className="h-16 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 hover:shadow-xl hover:shadow-teal-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+           >
+             <Camera size={20} strokeWidth={2.5} />
+             Comida
+           </Button>
+           <Button
+             onClick={() => navigate(createPageUrl('TrainerDashboard'))}
+             className="h-16 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 hover:shadow-xl hover:shadow-purple-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+           >
+             <Dumbbell size={20} strokeWidth={2.5} />
+             Entreno
+           </Button>
+         </div>
 
         {/* Recent Meals */}
         <div className="space-y-3">
