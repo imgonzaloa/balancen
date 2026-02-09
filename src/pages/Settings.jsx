@@ -103,7 +103,7 @@ export default function Settings() {
               </div>
             </div>
           </motion.div>
-        ) : profile?.role !== "owner" && !profile?.is_premium ? (
+        ) : !profile?.is_premium && profile?.role !== "owner" && profile?.role !== "collaborator" ? (
           <Link to={createPageUrl("Premium")}>
             <motion.div
               className="relative overflow-hidden rounded-3xl p-5 mb-6 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-all"

@@ -54,7 +54,7 @@ export default function Premium() {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
       const profile = profiles[0];
       
-      if (profile?.role === "owner" || profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite") {
+      if (profile?.role === "owner" || profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite" || profile?.is_premium) {
         toast.success(t('already_have_premium'));
         return;
       }

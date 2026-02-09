@@ -436,6 +436,8 @@ const resources = {
 
       // Additional translations
       user: "User",
+      view_friends: "View Friends",
+      friend_activity: "Friend Activity",
       ai_recommendations: "AI Recommendations",
       personalized_tips: "Personalized tips for you",
       notifications: "Notifications",
@@ -916,6 +918,8 @@ const resources = {
 
       // Additional translations
       user: "Usuario",
+      view_friends: "Ver Amigos",
+      friend_activity: "Actividad de Amigos",
       ai_recommendations: "Recomendaciones IA",
       personalized_tips: "Tips personalizados para vos",
       notifications: "Notificaciones",
