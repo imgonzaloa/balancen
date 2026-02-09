@@ -134,12 +134,13 @@ export default function CameraScreen() {
 
       // Navigate to result screen
       navigate(createPageUrl("MealResult"));
-      
-    } catch (err) {
+      setIsCapturing(false);
+
+      } catch (err) {
       console.error("Capture error:", err);
       toast.error(t("error_capturing"));
       setIsCapturing(false);
-    }
+      }
   };
 
   const handleFileUpload = (e) => {
