@@ -27,6 +27,8 @@ export default function Social() {
       return profiles[0] || null;
     },
     enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
   });
 
   const { data: myGroups = [] } = useQuery({
@@ -41,6 +43,8 @@ export default function Social() {
       return groups.flat();
     },
     enabled: !!user?.email && (!!profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator'),
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
   });
 
   const { data: friends = [] } = useQuery({
@@ -53,6 +57,8 @@ export default function Social() {
       return [...sent, ...received].filter(f => f);
     },
     enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
   });
 
   const { data: friendProfiles = [] } = useQuery({
@@ -68,6 +74,8 @@ export default function Social() {
       return profiles.flat().filter(Boolean);
     },
     enabled: friends.length > 0,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
   });
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
