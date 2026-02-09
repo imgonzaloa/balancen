@@ -50,15 +50,18 @@ export default function Friends() {
     queryFn: async () => {
       const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
       if (emails.length === 0) return [];
-      const profiles = await Promise.all(
-        emails.map(async (email) => {
-          const p = await base44.entities.UserProfile.filter({ created_by: email });
-          return p[0] || null;
-        })
-      );
+      // Stagger requests to avoid rate limit
+      const profiles = [];
+      for (let i = 0; i < emails.length; i++) {
+        if (i > 0) await new Promise(resolve => setTimeout(resolve, 150));
+        const p = await base44.entities.UserProfile.filter({ created_by: emails[i] });
+        profiles.push(p[0] || null);
+      }
       return profiles.filter(Boolean);
     },
     enabled: acceptedFriends.length > 0,
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
   });
 
   const { data: friendMeals = [] } = useQuery({
@@ -66,15 +69,18 @@ export default function Friends() {
     queryFn: async () => {
       const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
       if (emails.length === 0) return [];
-      const meals = await Promise.all(
-        emails.map(async (email) => {
-          const m = await base44.entities.MealLog.filter({ created_by: email }, "-date", 5);
-          return m.map(meal => ({ ...meal, friend_email: email }));
-        })
-      );
-      return meals.flat();
+      // Stagger requests to avoid rate limit
+      const meals = [];
+      for (let i = 0; i < emails.length; i++) {
+        if (i > 0) await new Promise(resolve => setTimeout(resolve, 150));
+        const m = await base44.entities.MealLog.filter({ created_by: emails[i] }, "-date", 5);
+        meals.push(...m.map(meal => ({ ...meal, friend_email: emails[i] })));
+      }
+      return meals;
     },
     enabled: acceptedFriends.length > 0,
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
   });
 
   const pendingRequests = receivedRequests.filter(f => f.status === "pending");
