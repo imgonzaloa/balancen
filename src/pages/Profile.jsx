@@ -65,18 +65,8 @@ function StatusEditor({ profile, lang, onUpdate }) {
           </button>
         </div>
         </div>
-
-        {/* Hidden PhotoPicker */}
-        <div className="hidden">
-        <PhotoPicker
-         onPhotoSelected={handlePhotoUpload}
-         preview={photoPreview}
-         onRemovePreview={() => setPhotoPreview(null)}
-        />
-        <input data-gallery-input type="file" accept="image/*" />
-        </div>
-    );
-  }
+        );
+        }
 
   return (
     <button
