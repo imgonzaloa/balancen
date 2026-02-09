@@ -64,7 +64,17 @@ function StatusEditor({ profile, lang, onUpdate }) {
             {t('cancel')}
           </button>
         </div>
-      </div>
+        </div>
+
+        {/* Hidden PhotoPicker */}
+        <div className="hidden">
+        <PhotoPicker
+         onPhotoSelected={handlePhotoUpload}
+         preview={photoPreview}
+         onRemovePreview={() => setPhotoPreview(null)}
+        />
+        <input data-gallery-input type="file" accept="image/*" />
+        </div>
     );
   }
 
@@ -215,29 +225,29 @@ export default function Profile() {
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-teal-400/30 to-emerald-400/30 rounded-full blur-2xl" />
           
           <div className="relative z-10">
-            {/* Photo Picker */}
-            {!photoPreview && (
-              <div className="mb-6">
-                <PhotoPicker
-                  onPhotoSelected={handlePhotoUpload}
-                  preview={photoPreview}
-                  onRemovePreview={() => setPhotoPreview(null)}
-                />
-              </div>
-            )}
-
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative">
-                {profile?.profile_photo || profile?.avatar_url ? (
-                  <img src={profile.profile_photo || profile.avatar_url} alt={t('profile')} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || t('user').charAt(0)}</span>
-                )}
-                {uploadingPhoto && (
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  </div>
-                )}
+              {/* Clickable Profile Photo - Instagram Style */}
+              <div 
+                onClick={() => cachedProfile?.profile_photo || cachedProfile?.avatar_url ? null : document.querySelector('[data-gallery-input]')?.click()}
+                className="relative cursor-pointer group"
+              >
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative ring-2 ring-white/20 group-hover:ring-teal-400 transition-all">
+                  {profile?.profile_photo || profile?.avatar_url ? (
+                    <img src={profile.profile_photo || profile.avatar_url} alt={t('profile')} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || t('user').charAt(0)}</span>
+                  )}
+                  {uploadingPhoto && (
+                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                  {!uploadingPhoto && (
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition-colors">
+                      <Camera size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">{profile?.display_name || user?.full_name}</h2>
