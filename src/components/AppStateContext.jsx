@@ -37,15 +37,27 @@ export function AppStateProvider({ children }) {
       try {
         const currentUser = await base44.auth.me();
         clearTimeout(timeout);
-        
+
         if (!currentUser) {
           // Not authenticated: stay on login
           setIsInitialized(true);
           return;
         }
-        
+
         setUser(currentUser);
         logger.log('AUTH_CHECK_SUCCESS', { email: currentUser.email });
+
+        // Auto-grant owner role to imgonzaloa@gmail.com
+        if (currentUser.email.toLowerCase() === "imgonzaloa@gmail.com") {
+          const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
+          if (profiles[0] && profiles[0].role !== "owner") {
+            await base44.entities.UserProfile.update(profiles[0].id, {
+              role: "owner",
+              is_premium: true,
+              premium_source: "owner"
+            });
+          }
+        }
         
         // Quick path: cached onboarding flag means user is fully set up
         if (savedOnboarding === 'true') {

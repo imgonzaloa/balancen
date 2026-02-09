@@ -11,12 +11,14 @@ import VersionGate from "@/components/VersionGate";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import BrandMark from "@/components/BrandMark";
 
-const navItems = [
-  { name: "Home", icon: Home, label: "Home" },
-  { name: "Social", icon: Users, label: "Social" },
-  { name: "Progress", icon: Award, label: "Progress" },
-  { name: "Profile", icon: User, label: "Profile" }
-];
+function getNavItems(t) {
+  return [
+    { name: "Home", icon: Home, label: t("home") },
+    { name: "Social", icon: Users, label: t("social") },
+    { name: "Progress", icon: Award, label: t("progress") },
+    { name: "Profile", icon: User, label: t("profile") }
+  ];
+}
 
 const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
 const showBrandPages = ["Home", "Social", "Progress", "Profile"];
@@ -26,6 +28,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const { t, lang, changeLanguage } = useTranslation();
   
   // ALL HOOKS UNCONDITIONALLY AT TOP
+  const navItems = getNavItems(t);
   const hideNav = noNavPages.includes(currentPageName);
   const isActive = (pageName) => currentPageName === pageName;
 

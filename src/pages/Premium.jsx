@@ -20,7 +20,7 @@ const featuresData = [
 
 
 export default function Premium() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [user, setUser] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [loading, setLoading] = useState(false);
@@ -47,6 +47,19 @@ export default function Premium() {
     if (!user) {
       toast.error(t("please_login_continue"));
       return;
+    }
+
+    // Check if user is owner or collaborator (already has Premium)
+    try {
+      const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+      const profile = profiles[0];
+      
+      if (profile?.role === "owner" || profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite") {
+        toast.success(lang === 'es' ? 'Ya tienes acceso Premium' : 'You already have Premium access');
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to check profile:", err);
     }
 
     if (!pricing) {
