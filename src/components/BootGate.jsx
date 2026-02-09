@@ -13,6 +13,15 @@ export default function BootGate({ children }) {
   const [bootReady, setBootReady] = useState(false);
 
   useEffect(() => {
+    // EMERGENCY: Fail-fast timeout - never freeze forever
+    const emergencyTimeout = setTimeout(() => {
+      if (!bootReady) {
+        console.warn('⚠️ EMERGENCY BOOT TIMEOUT - FORCING READY');
+        setBootState({ type: 'HOME_READY' });
+        setBootReady(true);
+      }
+    }, 3000); // 3 seconds max
+
     const resolveBoot = async () => {
       logger.log('BOOT_START');
 
@@ -21,13 +30,14 @@ export default function BootGate({ children }) {
       try {
         const authPromise = base44.auth.me();
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth timeout')), 5000)
+          setTimeout(() => reject(new Error('Auth timeout')), 3000)
         );
         user = await Promise.race([authPromise, timeoutPromise]);
       } catch (err) {
         logger.log('BOOT_NOT_AUTHENTICATED');
         setBootState({ type: 'AUTH_REQUIRED' });
         setBootReady(true);
+        clearTimeout(emergencyTimeout);
         return;
       }
 
@@ -35,6 +45,7 @@ export default function BootGate({ children }) {
         logger.log('BOOT_NO_USER');
         setBootState({ type: 'AUTH_REQUIRED' });
         setBootReady(true);
+        clearTimeout(emergencyTimeout);
         return;
       }
 
@@ -52,6 +63,7 @@ export default function BootGate({ children }) {
           onboardingComplete: true,
         });
         setBootReady(true);
+        clearTimeout(emergencyTimeout);
         return;
       }
 
@@ -70,10 +82,9 @@ export default function BootGate({ children }) {
         logger.log('BOOT_NEW_USER_NEEDS_ONBOARDING');
         setBootState({ type: 'ONBOARDING_REQUIRED', user, language: cachedLanguage || 'en' });
         setBootReady(true);
+        clearTimeout(emergencyTimeout);
         return;
       }
-
-
 
       if (!profile.onboarding_completed) {
         logger.log('BOOT_NEEDS_ONBOARDING');
@@ -87,6 +98,7 @@ export default function BootGate({ children }) {
           language: profile.language,
         });
         setBootReady(true);
+        clearTimeout(emergencyTimeout);
         return;
       }
 
@@ -102,10 +114,15 @@ export default function BootGate({ children }) {
         onboardingComplete: true,
       });
       setBootReady(true);
+      clearTimeout(emergencyTimeout);
     };
 
     resolveBoot();
-  }, []);
+    
+    return () => {
+      clearTimeout(emergencyTimeout);
+    };
+  }, [bootReady]);
 
   // Render NOTHING until boot is resolved
   if (!bootReady || !bootState) {
