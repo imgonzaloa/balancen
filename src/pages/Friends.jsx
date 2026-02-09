@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Users, CheckCircle, XCircle, Flame, Activity } from "lucide-react";
@@ -8,11 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
+import { createPageUrl } from "@/utils";
 import StatusChip from "@/components/groups/StatusChip";
 
 export default function Friends() {
   const { t, lang } = useTranslation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [friendEmail, setFriendEmail] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const queryClient = useQueryClient();
@@ -20,6 +24,12 @@ export default function Friends() {
   useEffect(() => {
     base44.auth.me().then(setUser);
   }, []);
+
+  useEffect(() => {
+    if (!user?.email) return;
+    base44.entities.UserProfile.filter({ created_by: user.email })
+      .then(profiles => setProfile(profiles[0]));
+  }, [user]);
 
   const { data: sentRequests = [] } = useQuery({
     queryKey: ["friendsSent", user?.email],
@@ -101,6 +111,46 @@ export default function Friends() {
       toast.success(t("request_updated"));
     },
   });
+
+  // Check premium
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen relative overflow-hidden pb-24" style={{ minHeight: '100dvh' }}>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-20 right-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-500 rounded-full blur-3xl" />
+        </div>
+        
+        <div className="max-w-2xl mx-auto px-6 pt-6 pb-8 relative z-10">
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 text-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
+              <UserPlus size={32} className="text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{t('premium_feature') || 'Premium Feature'}</h3>
+            <p className="text-white/70 text-sm mb-6">
+              {t('unlock_friends_features') || 'Unlock friends features to connect with others'}
+            </p>
+            <button
+              onClick={() => navigate(createPageUrl('Premium'))}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold px-8 py-3 rounded-2xl"
+            >
+              {t('upgrade_now') || 'Upgrade Now'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
