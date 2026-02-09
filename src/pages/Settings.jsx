@@ -376,9 +376,28 @@ export default function Settings() {
           </>
         )}
 
+        {/* Logout Button */}
+        <Button
+          onClick={async () => {
+            try {
+              localStorage.clear();
+              sessionStorage.clear();
+              queryClient.clear();
+              await base44.auth.logout();
+              window.location.href = '/';
+            } catch (error) {
+              console.error('Logout error:', error);
+              window.location.href = '/';
+            }
+          }}
+          className="w-full mt-6 h-12 rounded-2xl bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 text-red-200 font-semibold transition-all"
+        >
+          {t('logout')}
+        </Button>
+
         {/* About Section */}
         <motion.div
-          className="relative overflow-hidden rounded-3xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 text-center"
+          className="relative overflow-hidden rounded-3xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 text-center mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
