@@ -31,6 +31,8 @@ export default function Social() {
     cacheTime: 10 * 60 * 1000,
   });
 
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+
   const { data: myGroups = [] } = useQuery({
     queryKey: ["myGroups", user?.email],
     queryFn: async () => {
@@ -42,7 +44,7 @@ export default function Social() {
       );
       return groups.flat();
     },
-    enabled: !!user?.email && (!!profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator'),
+    enabled: !!user?.email && isPremium,
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
   });
@@ -56,7 +58,7 @@ export default function Social() {
       ]);
       return [...sent, ...received].filter(f => f);
     },
-    enabled: !!user?.email && (!!profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator'),
+    enabled: !!user?.email && isPremium,
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
   });
@@ -81,8 +83,6 @@ export default function Social() {
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
   });
-
-  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
   if (!user || !profile) {
     return <SocialSkeleton />;

@@ -47,8 +47,11 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AddMeal from './pages/AddMeal';
 import Badges from './pages/Badges';
 import CameraScreen from './pages/CameraScreen';
+import Chat from './pages/Chat';
+import CreateStory from './pages/CreateStory';
 import Feed from './pages/Feed';
 import Friends from './pages/Friends';
 import GoalsAssistant from './pages/GoalsAssistant';
@@ -59,6 +62,7 @@ import HomeSafe from './pages/HomeSafe';
 import InviteCollaborators from './pages/InviteCollaborators';
 import LanguageSelector from './pages/LanguageSelector';
 import MealResult from './pages/MealResult';
+import NutritionHub from './pages/NutritionHub';
 import Onboarding from './pages/Onboarding';
 import OnboardingTransition from './pages/OnboardingTransition';
 import Paywall from './pages/Paywall';
@@ -66,22 +70,21 @@ import Premium from './pages/Premium';
 import Profile from './pages/Profile';
 import ProfileSetup from './pages/ProfileSetup';
 import Progress from './pages/Progress';
+import ProgressTracker from './pages/ProgressTracker';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
-import UserManagement from './pages/UserManagement';
-import Chat from './pages/Chat';
-import CreateStory from './pages/CreateStory';
-import ProgressTracker from './pages/ProgressTracker';
 import TrainerDashboard from './pages/TrainerDashboard';
-import NutritionHub from './pages/NutritionHub';
+import UserManagement from './pages/UserManagement';
 import WorkoutTracker from './pages/WorkoutTracker';
-import AddMeal from './pages/AddMeal';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AddMeal": AddMeal,
     "Badges": Badges,
     "CameraScreen": CameraScreen,
+    "Chat": Chat,
+    "CreateStory": CreateStory,
     "Feed": Feed,
     "Friends": Friends,
     "GoalsAssistant": GoalsAssistant,
@@ -92,6 +95,7 @@ export const PAGES = {
     "InviteCollaborators": InviteCollaborators,
     "LanguageSelector": LanguageSelector,
     "MealResult": MealResult,
+    "NutritionHub": NutritionHub,
     "Onboarding": Onboarding,
     "OnboardingTransition": OnboardingTransition,
     "Paywall": Paywall,
@@ -99,16 +103,12 @@ export const PAGES = {
     "Profile": Profile,
     "ProfileSetup": ProfileSetup,
     "Progress": Progress,
+    "ProgressTracker": ProgressTracker,
     "Settings": Settings,
     "Social": Social,
-    "UserManagement": UserManagement,
-    "Chat": Chat,
-    "CreateStory": CreateStory,
-    "ProgressTracker": ProgressTracker,
     "TrainerDashboard": TrainerDashboard,
-    "NutritionHub": NutritionHub,
+    "UserManagement": UserManagement,
     "WorkoutTracker": WorkoutTracker,
-    "AddMeal": AddMeal,
 }
 
 export const pagesConfig = {
