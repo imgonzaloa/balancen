@@ -145,8 +145,21 @@ export default function Profile() {
     }
   };
 
-  const handleLogout = () => {
-    base44.auth.logout();
+  const handleLogout = async () => {
+    try {
+      // Clear ALL state
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Logout
+      await base44.auth.logout();
+      
+      // Force hard reload
+      window.location.href = '/';
+    } catch (err) {
+      console.error('Logout failed:', err);
+      window.location.href = '/';
+    }
   };
 
   const goalLabels = {
