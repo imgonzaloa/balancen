@@ -245,7 +245,17 @@ export default function Home() {
             </div>
             <div className="space-y-1.5">
               {todayMissions.map((mission) => (
-                <div key={mission.id} className="flex items-center gap-2">
+                <button
+                  key={mission.id}
+                  onClick={() => {
+                    if (mission.id === 1 || mission.id === 3) {
+                      navigate(createPageUrl('CameraScreen'));
+                    } else if (mission.id === 2) {
+                      navigate(createPageUrl('Progress'));
+                    }
+                  }}
+                  className="flex items-center gap-2 w-full py-1 px-2 -mx-2 rounded-lg hover:bg-white/5 transition-colors active:scale-95 cursor-pointer"
+                >
                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                     mission.completed
                       ? 'bg-teal-500 border-teal-400'
@@ -256,14 +266,17 @@ export default function Home() {
                   <span className={`text-xs ${mission.completed ? 'text-white/90 font-semibold' : 'text-white/50'}`}>
                     {mission.label}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
         </div>
 
         {/* AI Insight (PREMIUM ONLY) */}
-        <div className={`bg-gradient-to-br from-purple-500/12 to-pink-500/12 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/20 ${!isPremium ? 'relative overflow-hidden' : ''}`}>
+        <button
+          onClick={() => isPremium ? navigate(createPageUrl('GoalsAssistant')) : navigate(createPageUrl('Premium'))}
+          className={`w-full text-left bg-gradient-to-br from-purple-500/12 to-pink-500/12 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/20 ${!isPremium ? 'relative overflow-hidden' : ''} hover:border-purple-500/40 transition-all active:scale-[0.98] cursor-pointer`}
+        >
           {!isPremium && (
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
               <div className="text-center px-4">
@@ -291,7 +304,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-        </div>
+        </button>
 
 
       </div>
