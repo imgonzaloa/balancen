@@ -177,6 +177,9 @@ export default function Home() {
            <Button
              onClick={() => navigate(createPageUrl('TrainerDashboard'))}
              className="h-16 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 hover:shadow-xl hover:shadow-purple-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+             title={!isPremium ? t('premium_feature') : ''}
+             disabled={!isPremium}
+             style={{ opacity: !isPremium ? 0.6 : 1 }}
            >
              <Dumbbell size={20} strokeWidth={2.5} />
              Entreno
@@ -201,26 +204,26 @@ export default function Home() {
           ) : (
             <div className="space-y-2">
               {todayMeals.slice(0, 3).map((meal) => (
-                <div key={meal.id} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all flex">
-                  {meal.photo_url && (
-                    <img src={meal.photo_url} alt="Meal" className="w-20 h-20 object-cover flex-shrink-0" />
-                  )}
-                  <div className="flex-1 p-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-white text-sm font-bold">
-                        {meal.meal_type ? (meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)) : t('meal')}
-                      </p>
-                      <p className="text-white/60 text-xs mt-0.5">
-                        {meal.meal_time || new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
+                    <div key={meal.id || meal.created_date} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all flex">
+                      {meal.photo_url && (
+                        <img src={meal.photo_url} alt="Meal" className="w-20 h-20 object-cover flex-shrink-0" onError={(e) => { e.target.style.display = 'none'; }} />
+                      )}
+                      <div className="flex-1 p-3 flex items-center justify-between">
+                        <div>
+                          <p className="text-white text-sm font-bold">
+                            {meal.meal_type ? (meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)) : t('meal')}
+                          </p>
+                          <p className="text-white/60 text-xs mt-0.5">
+                            {meal.meal_time || new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-teal-300 font-black text-lg">{Math.round(meal.estimated_calories || 0)}</p>
+                          <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-teal-300 font-black text-lg">{meal.estimated_calories}</p>
-                      <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  ))}
             </div>
           )}
         </div>
