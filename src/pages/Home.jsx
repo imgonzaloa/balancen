@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Camera, Flame, Sparkles, TrendingUp, Target, Zap } from "lucide-react";
+import { Camera, Flame, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
-import UserStatusHeader from "@/components/home/UserStatusHeader";
 
 export default function Home() {
   const { user, profile: cachedProfile, todayMeals: cachedMeals, friends: cachedFriends, isInitialized, refreshProfile } = useAppState();
@@ -68,13 +67,13 @@ export default function Home() {
     },
     { 
       id: 2, 
-      label: lang === 'es' ? 'Cumplir meta de calorías' : 'Stay within calorie goal', 
+      label: t('stay_within_goal'), 
       completed: metrics.caloriesGoalProgress >= 80 && metrics.caloriesGoalProgress <= 120, 
       reward: 2 
     },
     { 
       id: 3, 
-      label: lang === 'es' ? 'Registrar 3 comidas' : 'Log 3 meals today', 
+      label: t('log_three_meals'), 
       completed: todayMeals.length >= 3, 
       reward: 3 
     }
@@ -83,120 +82,145 @@ export default function Home() {
   const completedMissions = todayMissions.filter(m => m.completed).length;
   const totalRewards = todayMissions.filter(m => m.completed).reduce((sum, m) => sum + m.reward, 0);
 
+  const currentDate = new Date().toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  });
+
   if (!isInitialized || loading) {
     return <HomeSkeleton />;
   }
 
   return (
     <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-      <div className="max-w-2xl mx-auto px-6 pt-2 pb-6 space-y-6">
-        {/* Header with Language Indicator */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
+      <div className="max-w-2xl mx-auto px-6 pt-4 pb-8 space-y-5">
+        
+        {/* Greeting Header */}
+        <div className="space-y-1">
+          <p className="text-white/40 text-xs font-medium uppercase tracking-wider">
+            {currentDate}
+          </p>
+          <h1 className="text-4xl font-black text-white">
+            {t('home')}, {profile?.display_name?.split(' ')[0] || "User"}
+          </h1>
+          <p className="text-white/60 text-sm">
+            {t('today_progress')}
+          </p>
+        </div>
+
+        {/* Main Calorie Ring Card - Hero */}
+        <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-[32px] p-8 border border-white/10 shadow-2xl">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-black text-white mb-1">{t('home')}</h1>
-              <p className="text-white/60 text-sm">{t('today_progress')}</p>
-            </div>
-            {/* DEV Language Indicator */}
-            <div className="px-3 py-1 rounded-lg bg-teal-500/20 border border-teal-500/40">
-              <span className="text-teal-300 text-xs font-bold">LANG: {lang.toUpperCase()}</span>
-            </div>
-          </div>
-          
-          {/* User Status */}
-          <UserStatusHeader profile={profile} onStatusUpdate={refreshProfile} lang={lang} />
-        </div>
-
-        {/* Momentum / Streak Card */}
-        <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-3xl p-6 border border-amber-500/30 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-amber-300 text-sm font-semibold uppercase tracking-wide mb-1">
-                  {t('current_streak')}
-                </p>
-                <p className="text-white/50 text-xs">{t('days_in_a_row')}</p>
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-wide mb-1">
+                {t('calories')}
+              </p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-5xl font-black text-white">
+                  {Math.round(metrics.totalCalories)}
+                </span>
+                <span className="text-2xl text-white/40 font-bold">
+                  / {metrics.caloriesGoal}
+                </span>
               </div>
-              <StreakFire streak={profile?.current_streak || 0} size="large" />
             </div>
-            <div className="text-sm text-white/60">
-              {t('total_fire')}: <span className="font-bold text-white">{profile?.fire_total || 0}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Calories Ring */}
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-          <div className="text-center">
-            <div className="w-40 h-40 mx-auto mb-4 relative">
-              <svg width="160" height="160" className="transform -rotate-90">
-                <circle cx="80" cy="80" r="70" stroke="rgba(255,255,255,0.1)" strokeWidth="12" fill="none" />
+            
+            {/* Mini ring indicator */}
+            <div className="relative w-20 h-20">
+              <svg width="80" height="80" className="transform -rotate-90">
+                <circle cx="40" cy="40" r="34" stroke="rgba(255,255,255,0.08)" strokeWidth="8" fill="none" />
                 <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  stroke="url(#gradientHome)"
-                  strokeWidth="12"
+                  cx="40"
+                  cy="40"
+                  r="34"
+                  stroke="url(#miniGradient)"
+                  strokeWidth="8"
                   fill="none"
                   strokeLinecap="round"
-                  strokeDasharray="440"
-                  strokeDashoffset={metrics.strokeDashoffset}
-                  style={{ transition: 'stroke-dashoffset 1s ease' }}
+                  strokeDasharray="214"
+                  strokeDashoffset={214 - (metrics.caloriesGoalProgress / 100) * 214}
+                  style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                 />
                 <defs>
-                  <linearGradient id="gradientHome" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f97316" />
-                    <stop offset="100%" stopColor="#ef4444" />
+                  <linearGradient id="miniGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#14b8a6" />
+                    <stop offset="100%" stopColor="#10b981" />
                   </linearGradient>
                 </defs>
               </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-3xl font-black text-white">{Math.round(metrics.totalCalories)}</div>
-                <div className="text-xs text-white/40">/ {metrics.caloriesGoal}</div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-sm font-black text-white">
+                  {Math.round(metrics.caloriesGoalProgress)}%
+                </span>
               </div>
             </div>
-            <p className="text-white/70 font-semibold text-sm">
-              {t('calories')}
-            </p>
-            <p className="text-white/40 text-xs mt-1">
-              {t('meals_logged_today')}: {todayMeals.length}
-            </p>
+          </div>
+
+          {/* Macros row */}
+          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
+            {[
+              { label: t('protein'), value: Math.round(metrics.totalProtein), color: 'text-blue-400' },
+              { label: t('carbs'), value: Math.round(metrics.totalCarbs), color: 'text-amber-400' },
+              { label: t('fats'), value: Math.round(metrics.totalFats), color: 'text-pink-400' }
+            ].map((macro, i) => (
+              <div key={i} className="text-center">
+                <div className={`text-2xl font-black ${macro.color} mb-0.5`}>
+                  {macro.value}g
+                </div>
+                <div className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">
+                  {macro.label}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Log Meal Button */}
+        {/* Log Meal CTA */}
         <Button
           onClick={() => navigate(createPageUrl('CameraScreen'))}
-          className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-teal-500/30"
+          className="w-full h-16 rounded-[24px] bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 hover:shadow-2xl hover:shadow-teal-500/40 text-white font-bold text-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
         >
-          <Camera size={20} />
+          <Camera size={24} strokeWidth={2.5} />
           {t('log_your_meal')}
         </Button>
 
-        {/* Macros */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: t('protein'), value: `${Math.round(metrics.totalProtein)}g` },
-            { label: t('carbs'), value: `${Math.round(metrics.totalCarbs)}g` },
-            { label: t('fats'), value: `${Math.round(metrics.totalFats)}g` }
-          ].map((stat, i) => (
-            <div key={i} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
-              <div className="text-2xl font-black text-white mb-1">{stat.value}</div>
-              <div className="text-xs text-white/50 font-semibold">{stat.label}</div>
+        {/* Streak Card */}
+        <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/15 backdrop-blur-xl rounded-[28px] p-6 border border-amber-500/20">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-amber-300/80 text-xs font-bold uppercase tracking-wider mb-1">
+                {t('current_streak')}
+              </p>
+              <p className="text-white/60 text-xs mb-3">
+                {t('days_in_a_row')}
+              </p>
+              <div className="flex items-center gap-3">
+                <StreakFire streak={profile?.current_streak || 0} size="large" />
+                <div>
+                  <p className="text-white/50 text-[10px] uppercase tracking-wide font-semibold">
+                    {t('total_fire')}
+                  </p>
+                  <p className="text-white text-lg font-black">
+                    {profile?.fire_total || 0}
+                  </p>
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
 
-        {/* AI Insight Card */}
-        <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-6 border border-purple-500/30">
+        {/* AI Coach Insight */}
+        <div className="bg-gradient-to-br from-purple-500/12 to-pink-500/12 backdrop-blur-xl rounded-[28px] p-6 border border-purple-500/20">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
-              <Sparkles size={22} className="text-white" />
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Sparkles size={20} className="text-white" strokeWidth={2.5} />
             </div>
-            <div className="flex-1">
-              <p className="text-purple-300 font-bold text-sm mb-2">{t('ai_coach')}</p>
-              <p className="text-white text-sm leading-relaxed">
+            <div className="flex-1 pt-1">
+              <p className="text-purple-300 font-bold text-xs uppercase tracking-wide mb-2">
+                {t('ai_coach')}
+              </p>
+              <p className="text-white/90 text-sm leading-relaxed">
                 {metrics.caloriesGoalProgress >= 100 
                   ? t('ai_coach_goal_reached')
                   : (metrics.caloriesGoalProgress >= 50
@@ -210,41 +234,41 @@ export default function Home() {
         </div>
 
         {/* Today's Missions */}
-        <div className="bg-gradient-to-br from-teal-500/10 to-emerald-500/10 backdrop-blur-xl rounded-3xl p-6 border border-teal-500/30">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white font-bold text-lg">
-              {lang === 'es' ? 'Misiones de Hoy' : "Today's Missions"}
+        <div className="bg-gradient-to-br from-teal-500/8 to-emerald-500/8 backdrop-blur-xl rounded-[28px] p-6 border border-teal-500/20">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-white font-black text-base">
+              {t('todays_missions')}
             </h3>
-            <div className="flex items-center gap-2">
-              <Flame size={16} className="text-orange-400" />
-              <span className="text-white font-bold text-sm">+{totalRewards}</span>
+            <div className="flex items-center gap-1.5 bg-orange-500/20 border border-orange-400/30 rounded-full px-3 py-1">
+              <Flame size={14} className="text-orange-400" />
+              <span className="text-orange-400 font-black text-sm">+{totalRewards}</span>
             </div>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {todayMissions.map((mission) => (
               <div
                 key={mission.id}
-                className={`flex items-center justify-between p-3 rounded-xl border ${
+                className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                   mission.completed
-                    ? 'bg-teal-500/20 border-teal-500/40'
+                    ? 'bg-teal-500/15 border-teal-400/30'
                     : 'bg-white/5 border-white/10'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                <div className="flex items-center gap-3 flex-1">
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                     mission.completed
-                      ? 'bg-teal-500 border-teal-400'
+                      ? 'bg-teal-500 border-teal-400 shadow-lg shadow-teal-500/50'
                       : 'border-white/30'
                   }`}>
-                    {mission.completed && <span className="text-white text-xs">✓</span>}
+                    {mission.completed && <span className="text-white text-xs font-bold">✓</span>}
                   </div>
-                  <span className={`text-sm ${mission.completed ? 'text-white font-semibold' : 'text-white/70'}`}>
+                  <span className={`text-sm leading-snug ${mission.completed ? 'text-white font-semibold' : 'text-white/60'}`}>
                     {mission.label}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Flame size={14} className={mission.completed ? 'text-orange-400' : 'text-white/30'} />
-                  <span className={`text-xs font-bold ${mission.completed ? 'text-orange-400' : 'text-white/30'}`}>
+                  <Flame size={13} className={mission.completed ? 'text-orange-400' : 'text-white/20'} />
+                  <span className={`text-xs font-black ${mission.completed ? 'text-orange-400' : 'text-white/30'}`}>
                     +{mission.reward}
                   </span>
                 </div>
@@ -253,49 +277,51 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Recent Meals + Last Meal Preview */}
+        {/* Recent Meals */}
         {todayMeals && todayMeals.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-white font-bold text-lg">{t('logged_meals')}</h3>
-              <span className="text-white/50 text-sm">{todayMeals.length}</span>
+              <h3 className="text-white font-black text-base">{t('logged_meals')}</h3>
+              <span className="text-white/40 text-sm font-bold">{todayMeals.length}</span>
             </div>
             
-            {/* Last Meal Preview - Featured */}
-            <div className="bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-xl rounded-3xl overflow-hidden border border-indigo-500/30">
+            {/* Last Meal Preview */}
+            <div className="bg-gradient-to-br from-indigo-500/15 to-purple-500/15 backdrop-blur-xl rounded-[28px] overflow-hidden border border-indigo-500/20">
               {todayMeals[0].photo_url && (
-                <div className="relative h-48">
+                <div className="relative h-52">
                   <img 
                     src={todayMeals[0].photo_url} 
                     alt="Last meal" 
                     className="w-full h-full object-cover" 
                     loading="lazy" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <p className="text-white font-bold text-lg mb-1">
-                      {lang === 'es' ? 'Última Comida' : 'Last Meal'}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-5 left-5 right-5">
+                    <p className="text-white font-black text-base mb-2 tracking-tight">
+                      {t('last_meal')}
                     </p>
-                    <div className="flex items-center gap-4 text-white/80 text-sm">
-                      <span className="font-bold text-teal-300">{todayMeals[0].estimated_calories} kcal</span>
-                      <span>P: {Math.round(todayMeals[0].estimated_protein || 0)}g</span>
-                      <span>C: {Math.round(todayMeals[0].estimated_carbs || 0)}g</span>
-                      <span>F: {Math.round(todayMeals[0].estimated_fats || 0)}g</span>
+                    <div className="flex items-center gap-4 text-white/90 text-sm">
+                      <span className="font-black text-teal-300 text-base">
+                        {todayMeals[0].estimated_calories} kcal
+                      </span>
+                      <span className="text-white/70">P: {Math.round(todayMeals[0].estimated_protein || 0)}g</span>
+                      <span className="text-white/70">C: {Math.round(todayMeals[0].estimated_carbs || 0)}g</span>
+                      <span className="text-white/70">F: {Math.round(todayMeals[0].estimated_fats || 0)}g</span>
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Rest of meals - Grid */}
+            {/* Rest of meals */}
             {todayMeals.length > 1 && (
               <div className="grid grid-cols-2 gap-3">
                 {todayMeals.slice(1, 5).map((meal) => (
-                  <div key={meal.id} className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-colors">
+                  <div key={meal.id} className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all">
                     {meal.photo_url && (
                       <div className="relative">
                         <img src={meal.photo_url} alt="Meal" className="w-full h-28 object-cover" loading="lazy" />
-                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm rounded-lg px-2 py-1">
+                        <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1">
                           <p className="text-teal-300 font-bold text-xs">{meal.estimated_calories} kcal</p>
                         </div>
                       </div>
@@ -304,7 +330,7 @@ export default function Home() {
                       <p className="text-white text-xs font-semibold">
                         {meal.meal_type ? (meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)) : t('meal')}
                       </p>
-                      <p className="text-white/50 text-[10px] mt-0.5">
+                      <p className="text-white/40 text-[10px] mt-0.5">
                         {meal.meal_time || new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>

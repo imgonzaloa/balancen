@@ -35,6 +35,10 @@ const resources = {
       ai_coach_goal_reached: "Amazing work! You hit your calorie goal. Continue this consistency to maximize results.",
       ai_coach_halfway: "Good progress. You're halfway there. Log your next meal to reach your goal.",
       ai_coach_start: "Start by logging your meals. Each photo brings you closer to understanding your nutrition.",
+      todays_missions: "Today's Missions",
+      last_meal: "Last Meal",
+      stay_within_goal: "Stay within calorie goal",
+      log_three_meals: "Log 3 meals today",
       
       // Camera
       camera_access_denied: "Camera access denied",
@@ -259,6 +263,10 @@ const resources = {
       ai_coach_goal_reached: "¡Increíble trabajo! Alcanzaste tu meta de calorías. Continúa con esta consistencia para maximizar resultados.",
       ai_coach_halfway: "Buen progreso. Estás a mitad de camino. Registra tu siguiente comida para llegar a la meta.",
       ai_coach_start: "Comienza registrando tus comidas. Cada foto te acerca a entender mejor tu nutrición.",
+      todays_missions: "Misiones de Hoy",
+      last_meal: "Última Comida",
+      stay_within_goal: "Cumplir meta de calorías",
+      log_three_meals: "Registrar 3 comidas",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",
