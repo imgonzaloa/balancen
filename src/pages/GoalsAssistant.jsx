@@ -7,6 +7,10 @@ import { ArrowLeft, Sparkles, Target, TrendingUp, Zap, Check } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
+import MealPlanCard from "@/components/ai/MealPlanCard";
+import WorkoutCard from "@/components/ai/WorkoutCard";
+import MealPlanView from "@/components/ai/MealPlanView";
+import WorkoutView from "@/components/ai/WorkoutView";
 
 export default function GoalsAssistant() {
   const navigate = useNavigate();
@@ -15,6 +19,8 @@ export default function GoalsAssistant() {
   const [analyzing, setAnalyzing] = useState(false);
   const [recommendations, setRecommendations] = useState(null);
   const [applying, setApplying] = useState(false);
+  const [mealPlan, setMealPlan] = useState(null);
+  const [workout, setWorkout] = useState(null);
 
   const handleAnalyze = async () => {
     setAnalyzing(true);
@@ -279,9 +285,31 @@ export default function GoalsAssistant() {
                 </div>
               </div>
             )}
+
+            {/* AI Coaching Cards */}
+            <div className="mt-8 space-y-6">
+              <div className="border-t border-white/10 pt-6">
+                <h2 className="text-xl font-bold text-white mb-4">
+                  {t('ai_coaching_tools') || 'AI Coaching Tools'}
+                </h2>
+              </div>
+
+              <MealPlanCard onGenerate={setMealPlan} />
+              <WorkoutCard onGenerate={setWorkout} />
+            </div>
           </>
         )}
       </div>
+
+      {/* Meal Plan Modal */}
+      {mealPlan && (
+        <MealPlanView plan={mealPlan} onClose={() => setMealPlan(null)} />
+      )}
+
+      {/* Workout Modal */}
+      {workout && (
+        <WorkoutView workout={workout} onClose={() => setWorkout(null)} />
+      )}
     </div>
   );
 }
