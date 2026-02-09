@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Camera, Plus } from "lucide-react";
+import { Camera, Plus, Sparkles, Flame, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -57,8 +57,9 @@ export default function Home() {
     const caloriesGoal = profile?.calories_goal || 2000;
     const progress = Math.min((totalCalories / caloriesGoal) * 100, 100);
     const strokeDashoffset = 440 - (progress / 100) * 440;
+    const caloriesGoalProgress = progress;
 
-    return { totalCalories, totalProtein, totalCarbs, totalFats, caloriesGoal, strokeDashoffset };
+    return { totalCalories, totalProtein, totalCarbs, totalFats, caloriesGoal, strokeDashoffset, caloriesGoalProgress };
   }, [todayMeals, profile?.calories_goal]);
 
   // Loading state
