@@ -281,7 +281,29 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Macros Detail (PREMIUM ONLY) */}
+        {/* Manual Add Meal - FREE USERS OPTION */}
+        {!isPremium && (
+          <button
+            onClick={() => navigate(createPageUrl('AddMeal'))}
+            className="w-full text-left bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-xl rounded-2xl p-5 border border-emerald-500/30 hover:border-emerald-500/50 transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <Camera size={18} className="text-white" strokeWidth={2.5} />
+              </div>
+              <div className="flex-1 pt-0.5">
+                <p className="text-emerald-300 font-bold text-xs uppercase tracking-wide mb-2">
+                  {t('log_meal_manually')}
+                </p>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  Search and add foods manually without taking a photo
+                </p>
+              </div>
+            </div>
+          </button>
+        )}
+
+        {/* AI Insights (PREMIUM ONLY) */}
         {isPremium && (
           <button
             onClick={() => navigate(createPageUrl('GoalsAssistant'))}
@@ -309,7 +331,7 @@ export default function Home() {
           </button>
         )}
 
-        {/* Premium CTA */}
+        {/* Premium CTA - All Features Teaser */}
         {!isPremium && (
           <button
             onClick={() => navigate(createPageUrl('Premium'))}
@@ -324,7 +346,7 @@ export default function Home() {
                   {t('premium_features')}
                 </p>
                 <p className="text-white/90 text-sm leading-relaxed">
-                  {t('unlock_ai_macros_tracking')} → AI Coaching, Groups, Advanced Analytics, y más.
+                  AI Coaching, Social, Groups, Advanced Analytics & More
                 </p>
               </div>
             </div>
