@@ -214,7 +214,6 @@ export default function Profile() {
                   onChange={handlePhotoUpload}
                   className="hidden"
                   disabled={uploadingPhoto}
-                  capture="environment"
                 />
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative">
                   {profile?.profile_photo || profile?.avatar_url ? (
