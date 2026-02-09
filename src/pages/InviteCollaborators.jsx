@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 export default function InviteCollaborators() {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -32,7 +32,7 @@ export default function InviteCollaborators() {
 
       // Check if owner
       if (userProfile?.role !== "owner" && currentUser.email.toLowerCase() !== "imgonzaloa@gmail.com") {
-        toast.error(lang === "es" ? "Solo el propietario puede invitar colaboradores" : "Only owner can invite collaborators");
+        toast.error(t('only_owner_can_invite'));
         navigate(createPageUrl("Settings"));
         return;
       }
@@ -42,23 +42,23 @@ export default function InviteCollaborators() {
       setInvites(existingInvites);
     };
     init();
-  }, [navigate, lang]);
+  }, [navigate, t]);
 
   const handleInvite = async () => {
     if (!email || !email.includes("@")) {
-      toast.error(lang === "es" ? "Email inválido" : "Invalid email");
+      toast.error(t('invalid_email'));
       return;
     }
 
     if (email.toLowerCase() === user.email.toLowerCase()) {
-      toast.error(lang === "es" ? "No puedes invitarte a ti mismo" : "You cannot invite yourself");
+      toast.error(t('cannot_invite_yourself'));
       return;
     }
 
     // Check if already invited
     const existing = invites.find(inv => inv.invitee_email.toLowerCase() === email.toLowerCase());
     if (existing) {
-      toast.error(lang === "es" ? "Ya invitaste este email" : "Already invited this email");
+      toast.error(t('already_invited_email'));
       return;
     }
 
@@ -77,16 +77,14 @@ export default function InviteCollaborators() {
       try {
         await base44.integrations.Core.SendEmail({
           to: email.toLowerCase(),
-          subject: lang === "es" ? "Invitación a Balancen Premium" : "Balancen Premium Invitation",
-          body: lang === "es" 
-            ? `Has sido invitado a unirte a Balancen con acceso Premium gratuito. Por favor, regístrate en la app usando este email: ${email.toLowerCase()}`
-            : `You've been invited to join Balancen with free Premium access. Please sign up in the app using this email: ${email.toLowerCase()}`
+          subject: t('premium_invitation_subject'),
+          body: t('premium_invitation_body', { email: email.toLowerCase() })
         });
       } catch (emailErr) {
         console.error("Email send failed:", emailErr);
       }
 
-      toast.success(lang === "es" ? "Invitación enviada" : "Invitation sent");
+      toast.success(t('invitation_sent'));
       setEmail("");
       
       // Refresh invites
@@ -94,7 +92,7 @@ export default function InviteCollaborators() {
       setInvites(updatedInvites);
     } catch (err) {
       console.error("Invite error:", err);
-      toast.error(lang === "es" ? "Error al enviar invitación" : "Error sending invitation");
+      toast.error(t('invitation_error'));
     } finally {
       setLoading(false);
     }
@@ -121,10 +119,10 @@ export default function InviteCollaborators() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">
-              {lang === "es" ? "Invitar Colaboradores" : "Invite Collaborators"}
+              {t('invite_collaborators_title')}
             </h1>
             <p className="text-white/60 text-sm">
-              {lang === "es" ? "Dar acceso Premium gratuito" : "Grant free Premium access"}
+              {t('grant_free_premium')}
             </p>
           </div>
         </div>
@@ -134,7 +132,7 @@ export default function InviteCollaborators() {
           <div className="flex items-center gap-3 mb-4">
             <UserPlus size={20} className="text-teal-300" />
             <h3 className="text-white font-semibold">
-              {lang === "es" ? "Nueva Invitación" : "New Invitation"}
+              {t('new_invitation')}
             </h3>
           </div>
 
@@ -142,7 +140,7 @@ export default function InviteCollaborators() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={lang === "es" ? "email@ejemplo.com" : "email@example.com"}
+            placeholder={t('email_placeholder_collab')}
             className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-teal-500 mb-4"
             onKeyDown={(e) => e.key === "Enter" && handleInvite()}
           />
@@ -155,12 +153,12 @@ export default function InviteCollaborators() {
             {loading ? (
               <>
                 <Loader2 size={16} className="mr-2 animate-spin" />
-                {lang === "es" ? "Enviando..." : "Sending..."}
+                {t('sending')}
               </>
             ) : (
               <>
                 <UserPlus size={16} className="mr-2" />
-                {lang === "es" ? "Enviar Invitación" : "Send Invitation"}
+                {t('send_invitation')}
               </>
             )}
           </Button>
@@ -169,13 +167,13 @@ export default function InviteCollaborators() {
         {/* Existing Invites */}
         <div className="space-y-3">
           <h3 className="text-white font-semibold text-sm uppercase tracking-wide opacity-60">
-            {lang === "es" ? "Invitaciones Enviadas" : "Sent Invitations"}
+            {t('sent_invitations')}
           </h3>
 
           {invites.length === 0 ? (
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center">
               <p className="text-white/60 text-sm">
-                {lang === "es" ? "Aún no has enviado invitaciones" : "No invitations sent yet"}
+                {t('no_invitations_yet')}
               </p>
             </div>
           ) : (
@@ -187,9 +185,9 @@ export default function InviteCollaborators() {
                 <div>
                   <p className="text-white font-semibold">{invite.invitee_email}</p>
                   <p className="text-white/60 text-xs mt-1">
-                    {invite.status === "pending" && (lang === "es" ? "Pendiente" : "Pending")}
-                    {invite.status === "accepted" && (lang === "es" ? "Aceptada" : "Accepted")}
-                    {invite.status === "rejected" && (lang === "es" ? "Rechazada" : "Rejected")}
+                    {invite.status === "pending" && t('pending_status')}
+                    {invite.status === "accepted" && t('accepted_status')}
+                    {invite.status === "rejected" && t('rejected_status')}
                   </p>
                 </div>
                 <div>

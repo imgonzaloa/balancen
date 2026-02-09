@@ -55,7 +55,7 @@ export default function Premium() {
       const profile = profiles[0];
       
       if (profile?.role === "owner" || profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite") {
-        toast.success(lang === 'es' ? 'Ya tienes acceso Premium' : 'You already have Premium access');
+        toast.success(t('already_have_premium'));
         return;
       }
     } catch (err) {

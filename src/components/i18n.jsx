@@ -148,6 +148,43 @@ const resources = {
       friend_request_exists: "Friend request already exists",
       group_not_found: "Group not found",
       
+      // Premium page
+      already_have_premium: "You already have Premium access",
+      
+      // UserManagement
+      user_management: "User Management",
+      view_manage_users: "View & manage all users",
+      total_users: "Total Users",
+      premium_users: "Premium",
+      collaborators_count: "Collaborators",
+      search_users: "Search users...",
+      premium_access: "Premium Access",
+      go_back: "Go Back",
+      access_denied_owner: "Access denied - owner only.",
+      forbidden: "403 Forbidden",
+      premium_status_updated: "Premium status updated",
+      
+      // InviteCollaborators  
+      invite_collaborators_title: "Invite Collaborators",
+      grant_free_premium: "Grant free Premium access",
+      new_invitation: "New Invitation",
+      email_placeholder_collab: "email@example.com",
+      sending: "Sending...",
+      send_invitation: "Send Invitation",
+      sent_invitations: "Sent Invitations",
+      no_invitations_yet: "No invitations sent yet",
+      pending_status: "Pending",
+      accepted_status: "Accepted",
+      rejected_status: "Rejected",
+      invalid_email: "Invalid email",
+      cannot_invite_yourself: "You cannot invite yourself",
+      already_invited_email: "Already invited this email",
+      invitation_sent: "Invitation sent",
+      invitation_error: "Error sending invitation",
+      only_owner_can_invite: "Only owner can invite collaborators",
+      premium_invitation_subject: "Balancen Premium Invitation",
+      premium_invitation_body: "You've been invited to join Balancen with free Premium access. Please sign up in the app using this email: {{email}}",
+      
       // Camera
       camera_access_denied: "Camera access denied",
       camera_permission_denied: "Camera permission denied",
@@ -483,6 +520,43 @@ const resources = {
       members: "miembros",
       friend_request_exists: "Solicitud de amistad ya existe",
       group_not_found: "Grupo no encontrado",
+      
+      // Premium page
+      already_have_premium: "Ya tienes acceso Premium",
+      
+      // UserManagement
+      user_management: "Gestión de Usuarios",
+      view_manage_users: "Ver y gestionar todos los usuarios",
+      total_users: "Total Usuarios",
+      premium_users: "Premium",
+      collaborators_count: "Colaboradores",
+      search_users: "Buscar usuarios...",
+      premium_access: "Acceso Premium",
+      go_back: "Volver",
+      access_denied_owner: "Acceso denegado - solo propietario.",
+      forbidden: "403 Prohibido",
+      premium_status_updated: "Estado Premium actualizado",
+      
+      // InviteCollaborators
+      invite_collaborators_title: "Invitar Colaboradores",
+      grant_free_premium: "Dar acceso Premium gratuito",
+      new_invitation: "Nueva Invitación",
+      email_placeholder_collab: "email@ejemplo.com",
+      sending: "Enviando...",
+      send_invitation: "Enviar Invitación",
+      sent_invitations: "Invitaciones Enviadas",
+      no_invitations_yet: "Aún no has enviado invitaciones",
+      pending_status: "Pendiente",
+      accepted_status: "Aceptada",
+      rejected_status: "Rechazada",
+      invalid_email: "Email inválido",
+      cannot_invite_yourself: "No puedes invitarte a ti mismo",
+      already_invited_email: "Ya invitaste este email",
+      invitation_sent: "Invitación enviada",
+      invitation_error: "Error al enviar invitación",
+      only_owner_can_invite: "Solo el propietario puede invitar colaboradores",
+      premium_invitation_subject: "Invitación a Balancen Premium",
+      premium_invitation_body: "Has sido invitado a unirte a Balancen con acceso Premium gratuito. Por favor, regístrate en la app usando este email: {{email}}",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",

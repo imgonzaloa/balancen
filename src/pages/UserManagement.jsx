@@ -2,17 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Crown, Users, Mail, Search, CheckCircle, XCircle } from "lucide-react";
+import { ChevronLeft, Crown, Users, Search, CheckCircle, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useTranslation } from "@/components/TranslationProvider";
 
 const OWNER_EMAIL = "imgonzaloa@gmail.com";
 
 export default function UserManagement() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const queryClient = useQueryClient();
@@ -31,7 +33,6 @@ export default function UserManagement() {
   });
 
   // OWNER-ONLY ACCESS CHECK
-  const OWNER_EMAIL = "imgonzaloa@gmail.com";
   const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && profile?.role === "owner";
   
   if (user && profile && !isOwner) {
@@ -41,11 +42,11 @@ export default function UserManagement() {
           <div className="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center mx-auto mb-4">
             <span className="text-4xl">🚫</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">403 Forbidden</h1>
-          <p className="text-white/60 mb-6">Access denied - owner only.</p>
+          <h1 className="text-2xl font-bold text-white mb-2">{t('forbidden')}</h1>
+          <p className="text-white/60 mb-6">{t('access_denied_owner')}</p>
           <Link to={createPageUrl("Settings")}>
             <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
-              Go Back
+              {t('go_back')}
             </Button>
           </Link>
         </div>
@@ -74,7 +75,7 @@ export default function UserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["allProfiles"]);
-      toast.success("Premium status updated");
+      toast.success(t('premium_status_updated'));
     },
   });
 
@@ -106,9 +107,9 @@ export default function UserManagement() {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <Users size={28} className="text-purple-400" />
-              User Management
+              {t('user_management')}
             </h1>
-            <p className="text-purple-200 text-sm">View & manage all users</p>
+            <p className="text-purple-200 text-sm">{t('view_manage_users')}</p>
           </div>
         </div>
 
@@ -120,19 +121,19 @@ export default function UserManagement() {
         >
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-center">
             <p className="text-2xl font-bold text-white">{allProfiles.length}</p>
-            <p className="text-xs text-white/60">Total Users</p>
+            <p className="text-xs text-white/60">{t('total_users')}</p>
           </div>
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-center">
             <p className="text-2xl font-bold text-emerald-300">
               {allProfiles.filter(p => p.is_premium).length}
             </p>
-            <p className="text-xs text-white/60">Premium</p>
+            <p className="text-xs text-white/60">{t('premium_users')}</p>
           </div>
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-center">
             <p className="text-2xl font-bold text-teal-300">
               {collaborators.filter(c => c.has_registered).length}
             </p>
-            <p className="text-xs text-white/60">Collaborators</p>
+            <p className="text-xs text-white/60">{t('collaborators_count')}</p>
           </div>
         </motion.div>
 
@@ -146,7 +147,7 @@ export default function UserManagement() {
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
             <Input
-              placeholder="Search users..."
+              placeholder={t('search_users')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-white/40"
@@ -186,7 +187,7 @@ export default function UserManagement() {
                   </div>
                   {isCollab && (
                     <div className="px-2 py-1 rounded-full bg-teal-500/20 border border-teal-400/30">
-                      <p className="text-teal-300 text-xs">Collaborator</p>
+                      <p className="text-teal-300 text-xs">{t('collaborator')}</p>
                     </div>
                   )}
                 </div>
@@ -198,7 +199,7 @@ export default function UserManagement() {
                     ) : (
                       <XCircle size={16} className="text-white/40" />
                     )}
-                    <span className="text-white text-sm">Premium Access</span>
+                    <span className="text-white text-sm">{t('premium_access')}</span>
                   </div>
                   {!isOwner && (
                     <Switch
