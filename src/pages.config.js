@@ -68,6 +68,7 @@ import Settings from './pages/Settings';
 import Social from './pages/Social';
 import UserManagement from './pages/UserManagement';
 import GoalsAssistant from './pages/GoalsAssistant';
+import Feed from './pages/Feed';
 import __Layout from './Layout.jsx';
 
 
@@ -93,6 +94,7 @@ export const PAGES = {
     "Social": Social,
     "UserManagement": UserManagement,
     "GoalsAssistant": GoalsAssistant,
+    "Feed": Feed,
 }
 
 export const pagesConfig = {
