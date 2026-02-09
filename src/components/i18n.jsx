@@ -372,6 +372,14 @@ const resources = {
       invite_friends: "Invite Friends",
       your_referrals: "Your referrals",
       free_month_progress: "for your next free month",
+      
+      // Premium differentiation
+      free_limited_history: "Today's data only",
+      premium_full_history: "Complete history & analytics",
+      ai_food_recognition: "AI-powered food recognition",
+      adaptive_targets: "Adaptive calorie & macro targets",
+      social_competition: "Social competition & teams",
+      advanced_dashboards: "Advanced dashboards",
       invited_friends: "Invited Friends",
       registered: "Registered",
       premium_active: "Premium Active",
@@ -843,6 +851,14 @@ const resources = {
       invite_friends: "Invitar Amigos",
       your_referrals: "Tus referidos",
       free_month_progress: "para tu próximo mes gratis",
+      
+      // Premium differentiation
+      free_limited_history: "Solo datos de hoy",
+      premium_full_history: "Historial completo y análisis",
+      ai_food_recognition: "Reconocimiento de comida con IA",
+      adaptive_targets: "Objetivos adaptativos de calorías y macros",
+      social_competition: "Competencia social y equipos",
+      advanced_dashboards: "Dashboards avanzados",
       invited_friends: "Amigos Invitados",
       registered: "Registrado",
       premium_active: "Premium Activo",

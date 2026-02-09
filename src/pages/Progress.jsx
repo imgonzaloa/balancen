@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { TrendingUp, Target } from "lucide-react";
+import { TrendingUp, Target, Lock, Crown, Calendar, BarChart3 } from "lucide-react";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
 import { base44 } from "@/api/base44Client";
 import { ProgressSkeleton } from "@/components/ui/ScreenSkeleton";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Button } from "@/components/ui/button";
 
 export default function Progress() {
-  // ALL HOOKS AT TOP
   const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
   const [todayMeals, setTodayMeals] = useState(cachedMeals || []);
   const [loading, setLoading] = useState(!cachedProfile);
@@ -51,6 +54,8 @@ export default function Progress() {
     return { totalCaloriesToday, totalProtein, caloriesGoal, trackingConsistency, goalAdherence, momentumScore, caloriesProgress, proteinProgress };
   }, [todayMeals, profile?.calories_goal]);
 
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+
   if (!isInitialized || loading) {
     return <ProgressSkeleton />;
   }
@@ -67,7 +72,29 @@ export default function Progress() {
           </p>
         </div>
 
-        {/* Momentum Score */}
+        {/* FREE USER: Limited View */}
+        {!isPremium && (
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-400/10 rounded-full blur-3xl" />
+            <div className="relative z-10">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Lock size={32} className="text-white" />
+              </div>
+              <h3 className="text-white font-bold text-xl mb-2">{t('locked_feature')}</h3>
+              <p className="text-white/80 text-sm mb-6 leading-relaxed max-w-sm mx-auto">
+                {t('premium_full_history')}
+              </p>
+              <Button
+                onClick={() => navigate(createPageUrl('Premium'))}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-8 rounded-2xl shadow-xl"
+              >
+                {t('upgrade_now')}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* TODAY'S DATA (Always visible) */}
         <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/30">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -95,7 +122,7 @@ export default function Progress() {
           </div>
         </div>
 
-        {/* Progress Rings */}
+        {/* Progress Rings (Today) */}
         <div className="grid grid-cols-2 gap-4">
           {[
             { label: t('calories'), value: calculations.totalCaloriesToday, goal: calculations.caloriesGoal, progress: calculations.caloriesProgress, color: "#f97316" },
@@ -128,22 +155,45 @@ export default function Progress() {
           ))}
         </div>
 
-        {/* AI Insight */}
-        <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-4 border border-purple-500/30">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-purple-500/30 flex items-center justify-center flex-shrink-0">
-              <Target size={16} className="text-purple-300" />
+        {/* PREMIUM: Historical Charts + AI Insights */}
+        {isPremium && (
+          <>
+            <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <BarChart3 size={18} className="text-white" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 pt-0.5">
+                  <p className="text-purple-300 font-bold text-xs uppercase tracking-wide mb-2">
+                    {t('advanced_dashboards')}
+                  </p>
+                  <p className="text-white/90 text-sm leading-relaxed">
+                    {t('complete_analysis')}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-purple-300 text-xs font-semibold mb-1">
-                {t('ai_coach')}
-              </p>
-              <p className="text-white text-sm">
-                {t('good_progress_today')}
-              </p>
-            </div>
-          </div>
-        </div>
+
+            {/* AI Recommendations (Premium only) */}
+            {profile?.calories_goal && (
+              <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-xl rounded-2xl p-5 border border-cyan-500/30">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <Target size={18} className="text-white" strokeWidth={2.5} />
+                  </div>
+                  <div className="flex-1 pt-0.5">
+                    <p className="text-cyan-300 font-bold text-xs uppercase tracking-wide mb-2">
+                      {t('ai_coach')}
+                    </p>
+                    <p className="text-white/90 text-sm leading-relaxed">
+                      {t('good_progress_today')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
