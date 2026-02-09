@@ -234,6 +234,12 @@ const resources = {
       
       // Social tab
       connect_compete_share: "Connect, compete, and share progress",
+      meal_sharing_disabled: "Meal sharing is disabled in your privacy settings",
+      no_members_yet: "No members yet",
+      unknown_user: "Unknown User",
+      share_invite: "Share",
+      no_data_yet: "No data yet. Start logging meals!",
+      loading: "Loading...",
       
       // Camera
       camera_access_denied: "Camera access denied",
@@ -432,6 +438,10 @@ const resources = {
       social: "Social",
       progress: "Progreso",
       profile: "Perfil",
+      home_tab: "Inicio",
+      social_tab: "Social",
+      progress_tab: "Progreso",
+      profile_tab: "Perfil",
       
       // Home
       current_streak: "Racha Actual",
@@ -657,6 +667,12 @@ const resources = {
       
       // Social tab
       connect_compete_share: "Conecta, compite y comparte progreso",
+      meal_sharing_disabled: "Compartir comidas está deshabilitado en tu privacidad",
+      no_members_yet: "Aún no hay miembros",
+      unknown_user: "Usuario Desconocido",
+      share_invite: "Compartir",
+      no_data_yet: "Aún no hay datos. ¡Empieza a registrar comidas!",
+      loading: "Cargando...",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",

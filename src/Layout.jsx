@@ -13,10 +13,10 @@ import BrandMark from "@/components/BrandMark";
 
 function getNavItems(t) {
   return [
-    { name: "Home", icon: Home, label: t("home") },
-    { name: "Social", icon: Users, label: t("social") },
-    { name: "Progress", icon: Award, label: t("progress") },
-    { name: "Profile", icon: User, label: t("profile") }
+    { name: "Home", icon: Home, label: t("home_tab") },
+    { name: "Social", icon: Users, label: t("social_tab") },
+    { name: "Progress", icon: Award, label: t("progress_tab") },
+    { name: "Profile", icon: User, label: t("profile_tab") }
   ];
 }
 
