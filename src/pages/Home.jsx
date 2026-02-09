@@ -73,14 +73,8 @@ export default function Home() {
     <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
       <div className="max-w-2xl mx-auto px-6 pt-2 pb-8 space-y-5">
         
-        {/* Header with Logo + Premium */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center">
-              <span className="text-2xl font-black text-white">B</span>
-            </div>
-            <span className="text-white font-black text-lg">Balancen</span>
-          </div>
+        {/* Header - Premium CTA only */}
+        <div className="flex items-center justify-end">
           {!isPremium && (
             <button
               onClick={() => navigate(createPageUrl('Premium'))}

@@ -186,7 +186,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen pb-24 relative overflow-hidden" style={{ minHeight: '100dvh', overflowY: 'auto' }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
       {/* Background */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full blur-3xl" />
