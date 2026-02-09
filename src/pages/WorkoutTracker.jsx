@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useAppState } from "@/components/AppStateContext";
 
 export default function WorkoutTracker() {
   const navigate = useNavigate();
