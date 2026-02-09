@@ -318,7 +318,30 @@ export default function Profile() {
           <StatusEditor profile={profile} lang={lang} onUpdate={refreshProfile} />
         </div>
 
-
+        {/* AI Goals Assistant */}
+        <button
+          onClick={() => navigate(createPageUrl('GoalsAssistant'))}
+          className="w-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl border border-purple-400/30 rounded-3xl p-5 mb-6 flex items-center justify-between hover:from-purple-500/30 hover:to-pink-500/30 transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <Sparkles size={20} className="text-white" />
+            </div>
+            <div className="text-left">
+              <p className="font-semibold text-white flex items-center gap-2">
+                {t('ai_goals_assistant') || 'AI Goals Assistant'}
+                {(profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300">
+                    Premium
+                  </span>
+                )}
+              </p>
+              <p className="text-xs text-purple-200">
+                {t('ai_goals_desc') || 'Get personalized goal recommendations'}
+              </p>
+            </div>
+          </div>
+        </button>
 
         {/* Settings Button */}
         <button
