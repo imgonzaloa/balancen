@@ -96,16 +96,24 @@ export default function CreateStory() {
       </div>
 
       {!preview ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6">
-          <div className="w-32 h-32 rounded-full bg-white/10 backdrop-blur-xl border-2 border-dashed border-white/30 flex items-center justify-center">
-            <span className="text-4xl">📸</span>
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6" onClick={() => document.querySelector('[data-story-gallery]')?.click()}>
+          <div className="cursor-pointer group">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl border-2 border-dashed border-white/40 flex items-center justify-center group-hover:border-white/60 group-hover:bg-white/30 transition-all">
+              <div className="flex flex-col items-center">
+                <Camera size={48} className="text-white/70 group-hover:text-white transition-colors mb-2" />
+                <span className="text-sm text-white/60 group-hover:text-white transition-colors">Tap para foto</span>
+              </div>
+            </div>
           </div>
-          <p className="text-white/70 text-center">Selecciona una foto para tu historia</p>
-          <PhotoPicker
-            onPhotoSelected={handlePhotoSelected}
-            preview={preview}
-            onRemovePreview={() => setPreview(null)}
-          />
+          <p className="text-white/70 text-center text-sm">Elige de galería o cámara</p>
+          <input data-story-gallery type="file" accept="image/*" className="hidden" onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onloadend = () => handlePhotoSelected(file, reader.result);
+              reader.readAsDataURL(file);
+            }
+          }} />
         </div>
       ) : (
         <div className="flex-1 flex flex-col">
