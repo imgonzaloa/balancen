@@ -4,18 +4,39 @@ import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Plus, Check } from "lucide-react";
+import { ArrowLeft, Plus, Check, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useAppState } from "@/components/AppStateContext";
 
 export default function WorkoutTracker() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAppState();
+  const { user, profile } = useAppState();
   const [searchParams] = useSearchParams();
   const planId = searchParams.get("planId");
+
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 flex flex-col items-center justify-center p-6 pb-24">
+        <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6">
+          <Lock size={40} className="text-indigo-400" />
+        </div>
+        <h2 className="text-white text-2xl font-bold mb-2">Registro de Entrenamientos - Premium</h2>
+        <p className="text-white/70 text-center mb-8">Seguimiento detallado de tus entrenamientos y progresión</p>
+        <Button
+          onClick={() => navigate(createPageUrl('Premium'))}
+          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold px-8 py-3"
+        >
+          Desbloquear Premium
+        </Button>
+      </div>
+    );
+  }
 
   const [exercises, setExercises] = useState([
     { exercise_name: "", sets: 1, weights: [""], reps: [""], rpe: 5, notes: "" },

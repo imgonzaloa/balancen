@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ProfileGoalsEdit from "@/components/profile/ProfileGoalsEdit";
+import PhotoPicker from "@/components/PhotoPicker";
 
 function StatusEditor({ profile, lang, onUpdate }) {
   const { t } = useTranslation();
@@ -88,6 +89,7 @@ export default function Profile() {
   const [profile, setProfile] = useState(cachedProfile);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [showGoalsEdit, setShowGoalsEdit] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
 
   useEffect(() => {
     if (!user?.email || cachedProfile) return;
@@ -104,42 +106,36 @@ export default function Profile() {
     fetchProfile();
   }, [user?.email, cachedProfile]);
 
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files?.[0];
+  const handlePhotoUpload = async (file, preview) => {
     if (!file || !profile?.id) return;
 
     setUploadingPhoto(true);
     const prevPhoto = profile.profile_photo;
 
     try {
-      // Optimistic update
-      const tempUrl = URL.createObjectURL(file);
-      setProfile({ ...profile, profile_photo: tempUrl });
+      setProfile({ ...profile, profile_photo: preview });
 
-      // Upload with compression
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const { data } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
-      if (data?.file_url) {
-        const finalUrl = data.file_url + `?v=${Date.now()}`;
+      if (file_url) {
+        const finalUrl = file_url + `?v=${Date.now()}`;
         await base44.entities.UserProfile.update(profile.id, {
           profile_photo: finalUrl,
           avatar_url: finalUrl
         });
 
+        await base44.auth.updateMe({ avatar_url: finalUrl });
+
         setProfile({ ...profile, profile_photo: finalUrl, avatar_url: finalUrl });
         localStorage.setItem(`avatar_cache_${user.email}`, finalUrl);
-        URL.revokeObjectURL(tempUrl);
-        toast.success(t('photo_updated'));
+        toast.success("Foto actualizada permanentemente");
         
         if (refreshProfile) refreshProfile();
       }
     } catch (err) {
       console.error("Photo upload failed:", err);
       setProfile({ ...profile, profile_photo: prevPhoto });
-      toast.error(t('error_uploading_photo'));
+      toast.error("Error al subir foto");
     } finally {
       setUploadingPhoto(false);
     }
@@ -219,32 +215,30 @@ export default function Profile() {
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-teal-400/30 to-emerald-400/30 rounded-full blur-2xl" />
           
           <div className="relative z-10">
-            <div className="flex items-center gap-4 mb-6">
-              <label className="relative cursor-pointer" title={t('tap_to_edit')}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                  disabled={uploadingPhoto}
+            {/* Photo Picker */}
+            {!photoPreview && (
+              <div className="mb-6">
+                <PhotoPicker
+                  onPhotoSelected={handlePhotoUpload}
+                  preview={photoPreview}
+                  onRemovePreview={() => setPhotoPreview(null)}
                 />
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative">
-                  {profile?.profile_photo || profile?.avatar_url ? (
-                    <img src={profile.profile_photo || profile.avatar_url} alt={t('profile')} className="w-full h-full object-cover" />
-                  ) : (
-                    <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || t('user').charAt(0)}</span>
-                  )}
-                  {uploadingPhoto ? (
-                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Camera size={20} className="text-white" />
-                    </div>
-                  )}
-                </div>
-              </label>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative">
+                {profile?.profile_photo || profile?.avatar_url ? (
+                  <img src={profile.profile_photo || profile.avatar_url} alt={t('profile')} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || t('user').charAt(0)}</span>
+                )}
+                {uploadingPhoto && (
+                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
               <div>
                 <h2 className="text-xl font-bold text-white">{profile?.display_name || user?.full_name}</h2>
                 <p className="text-teal-200 text-sm">{user?.email}</p>

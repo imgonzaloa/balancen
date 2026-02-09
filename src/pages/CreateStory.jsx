@@ -17,7 +17,8 @@ export default function CreateStory() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef(null);
+
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
   const createStoryMutation = useMutation({
     mutationFn: async (storyData) => base44.entities.Story.create(storyData),
@@ -28,14 +29,9 @@ export default function CreateStory() {
     },
   });
 
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handlePhotoSelected = (file, photoPreview) => {
     setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(file);
+    setPreview(photoPreview);
   };
 
   const handlePublish = async () => {
@@ -65,6 +61,24 @@ export default function CreateStory() {
     }
   };
 
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-pink-900 flex flex-col items-center justify-center p-6">
+        <div className="w-20 h-20 rounded-full bg-purple-500/20 flex items-center justify-center mb-6">
+          <Lock size={40} className="text-purple-400" />
+        </div>
+        <h2 className="text-white text-2xl font-bold mb-2">Función Premium</h2>
+        <p className="text-white/70 text-center mb-8">Las historias están disponibles solo para miembros Premium</p>
+        <Button
+          onClick={() => navigate(createPageUrl('Premium'))}
+          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold px-8 py-3"
+        >
+          Upgrade a Premium
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-pink-900 flex flex-col">
       <div className="p-4 flex items-center justify-between">
@@ -81,25 +95,14 @@ export default function CreateStory() {
       {!preview ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6">
           <div className="w-32 h-32 rounded-full bg-white/10 backdrop-blur-xl border-2 border-dashed border-white/30 flex items-center justify-center">
-            <Camera size={48} className="text-white/50" />
+            <span className="text-4xl">📸</span>
           </div>
           <p className="text-white/70 text-center">Selecciona una foto para tu historia</p>
-          <div className="flex flex-col gap-3 w-full max-w-xs">
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-6"
-            >
-              <Upload size={20} className="mr-2" />
-              Subir desde Galería
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </div>
+          <PhotoPicker
+            onPhotoSelected={handlePhotoSelected}
+            preview={preview}
+            onRemovePreview={() => setPreview(null)}
+          />
         </div>
       ) : (
         <div className="flex-1 flex flex-col">

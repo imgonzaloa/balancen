@@ -5,7 +5,7 @@ import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Apple, Flame, Target, TrendingUp, ArrowLeft, Plus, AlertCircle } from "lucide-react";
+import { Apple, Flame, Target, TrendingUp, ArrowLeft, Plus, AlertCircle, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { toast } from "sonner";
@@ -16,6 +16,26 @@ export default function NutritionHub() {
   const { user, profile, todayMeals } = useAppState();
   const { t } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState(null);
+
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-orange-900 to-amber-900 flex flex-col items-center justify-center p-6 pb-24">
+        <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mb-6">
+          <Apple size={40} className="text-amber-400" />
+        </div>
+        <h2 className="text-white text-2xl font-bold mb-2">Centro Nutricional - Función Premium</h2>
+        <p className="text-white/70 text-center mb-8">Análisis completo de macros, planes personalizados por IA y seguimiento nutricional avanzado</p>
+        <Button
+          onClick={() => navigate(createPageUrl('Premium'))}
+          className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-8 py-3"
+        >
+          Desbloquear Premium
+        </Button>
+      </div>
+    );
+  }
 
   const { data: nutritionPlan } = useQuery({
     queryKey: ["nutrition-plan", user?.email],
