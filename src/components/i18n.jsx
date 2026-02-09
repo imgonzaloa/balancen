@@ -253,6 +253,22 @@ const resources = {
       active_challenges: "Active Challenges",
       goal: "Goal",
       ends: "Ends",
+      status_placeholder: "What's on your mind?",
+      characters: "characters",
+      clear_status: "Clear Status",
+      status_cleared: "Status cleared",
+      status_too_long: "Status is too long (max 32 characters)",
+      status_inappropriate: "Status contains inappropriate language",
+      
+      // Onboarding
+      select_language: "Select Language",
+      select_your_language: "Select your language",
+      continue: "Continue",
+      whats_main_goal: "What's your main goal?",
+      choose_intensity: "Choose your intensity",
+      set_calorie_limit: "Set your daily calorie limit",
+      finish_setup: "Finish Setup",
+      skip_for_now: "Skip for now",
       
       // Camera
       camera_access_denied: "Camera access denied",
@@ -699,6 +715,22 @@ const resources = {
       active_challenges: "Desafíos Activos",
       goal: "Meta",
       ends: "Termina",
+      status_placeholder: "¿Qué estás pensando?",
+      characters: "caracteres",
+      clear_status: "Limpiar Estado",
+      status_cleared: "Estado limpiado",
+      status_too_long: "Estado demasiado largo (máx 32 caracteres)",
+      status_inappropriate: "El estado contiene lenguaje inapropiado",
+      
+      // Onboarding
+      select_language: "Seleccionar Idioma",
+      select_your_language: "Selecciona tu idioma",
+      continue: "Continuar",
+      whats_main_goal: "¿Cuál es tu meta principal?",
+      choose_intensity: "Elige tu intensidad",
+      set_calorie_limit: "Establece tu límite de calorías diarias",
+      finish_setup: "Finalizar Configuración",
+      skip_for_now: "Omitir por ahora",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",

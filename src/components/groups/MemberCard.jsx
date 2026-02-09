@@ -69,14 +69,13 @@ export default function MemberCard({ member, userProfile, rank, isCurrentUser })
         <div className="flex items-center gap-2 mb-1">
           <span className={`font-bold text-white truncate ${isCurrentUser ? "text-teal-300" : ""}`}>
             {member.display_name}
-            {isCurrentUser && " (you)"}
           </span>
           {member.role === "admin" && (
             <Crown size={14} className="text-amber-400 flex-shrink-0" />
           )}
         </div>
         <div className="text-xs text-white/70">
-          {member.checked_in_today ? "✓ Checked in today" : "No check-in today"}
+          {member.current_streak || 0} {member.current_streak === 1 ? "day" : "days"}
         </div>
       </div>
 
