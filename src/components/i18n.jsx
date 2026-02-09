@@ -31,10 +31,18 @@ const resources = {
       
       // Camera
       camera_access_denied: "Camera access denied",
+      camera_permission_denied: "Camera permission denied",
+      camera_not_available: "Camera not available",
+      camera_not_ready: "Camera not ready",
+      error_capturing: "Error capturing photo",
+      upload_photo: "Upload Photo",
       upload_photo_instead: "Upload a photo instead",
       cancel: "Cancel",
       choose_from_gallery: "Choose from Gallery",
       take_photo: "Take Photo",
+      scan_food: "Scan Food",
+      barcode: "Barcode",
+      gallery: "Gallery",
       
       // Profile
       my_profile: "My Profile",
@@ -214,10 +222,18 @@ const resources = {
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",
+      camera_permission_denied: "Permiso de cámara denegado",
+      camera_not_available: "Cámara no disponible",
+      camera_not_ready: "Cámara no lista",
+      error_capturing: "Error al capturar foto",
+      upload_photo: "Subir Foto",
       upload_photo_instead: "Subir una foto",
       cancel: "Cancelar",
       choose_from_gallery: "Elegir de la Galería",
       take_photo: "Sacar una Foto",
+      scan_food: "Escanear Comida",
+      barcode: "Código de Barras",
+      gallery: "Galería",
       
       // Profile
       my_profile: "Mi Perfil",

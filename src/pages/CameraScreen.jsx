@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
-import LiveDetectionOverlay from "@/components/camera/LiveDetectionOverlay";
 
 export default function CameraScreen() {
   const { t } = useTranslation();
@@ -217,24 +216,16 @@ export default function CameraScreen() {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Live Detection Overlay - Real-time food detection */}
-      {videoReady && <LiveDetectionOverlay videoRef={videoRef} />}
-
       {/* Live Framing Assist Overlay - Subtle */}
       {videoReady && (
         <div className="absolute inset-0 z-[5] flex items-center justify-center pointer-events-none">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="relative w-[80%] aspect-square max-w-md"
-          >
+          <div className="relative w-[80%] aspect-square max-w-md">
             {/* Corner guides - subtle */}
             <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white/40 rounded-tl-xl" />
             <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-white/40 rounded-tr-xl" />
             <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-white/40 rounded-bl-xl" />
             <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/40 rounded-br-xl" />
-          </motion.div>
+          </div>
         </div>
       )}
 
