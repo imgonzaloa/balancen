@@ -442,8 +442,6 @@ export default function MealResult() {
                   {t("saving")}
                 </span>
               ) : (
-                "Guardar comida"
-              ) : (
                 t("save_meal")
               )}
             </button>
