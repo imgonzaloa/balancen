@@ -330,7 +330,7 @@ export default function MealResult() {
                       {item.name}
                     </p>
                     <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>
-                      {item.portion || "estimated"}
+                      {item.portion || t("estimated")}
                     </p>
                   </div>
                   <div style={{ textAlign: "right" }}>
@@ -338,7 +338,7 @@ export default function MealResult() {
                       {item.calories}
                     </p>
                     <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>
-                      cal
+                      {t("cal")}
                     </p>
                   </div>
                 </div>

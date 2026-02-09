@@ -48,6 +48,72 @@ const resources = {
       friends_mode: "Friends Only",
       groups_mode: "Groups",
       
+      // Paywall
+      choose_plan: "Choose how far you want to go",
+      free_lets_start: "Free lets you start. Premium takes you further.",
+      free_plan: "Free Plan",
+      premium_plan: "Premium Plan",
+      includes: "Includes",
+      not_included: "Not included",
+      full_experience: "Full Experience",
+      ai_coaching_helps: "AI Coaching helps you:",
+      review_activity: "Review activity & goals",
+      give_recommendations: "Give recommendations",
+      adjust_habits: "Adjust habits over time",
+      support_consistency: "Support consistency",
+      premium_for_lasting: "Premium is designed to build lasting consistency.",
+      free_for_trial: "Free is designed to try. Premium is for real results.",
+      premium_pricing: "Premium Pricing",
+      continue_free_limited: "Continue with free version (limited)",
+      
+      // Free features
+      daily_checkins: "Daily check-ins",
+      basic_fire_tracking: "Basic fire tracking",
+      manual_tracking: "Manual tracking",
+      one_group_max: "1 group max",
+      basic_stats: "Basic stats",
+      
+      // Free limitations
+      streak_capped: "Streak capped at 3 days",
+      limited_fire_system: "Limited fire system",
+      no_auto_goals: "No auto goals",
+      no_ai_coaching: "No AI coaching",
+      no_advanced_analytics: "No advanced analytics",
+      no_progressive_challenges: "No progressive challenges",
+      limited_social: "Limited social features",
+      
+      // Premium features
+      unlimited_streaks: "Unlimited streaks & fire",
+      three_fire_metrics: "Three fire metrics",
+      auto_goal_progression: "Auto goal progression",
+      ai_coaching_personalized: "AI coaching personalized",
+      advanced_analytics: "Advanced analytics insights",
+      unlimited_groups: "Unlimited groups",
+      social_leaderboards: "Social leaderboards",
+      priority_sync: "Priority device sync",
+      full_history_export: "Full history export",
+      progressive_challenges: "Progressive challenges",
+      
+      // Camera labels
+      scan_food: "Scan Food",
+      barcode: "Barcode",
+      gallery: "Gallery",
+      
+      // Misc
+      role: "Role",
+      collaborator: "Collaborator",
+      estimated: "estimated",
+      cal: "cal",
+      invite_share_title: "Join me on the app",
+      invite_share_text: "Hey! I'm inviting you to join this wellness app. Let's reach our goals together! 🔥",
+      invite_shared: "Invite shared",
+      link_copied: "Link copied",
+      invite_error: "Failed to generate invite",
+      copy_failed: "Failed to copy",
+      referral_reward_text: "For every 3 friends who subscribe to Premium, get 1 free month",
+      progress: "Progress",
+      friends_converted: "friends converted",
+      
       // Camera
       camera_access_denied: "Camera access denied",
       camera_permission_denied: "Camera permission denied",
@@ -283,6 +349,72 @@ const resources = {
       private_mode: "Privado",
       friends_mode: "Solo Amigos",
       groups_mode: "Grupos",
+      
+      // Paywall
+      choose_plan: "¿Hasta dónde quieres llegar?",
+      free_lets_start: "Gratis te deja empezar. Premium te lleva más lejos.",
+      free_plan: "Plan Gratis",
+      premium_plan: "Plan Premium",
+      includes: "Incluye",
+      not_included: "No incluye",
+      full_experience: "Experiencia Completa",
+      ai_coaching_helps: "Coaching IA te ayuda a:",
+      review_activity: "Revisar actividad y metas",
+      give_recommendations: "Dar recomendaciones personalizadas",
+      adjust_habits: "Ajustar hábitos con el tiempo",
+      support_consistency: "Apoyar tu consistencia",
+      premium_for_lasting: "Premium está diseñado para construir consistencia duradera.",
+      free_for_trial: "Gratis está diseñado para probar. Premium para resultados reales.",
+      premium_pricing: "Precio Premium",
+      continue_free_limited: "Continuar con versión gratuita (limitada)",
+      
+      // Free features
+      daily_checkins: "Check-ins diarios",
+      basic_fire_tracking: "Seguimiento básico de racha",
+      manual_tracking: "Registro manual",
+      one_group_max: "Máx. 1 grupo",
+      basic_stats: "Estadísticas básicas",
+      
+      // Free limitations
+      streak_capped: "Racha limitada a 3 días",
+      limited_fire_system: "Sistema de fuego limitado",
+      no_auto_goals: "Sin progresión automática",
+      no_ai_coaching: "Sin coaching IA",
+      no_advanced_analytics: "Sin analíticas avanzadas",
+      no_progressive_challenges: "Sin desafíos progresivos",
+      limited_social: "Funciones sociales limitadas",
+      
+      // Premium features
+      unlimited_streaks: "Rachas y fuego ilimitado",
+      three_fire_metrics: "Tres métricas de fuego",
+      auto_goal_progression: "Progresión automática de metas",
+      ai_coaching_personalized: "Coaching IA personalizado",
+      advanced_analytics: "Analíticas e insights avanzados",
+      unlimited_groups: "Grupos ilimitados",
+      social_leaderboards: "Tablas de clasificación social",
+      priority_sync: "Sincronización prioritaria",
+      full_history_export: "Exportación de historial completo",
+      progressive_challenges: "Desafíos progresivos",
+      
+      // Camera labels
+      scan_food: "Escanear Comida",
+      barcode: "Código de Barras",
+      gallery: "Galería",
+      
+      // Misc
+      role: "Rol",
+      collaborator: "Colaborador",
+      estimated: "estimado",
+      cal: "cal",
+      invite_share_title: "Únete a mí en la app",
+      invite_share_text: "¡Hola! Te invito a unirte a esta app de bienestar. ¡Alcancemos nuestros objetivos juntos! 🔥",
+      invite_shared: "Invitación compartida",
+      link_copied: "Link copiado",
+      invite_error: "Error al generar invitación",
+      copy_failed: "Error al copiar",
+      referral_reward_text: "Por cada 3 amigos que se suscriban a Premium, ganás 1 mes gratis",
+      progress: "Progreso",
+      friends_converted: "amigos convertidos",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",

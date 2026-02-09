@@ -262,20 +262,20 @@ export default function CameraScreen() {
             disabled={!videoReady || isCapturing}
             className="py-3 px-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
           >
-            {t("scan_food") || "Scan Food"}
+            {t("scan_food")}
           </button>
           
           <button
             className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
           >
-            {t("barcode") || "Barcode"}
+            {t("barcode")}
           </button>
           
           <button
             onClick={() => fileInputRef.current?.click()}
             className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
           >
-            {t("gallery") || "Gallery"}
+            {t("gallery")}
           </button>
         </div>
       </div>

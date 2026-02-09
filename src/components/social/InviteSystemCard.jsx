@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, Share2, Copy, Check, Gift } from "lucide-react";
+import { Share2, Copy, Check, Gift } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 
 export default function InviteSystemCard({ profile }) {
-  const { lang } = useTranslation();
+  const { t, lang } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
 
@@ -31,40 +31,34 @@ export default function InviteSystemCard({ profile }) {
     
     setGenerating(true);
     try {
-      // Generate unique invite code
       const inviteCode = `${profile.created_by.split('@')[0]}-${Date.now().toString(36)}`;
       
-      // Create invite record
       await base44.entities.Invite.create({
         inviter_email: profile.created_by,
         inviter_name: profile.display_name,
         invite_code: inviteCode,
         status: "invited",
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       });
 
       const inviteUrl = `${window.location.origin}/Onboarding?invite=${inviteCode}`;
       
-      // Try native share first
       if (navigator.share) {
         await navigator.share({
-          title: lang === "es" ? "Únete a mí en la app" : "Join me on the app",
-          text: lang === "es" 
-            ? "¡Hola! Te invito a unirte a esta app de bienestar. ¡Alcancemos nuestros objetivos juntos! 🔥"
-            : "Hey! I'm inviting you to join this wellness app. Let's reach our goals together! 🔥",
+          title: t('invite_share_title'),
+          text: t('invite_share_text'),
           url: inviteUrl,
         });
-        toast.success(lang === "es" ? "Invitación compartida" : "Invite shared");
+        toast.success(t('invite_shared'));
       } else {
-        // Fallback to clipboard
         await navigator.clipboard.writeText(inviteUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-        toast.success(lang === "es" ? "Link copiado" : "Link copied");
+        toast.success(t('link_copied'));
       }
     } catch (error) {
       console.error("Invite error:", error);
-      toast.error(lang === "es" ? "Error al generar invitación" : "Failed to generate invite");
+      toast.error(t('invite_error'));
     } finally {
       setGenerating(false);
     }
@@ -78,9 +72,9 @@ export default function InviteSystemCard({ profile }) {
       await navigator.clipboard.writeText(inviteUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast.success(lang === "es" ? "Link copiado" : "Link copied");
+      toast.success(t('link_copied'));
     } catch (error) {
-      toast.error(lang === "es" ? "Error al copiar" : "Failed to copy");
+      toast.error(t('copy_failed'));
     }
   };
 
@@ -99,12 +93,10 @@ export default function InviteSystemCard({ profile }) {
           </div>
           <div className="flex-1">
             <h3 className="text-white font-bold text-xl mb-1">
-              {lang === "es" ? "Invita amigos" : "Invite Friends"}
+              {t('invite_friends')}
             </h3>
             <p className="text-white/80 text-sm leading-relaxed">
-              {lang === "es" 
-                ? "Por cada 3 amigos que se suscriban a Premium, ganás 1 mes gratis"
-                : "For every 3 friends who subscribe to Premium, get 1 free month"}
+              {t('referral_reward_text')}
             </p>
           </div>
         </div>
@@ -113,7 +105,7 @@ export default function InviteSystemCard({ profile }) {
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
             <p className="text-white/90 text-sm font-semibold">
-              {lang === "es" ? "Progreso" : "Progress"}
+              {t('progress')}
             </p>
             <p className="text-white font-bold text-xl">
               {pendingCount}/3
@@ -129,7 +121,7 @@ export default function InviteSystemCard({ profile }) {
           </div>
           {totalReferrals > 0 && (
             <p className="text-emerald-300 text-xs mt-2 font-semibold">
-              🎉 {totalReferrals} {totalReferrals === 1 ? (lang === "es" ? "amigo convertido" : "friend converted") : (lang === "es" ? "amigos convertidos" : "friends converted")}
+              🎉 {totalReferrals} {t('friends_converted')}
             </p>
           )}
         </div>
@@ -142,7 +134,7 @@ export default function InviteSystemCard({ profile }) {
             className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-13 rounded-xl shadow-xl shadow-purple-500/30 active:scale-[0.98] transition-transform"
           >
             <Share2 size={18} className="mr-2" />
-            {lang === "es" ? "Compartir" : "Share"}
+            {t('share_invite')}
           </Button>
           <Button
             onClick={copyLink}

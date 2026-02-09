@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Flame, Users, TrendingUp, Award, X, Check, Sparkles, Trophy, Crown, Loader2 } from "lucide-react";
+import { X, Check, Sparkles, Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-
-
 
 export default function Paywall() {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
@@ -16,37 +14,6 @@ export default function Paywall() {
   const [pricing, setPricing] = useState(null);
   
   const { t, lang } = useTranslation();
-  
-  const freeFeatures = [
-    lang === 'es' ? 'Check-ins diarios' : 'Daily check-ins',
-    lang === 'es' ? 'Seguimiento básico de racha' : 'Basic fire tracking',
-    lang === 'es' ? 'Registro manual' : 'Manual tracking',
-    lang === 'es' ? 'Máx. 1 grupo' : '1 group max',
-    lang === 'es' ? 'Estadísticas básicas' : 'Basic stats'
-  ];
-
-  const freeLimitations = [
-    lang === 'es' ? 'Racha limitada a 3 días' : 'Streak capped at 3 days',
-    lang === 'es' ? 'Sistema de fuego limitado' : 'Limited fire system',
-    lang === 'es' ? 'Sin progresión automática' : 'No auto goals',
-    lang === 'es' ? 'Sin coaching IA' : 'No AI coaching',
-    lang === 'es' ? 'Sin analíticas avanzadas' : 'No advanced analytics',
-    lang === 'es' ? 'Sin desafíos progresivos' : 'No progressive challenges',
-    lang === 'es' ? 'Funciones sociales limitadas' : 'Limited social features'
-  ];
-
-  const premiumFeatures = [
-    lang === 'es' ? 'Rachas y fuego ilimitado' : 'Unlimited streaks & fire',
-    lang === 'es' ? 'Tres métricas de fuego' : 'Three fire metrics',
-    lang === 'es' ? 'Progresión automática de metas' : 'Auto goal progression',
-    lang === 'es' ? 'Coaching IA personalizado' : 'AI coaching personalized',
-    lang === 'es' ? 'Analíticas e insights avanzados' : 'Advanced analytics insights',
-    lang === 'es' ? 'Grupos ilimitados' : 'Unlimited groups',
-    lang === 'es' ? 'Tablas de clasificación social' : 'Social leaderboards',
-    lang === 'es' ? 'Sincronización prioritaria' : 'Priority device sync',
-    lang === 'es' ? 'Exportación de historial completo' : 'Full history export',
-    lang === 'es' ? 'Desafíos progresivos' : 'Progressive challenges'
-  ];
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -55,7 +22,6 @@ export default function Paywall() {
       .then(response => setPricing(response.data))
       .catch(err => {
         console.error('Failed to load pricing:', err);
-        // Fallback to default EU pricing
         setPricing({
           region: 'EU',
           currency: '€',
@@ -123,10 +89,10 @@ export default function Paywall() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-3xl font-black text-white mb-2">
-            {lang === 'es' ? '¿Hasta dónde quieres llegar?' : 'Choose how far you want to go'}
+            {t('choose_plan')}
           </h1>
           <p className="text-lg text-teal-200">
-            {lang === 'es' ? 'Gratis te deja empezar. Premium te lleva más lejos.' : 'Free lets you start. Premium takes you further.'}
+            {t('free_lets_start')}
           </p>
         </motion.div>
 
@@ -141,13 +107,19 @@ export default function Paywall() {
           <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-5">
             <div className="flex items-center gap-3 mb-4">
               <div className="px-3 py-1 bg-slate-500/30 rounded-full">
-                <span className="text-white text-sm font-semibold">{lang === 'es' ? 'Plan Gratis' : 'Free Plan'}</span>
+                <span className="text-white text-sm font-semibold">{t('free_plan')}</span>
               </div>
             </div>
 
             <div className="space-y-2 mb-4">
-              <p className="text-white/80 text-sm font-semibold mb-2">{lang === 'es' ? 'Incluye' : 'Includes'}</p>
-              {freeFeatures.map((feature, i) => (
+              <p className="text-white/80 text-sm font-semibold mb-2">{t('includes')}</p>
+              {[
+                t('daily_checkins'),
+                t('basic_fire_tracking'),
+                t('manual_tracking'),
+                t('one_group_max'),
+                t('basic_stats')
+              ].map((feature, i) => (
                 <div key={i} className="flex items-start gap-2 text-white/70 text-sm">
                   <Check size={16} className="text-teal-400 mt-0.5 flex-shrink-0" />
                   <span>{feature}</span>
@@ -156,8 +128,16 @@ export default function Paywall() {
             </div>
 
             <div className="space-y-2 mb-3">
-              <p className="text-white/80 text-sm font-semibold mb-2">{lang === 'es' ? 'No incluye' : 'Not included'}</p>
-              {freeLimitations.map((limit, i) => (
+              <p className="text-white/80 text-sm font-semibold mb-2">{t('not_included')}</p>
+              {[
+                t('streak_capped'),
+                t('limited_fire_system'),
+                t('no_auto_goals'),
+                t('no_ai_coaching'),
+                t('no_advanced_analytics'),
+                t('no_progressive_challenges'),
+                t('limited_social')
+              ].map((limit, i) => (
                 <div key={i} className="flex items-start gap-2 text-white/50 text-sm">
                   <X size={16} className="text-red-400/60 mt-0.5 flex-shrink-0" />
                   <span>{limit}</span>
@@ -166,7 +146,7 @@ export default function Paywall() {
             </div>
 
             <p className="text-white/40 text-xs italic">
-              {lang === 'es' ? 'Gratis está diseñado para probar. Premium para resultados reales.' : 'Free is designed to try. Premium is for real results.'}
+              {t('free_for_trial')}
             </p>
           </div>
 
@@ -177,14 +157,25 @@ export default function Paywall() {
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
                 <div className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
-                  <span className="text-white text-sm font-bold">{lang === 'es' ? 'Plan Premium' : 'Premium Plan'}</span>
+                  <span className="text-white text-sm font-bold">{t('premium_plan')}</span>
                 </div>
                 <Crown size={18} className="text-amber-300" />
               </div>
 
               <div className="space-y-2 mb-4">
-                <p className="text-white text-sm font-semibold mb-2">{lang === 'es' ? 'Experiencia Completa' : 'Full Experience'}</p>
-                {premiumFeatures.map((feature, i) => (
+                <p className="text-white text-sm font-semibold mb-2">{t('full_experience')}</p>
+                {[
+                  t('unlimited_streaks'),
+                  t('three_fire_metrics'),
+                  t('auto_goal_progression'),
+                  t('ai_coaching_personalized'),
+                  t('advanced_analytics'),
+                  t('unlimited_groups'),
+                  t('social_leaderboards'),
+                  t('priority_sync'),
+                  t('full_history_export'),
+                  t('progressive_challenges')
+                ].map((feature, i) => (
                   <div key={i} className="flex items-start gap-2 text-white text-sm">
                     <Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
                     <span>{feature}</span>
@@ -197,19 +188,19 @@ export default function Paywall() {
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles size={16} className="text-purple-300" />
                   <p className="text-white text-sm font-semibold">
-                    {lang === 'es' ? 'Coaching IA te ayuda a:' : 'AI Coaching helps you:'}
+                    {t('ai_coaching_helps')}
                   </p>
                 </div>
                 <ul className="space-y-1 text-white/90 text-xs">
-                  <li>• {lang === 'es' ? 'Revisar actividad y metas' : 'Review activity & goals'}</li>
-                  <li>• {lang === 'es' ? 'Dar recomendaciones personalizadas' : 'Give recommendations'}</li>
-                  <li>• {lang === 'es' ? 'Ajustar hábitos con el tiempo' : 'Adjust habits over time'}</li>
-                  <li>• {lang === 'es' ? 'Apoyar tu consistencia' : 'Support consistency'}</li>
+                  <li>• {t('review_activity')}</li>
+                  <li>• {t('give_recommendations')}</li>
+                  <li>• {t('adjust_habits')}</li>
+                  <li>• {t('support_consistency')}</li>
                 </ul>
               </div>
 
               <p className="text-emerald-200 text-sm font-medium italic">
-                {lang === 'es' ? 'Premium está diseñado para construir consistencia duradera.' : 'Premium is designed to build lasting consistency.'}
+                {t('premium_for_lasting')}
               </p>
             </div>
           </div>
@@ -224,7 +215,7 @@ export default function Paywall() {
             transition={{ delay: 0.4 }}
           >
             <h3 className="text-white font-semibold text-lg mb-3 text-center">
-              {lang === 'es' ? 'Precio Premium' : 'Premium Pricing'}
+              {t('premium_pricing')}
             </h3>
             
             <div className="flex gap-4">
@@ -288,7 +279,7 @@ export default function Paywall() {
             onClick={handleSkip}
             className="w-full py-4 text-white/50 hover:text-white/70 text-sm transition-colors mt-4"
           >
-            {lang === 'es' ? 'Continuar con versión gratuita (limitada)' : 'Continue with free version (limited)'}
+            {t('continue_free_limited')}
           </button>
         </motion.div>
       </div>

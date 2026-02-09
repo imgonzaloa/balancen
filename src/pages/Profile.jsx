@@ -239,7 +239,7 @@ export default function Profile() {
             {(profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite") && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center gap-2">
                 <span className="text-purple-300 text-xs font-bold">
-                  👑 {t('premium_active')} ({t('role') === 'collaborator' ? t('collaborator') : 'Collaborator'})
+                  👑 {t('premium_active')} ({t('collaborator')})
                 </span>
               </div>
             )}
