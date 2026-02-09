@@ -156,6 +156,9 @@ const resources = {
       processing_image: "Processing image...",
       uploading_photo: "Uploading photo...",
       photo_updated: "Photo updated",
+      status_updated: "Status updated",
+      update_failed: "Update failed",
+      settings_updated: "Settings updated",
       
       // Onboarding
       select_language: "Choose your language",
@@ -377,6 +380,9 @@ const resources = {
       processing_image: "Procesando imagen...",
       uploading_photo: "Subiendo foto...",
       photo_updated: "Foto actualizada",
+      status_updated: "Estado actualizado",
+      update_failed: "Error al actualizar",
+      settings_updated: "Configuración actualizada",
       
       // Onboarding
       select_language: "Elige tu idioma",

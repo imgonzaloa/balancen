@@ -133,7 +133,7 @@ export default function CameraScreen() {
       stopCamera();
 
       // Navigate to result screen
-      navigate(createPageUrl("Home"));
+      navigate(createPageUrl("MealResult"));
       
     } catch (err) {
       console.error("Capture error:", err);
@@ -152,7 +152,7 @@ export default function CameraScreen() {
       const dataUrl = event.target.result;
       setCapturedFile(selectedFile, dataUrl);
       stopCamera();
-      navigate(createPageUrl("Home"));
+      navigate(createPageUrl("MealResult"));
     };
     reader.readAsDataURL(selectedFile);
   };

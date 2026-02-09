@@ -35,8 +35,7 @@ export default function Settings() {
     mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["profile", user?.email]);
-      const msg = lang === 'es' ? 'Configuración actualizada' : 'Settings updated';
-      toast.success(msg);
+      toast.success(t('settings_updated'));
     },
   });
 
@@ -313,7 +312,7 @@ export default function Settings() {
 
 
         {/* ADMIN TOOLS - OWNER ONLY */}
-        {profile?.role === "owner" && user?.email?.toLowerCase() === "imgonzaloa@gmail.com" && (
+        {(profile?.role === "owner" || user?.email?.toLowerCase() === "imgonzaloa@gmail.com") && (
           <>
             <motion.div
               className="mt-8 mb-4"
@@ -327,7 +326,28 @@ export default function Settings() {
               </div>
             </motion.div>
 
-            {/* Invite Collaborators - Removed (not implemented) */}
+            {/* Invite Collaborators */}
+            <Link to={createPageUrl("InviteCollaborators")}>
+              <motion.div
+                className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-all"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.65 }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
+                      <UserPlus size={20} className="text-teal-300" />
+                    </div>
+                    <div>
+                      <Label className="text-white font-semibold">{t('invite_collaborators')}</Label>
+                      <p className="text-xs text-white/60">{t('grant_free_premium')}</p>
+                    </div>
+                  </div>
+                  <ChevronLeft size={20} className="text-white rotate-180" />
+                </div>
+              </motion.div>
+            </Link>
 
             {/* User Management */}
             <Link to={createPageUrl("UserManagement")}>

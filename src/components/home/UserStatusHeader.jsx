@@ -20,12 +20,12 @@ export default function UserStatusHeader({ profile, onStatusUpdate }) {
         status_updated_at: new Date().toISOString(),
       });
       
-      toast.success(t('photo_updated'));
+      toast.success(t('status_updated'));
       onStatusUpdate?.();
       setIsEditing(false);
     } catch (err) {
       console.error("Failed to update status:", err);
-      toast.error(t('error_uploading_photo'));
+      toast.error(t('update_failed'));
     } finally {
       setSaving(false);
     }
