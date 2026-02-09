@@ -17,11 +17,23 @@ export function MobileSelect({
   label,
   triggerClassName,
   contentClassName,
+  valueClassName,
   ...props
 }) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [open, setOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(value);
+
+  // Find the display text for the selected value
+  const getSelectedLabel = () => {
+    let selectedLabel = value;
+    React.Children.forEach(children, (child) => {
+      if (child?.props?.value === value) {
+        selectedLabel = child.props.children;
+      }
+    });
+    return selectedLabel;
+  };
 
   if (!isMobile) {
     // Desktop: use regular Select
@@ -44,8 +56,8 @@ export function MobileSelect({
         onClick={() => setOpen(true)}
         className={triggerClassName || 'w-full px-3 py-2 rounded-md border border-input bg-transparent text-sm'}
       >
-        <span className="text-muted-foreground">
-          {value ? value : placeholder}
+        <span className={valueClassName || "text-white/80"}>
+          {getSelectedLabel() || placeholder}
         </span>
       </button>
 

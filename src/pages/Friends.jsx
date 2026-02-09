@@ -11,7 +11,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import StatusChip from "@/components/groups/StatusChip";
 
 export default function Friends() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [user, setUser] = useState(null);
   const [friendEmail, setFriendEmail] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -74,7 +74,7 @@ export default function Friends() {
       const existing = [...sentRequests, ...receivedRequests].find(
         f => (f.user_email === email || f.friend_email === email)
       );
-      if (existing) throw new Error("Friend request already exists");
+      if (existing) throw new Error(t("friend_request_exists"));
       return base44.entities.Friend.create({
         user_email: user.email,
         friend_email: email,
@@ -117,8 +117,8 @@ export default function Friends() {
           className="flex items-center justify-between mb-8"
         >
           <div>
-            <h1 className="text-3xl font-bold text-white">{t("friends_title") || "Friends"}</h1>
-            <p className="text-teal-200 text-sm mt-1">{friendProfiles.length} connected</p>
+            <h1 className="text-3xl font-bold text-white">{t("friends_title")}</h1>
+            <p className="text-teal-200 text-sm mt-1">{friendProfiles.length} {t("connected")}</p>
           </div>
 
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -136,7 +136,7 @@ export default function Friends() {
                   placeholder={t("friend_email")}
                   value={friendEmail}
                   onChange={(e) => setFriendEmail(e.target.value)}
-                  className="bg-slate-800 border-slate-700 text-white"
+                  className="bg-slate-800 border-slate-700 text-white placeholder-white/50"
                 />
                 <Button
                   onClick={() => sendRequestMutation.mutate(friendEmail)}
@@ -247,7 +247,7 @@ export default function Friends() {
                           </span>
                           <span className="flex items-center gap-1 text-emerald-300">
                             <Activity size={14} />
-                            {friend.total_checkins} meals
+                            {friend.total_checkins} {t("meals")}
                           </span>
                         </div>
                       </div>
@@ -256,7 +256,7 @@ export default function Friends() {
                     {/* Last meal preview */}
                     {friendMeal && (
                       <div className="mt-3 pt-3 border-t border-white/10 text-xs text-white/60">
-                        <p>Last meal: {friendMeal.estimated_calories} kcal</p>
+                        <p>{t("last_meal_label")}: {friendMeal.estimated_calories} kcal</p>
                       </div>
                     )}
                   </motion.div>

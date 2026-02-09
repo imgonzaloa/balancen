@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Copy, Users, Flame, TrendingUp, Medal, Lock } from "lucide-react";
+import { Plus, Copy, Users, Flame, Medal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function Groups() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [user, setUser] = useState(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showJoinDialog, setShowJoinDialog] = useState(false);
@@ -78,14 +78,14 @@ export default function Groups() {
       queryClient.invalidateQueries({ queryKey: ["groupMemberships"] });
       setShowCreateDialog(false);
       setNewGroupName("");
-      toast.success(t("group_created") || "Group created!");
+      toast.success(t("group_created"));
     },
   });
 
   const joinGroupMutation = useMutation({
     mutationFn: async (code) => {
       const groups = await base44.entities.Group.filter({ invite_code: code });
-      if (groups.length === 0) throw new Error("Group not found");
+      if (groups.length === 0) throw new Error(t("group_not_found"));
       const group = groups[0];
       await base44.entities.GroupMember.create({
         group_id: group.id,
@@ -98,7 +98,7 @@ export default function Groups() {
       queryClient.invalidateQueries({ queryKey: ["groupMemberships"] });
       setShowJoinDialog(false);
       setInviteCode("");
-      toast.success(t("joined_group") || "Joined group!");
+      toast.success(t("joined_group"));
     },
     onError: (error) => {
       toast.error(error.message);
@@ -127,8 +127,8 @@ export default function Groups() {
           className="flex items-center justify-between mb-8"
         >
           <div>
-            <h1 className="text-3xl font-bold text-white">{t("groups") || "Groups"}</h1>
-            <p className="text-teal-200 text-sm mt-1">{myGroups.length} groups joined</p>
+            <h1 className="text-3xl font-bold text-white">{t("groups")}</h1>
+            <p className="text-teal-200 text-sm mt-1">{myGroups.length} {t("groups_joined")}</p>
           </div>
 
           <div className="flex gap-2">
@@ -140,14 +140,14 @@ export default function Groups() {
               </DialogTrigger>
               <DialogContent className="bg-slate-900 border-slate-700">
                 <DialogHeader>
-                  <DialogTitle className="text-white">{t("create_group") || "Create Group"}</DialogTitle>
+                  <DialogTitle className="text-white">{t("create_group")}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 mt-4">
                   <Input
-                    placeholder="Group name"
+                    placeholder={t("group_name_placeholder")}
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
-                    className="bg-slate-800 border-slate-700 text-white"
+                    className="bg-slate-800 border-slate-700 text-white placeholder-white/50"
                   />
                   <Button
                     onClick={() => createGroupMutation.mutate(newGroupName)}
@@ -168,14 +168,14 @@ export default function Groups() {
               </DialogTrigger>
               <DialogContent className="bg-slate-900 border-slate-700">
                 <DialogHeader>
-                  <DialogTitle className="text-white">{t("join_group") || "Join Group"}</DialogTitle>
+                  <DialogTitle className="text-white">{t("join_group")}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 mt-4">
                   <Input
-                    placeholder="Invite code"
+                    placeholder={t("invite_code_placeholder")}
                     value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                    className="bg-slate-800 border-slate-700 text-white text-center text-lg tracking-widest"
+                    className="bg-slate-800 border-slate-700 text-white text-center text-lg tracking-widest placeholder-white/50"
                   />
                   <Button
                     onClick={() => joinGroupMutation.mutate(inviteCode)}
@@ -198,8 +198,8 @@ export default function Groups() {
             className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center"
           >
             <Users size={48} className="text-white/40 mx-auto mb-4" />
-            <p className="text-white/60 mb-2">{t("no_groups_yet") || "No groups yet"}</p>
-            <p className="text-white/40 text-sm">{t("create_or_join_group") || "Create or join a group to get started!"}</p>
+            <p className="text-white/60 mb-2">{t("no_groups_yet")}</p>
+            <p className="text-white/40 text-sm">{t("create_or_join_group")}</p>
           </motion.div>
         ) : (
           <div className="space-y-4">
@@ -223,7 +223,7 @@ export default function Groups() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="text-lg font-bold text-white">{group.name}</h3>
-                          <p className="text-sm text-purple-200">{members.length} members</p>
+                          <p className="text-sm text-purple-200">{members.length} {t("members")}</p>
                         </div>
                         <button
                           onClick={(e) => {
@@ -231,7 +231,7 @@ export default function Groups() {
                             handleCopyCode(group.invite_code);
                           }}
                           className="p-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/40 transition-colors"
-                          title="Copy invite code"
+                          title={t("code_copied")}
                         >
                           <Copy size={16} className={copiedCode === group.invite_code ? "text-emerald-400" : "text-purple-300"} />
                         </button>
