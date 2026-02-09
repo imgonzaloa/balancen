@@ -70,6 +70,8 @@ import Settings from './pages/Settings';
 import Social from './pages/Social';
 import UserManagement from './pages/UserManagement';
 import Chat from './pages/Chat';
+import CreateStory from './pages/CreateStory';
+import ProgressTracker from './pages/ProgressTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +99,8 @@ export const PAGES = {
     "Social": Social,
     "UserManagement": UserManagement,
     "Chat": Chat,
+    "CreateStory": CreateStory,
+    "ProgressTracker": ProgressTracker,
 }
 
 export const pagesConfig = {
