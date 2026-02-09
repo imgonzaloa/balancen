@@ -96,7 +96,7 @@ export default function Social() {
             <div className="relative z-10">
               <div className="text-7xl mb-4">🚀</div>
               <h3 className="text-white font-bold text-xl mb-2">
-                {lang === "es" ? "Entrena con amigos y aumenta tu constancia" : "Train with friends and boost consistency"}
+                {t('train_with_friends')}
               </h3>
               <p className="text-white/70 text-sm">
                 {t('invite_friends_to_join')}

@@ -60,10 +60,10 @@ export default function Progress() {
       <div className="max-w-2xl mx-auto px-6 pt-2 pb-6 space-y-6">
         <div>
           <h1 className="text-3xl font-black text-white mb-2">
-            {lang === "es" ? "Tu Progreso" : "Your Progress"}
+            {t('your_progress')}
           </h1>
           <p className="text-white/60 text-sm">
-            {lang === "es" ? "Análisis completo de tu evolución" : "Complete analysis of your evolution"}
+            {t('complete_analysis')}
           </p>
         </div>
 
@@ -72,10 +72,10 @@ export default function Progress() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-emerald-300 text-sm font-semibold uppercase tracking-wide">
-                {lang === "es" ? "Momentum Score" : "Momentum Score"}
+                {t('momentum_score')}
               </p>
               <p className="text-white/50 text-xs mt-1">
-                {lang === "es" ? "Nunca vuelve a cero" : "Never resets"}
+                {t('never_resets')}
               </p>
             </div>
             <div className="text-5xl font-black text-white">{calculations.momentumScore}</div>
@@ -85,11 +85,11 @@ export default function Progress() {
           </div>
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="bg-white/5 rounded-lg p-3">
-              <p className="text-white/60 text-xs">{lang === "es" ? "Consistencia" : "Consistency"}</p>
+              <p className="text-white/60 text-xs">{t('consistency_label')}</p>
               <p className="text-white font-bold">{Math.round(calculations.trackingConsistency)}%</p>
             </div>
             <div className="bg-white/5 rounded-lg p-3">
-              <p className="text-white/60 text-xs">{lang === "es" ? "Adherencia" : "Adherence"}</p>
+              <p className="text-white/60 text-xs">{t('adherence_label')}</p>
               <p className="text-white font-bold">{Math.round(calculations.goalAdherence)}%</p>
             </div>
           </div>
@@ -98,8 +98,8 @@ export default function Progress() {
         {/* Progress Rings */}
         <div className="grid grid-cols-2 gap-4">
           {[
-            { label: lang === "es" ? "Calorías" : "Calories", value: calculations.totalCaloriesToday, goal: calculations.caloriesGoal, progress: calculations.caloriesProgress, color: "#f97316" },
-            { label: lang === "es" ? "Proteína" : "Protein", value: `${Math.round(calculations.totalProtein)}g`, progress: calculations.proteinProgress, color: "#3b82f6" }
+            { label: t('calories'), value: calculations.totalCaloriesToday, goal: calculations.caloriesGoal, progress: calculations.caloriesProgress, color: "#f97316" },
+            { label: t('protein'), value: `${Math.round(calculations.totalProtein)}g`, progress: calculations.proteinProgress, color: "#3b82f6" }
           ].map((item, i) => (
             <div key={i} className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-5 border border-white/10">
               <div className="w-28 h-28 mx-auto relative">
@@ -136,10 +136,10 @@ export default function Progress() {
             </div>
             <div>
               <p className="text-purple-300 text-xs font-semibold mb-1">
-                {lang === "es" ? "IA Coach" : "AI Coach"}
+                {t('ai_coach')}
               </p>
               <p className="text-white text-sm">
-                {lang === "es" ? "Buen progreso hoy. Mantén el ritmo." : "Good progress today. Keep it up."}
+                {t('good_progress_today')}
               </p>
             </div>
           </div>

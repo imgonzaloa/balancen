@@ -35,7 +35,8 @@ export default function Settings() {
     mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["profile", user?.email]);
-      toast.success("Settings updated");
+      const msg = lang === 'es' ? 'Configuración actualizada' : 'Settings updated';
+      toast.success(msg);
     },
   });
 
@@ -201,7 +202,7 @@ export default function Settings() {
                   value={profile?.calories_goal || ""}
                   onChange={(e) => updateMutation.mutate({ calories_goal: parseInt(e.target.value) || null })}
                   className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:border-orange-300 outline-none"
-                  placeholder={lang === "es" ? "Opcional (ej.: 2000)" : "Optional - e.g., 2000"}
+                  placeholder={lang === "es" ? "Ej.: 2000" : "e.g., 2000"}
                 />
                 <p className="text-xs text-white/40 mt-1">{t('optional_leave_empty')}</p>
               </div>

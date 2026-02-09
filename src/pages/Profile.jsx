@@ -59,14 +59,14 @@ export default function Profile() {
         setProfile({ ...profile, profile_photo: finalUrl, avatar_url: finalUrl });
         localStorage.setItem(`avatar_cache_${user.email}`, finalUrl);
         URL.revokeObjectURL(tempUrl);
-        toast.success(lang === "es" ? "✨ Foto actualizada" : "✨ Photo updated");
+        toast.success(t('photo_updated'));
         
         if (refreshProfile) refreshProfile();
       }
     } catch (err) {
       console.error("Photo upload failed:", err);
       setProfile({ ...profile, profile_photo: prevPhoto });
-      toast.error(lang === "es" ? "Error al subir foto" : "Upload failed");
+      toast.error(t('error_uploading_photo'));
     } finally {
       setUploadingPhoto(false);
     }
@@ -199,21 +199,31 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Goals Section */}
+        {/* Status Section */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 mb-6">
-          <h3 className="text-white font-bold text-lg mb-4">{lang === "es" ? "Tu Meta" : "Your Goal"}</h3>
+          <h3 className="text-white font-bold text-lg mb-4">{t('status')}</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm">{lang === "es" ? "Objetivo principal" : "Primary goal"}</span>
+              <span className="text-white/70 text-sm">{profile?.status_text || t('status_placeholder')}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Goals Section */}
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 mb-6">
+          <h3 className="text-white font-bold text-lg mb-4">{t('your_goal')}</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-white/70 text-sm">{t('primary_goal')}</span>
               <span className="text-teal-300 font-semibold text-sm">{t(profile?.primary_goal || 'consistency')}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm">{lang === "es" ? "Intensidad" : "Intensity"}</span>
+              <span className="text-white/70 text-sm">{t('intensity')}</span>
               <span className="text-teal-300 font-semibold text-sm">{t(profile?.intensity_level || 'normal')}</span>
             </div>
             {profile?.calories_goal && (
               <div className="flex items-center justify-between">
-                <span className="text-white/70 text-sm">{lang === "es" ? "Meta diaria" : "Daily goal"}</span>
+                <span className="text-white/70 text-sm">{t('daily_goal')}</span>
                 <span className="text-teal-300 font-semibold text-sm">{profile.calories_goal} kcal</span>
               </div>
             )}

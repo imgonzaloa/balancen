@@ -162,7 +162,7 @@ export default function Home() {
         {todayMeals && todayMeals.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-white font-bold text-lg">{lang === "es" ? "Comidas Registradas" : "Logged Meals"}</h3>
+              <h3 className="text-white font-bold text-lg">{t('logged_meals')}</h3>
               <span className="text-white/50 text-sm">{todayMeals.length}</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -178,7 +178,7 @@ export default function Home() {
                   )}
                   <div className="p-3">
                     <p className="text-white text-xs font-semibold">
-                      {meal.meal_type ? (meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)) : "Meal"}
+                     {meal.meal_type ? (meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)) : t('meal')}
                     </p>
                     <p className="text-white/50 text-[10px] mt-0.5">
                       {meal.meal_time || new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -197,19 +197,13 @@ export default function Home() {
               <Sparkles size={22} className="text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-purple-300 font-bold text-sm mb-2">{lang === "es" ? "IA Coach" : "AI Coach"}</p>
+              <p className="text-purple-300 font-bold text-sm mb-2">{t('ai_coach')}</p>
               <p className="text-white text-sm leading-relaxed">
                 {metrics.caloriesGoalProgress >= 100 
-                  ? (lang === "es" 
-                    ? "¡Increíble trabajo! Alcanzaste tu meta de calorías. Continúa con esta consistencia para maximizar resultados." 
-                    : "Amazing work! You hit your calorie goal. Continue this consistency to maximize results.")
+                  ? t('ai_coach_goal_reached')
                   : (metrics.caloriesGoalProgress >= 50
-                    ? (lang === "es"
-                      ? "Buen progreso. Estás a mitad de camino. Registra tu siguiente comida para llegar a la meta."
-                      : "Good progress. You're halfway there. Log your next meal to reach your goal.")
-                    : (lang === "es"
-                      ? "Comienza registrando tus comidas. Cada foto te acerca a entender mejor tu nutrición."
-                      : "Start by logging your meals. Each photo brings you closer to understanding your nutrition.")
+                    ? t('ai_coach_halfway')
+                    : t('ai_coach_start')
                   )
                 }
               </p>
@@ -228,8 +222,8 @@ export default function Home() {
                 <Flame size={20} className="text-teal-300" />
               </div>
               <div className="text-left">
-                <p className="text-white font-semibold text-sm">{lang === "es" ? "Feed Social" : "Social Feed"}</p>
-                <p className="text-teal-200 text-xs">{friends.length} {lang === "es" ? "amigos activos" : "active friends"}</p>
+                <p className="text-white font-semibold text-sm">{t('social_feed')}</p>
+                <p className="text-teal-200 text-xs">{friends.length} {t('active_friends')}</p>
               </div>
             </div>
             <ChevronRight size={20} className="text-white/40" />
