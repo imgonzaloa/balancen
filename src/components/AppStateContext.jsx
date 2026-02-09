@@ -17,139 +17,64 @@ export function AppStateProvider({ children }) {
   // Check for collaborator invites
   useCollaboratorInviteCheck(user);
 
-  // Initialize user on mount with timeout
+  // Simple auth fetch - NO redirects, NO boot logic (BootGate handles that)
   useEffect(() => {
-    if (isInitialized) return; // PREVENT DOUBLE-RUN
+    let isMounted = true;
     
-    let timeout;
-    
-    const initUser = async () => {
-      logger.log('AUTH_CHECK_START');
-      
-      // Load persisted state immediately (no flashing)
-      const savedOnboarding = localStorage.getItem('onboarding_completed');
-      const savedLanguage = localStorage.getItem('app_language');
-      
-      timeout = setTimeout(() => {
-        logger.log('AUTH_CHECK_TIMEOUT');
-        setUser(null);
-        setIsInitialized(true);
-      }, 3000); // Reduced to 3s
-      
+    const fetchUser = async () => {
       try {
         const currentUser = await base44.auth.me();
-        clearTimeout(timeout);
-
-        if (!currentUser) {
-          // Not authenticated: stay on login
-          setIsInitialized(true);
-          return;
-        }
-
-        setUser(currentUser);
-        logger.log('AUTH_CHECK_SUCCESS', { email: currentUser.email });
-
-        // Auto-grant owner role to imgonzaloa@gmail.com
-        if (currentUser.email.toLowerCase() === "imgonzaloa@gmail.com") {
-          const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
-          if (profiles[0] && profiles[0].role !== "owner") {
-            await base44.entities.UserProfile.update(profiles[0].id, {
-              role: "owner",
-              is_premium: true,
-              premium_source: "owner"
-            });
+        if (isMounted && currentUser?.email) {
+          setUser(currentUser);
+          
+          // Auto-grant owner role to imgonzaloa@gmail.com
+          if (currentUser.email.toLowerCase() === "imgonzaloa@gmail.com") {
+            const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
+            if (profiles[0] && profiles[0].role !== "owner") {
+              await base44.entities.UserProfile.update(profiles[0].id, {
+                role: "owner",
+                is_premium: true,
+                premium_source: "owner"
+              });
+            }
           }
         }
-        
-        // Quick path: cached onboarding flag means user is fully set up
-        if (savedOnboarding === 'true') {
-          logger.log('BOOT_ONBOARDING_CACHED');
-          setIsInitialized(true);
-          return;
-        }
-        
-        // Fetch profile (authoritative state)
-        const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
-        const profile = profiles?.[0];
-        
-        // New user: ZERO DB profile
-        if (!profile) {
-          logger.log('BOOT_NEW_USER_NEEDS_LANGUAGE');
-          // Create minimal profile with default language
-          try {
-            const defaultLang = savedLanguage || 'en';
-            await base44.entities.UserProfile.create({
-              display_name: currentUser.full_name || 'User',
-              language: defaultLang,
-              onboarding_completed: false,
-            });
-            // Will redirect to Onboarding in next render
-            window.location.href = '/Onboarding';
-          } catch (createErr) {
-            logger.error('PROFILE_CREATE_FAILED', createErr);
-            window.location.href = '/Onboarding';
-          }
-          return;
-        }
-        
-        // Profile exists: check onboarding
-        if (!profile.onboarding_completed) {
-          logger.log('BOOT_ONBOARDING_INCOMPLETE');
-          localStorage.removeItem('onboarding_completed');
-          window.location.href = '/Onboarding';
-          return;
-        }
-        
-        // Fully set up: go to Home
-        localStorage.setItem('onboarding_completed', 'true');
-        if (!savedLanguage && profile.language) {
-          localStorage.setItem('app_language', profile.language);
-        }
-        logger.log('BOOT_FULLY_INITIALIZED');
-        setIsInitialized(true);
       } catch (err) {
-        clearTimeout(timeout);
-        logger.error('AUTH_CHECK_ERROR', err);
-        setUser(null);
-        setIsInitialized(true);
+        logger.error('USER_FETCH_ERROR', err);
+      } finally {
+        if (isMounted) setIsInitialized(true);
       }
     };
 
-    initUser();
+    fetchUser();
     
-    return () => {
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [isInitialized]);
+    return () => { isMounted = false; };
+  }, []);
 
   // Data fetching - ONLY ONCE per user
   useEffect(() => {
     if (!user?.email || profile !== null) return; // Skip if already loaded
     
     let isMounted = true;
-    const timeoutId = setTimeout(() => {
-      Promise.all([
-        base44.entities.UserProfile.filter({ created_by: user.email })
-          .then(profiles => { if (isMounted) setProfile(profiles[0] || null); })
-          .catch(() => { if (isMounted) setProfile(null); }),
-        
-        base44.entities.Friend.filter({ created_by: user.email })
-          .then(friendsList => { if (isMounted) setFriends(friendsList); })
-          .catch(() => { if (isMounted) setFriends([]); }),
-        
-        base44.entities.MealLog.filter(
-          { created_by: user.email, date: new Date().toISOString().split("T")[0] },
-          "-meal_time"
-        )
-          .then(meals => { if (isMounted) setTodayMeals(meals); })
-          .catch(() => { if (isMounted) setTodayMeals([]); })
-      ]);
-    }, 200);
+    
+    Promise.all([
+      base44.entities.UserProfile.filter({ created_by: user.email })
+        .then(profiles => { if (isMounted) setProfile(profiles[0] || null); })
+        .catch(() => { if (isMounted) setProfile(null); }),
+      
+      base44.entities.Friend.filter({ created_by: user.email })
+        .then(friendsList => { if (isMounted) setFriends(friendsList); })
+        .catch(() => { if (isMounted) setFriends([]); }),
+      
+      base44.entities.MealLog.filter(
+        { created_by: user.email, date: new Date().toISOString().split("T")[0] },
+        "-meal_time"
+      )
+        .then(meals => { if (isMounted) setTodayMeals(meals); })
+        .catch(() => { if (isMounted) setTodayMeals([]); })
+    ]);
 
-    return () => {
-      isMounted = false;
-      clearTimeout(timeoutId);
-    };
+    return () => { isMounted = false; };
   }, [user?.email, profile]);
 
   const refreshProfile = async () => {
