@@ -225,7 +225,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* Streak & Momentum */}
+        {/* Streak & Momentum - UNLOCKED FOR BASE PLAN */}
         <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/15 backdrop-blur-xl rounded-2xl p-5 border border-amber-500/20">
           <h3 className="text-amber-300/90 text-xs font-bold uppercase tracking-wider mb-3">
             {t('streak_momentum')}
@@ -281,39 +281,55 @@ export default function Home() {
           </div>
         </div>
 
-        {/* AI Insight (PREMIUM ONLY) */}
-        <button
-          onClick={() => isPremium ? navigate(createPageUrl('GoalsAssistant')) : navigate(createPageUrl('Premium'))}
-          className={`w-full text-left bg-gradient-to-br from-purple-500/12 to-pink-500/12 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/20 ${!isPremium ? 'relative overflow-hidden' : ''} hover:border-purple-500/40 transition-all active:scale-[0.98] cursor-pointer`}
-        >
-          {!isPremium && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
-              <div className="text-center px-4">
-                <Lock size={32} className="text-white/80 mx-auto mb-2" />
-                <p className="text-white font-bold text-sm">{t('unlock_ai_insights')}</p>
+        {/* Macros Detail (PREMIUM ONLY) */}
+        {isPremium && (
+          <button
+            onClick={() => navigate(createPageUrl('GoalsAssistant'))}
+            className="w-full text-left bg-gradient-to-br from-purple-500/12 to-pink-500/12 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/20 hover:border-purple-500/40 transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <Sparkles size={18} className="text-white" strokeWidth={2.5} />
+              </div>
+              <div className="flex-1 pt-0.5">
+                <p className="text-purple-300 font-bold text-xs uppercase tracking-wide mb-2">
+                  {t('ai_daily_insight')}
+                </p>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  {metrics.progress >= 100 
+                    ? t('ai_coach_goal_reached')
+                    : (metrics.progress >= 50
+                      ? t('ai_coach_halfway')
+                      : t('ai_coach_start')
+                    )
+                  }
+                </p>
               </div>
             </div>
-          )}
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-              <Sparkles size={18} className="text-white" strokeWidth={2.5} />
+          </button>
+        )}
+
+        {/* Premium CTA */}
+        {!isPremium && (
+          <button
+            onClick={() => navigate(createPageUrl('Premium'))}
+            className="w-full text-left bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <Sparkles size={18} className="text-white" strokeWidth={2.5} />
+              </div>
+              <div className="flex-1 pt-0.5">
+                <p className="text-purple-300 font-bold text-xs uppercase tracking-wide mb-2">
+                  {t('premium_features')}
+                </p>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  {t('unlock_ai_macros_tracking')} → AI Coaching, Groups, Advanced Analytics, y más.
+                </p>
+              </div>
             </div>
-            <div className="flex-1 pt-0.5">
-              <p className="text-purple-300 font-bold text-xs uppercase tracking-wide mb-2">
-                {t('ai_daily_insight')}
-              </p>
-              <p className="text-white/90 text-sm leading-relaxed">
-                {metrics.progress >= 100 
-                  ? t('ai_coach_goal_reached')
-                  : (metrics.progress >= 50
-                    ? t('ai_coach_halfway')
-                    : t('ai_coach_start')
-                  )
-                }
-              </p>
-            </div>
-          </div>
-        </button>
+          </button>
+        )}
 
 
       </div>
