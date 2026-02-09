@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import MealPlanCard from "@/components/ai/MealPlanCard";
 import WorkoutCard from "@/components/ai/WorkoutCard";
-import MealPlanView from "@/components/ai/MealPlanView";
+import EnhancedMealPlanView from "@/components/ai/EnhancedMealPlanView";
 import WorkoutView from "@/components/ai/WorkoutView";
 
 export default function GoalsAssistant() {
@@ -303,7 +303,7 @@ export default function GoalsAssistant() {
 
       {/* Meal Plan Modal */}
       {mealPlan && (
-        <MealPlanView plan={mealPlan} onClose={() => setMealPlan(null)} />
+        <EnhancedMealPlanView plan={mealPlan} onClose={() => setMealPlan(null)} />
       )}
 
       {/* Workout Modal */}
