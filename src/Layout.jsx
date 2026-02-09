@@ -20,7 +20,7 @@ function getNavItems(t) {
   ];
 }
 
-const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
+const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector", "Premium"];
 const showBrandPages = ["Home", "Social", "Progress", "Profile"];
 
 function LayoutInner({ children, currentPageName, bootState }) {

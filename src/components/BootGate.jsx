@@ -73,12 +73,7 @@ export default function BootGate({ children }) {
         return;
       }
 
-      if (!profile.language) {
-        logger.log('BOOT_NEEDS_LANGUAGE');
-        setBootState({ type: 'LANGUAGE_SELECTION', user, profile });
-        setBootReady(true);
-        return;
-      }
+
 
       if (!profile.onboarding_completed) {
         logger.log('BOOT_NEEDS_ONBOARDING');

@@ -194,9 +194,12 @@ export default function Profile() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-2 pb-8 relative z-10">
-        <h1 className="text-2xl font-bold text-white mb-8">
-          {t('my_profile')}
+        <h1 className="text-3xl font-black text-white mb-2">
+          {t('profile')}
         </h1>
+        <p className="text-white/60 text-sm mb-8">
+          {user?.email}
+        </p>
 
         {/* Profile Header */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6 relative overflow-hidden">
@@ -204,13 +207,14 @@ export default function Profile() {
           
           <div className="relative z-10">
             <div className="flex items-center gap-4 mb-6">
-              <label className="relative cursor-pointer">
+              <label className="relative cursor-pointer" title={t('tap_to_edit')}>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handlePhotoUpload}
                   className="hidden"
                   disabled={uploadingPhoto}
+                  capture="environment"
                 />
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative">
                   {profile?.profile_photo || profile?.avatar_url ? (
@@ -302,26 +306,7 @@ export default function Profile() {
           <StatusEditor profile={profile} lang={lang} onUpdate={refreshProfile} />
         </div>
 
-        {/* Goals Section */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 mb-6">
-          <h3 className="text-white font-bold text-lg mb-4">{t('your_goal')}</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm">{t('primary_goal')}</span>
-              <span className="text-teal-300 font-semibold text-sm">{t(profile?.primary_goal || 'consistency')}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm">{t('intensity')}</span>
-              <span className="text-teal-300 font-semibold text-sm">{t(profile?.intensity_level || 'normal')}</span>
-            </div>
-            {profile?.calories_goal && (
-              <div className="flex items-center justify-between">
-                <span className="text-white/70 text-sm">{t('daily_goal')}</span>
-                <span className="text-teal-300 font-semibold text-sm">{profile.calories_goal} kcal</span>
-              </div>
-            )}
-          </div>
-        </div>
+
 
         {/* Settings Button */}
         <button

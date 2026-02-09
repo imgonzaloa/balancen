@@ -10,7 +10,7 @@ export default function Onboarding() {
   // ALL HOOKS AT TOP
   const navigate = useNavigate();
   const { t, lang, changeLanguage } = useTranslation();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     language: lang || 'es',
@@ -104,47 +104,6 @@ export default function Onboarding() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center p-6">
       <div className="max-w-md w-full">
         <AnimatePresence mode="wait">
-          {step === 0 && (
-            <motion.div
-              key="language"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <div className="text-center mb-8">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl font-black text-white">B</span>
-                </div>
-                <h1 className="text-3xl font-black text-white mb-2">Balancen</h1>
-                <p className="text-white/60 text-sm">{t('select_language')}</p>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  { code: 'en', name: '🇬🇧 English' },
-                  { code: 'es', name: '🇪🇸 Español' }
-                ].map((langOption) => (
-                  <button
-                    key={langOption.code}
-                    onClick={async () => {
-                      setFormData({ ...formData, language: langOption.code });
-                      await changeLanguage(langOption.code);
-                      setStep(1);
-                    }}
-                    className={`w-full p-4 rounded-2xl border-2 transition-all ${
-                      formData.language === langOption.code
-                        ? "border-teal-400 bg-teal-500/20"
-                        : "border-white/20 bg-white/5"
-                    }`}
-                  >
-                    <p className="text-white font-semibold text-lg">{langOption.name}</p>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
           {step === 1 && (
             <motion.div
               key="goals"

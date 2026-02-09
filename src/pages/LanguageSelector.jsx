@@ -73,7 +73,7 @@ export default function LanguageSelector() {
             <span className="text-5xl font-black text-white">B</span>
           </div>
           <h1 className="text-3xl font-black text-white mb-2">Balancen</h1>
-          <p className="text-white/60 text-sm">Select your language</p>
+          <p className="text-white/60 text-sm">Choose your language / Elegí tu idioma</p>
         </motion.div>
 
         <div className="space-y-4">
@@ -102,7 +102,8 @@ export default function LanguageSelector() {
         </div>
 
         <p className="text-center text-white/40 text-xs mt-8">
-          You can change language anytime in settings
+          You can change this anytime in settings<br />
+          Puedes cambiar esto en configuración
         </p>
       </div>
     </div>
