@@ -13,116 +13,110 @@ export default function BootGate({ children }) {
   const [bootReady, setBootReady] = useState(false);
 
   useEffect(() => {
-    // EMERGENCY: Fail-fast timeout - never freeze forever
-    const emergencyTimeout = setTimeout(() => {
-      if (!bootReady) {
-        console.warn('⚠️ EMERGENCY BOOT TIMEOUT - FORCING READY');
-        setBootState({ type: 'HOME_READY' });
-        setBootReady(true);
-      }
-    }, 3000); // 3 seconds max
+    let isMounted = true;
+    let emergencyTimeout;
 
     const resolveBoot = async () => {
       logger.log('BOOT_START');
 
-      // Step 1: Check auth (with timeout)
-      let user = null;
+      // Emergency timeout - prevent infinite freeze
+      emergencyTimeout = setTimeout(() => {
+        if (isMounted && !bootReady) {
+          logger.log('BOOT_EMERGENCY_TIMEOUT');
+          setBootState({ type: 'AUTH_REQUIRED' });
+          setBootReady(true);
+        }
+      }, 5000);
+
       try {
+        // Check auth with timeout
         const authPromise = base44.auth.me();
         const timeoutPromise = new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Auth timeout')), 3000)
         );
-        user = await Promise.race([authPromise, timeoutPromise]);
-      } catch (err) {
-        logger.log('BOOT_NOT_AUTHENTICATED');
-        setBootState({ type: 'AUTH_REQUIRED' });
-        setBootReady(true);
-        clearTimeout(emergencyTimeout);
-        return;
-      }
+        
+        const user = await Promise.race([authPromise, timeoutPromise]);
 
-      if (!user?.email) {
-        logger.log('BOOT_NO_USER');
-        setBootState({ type: 'AUTH_REQUIRED' });
-        setBootReady(true);
-        clearTimeout(emergencyTimeout);
-        return;
-      }
+        if (!isMounted) return;
 
-      // Step 2: Load persisted flags (instant, no DB call)
-      const cachedOnboarding = localStorage.getItem('onboarding_completed');
-      const cachedLanguage = localStorage.getItem('app_language');
+        if (!user?.email) {
+          logger.log('BOOT_NOT_AUTHENTICATED');
+          setBootState({ type: 'AUTH_REQUIRED' });
+          setBootReady(true);
+          clearTimeout(emergencyTimeout);
+          return;
+        }
 
-      // Quick path: if cache says onboarding done, go straight to Home
-      if (cachedOnboarding === 'true' && cachedLanguage) {
-        logger.log('BOOT_CACHED_READY', { language: cachedLanguage });
+        // Check cached state
+        const cachedOnboarding = localStorage.getItem('onboarding_completed');
+        const cachedLanguage = localStorage.getItem('app_language');
+
+        // Quick path: cached onboarding
+        if (cachedOnboarding === 'true' && cachedLanguage) {
+          logger.log('BOOT_CACHED_READY', { language: cachedLanguage });
+          setBootState({
+            type: 'HOME_READY',
+            user,
+            language: cachedLanguage,
+            onboardingComplete: true,
+          });
+          setBootReady(true);
+          clearTimeout(emergencyTimeout);
+          return;
+        }
+
+        // Fetch profile
+        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+        const profile = profiles?.[0];
+
+        if (!isMounted) return;
+
+        if (!profile || !profile.onboarding_completed) {
+          logger.log('BOOT_NEEDS_ONBOARDING');
+          if (profile?.language) {
+            localStorage.setItem('app_language', profile.language);
+          }
+          localStorage.removeItem('onboarding_completed');
+          setBootState({
+            type: 'ONBOARDING_REQUIRED',
+            user,
+            profile,
+            language: profile?.language || cachedLanguage || 'en',
+          });
+          setBootReady(true);
+          clearTimeout(emergencyTimeout);
+          return;
+        }
+
+        // Ready for home
+        localStorage.setItem('onboarding_completed', 'true');
+        localStorage.setItem('app_language', profile.language);
+        logger.log('BOOT_READY', { language: profile.language });
         setBootState({
           type: 'HOME_READY',
           user,
-          language: cachedLanguage,
+          profile,
+          language: profile.language,
           onboardingComplete: true,
         });
         setBootReady(true);
         clearTimeout(emergencyTimeout);
-        return;
-      }
-
-      // Step 3: Fetch profile (authoritative source of truth)
-      let profile = null;
-      try {
-        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-        profile = profiles?.[0];
       } catch (err) {
-        logger.error('BOOT_PROFILE_FETCH_ERROR', err);
-      }
-
-      // Step 4: Determine boot state
-      if (!profile) {
-        // New user: goes directly to onboarding (language selection is step 0)
-        logger.log('BOOT_NEW_USER_NEEDS_ONBOARDING');
-        setBootState({ type: 'ONBOARDING_REQUIRED', user, language: cachedLanguage || 'en' });
+        if (!isMounted) return;
+        logger.error('BOOT_ERROR', err);
+        setBootState({ type: 'AUTH_REQUIRED' });
         setBootReady(true);
         clearTimeout(emergencyTimeout);
-        return;
       }
-
-      if (!profile.onboarding_completed) {
-        logger.log('BOOT_NEEDS_ONBOARDING');
-        // Cache language but NOT onboarding
-        localStorage.setItem('app_language', profile.language);
-        localStorage.removeItem('onboarding_completed');
-        setBootState({
-          type: 'ONBOARDING_REQUIRED',
-          user,
-          profile,
-          language: profile.language,
-        });
-        setBootReady(true);
-        clearTimeout(emergencyTimeout);
-        return;
-      }
-
-      // Fully set up: cache flags and go to Home
-      localStorage.setItem('onboarding_completed', 'true');
-      localStorage.setItem('app_language', profile.language);
-      logger.log('BOOT_READY', { language: profile.language });
-      setBootState({
-        type: 'HOME_READY',
-        user,
-        profile,
-        language: profile.language,
-        onboardingComplete: true,
-      });
-      setBootReady(true);
-      clearTimeout(emergencyTimeout);
     };
 
     resolveBoot();
     
     return () => {
-      clearTimeout(emergencyTimeout);
+      isMounted = false;
+      if (emergencyTimeout) clearTimeout(emergencyTimeout);
     };
-  }, [bootReady]);
+  }, []);
 
   // Render NOTHING until boot is resolved
   if (!bootReady || !bootState) {
