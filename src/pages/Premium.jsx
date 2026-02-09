@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap, Flame, Target, Shield, Loader2 } from "lucide-react";
+import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap, Flame, Target, Shield, Loader2, Camera, Utensils, Dumbbell, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -9,16 +9,18 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { toast } from "sonner";
 
 const featuresData = [
-  { icon: Flame, key: "fire_system" },
-  { icon: Sparkles, key: "advanced_ai" },
+  { icon: Flame, key: "stories_24h" },
   { icon: Sparkles, key: "ai_meal_planner_feature" },
   { icon: Sparkles, key: "ai_workout_generator_feature" },
+  { icon: Sparkles, key: "advanced_ai" },
   { icon: Users, key: "social_feed_feature" },
   { icon: Heart, key: "enhanced_friends_feature" },
-  { icon: TrendingUp, key: "progressive_overload" },
-  { icon: Users, key: "exclusive_challenges" },
-  { icon: Target, key: "analytics" },
-  { icon: Shield, key: "priority_sync" },
+  { icon: Users, key: "group_collaboration" },
+  { icon: TrendingUp, key: "progress_tracking_advanced" },
+  { icon: Target, key: "nutrition_premium" },
+  { icon: Shield, key: "coaching_personalized" },
+  { icon: Zap, key: "unlimited_plans" },
+  { icon: Crown, key: "exclusive_challenges" },
 ];
 
 
