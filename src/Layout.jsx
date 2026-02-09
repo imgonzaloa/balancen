@@ -11,6 +11,7 @@ import BootGate from "@/components/BootGate";
 import VersionGate from "@/components/VersionGate";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import BrandMark from "@/components/BrandMark";
+import { motion, AnimatePresence } from "framer-motion";
 
 function getNavItems(t) {
   return [
@@ -80,9 +81,19 @@ function LayoutInner({ children, currentPageName, bootState }) {
         </div>
       )}
       
-      <main className={hideNav ? "" : "pb-20"} style={{ paddingTop: showBrandPages.includes(currentPageName) ? '60px' : '0' }}>
-        {children}
-      </main>
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={currentPageName}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          className={hideNav ? "" : "pb-20"}
+          style={{ paddingTop: showBrandPages.includes(currentPageName) ? '60px' : '0' }}
+        >
+          {children}
+        </motion.main>
+      </AnimatePresence>
 
       {!hideNav && (
         <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 z-50 safe-area-inset-bottom">
