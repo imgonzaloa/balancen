@@ -9,6 +9,10 @@ const resources = {
       social: "Social", 
       progress: "Progress",
       profile: "Profile",
+      home_tab: "Home",
+      social_tab: "Social",
+      progress_tab: "Progress",
+      profile_tab: "Profile",
       
       // Home
       current_streak: "Current Streak",
