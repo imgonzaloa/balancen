@@ -34,41 +34,37 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const hideNav = noNavPages.includes(currentPageName);
   const isActive = (pageName) => currentPageName === pageName;
 
-  // ROUTING LOGIC - simplified to prevent loops
+  // ROUTING LOGIC - redirect based on boot state
   React.useEffect(() => {
-    if (!bootState) return;
+    if (!bootState || isNavigating.current) return;
 
-    // Prevent infinite redirect loops
-    if (isNavigating.current) return;
+    const redirect = (page) => {
+      isNavigating.current = true;
+      navigate(createPageUrl(page), { replace: true });
+      setTimeout(() => { isNavigating.current = false; }, 200);
+    };
 
     if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
-      isNavigating.current = true;
-      navigate(createPageUrl('Home'), { replace: true });
-      setTimeout(() => { isNavigating.current = false; }, 100);
+      redirect('Home');
       return;
     }
 
     if (bootState.type === 'ONBOARDING_REQUIRED' && currentPageName !== 'Onboarding') {
-      isNavigating.current = true;
-      navigate(createPageUrl('Onboarding'), { replace: true });
-      setTimeout(() => { isNavigating.current = false; }, 100);
+      redirect('Onboarding');
       return;
     }
 
     if (bootState.type === 'HOME_READY') {
-      // Sync language ONCE
+      // Sync language
       if (bootState.language && lang !== bootState.language) {
         changeLanguage(bootState.language).catch(() => {});
       }
-      
       // Only redirect if stuck on onboarding
       if (currentPageName === 'Onboarding') {
-        isNavigating.current = true;
-        navigate(createPageUrl('Home'), { replace: true });
-        setTimeout(() => { isNavigating.current = false; }, 100);
+        redirect('Home');
       }
     }
-  }, [bootState?.type, currentPageName, navigate, lang, changeLanguage]);
+  }, [bootState, currentPageName]);
 
   // RENDER (no conditional returns)
   return (
