@@ -433,7 +433,7 @@ const resources = {
 // Get initial language from localStorage or default to ENGLISH
 const getInitialLanguage = () => {
   try {
-    const stored = localStorage.getItem("app_language");
+    const stored = localStorage.getItem("balancen_lang") || localStorage.getItem("app_language");
     return stored || "en"; // Default ENGLISH
   } catch {
     return "en";
@@ -458,7 +458,8 @@ i18n
 // Save language changes to localStorage
 i18n.on('languageChanged', (lng) => {
   try {
-    localStorage.setItem("app_language", lng);
+    localStorage.setItem("balancen_lang", lng);
+    localStorage.setItem("app_language", lng); // Keep for backward compat
   } catch (e) {
     console.warn("Failed to save language preference", e);
   }

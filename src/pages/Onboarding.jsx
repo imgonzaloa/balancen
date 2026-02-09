@@ -59,6 +59,7 @@ export default function Onboarding() {
 
       // Persist completion and language
       localStorage.setItem('onboarding_completed', 'true');
+      localStorage.setItem('balancen_lang', formData.language);
       localStorage.setItem('app_language', formData.language);
       await changeLanguage(formData.language);
 
@@ -75,7 +76,8 @@ export default function Onboarding() {
 
       navigate(createPageUrl("Home"), { replace: true });
     } catch (error) {
-      toast.error(lang === "es" ? "Error al crear perfil" : "Error creating profile");
+      const msg = lang === "es" ? "Error al crear perfil" : "Error creating profile";
+      toast.error(msg);
     }
   };
 

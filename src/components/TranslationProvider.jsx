@@ -18,9 +18,19 @@ export function useTranslation() {
     await i18n.changeLanguage(newLang);
   };
   
+  // Strict mode: show missing keys
+  const strictT = (key, options) => {
+    const result = t(key, options);
+    if (result === key) {
+      return `[MISSING:${key}]`;
+    }
+    return result;
+  };
+  
   return {
-    t,
+    t: strictT,
     lang: i18n.language,
-    changeLanguage
+    changeLanguage,
+    setLang: changeLanguage
   };
 }

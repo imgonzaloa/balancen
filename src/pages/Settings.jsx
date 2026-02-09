@@ -47,6 +47,7 @@ export default function Settings() {
     await changeLanguage(newLang);
     
     // 2. Save to localStorage (instant persistence)
+    localStorage.setItem('balancen_lang', newLang);
     localStorage.setItem('app_language', newLang);
     
     // 3. Save to user profile (async)

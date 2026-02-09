@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { Edit2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import { useTranslation } from "@/components/TranslationProvider";
 
-export default function UserStatusHeader({ profile, onStatusUpdate, lang }) {
+export default function UserStatusHeader({ profile, onStatusUpdate }) {
+  const { t, lang } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [statusText, setStatusText] = useState(profile?.status_text || "");
   const [saving, setSaving] = useState(false);
@@ -18,12 +20,12 @@ export default function UserStatusHeader({ profile, onStatusUpdate, lang }) {
         status_updated_at: new Date().toISOString(),
       });
       
-      toast.success(lang === "es" ? "Estado actualizado" : "Status updated");
+      toast.success(t('photo_updated'));
       onStatusUpdate?.();
       setIsEditing(false);
     } catch (err) {
       console.error("Failed to update status:", err);
-      toast.error(lang === "es" ? "Error al actualizar" : "Update failed");
+      toast.error(t('error_uploading_photo'));
     } finally {
       setSaving(false);
     }
@@ -40,7 +42,7 @@ export default function UserStatusHeader({ profile, onStatusUpdate, lang }) {
       <p className="text-white/50 text-sm mb-2">{currentDate}</p>
       <div className="flex items-center gap-3">
         <h1 className="text-3xl font-black text-white">
-          {lang === "es" ? "Hola" : "Hello"}, {profile?.display_name || "User"}
+          {t('home')}, {profile?.display_name || "User"}
         </h1>
       </div>
       
@@ -51,7 +53,7 @@ export default function UserStatusHeader({ profile, onStatusUpdate, lang }) {
             value={statusText}
             onChange={(e) => setStatusText(e.target.value)}
             maxLength={32}
-            placeholder={lang === "es" ? "Tu estado..." : "Your status..."}
+            placeholder={t('status_placeholder')}
             className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/40 text-sm focus:outline-none focus:border-teal-500"
             autoFocus
           />
@@ -60,13 +62,13 @@ export default function UserStatusHeader({ profile, onStatusUpdate, lang }) {
             disabled={saving}
             className="px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded-xl text-white text-sm font-semibold disabled:opacity-50"
           >
-            {saving ? "..." : (lang === "es" ? "Guardar" : "Save")}
+            {saving ? "..." : t('save')}
           </button>
           <button
             onClick={() => setIsEditing(false)}
             className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white text-sm"
           >
-            {lang === "es" ? "Cancelar" : "Cancel"}
+            {t('cancel')}
           </button>
         </div>
       ) : (
@@ -77,7 +79,7 @@ export default function UserStatusHeader({ profile, onStatusUpdate, lang }) {
           {profile?.status_text ? (
             <span className="italic">"{profile.status_text}"</span>
           ) : (
-            <span>{lang === "es" ? "Agregar estado..." : "Add status..."}</span>
+            <span>{t('status_placeholder')}</span>
           )}
           <Edit2 size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
         </button>

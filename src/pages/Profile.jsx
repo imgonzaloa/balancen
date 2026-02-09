@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Settings, LogOut } from "lucide-react";
+import { Camera, Settings, LogOut, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -7,6 +7,77 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+
+function StatusEditor({ profile, lang, onUpdate }) {
+  const { t } = useTranslation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [statusText, setStatusText] = useState(profile?.status_text || "");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!profile?.id) return;
+    
+    setSaving(true);
+    try {
+      await base44.entities.UserProfile.update(profile.id, {
+        status_text: statusText.slice(0, 32),
+        status_updated_at: new Date().toISOString(),
+      });
+      
+      toast.success(t('photo_updated'));
+      onUpdate?.();
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      toast.error(t('error_uploading_photo'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div className="space-y-3">
+        <input
+          type="text"
+          value={statusText}
+          onChange={(e) => setStatusText(e.target.value)}
+          maxLength={32}
+          placeholder={t('status_placeholder')}
+          className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 text-sm focus:outline-none focus:border-teal-500"
+          autoFocus
+        />
+        <div className="flex gap-2">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded-xl text-white text-sm font-semibold disabled:opacity-50"
+          >
+            {saving ? "..." : t('save')}
+          </button>
+          <button
+            onClick={() => setIsEditing(false)}
+            className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white text-sm"
+          >
+            {t('cancel')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setIsEditing(true)}
+      className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group"
+    >
+      <span className={`text-sm ${profile?.status_text ? 'text-white italic' : 'text-white/60'}`}>
+        {profile?.status_text ? `"${profile.status_text}"` : t('status_placeholder')}
+      </span>
+      <Edit2 size={16} className="text-white/40 group-hover:text-white transition-colors" />
+    </button>
+  );
+}
 
 export default function Profile() {
   // ALL HOOKS AT TOP
@@ -199,14 +270,10 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Status Section */}
+        {/* Status Section - Editable */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 mb-6">
           <h3 className="text-white font-bold text-lg mb-4">{t('status')}</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm">{profile?.status_text || t('status_placeholder')}</span>
-            </div>
-          </div>
+          <StatusEditor profile={profile} lang={lang} onUpdate={refreshProfile} />
         </div>
 
         {/* Goals Section */}
