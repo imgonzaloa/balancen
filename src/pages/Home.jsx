@@ -159,17 +159,29 @@ export default function Home() {
 
         {/* Recent Meals */}
         {todayMeals && todayMeals.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-white font-bold text-lg">{lang === "es" ? "Comidas de hoy" : "Today's Meals"}</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white font-bold text-lg">{lang === "es" ? "Comidas Registradas" : "Logged Meals"}</h3>
+              <span className="text-white/50 text-sm">{todayMeals.length}</span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              {todayMeals.slice(0, 4).map((meal) => (
-                <div key={meal.id} className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10">
+              {todayMeals.slice(0, 6).map((meal) => (
+                <div key={meal.id} className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-colors">
                   {meal.photo_url && (
-                    <img src={meal.photo_url} alt="Meal" className="w-full h-24 object-cover" />
+                    <div className="relative">
+                      <img src={meal.photo_url} alt="Meal" className="w-full h-28 object-cover" loading="lazy" />
+                      <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm rounded-lg px-2 py-1">
+                        <p className="text-teal-300 font-bold text-xs">{meal.estimated_calories} kcal</p>
+                      </div>
+                    </div>
                   )}
                   <div className="p-3">
-                    <p className="text-teal-300 font-semibold text-sm">{meal.estimated_calories} kcal</p>
-                    <p className="text-white/60 text-xs">{meal.meal_time || new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    <p className="text-white text-xs font-semibold">
+                      {meal.meal_type ? (meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)) : "Meal"}
+                    </p>
+                    <p className="text-white/50 text-[10px] mt-0.5">
+                      {meal.meal_time || new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -177,23 +189,51 @@ export default function Home() {
           </div>
         )}
 
-        {/* AI Coach Card */}
-        <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl rounded-3xl p-6 border border-purple-500/20">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-lg">✨</span>
+        {/* AI Coach */}
+        <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-6 border border-purple-500/30">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
+              <Sparkles size={22} className="text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-purple-300 font-semibold text-sm mb-1">{lang === "es" ? "Coach IA" : "AI Coach"}</p>
-              <p className="text-white/80 text-sm leading-relaxed">
+              <p className="text-purple-300 font-bold text-sm mb-2">{lang === "es" ? "IA Coach" : "AI Coach"}</p>
+              <p className="text-white text-sm leading-relaxed">
                 {metrics.caloriesGoalProgress >= 100 
-                  ? (lang === "es" ? "¡Excelente! Alcanzaste tu meta de calorías. Mantén la consistencia." : "Excellent! You hit your calorie goal. Keep up the consistency.")
-                  : (lang === "es" ? "Sigue así, estás progresando bien. Registra más comidas para mejor precisión." : "Keep going, you're making progress. Log more meals for better accuracy.")
+                  ? (lang === "es" 
+                    ? "¡Increíble trabajo! Alcanzaste tu meta de calorías. Continúa con esta consistencia para maximizar resultados." 
+                    : "Amazing work! You hit your calorie goal. Continue this consistency to maximize results.")
+                  : (metrics.caloriesGoalProgress >= 50
+                    ? (lang === "es"
+                      ? "Buen progreso. Estás a mitad de camino. Registra tu siguiente comida para llegar a la meta."
+                      : "Good progress. You're halfway there. Log your next meal to reach your goal.")
+                    : (lang === "es"
+                      ? "Comienza registrando tus comidas. Cada foto te acerca a entender mejor tu nutrición."
+                      : "Start by logging your meals. Each photo brings you closer to understanding your nutrition.")
+                  )
                 }
               </p>
             </div>
           </div>
         </div>
+
+        {/* Social Quick Access */}
+        {friends.length > 0 && (
+          <button
+            onClick={() => navigate(createPageUrl('Social'))}
+            className="w-full bg-gradient-to-r from-teal-500/20 to-emerald-500/20 backdrop-blur-xl rounded-2xl p-5 border border-teal-500/30 hover:border-teal-500/50 transition-all flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/30 flex items-center justify-center">
+                <Flame size={20} className="text-teal-300" />
+              </div>
+              <div className="text-left">
+                <p className="text-white font-semibold text-sm">{lang === "es" ? "Feed Social" : "Social Feed"}</p>
+                <p className="text-teal-200 text-xs">{friends.length} {lang === "es" ? "amigos activos" : "active friends"}</p>
+              </div>
+            </div>
+            <ChevronRight size={20} className="text-white/40" />
+          </button>
+        )}
 
         {/* Social Preview */}
         <SocialPreview friends={friends} profile={profile} />

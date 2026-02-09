@@ -52,7 +52,6 @@ import CameraScreen from './pages/CameraScreen';
 import Friends from './pages/Friends';
 import GroupDetail from './pages/GroupDetail';
 import Groups from './pages/Groups';
-import Home from './pages/Home';
 import HomeSafe from './pages/HomeSafe';
 import InviteCollaborators from './pages/InviteCollaborators';
 import LanguageSelector from './pages/LanguageSelector';
@@ -67,6 +66,7 @@ import Progress from './pages/Progress';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
 import UserManagement from './pages/UserManagement';
+import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -76,7 +76,6 @@ export const PAGES = {
     "Friends": Friends,
     "GroupDetail": GroupDetail,
     "Groups": Groups,
-    "Home": Home,
     "HomeSafe": HomeSafe,
     "InviteCollaborators": InviteCollaborators,
     "LanguageSelector": LanguageSelector,
@@ -91,6 +90,7 @@ export const PAGES = {
     "Settings": Settings,
     "Social": Social,
     "UserManagement": UserManagement,
+    "Home": Home,
 }
 
 export const pagesConfig = {
