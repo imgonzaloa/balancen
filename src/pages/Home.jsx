@@ -194,7 +194,7 @@ export default function Home() {
         <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-6 border border-purple-500/30">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
-              <sparkles size={22} className="text-white" />
+              <Sparkles size={22} className="text-white" />
             </div>
             <div className="flex-1">
               <p className="text-purple-300 font-bold text-sm mb-2">{lang === "es" ? "IA Coach" : "AI Coach"}</p>
