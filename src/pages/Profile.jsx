@@ -325,13 +325,13 @@ export default function Profile() {
         </button>
 
         {/* Logout */}
-        <Button
+        <button
           onClick={handleLogout}
-          className="w-full rounded-2xl py-6 bg-red-500/20 border border-red-400/30 text-red-300 hover:bg-red-500/30"
+          className="w-full rounded-2xl py-4 bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 transition-colors font-semibold text-sm flex items-center justify-center gap-2"
         >
-          <LogOut size={18} className="mr-2" />
+          <LogOut size={18} />
           {t('logout')}
-        </Button>
+        </button>
       </div>
 
       {/* Goals Edit Modal */}

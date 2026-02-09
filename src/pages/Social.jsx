@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Users, Lock, Plus, Trophy, Flame, TrendingUp } from "lucide-react";
+import { Users, Lock, Plus, UserPlus, Flame, Activity } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import InviteSystemCard from "@/components/social/InviteSystemCard";
+import StatusChip from "@/components/groups/StatusChip";
 import { SocialSkeleton } from "@/components/ui/ScreenSkeleton";
 
 export default function Social() {
@@ -42,7 +43,34 @@ export default function Social() {
     enabled: !!user?.email && !!profile?.is_premium,
   });
 
-  const isPremium = profile?.is_premium || false;
+  const { data: friends = [] } = useQuery({
+    queryKey: ["friends", user?.email],
+    queryFn: async () => {
+      const [sent, received] = await Promise.all([
+        base44.entities.Friend.filter({ created_by: user?.email }),
+        base44.entities.Friend.filter({ friend_user_id: user?.email })
+      ]);
+      return [...sent, ...received].filter(f => f);
+    },
+    enabled: !!user?.email,
+  });
+
+  const { data: friendProfiles = [] } = useQuery({
+    queryKey: ["friendProfiles", friends.map(f => f.friend_user_id || f.created_by)],
+    queryFn: async () => {
+      const friendIds = friends.map(f => 
+        f.created_by === user?.email ? f.friend_user_id : f.created_by
+      );
+      if (friendIds.length === 0) return [];
+      const profiles = await Promise.all(
+        friendIds.map(id => base44.entities.UserProfile.filter({ created_by: id }))
+      );
+      return profiles.flat().filter(Boolean);
+    },
+    enabled: friends.length > 0,
+  });
+
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
   if (!user || !profile) {
     return <SocialSkeleton />;
@@ -57,13 +85,96 @@ export default function Social() {
           <h1 className="text-3xl font-black text-white mb-1">
             {t('social')}
           </h1>
-          <p className="text-white/60 text-sm">
+          <p className="text-white/70 text-sm">
             {t('connect_compete_share')}
           </p>
         </div>
 
         {/* Invite Friends Card - Always visible */}
         <InviteSystemCard profile={profile} />
+
+        {/* Friend Feed Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-white font-black text-lg flex items-center gap-2">
+              <Users size={20} />
+              {t('my_friends')}
+            </h2>
+            <Button
+              onClick={() => navigate(createPageUrl('Friends'))}
+              size="sm"
+              variant="outline"
+              className="border-white/20 bg-white/10 text-white hover:bg-white/20 rounded-full h-9 px-4"
+            >
+              <UserPlus size={16} className="mr-1" />
+              {t('add_friend')}
+            </Button>
+          </div>
+
+          {friendProfiles.length === 0 ? (
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
+              <Users size={40} className="text-white/30 mx-auto mb-3" />
+              <p className="text-white/80 font-bold mb-1">{t('no_friends_yet')}</p>
+              <p className="text-white/60 text-sm mb-4">{t('invite_friends_to_join')}</p>
+              <Button
+                onClick={() => navigate(createPageUrl('Friends'))}
+                className="bg-teal-500 hover:bg-teal-600 text-white rounded-xl"
+              >
+                <UserPlus size={16} className="mr-2" />
+                {t('add_friend')}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {friendProfiles.slice(0, 5).map((friend, idx) => (
+                <motion.div
+                  key={friend.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        {friend.display_name?.charAt(0) || "?"}
+                      </div>
+                      {friend.status_text && (
+                        <div className="absolute -bottom-1 -right-1 bg-purple-500 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-slate-900">
+                          ✨
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-semibold">{friend.display_name}</p>
+                      {friend.status_text && (
+                        <StatusChip status={{ status_text: friend.status_text, status_updated_at: friend.status_updated_at }} />
+                      )}
+                      <div className="flex items-center gap-3 text-xs mt-2">
+                        <span className="flex items-center gap-1 text-orange-300">
+                          <Flame size={12} />
+                          {friend.current_streak || 0}
+                        </span>
+                        <span className="flex items-center gap-1 text-emerald-300">
+                          <Activity size={12} />
+                          {friend.total_checkins || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+              {friendProfiles.length > 5 && (
+                <button
+                  onClick={() => navigate(createPageUrl('Friends'))}
+                  className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm font-semibold hover:bg-white/10 transition-colors"
+                >
+                  {t('view_all')} ({friendProfiles.length})
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Groups Section */}
         <div className="space-y-4">
@@ -73,21 +184,18 @@ export default function Social() {
               {t('your_groups')}
             </h2>
             {isPremium && (
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => navigate(createPageUrl('Groups'))}
-                  size="sm"
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full h-9 px-4"
-                >
-                  <Plus size={16} className="mr-1" />
-                  {t('create_group_btn')}
-                </Button>
-              </div>
+              <Button
+                onClick={() => navigate(createPageUrl('Groups'))}
+                size="sm"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full h-9 px-4"
+              >
+                <Plus size={16} className="mr-1" />
+                {t('create_group_btn')}
+              </Button>
             )}
           </div>
 
           {!isPremium ? (
-            /* Premium Lock */
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -98,8 +206,8 @@ export default function Social() {
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Lock size={32} className="text-white" />
                 </div>
-                <h3 className="text-white font-bold text-xl mb-2">{t('locked_feature')}</h3>
-                <p className="text-white/80 text-sm mb-6 leading-relaxed">
+                <h3 className="text-white font-black text-xl mb-2">{t('locked_feature')}</h3>
+                <p className="text-white/90 text-sm mb-6 leading-relaxed">
                   {t('unlock_social')}
                 </p>
                 <Button
@@ -111,7 +219,6 @@ export default function Social() {
               </div>
             </motion.div>
           ) : myGroups.length === 0 ? (
-            /* Empty State */
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
               <Users size={40} className="text-white/30 mx-auto mb-3" />
               <p className="text-white/80 font-bold mb-1">{t('no_groups_joined')}</p>
@@ -125,7 +232,6 @@ export default function Social() {
               </Button>
             </div>
           ) : (
-            /* Groups List */
             <div className="space-y-3">
               {myGroups.map((group) => (
                 <motion.div
@@ -135,28 +241,15 @@ export default function Social() {
                   onClick={() => navigate(`${createPageUrl('GroupDetail')}?id=${group.id}`)}
                   className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-all cursor-pointer"
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-white font-bold text-lg">{group.name}</h3>
                       <p className="text-purple-200 text-sm">{group.member_count || 0} {t('members')}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                        <Trophy size={20} className="text-amber-400" />
+                        <Flame size={18} className="text-amber-400" />
                       </div>
-                      <div className="w-10 h-10 rounded-full bg-teal-500/20 flex items-center justify-center">
-                        <TrendingUp size={20} className="text-teal-400" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-xs text-white/70">
-                    <div className="flex items-center gap-1">
-                      <Flame size={14} className="text-orange-400" />
-                      <span>{t('leaderboard')}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users size={14} className="text-teal-400" />
-                      <span>{t('feed')}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -164,41 +257,6 @@ export default function Social() {
             </div>
           )}
         </div>
-
-        {/* Quick Stats - Premium only */}
-        {isPremium && myGroups.length > 0 && (
-          <div className="bg-gradient-to-br from-teal-500/15 to-emerald-500/15 backdrop-blur-xl rounded-2xl p-5 border border-teal-500/20">
-            <h3 className="text-teal-300/90 text-xs font-bold uppercase tracking-wider mb-3">
-              {t('this_week')}
-            </h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-black text-white mb-1">
-                  {profile?.fire_total || 0}
-                </div>
-                <div className="text-[10px] text-white/50 uppercase tracking-wider font-bold">
-                  {t('fire_points')}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-black text-white mb-1">
-                  {profile?.current_streak || 0}
-                </div>
-                <div className="text-[10px] text-white/50 uppercase tracking-wider font-bold">
-                  {t('current_streak')}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-black text-white mb-1">
-                  {myGroups.length}
-                </div>
-                <div className="text-[10px] text-white/50 uppercase tracking-wider font-bold">
-                  {t('groups')}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
