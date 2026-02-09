@@ -1,0 +1,237 @@
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { useAppState } from "@/components/AppStateContext";
+import { useTranslation } from "@/components/TranslationProvider";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Dumbbell, TrendingUp, Calendar, Zap, ArrowLeft, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { toast } from "sonner";
+
+export default function TrainerDashboard() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user, profile } = useAppState();
+  const { t } = useTranslation();
+  const [selectedPlan, setSelectedPlan] = useState(null);
+
+  const { data: workoutPlans = [] } = useQuery({
+    queryKey: ["workout-plans", user?.email],
+    queryFn: () => base44.entities.WorkoutPlan.filter({ user_email: user?.email }, "-created_date"),
+    enabled: !!user?.email,
+  });
+
+  const { data: sessions = [] } = useQuery({
+    queryKey: ["workout-sessions", user?.email],
+    queryFn: () => base44.entities.WorkoutSession.filter({ created_by: user.email }, "-date", 30),
+    enabled: !!user?.email,
+  });
+
+  const generatePlanMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await base44.functions.invoke('aiWorkoutGenerator', {
+        profile: { ...profile, email: user.email },
+        ...data,
+      });
+      return response.data;
+    },
+    onSuccess: (plan) => {
+      toast.success("Plan generado por IA");
+      queryClient.invalidateQueries({ queryKey: ["workout-plans"] });
+      setSelectedPlan(plan);
+    },
+    onError: () => toast.error("Error al generar plan"),
+  });
+
+  const activatePlanMutation = useMutation({
+    mutationFn: (planId) =>
+      base44.entities.WorkoutPlan.update(planId, { status: "active" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workout-plans"] });
+      toast.success("Plan activado");
+    },
+  });
+
+  // Calculate progression metrics
+  const volumeData = sessions
+    .filter(s => s.volume)
+    .map(s => ({
+      date: new Date(s.date).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }),
+      volume: s.volume,
+    }))
+    .reverse();
+
+  const strengthData = sessions
+    .filter(s => s.exercises_completed?.length > 0)
+    .map(s => ({
+      date: new Date(s.date).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }),
+      exercises: s.exercises_completed.length,
+    }))
+    .reverse();
+
+  const activePlan = workoutPlans.find(p => p.status === "active");
+  const totalWorkouts = sessions.length;
+  const avgIntensity = sessions.length > 0
+    ? Math.round(
+        sessions.reduce((sum, s) => {
+          const intensityScore = {
+            light: 3,
+            moderate: 5,
+            intense: 8,
+            very_intense: 10,
+          };
+          return sum + (intensityScore[s.intensity_level] || 0);
+        }, 0) / sessions.length
+      )
+    : 0;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 pb-24">
+      <div className="max-w-2xl mx-auto px-4 pt-6">
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => navigate(createPageUrl('Home'))}
+            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <ArrowLeft size={20} className="text-white" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-black text-white">Tu Entrenador Personal IA</h1>
+            <p className="text-white/60 text-sm">Planes adaptativos y seguimiento inteligente</p>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
+            <p className="text-white/60 text-xs mb-1">Entrenamientos</p>
+            <p className="text-white text-3xl font-bold">{totalWorkouts}</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
+            <p className="text-white/60 text-xs mb-1">Intensidad Promedio</p>
+            <p className="text-white text-3xl font-bold">{avgIntensity}</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
+            <p className="text-white/60 text-xs mb-1">Planes Activos</p>
+            <p className="text-white text-3xl font-bold">{workoutPlans.filter(p => p.status === "active").length}</p>
+          </div>
+        </div>
+
+        {/* Volume Progress */}
+        {volumeData.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
+            <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+              <TrendingUp size={18} />
+              Progresión de Volumen
+            </h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={volumeData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis dataKey="date" stroke="rgba(255,255,255,0.5)" style={{ fontSize: 12 }} />
+                <YAxis stroke="rgba(255,255,255,0.5)" style={{ fontSize: 12 }} />
+                <Tooltip contentStyle={{ backgroundColor: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(255,255,255,0.2)" }} />
+                <Line type="monotone" dataKey="volume" stroke="#10b981" strokeWidth={3} dot={{ fill: "#10b981", r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Active Plan */}
+        {activePlan && (
+          <div className="bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-xl rounded-3xl p-6 border border-indigo-500/30 mb-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-white font-bold text-lg">{activePlan.plan_name}</h3>
+                <p className="text-indigo-200 text-sm">
+                  Semana {activePlan.current_week} de {activePlan.duration_weeks}
+                </p>
+              </div>
+              <div className="px-3 py-1 bg-indigo-500/30 border border-indigo-500/50 rounded-full text-indigo-300 text-xs font-bold">
+                {activePlan.days_per_week}x/semana
+              </div>
+            </div>
+            <Button
+              onClick={() => navigate(`${createPageUrl('WorkoutTracker')}?planId=${activePlan.id}`)}
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold"
+            >
+              <Dumbbell size={18} className="mr-2" />
+              Registrar Entrenamiento
+            </Button>
+          </div>
+        )}
+
+        {/* Generate New Plan */}
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
+          <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+            <Zap size={18} />
+            Generar Plan con IA
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {["strength", "hypertrophy", "endurance", "mixed"].map((focus) => (
+              <Button
+                key={focus}
+                onClick={() =>
+                  generatePlanMutation.mutate({
+                    focus,
+                    duration_weeks: 12,
+                    days_per_week: 4,
+                  })
+                }
+                disabled={generatePlanMutation.isPending}
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20"
+              >
+                {focus === "strength" && "💪 Fuerza"}
+                {focus === "hypertrophy" && "🏋️ Hipertrofia"}
+                {focus === "endurance" && "🏃 Resistencia"}
+                {focus === "mixed" && "⚡ Mixto"}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Plans History */}
+        <div className="space-y-3">
+          <h3 className="text-white font-bold flex items-center gap-2">
+            <Calendar size={18} />
+            Mis Planes
+          </h3>
+          {workoutPlans.length === 0 ? (
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 text-center">
+              <Dumbbell size={32} className="text-white/30 mx-auto mb-2" />
+              <p className="text-white/70">Crea tu primer plan de entrenamiento</p>
+            </div>
+          ) : (
+            workoutPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`bg-white/10 backdrop-blur-xl rounded-2xl p-4 border transition-all ${
+                  plan.status === "active"
+                    ? "border-indigo-500/50 bg-indigo-500/10"
+                    : "border-white/20"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-white font-bold">{plan.plan_name}</p>
+                    <p className="text-white/60 text-sm">{plan.focus} • {plan.days_per_week}x/semana</p>
+                  </div>
+                  {plan.status !== "active" && (
+                    <Button
+                      size="sm"
+                      onClick={() => activatePlanMutation.mutate(plan.id)}
+                      className="bg-indigo-500 hover:bg-indigo-600 text-white"
+                    >
+                      Activar
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

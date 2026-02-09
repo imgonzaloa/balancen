@@ -72,6 +72,9 @@ import UserManagement from './pages/UserManagement';
 import Chat from './pages/Chat';
 import CreateStory from './pages/CreateStory';
 import ProgressTracker from './pages/ProgressTracker';
+import TrainerDashboard from './pages/TrainerDashboard';
+import NutritionHub from './pages/NutritionHub';
+import WorkoutTracker from './pages/WorkoutTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -101,6 +104,9 @@ export const PAGES = {
     "Chat": Chat,
     "CreateStory": CreateStory,
     "ProgressTracker": ProgressTracker,
+    "TrainerDashboard": TrainerDashboard,
+    "NutritionHub": NutritionHub,
+    "WorkoutTracker": WorkoutTracker,
 }
 
 export const pagesConfig = {
