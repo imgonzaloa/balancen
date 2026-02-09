@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Camera } from "lucide-react";
+import { Camera, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -8,10 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
-import UserHeader from "@/components/home/UserHeader";
-import MomentumCard from "@/components/home/MomentumCard";
-import DailyMissions from "@/components/home/DailyMissions";
-import PrecisionCard from "@/components/home/PrecisionCard";
+import SocialPreview from "@/components/home/SocialPreview";
 
 export default function Home() {
   // ALL HOOKS AT TOP - UNCONDITIONALLY
@@ -60,32 +57,9 @@ export default function Home() {
     const caloriesGoal = profile?.calories_goal || 2000;
     const progress = Math.min((totalCalories / caloriesGoal) * 100, 100);
     const strokeDashoffset = 440 - (progress / 100) * 440;
-    
-    // Momentum calculation (never resets to zero, persists across sessions)
-    const trackingConsistency = Math.min((todayMeals.length / 3) * 100, 100);
-    const goalAdherence = Math.min((totalCalories / caloriesGoal) * 100, 100);
-    const baseMomentum = profile?.momentum_score || 0;
-    const todayBoost = (trackingConsistency * 0.3 + goalAdherence * 0.2) * 0.5;
-    const momentumScore = Math.min(Math.round(baseMomentum + todayBoost), 100);
-    
-    const hasPhotos = todayMeals.some(m => m.photo_url);
-    const hasManualEntry = todayMeals.length > 0;
 
-    return { 
-      totalCalories, 
-      totalProtein, 
-      totalCarbs, 
-      totalFats, 
-      caloriesGoal, 
-      strokeDashoffset, 
-      progress,
-      momentumScore,
-      trackingConsistency,
-      goalAdherence,
-      hasPhotos,
-      hasManualEntry
-    };
-  }, [todayMeals, profile?.calories_goal, profile?.momentum_score]);
+    return { totalCalories, totalProtein, totalCarbs, totalFats, caloriesGoal, strokeDashoffset };
+  }, [todayMeals, profile?.calories_goal]);
 
   // Loading state
   if (!isInitialized || loading) {
