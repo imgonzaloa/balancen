@@ -130,20 +130,26 @@ export default function AddMeal() {
 
           {/* Dropdown */}
           {searchQuery && filteredFoods.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-white/20 rounded-2xl overflow-hidden z-10 max-h-64 overflow-y-auto">
-              {filteredFoods.slice(0, 10).map((food) => (
-                <button
-                  key={food.name}
-                  onClick={() => addFood(food)}
-                  className="w-full px-4 py-3 text-left hover:bg-white/10 border-b border-white/10 last:border-b-0 transition-colors flex items-center justify-between group"
-                >
-                  <div>
-                    <p className="text-white font-semibold text-sm">{food.name}</p>
-                    <p className="text-white/60 text-xs">{food.calories} cal • {food.portion}</p>
-                  </div>
-                  <Plus size={16} className="text-white/40 group-hover:text-teal-300 transition-colors" />
-                </button>
-              ))}
+            <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-white/20 rounded-2xl overflow-hidden z-10 max-h-64 overflow-y-auto shadow-xl">
+              {filteredFoods.length > 0 ? (
+                filteredFoods.slice(0, 10).map((food) => (
+                  <button
+                    key={food.name}
+                    onClick={() => addFood(food)}
+                    className="w-full px-4 py-3 text-left hover:bg-white/10 border-b border-white/10 last:border-b-0 transition-colors flex items-center justify-between group"
+                  >
+                    <div>
+                      <p className="text-white font-semibold text-sm">{food.name}</p>
+                      <p className="text-white/60 text-xs">{food.calories} cal • {food.portion}</p>
+                    </div>
+                    <Plus size={16} className="text-white/40 group-hover:text-teal-300 transition-colors" />
+                  </button>
+                ))
+              ) : (
+                <div className="px-4 py-3 text-center text-white/60 text-sm">
+                  {t('no_results')} "{searchQuery}"
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -206,23 +212,23 @@ export default function AddMeal() {
               variant="outline"
               className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-2xl h-12"
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               onClick={handleSave}
               disabled={saving}
               className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-2xl h-12 font-bold"
             >
-              {saving ? "Saving..." : "Log Meal"}
+              {saving ? t('saving') : t('save_meal')}
             </Button>
           </div>
         )}
 
-        {selectedFoods.length === 0 && searchQuery === "" && (
+        {selectedFoods.length === 0 && (
           <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
             <Search size={40} className="text-white/40 mx-auto mb-3" />
-            <p className="text-white/70 font-semibold mb-1">Search for foods</p>
-            <p className="text-white/50 text-sm">Type a food name to get started</p>
+            <p className="text-white/70 font-semibold mb-1">{t('search_foods')}</p>
+            <p className="text-white/50 text-sm">{t('type_food_name')}</p>
           </div>
         )}
       </div>
