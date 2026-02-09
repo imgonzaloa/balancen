@@ -349,7 +349,7 @@ export default function MealResult() {
           {/* Calories */}
           <div style={{ marginBottom: "2rem" }}>
             <label style={{ display: "block", fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", marginBottom: "0.5rem" }}>
-              Calorías
+              {t("calories")}
             </label>
             <input
               type="number"
@@ -443,6 +443,8 @@ export default function MealResult() {
                 </span>
               ) : (
                 "Guardar comida"
+              ) : (
+                t("save_meal")
               )}
             </button>
           </div>

@@ -9,18 +9,18 @@ export function MealProvider({ children }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
-  // Restore from localStorage on mount
+  // Restore from sessionStorage on mount (better for camera flow)
   useEffect(() => {
-    const storedDataUrl = localStorage.getItem("meal_last_capture_dataurl");
+    const storedDataUrl = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
     if (storedDataUrl && !file) {
-      console.log("Restoring file from localStorage dataURL");
+      console.log("Restoring file from storage");
       try {
-        // Convert dataUrl back to File correctly
         fetch(storedDataUrl)
           .then(res => res.blob())
           .then(blob => {
             if (blob.size === 0) {
               console.error("Restored blob has 0 size");
+              sessionStorage.removeItem("balancen_last_capture");
               localStorage.removeItem("meal_last_capture_dataurl");
               return;
             }
@@ -32,10 +32,12 @@ export function MealProvider({ children }) {
           })
           .catch(err => {
             console.error("Failed to restore file:", err);
+            sessionStorage.removeItem("balancen_last_capture");
             localStorage.removeItem("meal_last_capture_dataurl");
           });
       } catch (err) {
         console.error("Failed to restore file:", err);
+        sessionStorage.removeItem("balancen_last_capture");
         localStorage.removeItem("meal_last_capture_dataurl");
       }
     }
@@ -49,8 +51,9 @@ export function MealProvider({ children }) {
     setError(null);
     setResult(null);
     
-    // Store dataUrl in localStorage for persistence
+    // Store dataUrl in BOTH sessionStorage (priority) and localStorage (fallback)
     if (dataUrl) {
+      sessionStorage.setItem("balancen_last_capture", dataUrl);
       localStorage.setItem("meal_last_capture_dataurl", dataUrl);
     }
   };
@@ -64,8 +67,11 @@ export function MealProvider({ children }) {
     setStatus("idle");
     setResult(null);
     setError(null);
+    sessionStorage.removeItem("balancen_last_capture");
     localStorage.removeItem("meal_last_capture_dataurl");
   };
+
+  const resetMeal = clearCapture;
 
   const updateStatus = (newStatus) => {
     setStatus(newStatus);
@@ -85,12 +91,14 @@ export function MealProvider({ children }) {
     <MealContext.Provider
       value={{
         file,
+        capturedFile: file,
         previewUrl,
         status,
         result,
         error,
         setCapturedFile,
         clearCapture,
+        resetMeal,
         updateStatus,
         setAnalysisResult,
         setAnalysisError,
