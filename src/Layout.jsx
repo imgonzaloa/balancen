@@ -85,32 +85,37 @@ function LayoutInner({ children, currentPageName, bootState }) {
       </main>
 
       {!hideNav && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)', pointerEvents: 'auto' }}>
-            <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.name);
-                return (
-                  <Link
-                    key={item.name}
-                    to={createPageUrl(item.name)}
-                    className="relative flex flex-col items-center py-2 px-4 touch-manipulation transition-transform duration-75 active:scale-90"
-                    style={{ pointerEvents: 'auto' }}
-                  >
-                    {active && (
-                      <div className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full" />
-                    )}
-                    <div className={`p-2.5 rounded-2xl ${active ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/20" : ""}`}>
-                      <Icon size={22} className={active ? "text-teal-300" : "text-slate-400"} />
-                    </div>
-                    <span className={`text-[10px] mt-0.5 font-semibold ${active ? "text-teal-300" : "text-slate-500"}`}>
-                      {item.label}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </nav>
+        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 z-50 safe-area-inset-bottom">
+              <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.name);
+                  return (
+                    <Link
+                      key={item.name}
+                      to={createPageUrl(item.name)}
+                      onClick={(e) => {
+                        // Prevent navigation if already on page
+                        if (active) {
+                          e.preventDefault();
+                        }
+                      }}
+                      className="relative flex flex-col items-center py-2 px-4 touch-manipulation transition-transform duration-75 active:scale-90 cursor-pointer"
+                    >
+                      {active && (
+                        <div className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full" />
+                      )}
+                      <div className={`p-2.5 rounded-2xl ${active ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/20" : ""}`}>
+                        <Icon size={22} className={active ? "text-teal-300" : "text-slate-400"} />
+                      </div>
+                      <span className={`text-[10px] mt-0.5 font-semibold ${active ? "text-teal-300" : "text-slate-500"}`}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </nav>
         )}
         </div>
         );
