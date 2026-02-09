@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Settings, LogOut, Edit2, Target, Sparkles } from "lucide-react";
+import { Camera, Settings, LogOut, Edit2, Target, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -218,7 +218,7 @@ export default function Profile() {
             <div className="flex items-center gap-4 mb-6">
               {/* Clickable Profile Photo - Instagram Style */}
               <div 
-                onClick={() => cachedProfile?.profile_photo || cachedProfile?.avatar_url ? null : document.querySelector('[data-gallery-input]')?.click()}
+                onClick={() => setPhotoPreview(true)}
                 className="relative cursor-pointer group"
               >
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative ring-2 ring-white/20 group-hover:ring-teal-400 transition-all">
@@ -365,6 +365,30 @@ export default function Profile() {
         </button>
       </div>
 
+      {/* Photo Picker Modal */}
+      {photoPreview && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end">
+          <div className="w-full bg-slate-900 rounded-t-3xl p-6 border-t border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-bold">{t('upload_photo')}</h3>
+              <button
+                onClick={() => setPhotoPreview(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-white" />
+              </button>
+            </div>
+            <PhotoPicker
+              onPhotoSelected={(file, preview) => {
+                handlePhotoUpload(file, preview);
+                setPhotoPreview(false);
+              }}
+              onRemovePreview={() => setPhotoPreview(false)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Goals Edit Modal - PREMIUM ONLY */}
       {showGoalsEdit && (profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
         <ProfileGoalsEdit
@@ -377,6 +401,6 @@ export default function Profile() {
           }}
         />
       )}
-    </div>
-  );
-}
+      </div>
+      );
+      }

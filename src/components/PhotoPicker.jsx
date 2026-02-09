@@ -1,8 +1,10 @@
 import React, { useRef, useState } from "react";
 import { Camera, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function PhotoPicker({ onPhotoSelected, preview, onRemovePreview }) {
+  const { t } = useTranslation();
   const cameraRef = useRef(null);
   const galleryRef = useRef(null);
   const videoRef = useRef(null);
@@ -76,20 +78,20 @@ export default function PhotoPicker({ onPhotoSelected, preview, onRemovePreview 
         />
         <canvas ref={canvasRef} className="hidden" />
         <div className="flex gap-2">
-          <Button
-            onClick={stopCamera}
-            variant="outline"
-            className="flex-1"
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={capturePhoto}
-            className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold"
-          >
-            Capturar
-          </Button>
-        </div>
+           <Button
+             onClick={stopCamera}
+             variant="outline"
+             className="flex-1"
+           >
+             {t('cancel')}
+           </Button>
+           <Button
+             onClick={capturePhoto}
+             className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold"
+           >
+             {t('take_photo')}
+           </Button>
+         </div>
       </div>
     );
   }
@@ -99,33 +101,33 @@ export default function PhotoPicker({ onPhotoSelected, preview, onRemovePreview 
       <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
         <img src={preview} alt="Preview" className="w-full rounded-lg mb-3" />
         <Button
-          onClick={onRemovePreview}
-          variant="outline"
-          className="w-full text-red-300 border-red-300/30 hover:bg-red-500/10"
-        >
-          <X size={18} className="mr-2" />
-          Eliminar foto
-        </Button>
+           onClick={onRemovePreview}
+           variant="outline"
+           className="w-full text-red-300 border-red-300/30 hover:bg-red-500/10"
+         >
+           <X size={18} className="mr-2" />
+           {t('delete')}
+         </Button>
       </div>
     );
   }
 
   return (
-    <div className="flex gap-2">
-      <Button
-        onClick={startCamera}
-        className="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white"
-      >
-        <Camera size={18} className="mr-2" />
-        Cámara
-      </Button>
-      <Button
-        onClick={() => galleryRef.current?.click()}
-        className="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white"
-      >
-        <Upload size={18} className="mr-2" />
-        Galería
-      </Button>
+     <div className="flex gap-2">
+       <Button
+         onClick={startCamera}
+         className="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white"
+       >
+         <Camera size={18} className="mr-2" />
+         {t('take_photo')}
+       </Button>
+       <Button
+         onClick={() => galleryRef.current?.click()}
+         className="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white"
+       >
+         <Upload size={18} className="mr-2" />
+         {t('choose_gallery')}
+       </Button>
       <input
         ref={galleryRef}
         type="file"
