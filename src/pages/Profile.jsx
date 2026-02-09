@@ -24,12 +24,12 @@ function StatusEditor({ profile, lang, onUpdate }) {
         status_updated_at: new Date().toISOString(),
       });
       
-      toast.success(t('photo_updated'));
+      toast.success(t('status_updated'));
       onUpdate?.();
       setIsEditing(false);
     } catch (err) {
       console.error("Failed to update status:", err);
-      toast.error(t('error_uploading_photo'));
+      toast.error(t('update_failed'));
     } finally {
       setSaving(false);
     }
@@ -232,6 +232,15 @@ export default function Profile() {
                 <p className="text-teal-200 text-sm">{user?.email}</p>
               </div>
             </div>
+
+            {/* Premium Badge */}
+            {(profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite") && (
+              <div className="mb-4 px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center gap-2">
+                <span className="text-purple-300 text-xs font-bold">
+                  {lang === 'es' ? '👑 Premium (Colaborador)' : '👑 Premium (Collaborator)'}
+                </span>
+              </div>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3">

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { logger } from "@/components/logger";
+import { useCollaboratorInviteCheck } from "@/components/CheckCollaboratorInvite";
 
 const AppStateContext = createContext(null);
 
@@ -12,6 +13,9 @@ export function AppStateProvider({ children }) {
   const [groups, setGroups] = useState(null);
   const [todayMeals, setTodayMeals] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Check for collaborator invites
+  useCollaboratorInviteCheck(user);
 
   // Initialize user on mount with timeout
   useEffect(() => {
