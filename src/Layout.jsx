@@ -18,8 +18,8 @@ const navItems = [
   { name: "Profile", icon: User, label: "Profile" }
 ];
 
-const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector", "Notes"];
-const showBrandPages = ["Home", "Social", "Progress", "Profile", "Notes"];
+const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector"];
+const showBrandPages = ["Home", "Social", "Progress", "Profile"];
 
 function LayoutInner({ children, currentPageName, bootState }) {
   const navigate = useNavigate();

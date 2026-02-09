@@ -157,25 +157,42 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => navigate(createPageUrl('Notes'))}
-            className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:from-purple-500/30 hover:to-pink-500/30 transition-all text-left"
-          >
-            <div className="text-3xl mb-2">📝</div>
-            <p className="text-white font-semibold text-sm">{lang === "es" ? "Notas" : "Notes"}</p>
-            <p className="text-white/60 text-xs">{lang === "es" ? "Escribe tus pensamientos" : "Write your thoughts"}</p>
-          </button>
-          
-          <button
-            onClick={() => navigate(createPageUrl('Progress'))}
-            className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl p-5 border border-blue-500/30 hover:from-blue-500/30 hover:to-cyan-500/30 transition-all text-left"
-          >
-            <div className="text-3xl mb-2">📊</div>
-            <p className="text-white font-semibold text-sm">{t('progress')}</p>
-            <p className="text-white/60 text-xs">{lang === "es" ? "Ver tu evolución" : "See your evolution"}</p>
-          </button>
+        {/* Recent Meals */}
+        {todayMeals && todayMeals.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-white font-bold text-lg">{lang === "es" ? "Comidas de hoy" : "Today's Meals"}</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {todayMeals.slice(0, 4).map((meal) => (
+                <div key={meal.id} className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10">
+                  {meal.photo_url && (
+                    <img src={meal.photo_url} alt="Meal" className="w-full h-24 object-cover" />
+                  )}
+                  <div className="p-3">
+                    <p className="text-teal-300 font-semibold text-sm">{meal.estimated_calories} kcal</p>
+                    <p className="text-white/60 text-xs">{meal.meal_time || new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* AI Coach Card */}
+        <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl rounded-3xl p-6 border border-purple-500/20">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
+              <span className="text-lg">✨</span>
+            </div>
+            <div className="flex-1">
+              <p className="text-purple-300 font-semibold text-sm mb-1">{lang === "es" ? "Coach IA" : "AI Coach"}</p>
+              <p className="text-white/80 text-sm leading-relaxed">
+                {metrics.caloriesGoalProgress >= 100 
+                  ? (lang === "es" ? "¡Excelente! Alcanzaste tu meta de calorías. Mantén la consistencia." : "Excellent! You hit your calorie goal. Keep up the consistency.")
+                  : (lang === "es" ? "Sigue así, estás progresando bien. Registra más comidas para mejor precisión." : "Keep going, you're making progress. Log more meals for better accuracy.")
+                }
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Social Preview */}

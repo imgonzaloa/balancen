@@ -108,18 +108,7 @@ const resources = {
       add_friends: "Add Friends",
       no_friends_yet: "No activity yet today",
       invite_friends_to_join: "Invite friends to join you",
-      
-      // Notes
-      notes: "Notes",
-      write_thoughts: "Write your thoughts",
-      no_notes_yet: "No notes yet",
-      tap_plus_first_note: "Tap + to write your first note",
-      note_saved: "Note saved",
-      note_updated: "Note updated",
-      note_deleted: "Note deleted",
-      write_something: "Write something",
-      save_note_failed: "Failed to save",
-      delete_note_failed: "Failed to delete",
+      meal_logged: "Logged a meal",
       
       // Precision
       estimated_accuracy: "Estimated Accuracy",
@@ -302,18 +291,7 @@ const resources = {
       add_friends: "Agregar Amigos",
       no_friends_yet: "Aún sin actividad hoy",
       invite_friends_to_join: "Invitá amigos a unirse",
-      
-      // Notes
-      notes: "Notas",
-      write_thoughts: "Escribe tus pensamientos",
-      no_notes_yet: "Sin notas todavía",
-      tap_plus_first_note: "Toca + para escribir tu primera nota",
-      note_saved: "Nota guardada",
-      note_updated: "Nota actualizada",
-      note_deleted: "Nota eliminada",
-      write_something: "Escribe algo",
-      save_note_failed: "Error al guardar",
-      delete_note_failed: "Error al eliminar",
+      meal_logged: "Registró una comida",
       
       // Precision
       estimated_accuracy: "Precisión Estimada",
