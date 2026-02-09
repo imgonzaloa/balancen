@@ -28,7 +28,8 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const navigate = useNavigate();
   const { t, lang, changeLanguage } = useTranslation();
   
-  // ALL HOOKS UNCONDITIONALLY AT TOP
+  // ALL HOOKS UNCONDITIONALLY AT TOP - useRef must be here, not inside useEffect
+  const isNavigating = React.useRef(false);
   const navItems = getNavItems(t);
   const hideNav = noNavPages.includes(currentPageName);
   const isActive = (pageName) => currentPageName === pageName;
@@ -38,7 +39,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
     if (!bootState) return;
 
     // Prevent infinite redirect loops
-    const isNavigating = React.useRef(false);
     if (isNavigating.current) return;
 
     if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
@@ -68,7 +68,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
         setTimeout(() => { isNavigating.current = false; }, 100);
       }
     }
-  }, [bootState?.type]);
+  }, [bootState?.type, currentPageName, navigate, lang, changeLanguage]);
 
   // RENDER (no conditional returns)
   return (
