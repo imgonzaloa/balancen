@@ -56,7 +56,7 @@ export default function Social() {
       ]);
       return [...sent, ...received].filter(f => f);
     },
-    enabled: !!user?.email,
+    enabled: !!user?.email && (!!profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator'),
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
   });
@@ -128,25 +128,49 @@ export default function Social() {
           </div>
         </button>
 
-        {/* Friend Feed Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white font-black text-lg flex items-center gap-2">
-              <Users size={20} />
-              {t('my_friends')}
-            </h2>
-            <Button
-              onClick={() => navigate(createPageUrl('Friends'))}
-              size="sm"
-              variant="outline"
-              className="border-white/20 bg-white/10 text-white hover:bg-white/20 rounded-full h-9 px-4"
-            >
-              <UserPlus size={16} className="mr-1" />
-              {t('add_friend')}
-            </Button>
-          </div>
+        {/* Friend Feed Section - PREMIUM ONLY */}
+         {!isPremium ? (
+           <motion.div
+             initial={{ opacity: 0, scale: 0.95 }}
+             animate={{ opacity: 1, scale: 1 }}
+             className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 text-center relative overflow-hidden"
+           >
+             <div className="absolute top-0 right-0 w-32 h-32 bg-pink-400/10 rounded-full blur-3xl" />
+             <div className="relative z-10">
+               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                 <Lock size={32} className="text-white" />
+               </div>
+               <h3 className="text-white font-black text-xl mb-2">{t('locked_feature')}</h3>
+               <p className="text-white/90 text-sm mb-6 leading-relaxed">
+                 {t('unlock_social')}
+               </p>
+               <Button
+                 onClick={() => navigate(createPageUrl('Premium'))}
+                 className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-8 rounded-2xl shadow-xl"
+               >
+                 {t('upgrade_now')}
+               </Button>
+             </div>
+           </motion.div>
+         ) : (
+           <div className="space-y-4">
+             <div className="flex items-center justify-between">
+               <h2 className="text-white font-black text-lg flex items-center gap-2">
+                 <Users size={20} />
+                 {t('my_friends')}
+               </h2>
+               <Button
+                 onClick={() => navigate(createPageUrl('Friends'))}
+                 size="sm"
+                 variant="outline"
+                 className="border-white/20 bg-white/10 text-white hover:bg-white/20 rounded-full h-9 px-4"
+               >
+                 <UserPlus size={16} className="mr-1" />
+                 {t('add_friend')}
+               </Button>
+             </div>
 
-          {friendProfiles.length === 0 ? (
+             {friendProfiles.length === 0 ? (
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
               <Users size={40} className="text-white/30 mx-auto mb-3" />
               <p className="text-white/80 font-bold mb-1">{t('no_friends_yet')}</p>
@@ -207,9 +231,10 @@ export default function Social() {
                   {t('view_all')} ({friendProfiles.length})
                 </button>
               )}
-            </div>
-          )}
-        </div>
+              </div>
+              )}
+              </div>
+              )}
 
         {/* Groups Section */}
         <div className="space-y-4">
