@@ -18,17 +18,20 @@ export function useTranslation() {
     await i18n.changeLanguage(newLang);
   };
   
-  // Strict mode: show missing keys
-  const strictT = (key, options) => {
+  // Production-ready translation with silent fallback
+  const safeT = (key, options) => {
     const result = t(key, options);
+    // If translation is missing, return English fallback silently
     if (result === key) {
-      return `[MISSING:${key}]`;
+      // Try English fallback
+      const englishResult = i18n.t(key, { ...options, lng: 'en' });
+      return englishResult !== key ? englishResult : key;
     }
     return result;
   };
   
   return {
-    t: strictT,
+    t: safeT,
     lang: i18n.language,
     changeLanguage,
     setLang: changeLanguage
