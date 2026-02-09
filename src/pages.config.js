@@ -75,6 +75,7 @@ import ProgressTracker from './pages/ProgressTracker';
 import TrainerDashboard from './pages/TrainerDashboard';
 import NutritionHub from './pages/NutritionHub';
 import WorkoutTracker from './pages/WorkoutTracker';
+import AddMeal from './pages/AddMeal';
 import __Layout from './Layout.jsx';
 
 
@@ -107,6 +108,7 @@ export const PAGES = {
     "TrainerDashboard": TrainerDashboard,
     "NutritionHub": NutritionHub,
     "WorkoutTracker": WorkoutTracker,
+    "AddMeal": AddMeal,
 }
 
 export const pagesConfig = {
