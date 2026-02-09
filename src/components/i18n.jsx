@@ -185,6 +185,56 @@ const resources = {
       premium_invitation_subject: "Balancen Premium Invitation",
       premium_invitation_body: "You've been invited to join Balancen with free Premium access. Please sign up in the app using this email: {{email}}",
       
+      // Home redesign
+      good_morning: "Good morning",
+      good_afternoon: "Good afternoon",
+      good_evening: "Good evening",
+      daily_intake: "Daily Intake",
+      recent_meals: "Recent Meals",
+      no_meals_logged: "No meals logged yet",
+      start_logging: "Start logging to track your nutrition",
+      streak_momentum: "Streak & Momentum",
+      best_streak: "Best",
+      ai_daily_insight: "AI Insight",
+      unlock_ai_insights: "Unlock AI insights with Premium",
+      todays_missions: "Today's Missions",
+      view_all: "View all",
+      kcal_short: "kcal",
+      gram_short: "g",
+      
+      // Social features
+      your_groups: "Your Groups",
+      create_group_btn: "Create Group",
+      join_group_btn: "Join Group",
+      leaderboard: "Leaderboard",
+      feed: "Feed",
+      this_week: "This Week",
+      fire_points: "Fire Points",
+      no_posts_yet: "No posts yet",
+      share_something: "Share your progress with the group",
+      post_meal: "Share Meal",
+      post_status: "Post Update",
+      locked_feature: "Premium Feature",
+      unlock_social: "Unlock groups, leaderboard & feed with Premium",
+      upgrade_now: "Upgrade Now",
+      react: "React",
+      comment: "Comment",
+      members_count: "{{count}} members",
+      
+      // Meal logging
+      log_meal: "Log Meal",
+      take_photo: "Take Photo",
+      choose_gallery: "Choose from Gallery",
+      manual_entry: "Manual Entry",
+      meal_details: "Meal Details",
+      
+      // Empty states
+      no_groups_joined: "No groups joined yet",
+      create_join_group: "Create or join a group to start competing",
+      
+      // Social tab
+      connect_compete_share: "Connect, compete, and share progress",
+      
       // Camera
       camera_access_denied: "Camera access denied",
       camera_permission_denied: "Camera permission denied",
@@ -557,6 +607,56 @@ const resources = {
       only_owner_can_invite: "Solo el propietario puede invitar colaboradores",
       premium_invitation_subject: "Invitación a Balancen Premium",
       premium_invitation_body: "Has sido invitado a unirte a Balancen con acceso Premium gratuito. Por favor, regístrate en la app usando este email: {{email}}",
+      
+      // Home redesign
+      good_morning: "Buenos días",
+      good_afternoon: "Buenas tardes",
+      good_evening: "Buenas noches",
+      daily_intake: "Ingesta Diaria",
+      recent_meals: "Comidas Recientes",
+      no_meals_logged: "Aún no hay comidas registradas",
+      start_logging: "Empieza a registrar para rastrear tu nutrición",
+      streak_momentum: "Racha & Momentum",
+      best_streak: "Mejor",
+      ai_daily_insight: "Insight IA",
+      unlock_ai_insights: "Desbloquea insights IA con Premium",
+      todays_missions: "Misiones de Hoy",
+      view_all: "Ver todo",
+      kcal_short: "kcal",
+      gram_short: "g",
+      
+      // Social features
+      your_groups: "Tus Grupos",
+      create_group_btn: "Crear Grupo",
+      join_group_btn: "Unirse a Grupo",
+      leaderboard: "Tabla de Posiciones",
+      feed: "Feed",
+      this_week: "Esta Semana",
+      fire_points: "Puntos de Fuego",
+      no_posts_yet: "Aún no hay publicaciones",
+      share_something: "Comparte tu progreso con el grupo",
+      post_meal: "Compartir Comida",
+      post_status: "Publicar Estado",
+      locked_feature: "Función Premium",
+      unlock_social: "Desbloquea grupos, tabla y feed con Premium",
+      upgrade_now: "Mejorar Ahora",
+      react: "Reaccionar",
+      comment: "Comentar",
+      members_count: "{{count}} miembros",
+      
+      // Meal logging
+      log_meal: "Registrar Comida",
+      take_photo: "Tomar Foto",
+      choose_gallery: "Elegir de Galería",
+      manual_entry: "Entrada Manual",
+      meal_details: "Detalles de Comida",
+      
+      // Empty states
+      no_groups_joined: "Aún no te uniste a ningún grupo",
+      create_join_group: "Crea o únete a un grupo para empezar a competir",
+      
+      // Social tab
+      connect_compete_share: "Conecta, compite y comparte progreso",
       
       // Camera
       camera_access_denied: "Acceso a cámara denegado",
