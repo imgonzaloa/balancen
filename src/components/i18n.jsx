@@ -434,7 +434,8 @@ const resources = {
       with_team_desc: "Join groups",
       safe_mode_active: "Safe Mode: Simplified",
 
-      // Missing translations
+      // Additional translations
+      user: "User",
       ai_recommendations: "AI Recommendations",
       personalized_tips: "Personalized tips for you",
       notifications: "Notifications",
@@ -913,7 +914,8 @@ const resources = {
       with_team_desc: "Únete a grupos",
       safe_mode_active: "Modo Seguro: Simplificado",
 
-      // Missing translations
+      // Additional translations
+      user: "Usuario",
       ai_recommendations: "Recomendaciones IA",
       personalized_tips: "Tips personalizados para vos",
       notifications: "Notificaciones",

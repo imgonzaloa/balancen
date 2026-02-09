@@ -218,9 +218,9 @@ export default function Profile() {
                 />
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative">
                   {profile?.profile_photo || profile?.avatar_url ? (
-                    <img src={profile.profile_photo || profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                    <img src={profile.profile_photo || profile.avatar_url} alt={t('profile')} className="w-full h-full object-cover" />
                   ) : (
-                    <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || "U"}</span>
+                    <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || t('user').charAt(0)}</span>
                   )}
                   {uploadingPhoto ? (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center">

@@ -80,8 +80,8 @@ export default function Progress() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Lock size={32} className="text-white" />
               </div>
-              <h3 className="text-white font-bold text-xl mb-2">{t('locked_feature')}</h3>
-              <p className="text-white/80 text-sm mb-6 leading-relaxed max-w-sm mx-auto">
+              <h3 className="text-white font-black text-xl mb-2">{t('locked_feature')}</h3>
+              <p className="text-white/90 text-sm mb-6 leading-relaxed max-w-sm mx-auto">
                 {t('premium_full_history')}
               </p>
               <Button

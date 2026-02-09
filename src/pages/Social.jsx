@@ -113,9 +113,9 @@ export default function Social() {
           ) : myGroups.length === 0 ? (
             /* Empty State */
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
-              <Users size={48} className="text-white/40 mx-auto mb-3" />
-              <p className="text-white/70 font-semibold mb-1">{t('no_groups_joined')}</p>
-              <p className="text-white/50 text-sm mb-4">{t('create_join_group')}</p>
+              <Users size={40} className="text-white/30 mx-auto mb-3" />
+              <p className="text-white/80 font-bold mb-1">{t('no_groups_joined')}</p>
+              <p className="text-white/60 text-sm mb-4">{t('create_join_group')}</p>
               <Button
                 onClick={() => navigate(createPageUrl('Groups'))}
                 className="bg-teal-500 hover:bg-teal-600 text-white rounded-xl"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Camera, Crown, Lock, Sparkles } from "lucide-react";
+import { Camera, Lock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -73,29 +73,14 @@ export default function Home() {
     <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
       <div className="max-w-2xl mx-auto px-6 pt-2 pb-8 space-y-5">
         
-        {/* Header con Branding + Premium Status */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <p className="text-white/50 text-xs font-semibold uppercase tracking-wider">
-              {currentDate}
-            </p>
-            <h1 className="text-3xl font-black text-white">
-              {getGreeting()}, {profile?.display_name?.split(' ')[0] || "User"}
-            </h1>
-          </div>
-          {isPremium ? (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-400/30">
-              <Crown size={16} className="text-amber-400" />
-              <span className="text-amber-300 text-xs font-bold">{t('premium_active')}</span>
-            </div>
-          ) : (
-            <button
-              onClick={() => navigate(createPageUrl('Premium'))}
-              className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold shadow-lg hover:scale-105 transition-transform"
-            >
-              {t('upgrade_now')}
-            </button>
-          )}
+        {/* Header - Clean & Focused */}
+        <div>
+          <p className="text-white/50 text-xs font-semibold uppercase tracking-wider">
+            {currentDate}
+          </p>
+          <h1 className="text-3xl font-black text-white">
+            {getGreeting()}, {profile?.display_name?.split(' ')[0] || t('user')}
+          </h1>
         </div>
 
         {/* Daily Intake - Hero Card */}
@@ -272,12 +257,6 @@ export default function Home() {
               <div className="text-center px-4">
                 <Lock size={32} className="text-white/80 mx-auto mb-2" />
                 <p className="text-white font-bold text-sm">{t('unlock_ai_insights')}</p>
-                <button
-                  onClick={() => navigate(createPageUrl('Premium'))}
-                  className="mt-2 px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-xs font-bold"
-                >
-                  {t('upgrade_now')}
-                </button>
               </div>
             </div>
           )}
@@ -302,20 +281,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Soft Premium CTA (FREE users only) */}
-        {!isPremium && (
-          <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 text-center">
-            <Crown size={32} className="text-amber-400 mx-auto mb-2" />
-            <h3 className="text-white font-bold mb-1">{t('upgrade_to_premium_title')}</h3>
-            <p className="text-white/70 text-sm mb-4">{t('unlock_all_features')}</p>
-            <button
-              onClick={() => navigate(createPageUrl('Premium'))}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-sm shadow-lg hover:scale-105 transition-transform"
-            >
-              {t('upgrade_now')}
-            </button>
-          </div>
-        )}
+
       </div>
     </div>
   );
