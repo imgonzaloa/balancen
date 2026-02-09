@@ -77,7 +77,7 @@ export default function Social() {
       }
       return profiles.filter(Boolean);
     },
-    enabled: friends.length > 0,
+    enabled: isPremium && friends.length > 0,
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
   });
@@ -129,31 +129,32 @@ export default function Social() {
         </button>
 
         {/* Friend Feed Section - PREMIUM ONLY */}
-         {!isPremium ? (
-           <motion.div
-             initial={{ opacity: 0, scale: 0.95 }}
-             animate={{ opacity: 1, scale: 1 }}
-             className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 text-center relative overflow-hidden"
-           >
-             <div className="absolute top-0 right-0 w-32 h-32 bg-pink-400/10 rounded-full blur-3xl" />
-             <div className="relative z-10">
-               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                 <Lock size={32} className="text-white" />
-               </div>
-               <h3 className="text-white font-black text-xl mb-2">{t('locked_feature')}</h3>
-               <p className="text-white/90 text-sm mb-6 leading-relaxed">
-                 {t('unlock_social')}
-               </p>
-               <Button
-                 onClick={() => navigate(createPageUrl('Premium'))}
-                 className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-8 rounded-2xl shadow-xl"
-               >
-                 {t('upgrade_now')}
-               </Button>
-             </div>
-           </motion.div>
-         ) : (
-           <div className="space-y-4">
+        <div className="space-y-4">
+          {!isPremium ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 text-center relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-400/10 rounded-full blur-3xl" />
+              <div className="relative z-10">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Lock size={32} className="text-white" />
+                </div>
+                <h3 className="text-white font-black text-xl mb-2">{t('locked_feature')}</h3>
+                <p className="text-white/90 text-sm mb-6 leading-relaxed">
+                  {t('unlock_social')}
+                </p>
+                <Button
+                  onClick={() => navigate(createPageUrl('Premium'))}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-8 rounded-2xl shadow-xl"
+                >
+                  {t('upgrade_now')}
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            <>
              <div className="flex items-center justify-between">
                <h2 className="text-white font-black text-lg flex items-center gap-2">
                  <Users size={20} />
@@ -233,8 +234,9 @@ export default function Social() {
               )}
               </div>
               )}
-              </div>
+              </>
               )}
+              </div>
 
         {/* Groups Section */}
         <div className="space-y-4">
