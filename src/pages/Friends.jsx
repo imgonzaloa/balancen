@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, Users, CheckCircle, XCircle, Flame, Activity } from "lucide-react";
+import { UserPlus, Users, CheckCircle, XCircle, Flame, Activity, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -307,6 +307,19 @@ export default function Friends() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Chat Button */}
+                      <button
+                        onClick={() => navigate(createPageUrl('Chat'), { 
+                          state: { 
+                            friendEmail: friend.created_by, 
+                            friendName: friend.display_name 
+                          } 
+                        })}
+                        className="p-2.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 transition-colors flex-shrink-0"
+                      >
+                        <MessageCircle size={18} className="text-teal-300" />
+                      </button>
                     </div>
 
                     {/* Last meal preview */}
