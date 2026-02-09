@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Users, Lock, Plus, UserPlus, Flame, Activity } from "lucide-react";
+import { Users, Lock, Plus, UserPlus, Flame, Activity, MessageSquare } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -100,6 +100,29 @@ export default function Social() {
 
         {/* Invite Friends Card - Always visible */}
         <InviteSystemCard profile={profile} />
+
+        {/* Social Feed Quick Access */}
+        <button
+          onClick={() => navigate(createPageUrl('Feed'))}
+          className="w-full bg-gradient-to-br from-teal-500/20 to-emerald-500/20 backdrop-blur-xl border border-teal-400/30 rounded-3xl p-6 hover:from-teal-500/30 hover:to-emerald-500/30 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
+                <MessageSquare size={24} className="text-white" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-bold text-lg">
+                  {t('social_feed') || 'Social Feed'}
+                </h3>
+                <p className="text-teal-200 text-sm">
+                  {t('share_and_connect') || 'Share progress with friends'}
+                </p>
+              </div>
+            </div>
+            <Plus size={24} className="text-teal-300" />
+          </div>
+        </button>
 
         {/* Friend Feed Section */}
         <div className="space-y-4">
