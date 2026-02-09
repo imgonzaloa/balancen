@@ -7,6 +7,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { Plus, Users, ArrowLeft } from "lucide-react";
 import PostCard from "@/components/social/PostCard";
 import CreatePost from "@/components/social/CreatePost";
+import MealCard from "@/components/social/MealCard";
 import { createPageUrl } from "@/utils";
 
 export default function Feed() {
@@ -34,6 +35,30 @@ export default function Feed() {
     },
     enabled: !!user?.email,
     staleTime: 60000,
+  });
+
+  const { data: friendMeals = [] } = useQuery({
+    queryKey: ['friend-meals', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      
+      const friends = await base44.entities.Friend.filter({ created_by: user.email });
+      const friendEmails = friends.map(f => f.friend_user_id);
+      if (friendEmails.length === 0) return [];
+      
+      const meals = [];
+      for (let i = 0; i < friendEmails.length; i++) {
+        if (i > 0) await new Promise(resolve => setTimeout(resolve, 150));
+        const userProfiles = await base44.entities.UserProfile.filter({ created_by: friendEmails[i] });
+        if (userProfiles[0]?.share_meals === 'friends') {
+          const userMeals = await base44.entities.MealLog.filter({ created_by: friendEmails[i] }, "-created_date", 5);
+          meals.push(...userMeals);
+        }
+      }
+      return meals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
   });
 
   if (!profile) {
@@ -160,6 +185,14 @@ export default function Feed() {
           </div>
         ) : (
           <div className="space-y-4">
+            {friendMeals.map(meal => (
+              <MealCard
+                key={meal.id}
+                meal={meal}
+                currentUser={user}
+                currentProfile={profile}
+              />
+            ))}
             {posts.map(post => (
               <PostCard
                 key={post.id}
