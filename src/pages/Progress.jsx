@@ -7,6 +7,8 @@ import { ProgressSkeleton } from "@/components/ui/ScreenSkeleton";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
+import AdvancedAnalytics from "@/components/progress/AdvancedAnalytics";
+import { motion } from "framer-motion";
 
 export default function Progress() {
   const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
@@ -14,6 +16,7 @@ export default function Progress() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
   const [todayMeals, setTodayMeals] = useState(cachedMeals || []);
+  const [weekMeals, setWeekMeals] = useState([]);
   const [loading, setLoading] = useState(!cachedProfile);
 
   useEffect(() => {
@@ -21,16 +24,28 @@ export default function Progress() {
 
     const fetchData = async () => {
       try {
-        const [profileData, mealsData] = await Promise.all([
+        // Get 7 days of data
+        const last7Days = Array.from({ length: 7 }).map((_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          return d.toISOString().split("T")[0];
+        });
+
+        const [profileData, mealsData, weekData] = await Promise.all([
           base44.entities.UserProfile.filter({ created_by: user.email }),
           base44.entities.MealLog.filter({
             created_by: user.email,
             date: new Date().toISOString().split("T")[0]
-          }, "-meal_time")
+          }, "-meal_time"),
+          base44.entities.MealLog.filter({
+            created_by: user.email,
+            date: { $in: last7Days }
+          }, "-date")
         ]);
 
         setProfile(profileData[0] || null);
         setTodayMeals(mealsData || []);
+        setWeekMeals(weekData || []);
       } catch (err) {
         console.error("Failed to fetch progress data:", err);
       } finally {
@@ -155,44 +170,19 @@ export default function Progress() {
           ))}
         </div>
 
-        {/* PREMIUM: Historical Charts + AI Insights */}
+        {/* PREMIUM: Advanced Analytics Dashboard */}
         {isPremium && (
-          <>
-            <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <BarChart3 size={18} className="text-white" strokeWidth={2.5} />
-                </div>
-                <div className="flex-1 pt-0.5">
-                  <p className="text-purple-300 font-bold text-xs uppercase tracking-wide mb-2">
-                    {t('advanced_dashboards')}
-                  </p>
-                  <p className="text-white/90 text-sm leading-relaxed">
-                    {t('complete_analysis')}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* AI Recommendations (Premium only) */}
-            {profile?.calories_goal && (
-              <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-xl rounded-2xl p-5 border border-cyan-500/30">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <Target size={18} className="text-white" strokeWidth={2.5} />
-                  </div>
-                  <div className="flex-1 pt-0.5">
-                    <p className="text-cyan-300 font-bold text-xs uppercase tracking-wide mb-2">
-                      {t('ai_coach')}
-                    </p>
-                    <p className="text-white/90 text-sm leading-relaxed">
-                      {t('good_progress_today')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <AdvancedAnalytics
+              profile={profile}
+              todayMeals={todayMeals}
+              weekMeals={weekMeals}
+            />
+          </motion.div>
         )}
       </div>
     </div>
