@@ -14,6 +14,17 @@ const resources = {
       progress_tab: "Progress",
       profile_tab: "Profile",
       
+      // Camera flow
+      point_camera_at_food: "Point camera at your food",
+      initializing_camera: "Initializing camera...",
+      couldnt_recognize_food: "We couldn't recognize this food",
+      try_again_or_manual: "Try taking another photo or add it manually",
+      retry_photo: "Retake Photo",
+      add_manually: "Add Manually",
+      review_and_confirm: "Review and confirm details",
+      total_calories: "Total Calories",
+      tap_to_edit: "Tap to edit if needed",
+      
       // Home
       current_streak: "Current Streak",
       days_in_a_row: "Keep going!",
@@ -593,6 +604,17 @@ const resources = {
       social_tab: "Social",
       progress_tab: "Progreso",
       profile_tab: "Perfil",
+      
+      // Camera flow
+      point_camera_at_food: "Apunta la cámara a tu comida",
+      initializing_camera: "Iniciando cámara...",
+      couldnt_recognize_food: "No pudimos reconocer esta comida",
+      try_again_or_manual: "Intenta otra foto o añádela manualmente",
+      retry_photo: "Tomar Otra Foto",
+      add_manually: "Añadir Manualmente",
+      review_and_confirm: "Revisa y confirma los detalles",
+      total_calories: "Calorías Totales",
+      tap_to_edit: "Toca para editar si es necesario",
       
       // Home
       current_streak: "Racha Actual",

@@ -226,7 +226,22 @@ export default function CameraScreen() {
             <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-white/40 rounded-tr-xl" />
             <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-white/40 rounded-bl-xl" />
             <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/40 rounded-br-xl" />
+            
+            {/* Preview State Text */}
+            <div className="absolute -top-12 left-0 right-0 text-center">
+              <p className="text-white text-sm font-medium bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full inline-block">
+                {t("point_camera_at_food")}
+              </p>
+            </div>
           </div>
+        </div>
+      )}
+      
+      {/* Camera Status Indicator */}
+      {!videoReady && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-emerald-500 mx-auto mb-3" />
+          <p className="text-white/80 text-sm">{t("initializing_camera")}</p>
         </div>
       )}
 
