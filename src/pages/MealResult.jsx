@@ -156,6 +156,7 @@ export default function MealResult() {
   const handleSave = async () => {
     console.log("💾 SAVE_MEAL_STARTED", editValues);
     
+    // VALIDATION BLOCK
     if (!result?.file_url) {
       console.error("❌ SAVE_BLOCKED - no file_url");
       toast.error("Cannot save - photo upload failed");
@@ -168,7 +169,16 @@ export default function MealResult() {
       return;
     }
 
+    console.log("✅ MEAL_VALIDATION_OK", {
+      calories: editValues.calories,
+      protein: editValues.protein_g,
+      carbs: editValues.carbs_g,
+      fats: editValues.fats_g,
+      items: items.length
+    });
+
     setUploading(true);
+    
     try {
       const today = new Date().toISOString().split("T")[0];
       const meal_time = new Date().toLocaleTimeString("en-US", {
@@ -177,7 +187,9 @@ export default function MealResult() {
         hour12: false
       });
 
-      // Create meal log
+      console.log("📝 CREATING_MEAL_LOG", { date: today, time: meal_time });
+
+      // Create meal log entity
       const mealLog = await base44.entities.MealLog.create({
         date: today,
         meal_time,
@@ -188,7 +200,11 @@ export default function MealResult() {
         estimated_fats: editValues.fats_g
       });
 
-      console.log("✅ MEAL_LOG_CREATED", { id: mealLog.id });
+      console.log("✅ MEAL_LOG_CREATED", { 
+        id: mealLog.id, 
+        date: mealLog.date,
+        calories: mealLog.estimated_calories 
+      });
 
       // Update check-in
       try {
@@ -202,13 +218,21 @@ export default function MealResult() {
         console.error("⚠️ CHECKIN_UPDATE_FAILED:", err);
       }
 
-      toast.success(t("meal_saved"));
+      // Success feedback
+      toast.success(`${t("meal_saved")} ✓ +${editValues.calories} kcal`);
+      
+      // Clean up context
       resetMeal();
-      console.log("🏠 NAVIGATING_TO_HOME");
+      
+      // Store flag for Home to refresh
+      sessionStorage.setItem("meal_just_saved", "true");
+      
+      console.log("🏠 NAVIGATING_TO_HOME - meal saved successfully");
       navigate(createPageUrl("Home"));
+      
     } catch (err) {
       console.error("❌ SAVE_FAILED:", err);
-      toast.error(t("error_saving"));
+      toast.error(t("error_saving") + ": " + (err.message || "Unknown error"));
     } finally {
       setUploading(false);
     }

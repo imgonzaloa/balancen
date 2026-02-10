@@ -76,6 +76,7 @@ import Social from './pages/Social';
 import TrainerDashboard from './pages/TrainerDashboard';
 import UserManagement from './pages/UserManagement';
 import WorkoutTracker from './pages/WorkoutTracker';
+import PreviewScreen from './pages/PreviewScreen';
 import __Layout from './Layout.jsx';
 
 
@@ -109,6 +110,7 @@ export const PAGES = {
     "TrainerDashboard": TrainerDashboard,
     "UserManagement": UserManagement,
     "WorkoutTracker": WorkoutTracker,
+    "PreviewScreen": PreviewScreen,
 }
 
 export const pagesConfig = {

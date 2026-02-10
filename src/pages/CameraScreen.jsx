@@ -152,9 +152,9 @@ export default function CameraScreen() {
       // Small delay to ensure context updates
       await new Promise(r => setTimeout(r, 50));
 
-      // Navigate to result screen
-      console.log("🚀 NAVIGATING_TO_ANALYSIS");
-      navigate(createPageUrl("MealResult"));
+      // Navigate to PREVIEW screen first (not analysis)
+      console.log("🚀 NAVIGATING_TO_PREVIEW");
+      navigate(createPageUrl("PreviewScreen"));
       setIsCapturing(false);
 
     } catch (err) {
@@ -168,13 +168,16 @@ export default function CameraScreen() {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
+    console.log("📁 FILE_SELECTED_FROM_GALLERY", { size: selectedFile.size });
+
     // Create dataUrl for localStorage
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target.result;
       setCapturedFile(selectedFile, dataUrl);
       stopCamera();
-      navigate(createPageUrl("MealResult"));
+      console.log("🚀 NAVIGATING_TO_PREVIEW (from gallery)");
+      navigate(createPageUrl("PreviewScreen"));
     };
     reader.readAsDataURL(selectedFile);
   };

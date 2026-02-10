@@ -113,13 +113,17 @@ export function AppStateProvider({ children }) {
     if (!user?.email) return;
     try {
       const today = new Date().toISOString().split("T")[0];
+      console.log("🔄 REFRESHING_TODAY_MEALS", { user: user.email, date: today });
+      
       const meals = await base44.entities.MealLog.filter(
         { created_by: user.email, date: today },
         "-meal_time"
       );
+      
+      console.log("✅ MEALS_REFRESHED", { count: meals.length });
       setTodayMeals(meals);
     } catch (err) {
-      console.error("Error refreshing meals:", err);
+      console.error("❌ REFRESH_MEALS_FAILED:", err);
       setTodayMeals([]);
     }
   };
