@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import InviteSystemCard from "@/components/social/InviteSystemCard";
 import StatusChip from "@/components/groups/StatusChip";
 import { SocialSkeleton } from "@/components/ui/ScreenSkeleton";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Social() {
   const { t } = useTranslation();
@@ -89,8 +90,9 @@ export default function Social() {
   }
 
   return (
-    <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-      <div className="max-w-2xl mx-auto px-6 pt-4 pb-8 space-y-5">
+    <PullToRefresh>
+      <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <div className="max-w-2xl mx-auto px-6 pt-4 pb-8 space-y-5">
         
         {/* Header */}
         <div>
