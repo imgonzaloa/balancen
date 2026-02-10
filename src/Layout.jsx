@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { TranslationProvider, useTranslation } from "@/components/TranslationProvider";
 import { MealProvider } from "@/components/MealContext";
 import { AppStateProvider } from "@/components/AppStateContext";
+import { MealsStoreProvider } from "@/components/MealsStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import BootGate from "@/components/BootGate";
 import VersionGate from "@/components/VersionGate";
@@ -155,13 +156,15 @@ export default function Layout({ children, currentPageName }) {
           {({ bootState }) => (
             <QueryClientProvider client={queryClient}>
               <TranslationProvider>
-                <AppStateProvider>
-                  <MealProvider>
-                    <LayoutInner currentPageName={currentPageName} bootState={bootState}>
-                      {children}
-                    </LayoutInner>
-                  </MealProvider>
-                </AppStateProvider>
+                <MealsStoreProvider>
+                  <AppStateProvider>
+                    <MealProvider>
+                      <LayoutInner currentPageName={currentPageName} bootState={bootState}>
+                        {children}
+                      </LayoutInner>
+                    </MealProvider>
+                  </AppStateProvider>
+                </MealsStoreProvider>
               </TranslationProvider>
             </QueryClientProvider>
           )}

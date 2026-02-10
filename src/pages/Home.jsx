@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Camera, Lock, Sparkles, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
+import { useMealsStore } from "@/components/MealsStore";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -9,37 +10,36 @@ import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
 
 export default function Home() {
-  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized, refreshTodayMeals } = useAppState();
+  const { user, profile: cachedProfile, isInitialized } = useAppState();
+  const { getTodayMeals, getTodayTotals, isHydrated } = useMealsStore();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
-  const [todayMeals, setTodayMeals] = useState(cachedMeals || []);
 
   useEffect(() => {
     if (cachedProfile) setProfile(cachedProfile);
-    if (cachedMeals) setTodayMeals(cachedMeals);
-  }, [cachedProfile, cachedMeals]);
+  }, [cachedProfile]);
 
-  // Auto-refresh if coming back from meal save
-  useEffect(() => {
-    const justSaved = sessionStorage.getItem("meal_just_saved");
-    if (justSaved === "true") {
-      console.log("🔄 HOME_DETECTED_NEW_MEAL - refreshing");
-      sessionStorage.removeItem("meal_just_saved");
-      refreshTodayMeals();
-    }
-  }, [refreshTodayMeals]);
+  // Get meals and totals from MealsStore
+  const todayMeals = getTodayMeals();
+  const storeTotals = getTodayTotals();
+
+  console.log("🏠 HOME_RENDER", {
+    mealsCount: todayMeals.length,
+    totals: storeTotals,
+    isHydrated
+  });
 
   const metrics = useMemo(() => {
-    const totalCalories = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
-    const totalProtein = todayMeals.reduce((sum, m) => sum + (m.estimated_protein || 0), 0);
-    const totalCarbs = todayMeals.reduce((sum, m) => sum + (m.estimated_carbs || 0), 0);
-    const totalFats = todayMeals.reduce((sum, m) => sum + (m.estimated_fats || 0), 0);
+    const totalCalories = storeTotals.calories;
+    const totalProtein = storeTotals.protein;
+    const totalCarbs = storeTotals.carbs;
+    const totalFats = storeTotals.fats;
     const caloriesGoal = profile?.calories_goal || 2000;
     const progress = Math.min((totalCalories / caloriesGoal) * 100, 100);
 
     return { totalCalories, totalProtein, totalCarbs, totalFats, caloriesGoal, progress };
-  }, [todayMeals, profile?.calories_goal]);
+  }, [storeTotals, profile?.calories_goal]);
 
   const todayMissions = [
     { 
@@ -75,7 +75,7 @@ export default function Home() {
     month: "long"
   });
 
-  if (!isInitialized) {
+  if (!isInitialized || !isHydrated) {
     return <HomeSkeleton />;
   }
 
@@ -214,26 +214,31 @@ export default function Home() {
           ) : (
             <div className="space-y-2">
               {todayMeals.slice(0, 3).map((meal) => (
-                    <div key={meal.id || meal.created_date} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all flex">
-                      {meal.photo_url && (
-                        <img src={meal.photo_url} alt="Meal" className="w-20 h-20 object-cover flex-shrink-0" onError={(e) => { e.target.style.display = 'none'; }} />
-                      )}
-                      <div className="flex-1 p-3 flex items-center justify-between">
-                        <div>
-                          <p className="text-white text-sm font-bold">
-                            {meal.meal_type ? (meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)) : t('meal')}
-                          </p>
-                          <p className="text-white/60 text-xs mt-0.5">
-                            {meal.meal_time || new Date(meal.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-teal-300 font-black text-lg">{Math.round(meal.estimated_calories || 0)}</p>
-                          <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
-                        </div>
-                      </div>
+                <div key={meal.id} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all flex">
+                  {meal.photoUri && (
+                    <img 
+                      src={meal.photoUri} 
+                      alt="Meal" 
+                      className="w-20 h-20 object-cover flex-shrink-0" 
+                      onError={(e) => { e.target.style.display = 'none'; }} 
+                    />
+                  )}
+                  <div className="flex-1 p-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-white text-sm font-bold">
+                        {meal.mealType ? (meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)) : t('meal')}
+                      </p>
+                      <p className="text-white/60 text-xs mt-0.5">
+                        {new Date(meal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
                     </div>
-                  ))}
+                    <div className="text-right">
+                      <p className="text-teal-300 font-black text-lg">{Math.round(meal.totals?.calories || 0)}</p>
+                      <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

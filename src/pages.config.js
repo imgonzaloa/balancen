@@ -67,6 +67,7 @@ import Onboarding from './pages/Onboarding';
 import OnboardingTransition from './pages/OnboardingTransition';
 import Paywall from './pages/Paywall';
 import Premium from './pages/Premium';
+import PreviewScreen from './pages/PreviewScreen';
 import Profile from './pages/Profile';
 import ProfileSetup from './pages/ProfileSetup';
 import Progress from './pages/Progress';
@@ -76,7 +77,6 @@ import Social from './pages/Social';
 import TrainerDashboard from './pages/TrainerDashboard';
 import UserManagement from './pages/UserManagement';
 import WorkoutTracker from './pages/WorkoutTracker';
-import PreviewScreen from './pages/PreviewScreen';
 import __Layout from './Layout.jsx';
 
 
@@ -101,6 +101,7 @@ export const PAGES = {
     "OnboardingTransition": OnboardingTransition,
     "Paywall": Paywall,
     "Premium": Premium,
+    "PreviewScreen": PreviewScreen,
     "Profile": Profile,
     "ProfileSetup": ProfileSetup,
     "Progress": Progress,
@@ -110,7 +111,6 @@ export const PAGES = {
     "TrainerDashboard": TrainerDashboard,
     "UserManagement": UserManagement,
     "WorkoutTracker": WorkoutTracker,
-    "PreviewScreen": PreviewScreen,
 }
 
 export const pagesConfig = {

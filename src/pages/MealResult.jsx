@@ -139,6 +139,7 @@ export default function MealResult() {
 
       setResult({ ...analysis, file_url });
       setItems(formattedItems);
+      setConfidence(Math.round(analysis.confidence || 0));
       setEditValues({
         calories: Math.round(analysis.total_calories || 0),
         protein_g: Math.round(analysis.total_protein || 0),
@@ -180,31 +181,63 @@ export default function MealResult() {
     setUploading(true);
     
     try {
-      const today = new Date().toISOString().split("T")[0];
-      const meal_time = new Date().toLocaleTimeString("en-US", {
+      const now = new Date();
+      const dateKey = formatLocalDateKey(now);
+      const meal_time = now.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false
       });
 
-      console.log("📝 CREATING_MEAL_LOG", { date: today, time: meal_time });
+      // Auto-detect meal type by time
+      const hour = now.getHours();
+      let mealType = "snack";
+      if (hour >= 5 && hour < 11) mealType = "breakfast";
+      else if (hour >= 11 && hour < 16) mealType = "lunch";
+      else if (hour >= 16 && hour < 22) mealType = "dinner";
 
-      // Create meal log entity
-      const mealLog = await base44.entities.MealLog.create({
-        date: today,
-        meal_time,
-        photo_url: result.file_url,
-        estimated_calories: editValues.calories,
-        estimated_protein: editValues.protein_g,
-        estimated_carbs: editValues.carbs_g,
-        estimated_fats: editValues.fats_g
-      });
+      console.log("📝 CREATING_MEAL", { dateKey, time: meal_time, mealType });
 
-      console.log("✅ MEAL_LOG_CREATED", { 
-        id: mealLog.id, 
-        date: mealLog.date,
-        calories: mealLog.estimated_calories 
-      });
+      // Create meal object for local store
+      const meal = {
+        id: crypto.randomUUID(),
+        dateKey,
+        createdAt: now.toISOString(),
+        photoUri: result.file_url,
+        mealType,
+        totals: {
+          calories: editValues.calories,
+          protein: editValues.protein_g,
+          carbs: editValues.carbs_g,
+          fats: editValues.fats_g
+        },
+        items: items.map(item => ({
+          name: item.name,
+          calories: item.calories,
+          portion: item.portion
+        })),
+        confidence: confidence || 0
+      };
+
+      // Add to local store FIRST (optimistic)
+      addMeal(meal);
+      console.log("✅ MEAL_OPTIMISTIC_ADDED", { id: meal.id, dateKey });
+
+      // Then persist to backend
+      try {
+        const mealLog = await base44.entities.MealLog.create({
+          date: dateKey,
+          meal_time,
+          photo_url: result.file_url,
+          estimated_calories: editValues.calories,
+          estimated_protein: editValues.protein_g,
+          estimated_carbs: editValues.carbs_g,
+          estimated_fats: editValues.fats_g
+        });
+        console.log("✅ MEAL_LOG_CREATED", { id: mealLog.id });
+      } catch (backendErr) {
+        console.error("⚠️ BACKEND_SAVE_FAILED (but local saved):", backendErr);
+      }
 
       // Update check-in
       try {
@@ -218,20 +251,27 @@ export default function MealResult() {
         console.error("⚠️ CHECKIN_UPDATE_FAILED:", err);
       }
 
+      // Verify save
+      const savedMeals = JSON.parse(localStorage.getItem("balancen.mealsByDate") || "{}");
+      const verifyMeal = savedMeals[dateKey]?.find(m => m.id === meal.id);
+      
+      if (!verifyMeal) {
+        throw new Error("Meal not found in storage after save");
+      }
+
+      console.log("✅ MEAL_PERSIST_SUCCESS - verified in storage");
+      
       // Success feedback
       toast.success(`${t("meal_saved")} ✓ +${editValues.calories} kcal`);
       
       // Clean up context
       resetMeal();
       
-      // Store flag for Home to refresh
-      sessionStorage.setItem("meal_just_saved", "true");
-      
-      console.log("🏠 NAVIGATING_TO_HOME - meal saved successfully");
+      console.log("🏠 NAVIGATING_TO_HOME");
       navigate(createPageUrl("Home"));
       
     } catch (err) {
-      console.error("❌ SAVE_FAILED:", err);
+      console.error("❌ MEAL_PERSIST_FAIL:", err);
       toast.error(t("error_saving") + ": " + (err.message || "Unknown error"));
     } finally {
       setUploading(false);
