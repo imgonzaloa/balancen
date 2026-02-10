@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { X, Loader2, AlertCircle } from "lucide-react";
+import { X, Loader2, AlertCircle, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
+import { useMealsStore } from "@/components/MealsStore";
 import { createPageUrl } from "@/utils";
 import MealAnalysisOverlay from "@/components/home/MealAnalysisOverlay";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export default function MealResult() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { capturedFile, resetMeal } = useMeal();
+  const { addMeal, formatLocalDateKey } = useMealsStore();
 
   const [imagePreview, setImagePreview] = useState(null);
   const [analyzing, setAnalyzing] = useState(true);
@@ -22,6 +24,7 @@ export default function MealResult() {
   const [error, setError] = useState(null);
   const [editValues, setEditValues] = useState({});
   const [items, setItems] = useState([]);
+  const [confidence, setConfidence] = useState(0);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -139,7 +142,8 @@ export default function MealResult() {
 
       setResult({ ...analysis, file_url });
       setItems(formattedItems);
-      setConfidence(Math.round(analysis.confidence || 0));
+      const conf = Math.round(analysis.confidence || 0);
+      setConfidence(conf);
       setEditValues({
         calories: Math.round(analysis.total_calories || 0),
         protein_g: Math.round(analysis.total_protein || 0),
