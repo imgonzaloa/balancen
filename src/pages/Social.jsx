@@ -321,6 +321,7 @@ export default function Social() {
             </div>
           )}
         </div>
+        </div>
       </div>
     </PullToRefresh>
   );
