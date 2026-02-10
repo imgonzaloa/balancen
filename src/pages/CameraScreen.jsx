@@ -77,6 +77,7 @@ export default function CameraScreen() {
 
   const capturePhoto = async () => {
     if (!videoRef.current || !videoReady || videoRef.current.videoWidth === 0) {
+      console.error("❌ CAMERA_NOT_READY");
       toast.error(t("camera_not_ready"));
       return;
     }
@@ -104,19 +105,20 @@ export default function CameraScreen() {
       ctx.drawImage(video, 0, 0);
 
       // Convert to blob
-      const blob = await new Promise((resolve) =>
+      let blob = await new Promise((resolve) =>
         canvas.toBlob(resolve, "image/jpeg", 0.9)
       );
 
       if (!blob || blob.size === 0) {
+        console.warn("⚠️ PHOTO_CAPTURE_RETRY");
         // Retry once
         await new Promise(r => setTimeout(r, 100));
-        const retryBlob = await new Promise((resolve) =>
+        blob = await new Promise((resolve) =>
           canvas.toBlob(resolve, "image/jpeg", 0.9)
         );
         
-        if (!retryBlob || retryBlob.size === 0) {
-          throw new Error("Failed to capture photo");
+        if (!blob || blob.size === 0) {
+          throw new Error("Failed to capture photo - blob is empty");
         }
       }
 
@@ -126,21 +128,40 @@ export default function CameraScreen() {
       // Create dataUrl for localStorage
       const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
 
-      // Store BEFORE navigation
+      console.log("✅ PHOTO_CAPTURED", {
+        fileSize: file.size,
+        dataUrlLength: dataUrl.length,
+        dimensions: `${canvas.width}x${canvas.height}`
+      });
+
+      // CRITICAL: Store BEFORE navigation
       setCapturedFile(file, dataUrl);
+      
+      // Verify storage immediately
+      const stored = sessionStorage.getItem("balancen_last_capture");
+      if (!stored) {
+        console.error("❌ STORAGE_FAILED - photo not in sessionStorage");
+        throw new Error("Failed to store photo");
+      }
+      
+      console.log("✅ PHOTO_CONFIRMED - stored in sessionStorage");
 
       // Stop camera AFTER storing
       stopCamera();
 
+      // Small delay to ensure context updates
+      await new Promise(r => setTimeout(r, 50));
+
       // Navigate to result screen
+      console.log("🚀 NAVIGATING_TO_ANALYSIS");
       navigate(createPageUrl("MealResult"));
       setIsCapturing(false);
 
-      } catch (err) {
-      console.error("Capture error:", err);
+    } catch (err) {
+      console.error("❌ CAPTURE_ERROR:", err);
       toast.error(t("error_capturing"));
       setIsCapturing(false);
-      }
+    }
   };
 
   const handleFileUpload = (e) => {

@@ -44,6 +44,12 @@ export function MealProvider({ children }) {
   }, []);
 
   const setCapturedFile = (capturedFile, dataUrl) => {
+    console.log("📦 CONTEXT_STORE_FILE", {
+      fileSize: capturedFile?.size,
+      hasDataUrl: !!dataUrl,
+      dataUrlLength: dataUrl?.length
+    });
+    
     setFile(capturedFile);
     const url = URL.createObjectURL(capturedFile);
     setPreviewUrl(url);
@@ -53,8 +59,15 @@ export function MealProvider({ children }) {
     
     // Store dataUrl in BOTH sessionStorage (priority) and localStorage (fallback)
     if (dataUrl) {
-      sessionStorage.setItem("balancen_last_capture", dataUrl);
-      localStorage.setItem("meal_last_capture_dataurl", dataUrl);
+      try {
+        sessionStorage.setItem("balancen_last_capture", dataUrl);
+        localStorage.setItem("meal_last_capture_dataurl", dataUrl);
+        console.log("✅ STORAGE_SUCCESS - photo saved to storage");
+      } catch (err) {
+        console.error("❌ STORAGE_FAILED:", err);
+      }
+    } else {
+      console.warn("⚠️ NO_DATAURL_PROVIDED");
     }
   };
 

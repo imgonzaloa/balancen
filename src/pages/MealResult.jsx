@@ -25,34 +25,72 @@ export default function MealResult() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    console.log("🔍 MEAL_RESULT_MOUNT", { 
+      hasCapturedFile: !!capturedFile, 
+      fileSize: capturedFile?.size 
+    });
+
+    // CRITICAL: Check for photo in multiple sources
     if (!capturedFile) {
+      console.error("❌ NO_CAPTURED_FILE - checking storage...");
+      
+      // Try to restore from storage as fallback
+      const storedDataUrl = sessionStorage.getItem("balancen_last_capture") || 
+                           localStorage.getItem("meal_last_capture_dataurl");
+      
+      if (storedDataUrl) {
+        console.warn("⚠️ RESTORING_FROM_STORAGE");
+        // Don't navigate away - let context restore the file
+        setTimeout(() => {
+          if (!capturedFile) {
+            console.error("❌ RESTORE_FAILED - redirecting to Home");
+            navigate(createPageUrl("Home"));
+          }
+        }, 500);
+        return;
+      }
+      
+      console.error("❌ NO_PHOTO_FOUND - redirecting to Home");
       navigate(createPageUrl("Home"));
       return;
     }
 
     // Show instant preview
-    setImagePreview(URL.createObjectURL(capturedFile));
+    const previewUrl = URL.createObjectURL(capturedFile);
+    setImagePreview(previewUrl);
+    console.log("✅ PREVIEW_SET", { previewUrl: previewUrl.substring(0, 50) });
 
-    // Start analysis
+    // Start analysis immediately
+    console.log("🚀 ANALYSIS_STARTED");
     analyzePhoto();
   }, [capturedFile, navigate]);
 
   const analyzePhoto = async () => {
-    if (!capturedFile) return;
+    if (!capturedFile) {
+      console.error("❌ ANALYSIS_BLOCKED - no capturedFile");
+      setError("Photo not available. Please try again.");
+      setAnalyzing(false);
+      return;
+    }
+
+    console.log("📸 ANALYSIS_STARTING", { fileSize: capturedFile.size });
 
     try {
       setAnalyzing(true);
       setError(null);
 
       // Upload file
+      console.log("☁️ UPLOADING_FILE...");
       const { file_url } = await base44.integrations.Core.UploadFile({
         file: capturedFile
       });
+      console.log("✅ FILE_UPLOADED", { file_url: file_url.substring(0, 50) });
 
       // Analyze with AI
-       const analysis = await base44.integrations.Core.InvokeLLM({
-         prompt: `Analyze this food photo and provide detailed nutritional estimates in JSON format: { items: [{name: "food name", calories: number, protein: number, carbs: number, fats: number, portion: "size estimate"}, ...], total_calories: number, total_protein: number, total_carbs: number, total_fats: number, health_score: 0-100, confidence: 0-100 }. Provide realistic estimates.`,
-         file_urls: [file_url],
+      console.log("🤖 AI_ANALYSIS_STARTING...");
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze this food photo and provide detailed nutritional estimates in JSON format: { items: [{name: "food name", calories: number, protein: number, carbs: number, fats: number, portion: "size estimate"}, ...], total_calories: number, total_protein: number, total_carbs: number, total_fats: number, health_score: 0-100, confidence: 0-100 }. Provide realistic estimates.`,
+        file_urls: [file_url],
         response_json_schema: {
           type: "object",
           properties: {
@@ -80,6 +118,12 @@ export default function MealResult() {
         }
       });
 
+      console.log("✅ ANALYSIS_SUCCESS", {
+        itemsCount: analysis.items?.length || 0,
+        totalCalories: analysis.total_calories,
+        confidence: analysis.confidence
+      });
+
       // Format items
       const formattedItems = (analysis.items || []).map(item => ({
         name: item.name,
@@ -87,23 +131,43 @@ export default function MealResult() {
         portion: item.portion
       }));
 
+      // CRITICAL: Ensure we have at least calories
+      if (!analysis.total_calories && formattedItems.length === 0) {
+        console.error("❌ ANALYSIS_EMPTY - no data returned");
+        throw new Error("Could not detect any food in this photo");
+      }
+
       setResult({ ...analysis, file_url });
       setItems(formattedItems);
       setEditValues({
-        calories: analysis.total_calories,
-        protein_g: analysis.total_protein,
-        carbs_g: analysis.total_carbs,
-        fats_g: analysis.total_fats
+        calories: Math.round(analysis.total_calories || 0),
+        protein_g: Math.round(analysis.total_protein || 0),
+        carbs_g: Math.round(analysis.total_carbs || 0),
+        fats_g: Math.round(analysis.total_fats || 0)
       });
       setAnalyzing(false);
     } catch (err) {
-      console.error("Analysis error:", err);
-      setError(err.message);
+      console.error("❌ ANALYSIS_FAILED", err);
+      setError(err.message || "Analysis failed. Please try again.");
       setAnalyzing(false);
     }
   };
 
   const handleSave = async () => {
+    console.log("💾 SAVE_MEAL_STARTED", editValues);
+    
+    if (!result?.file_url) {
+      console.error("❌ SAVE_BLOCKED - no file_url");
+      toast.error("Cannot save - photo upload failed");
+      return;
+    }
+    
+    if (!editValues.calories || editValues.calories === 0) {
+      console.error("❌ SAVE_BLOCKED - no calories");
+      toast.error("Please add calorie estimate");
+      return;
+    }
+
     setUploading(true);
     try {
       const today = new Date().toISOString().split("T")[0];
@@ -114,7 +178,7 @@ export default function MealResult() {
       });
 
       // Create meal log
-      await base44.entities.MealLog.create({
+      const mealLog = await base44.entities.MealLog.create({
         date: today,
         meal_time,
         photo_url: result.file_url,
@@ -124,6 +188,8 @@ export default function MealResult() {
         estimated_fats: editValues.fats_g
       });
 
+      console.log("✅ MEAL_LOG_CREATED", { id: mealLog.id });
+
       // Update check-in
       try {
         await base44.functions.invoke('updateDailyCheckIn', {
@@ -131,16 +197,18 @@ export default function MealResult() {
           estimated_calories: editValues.calories,
           meal_photo_fire_awarded: false
         });
+        console.log("✅ CHECKIN_UPDATED");
       } catch (err) {
-        console.error('Check-in update error:', err);
+        console.error("⚠️ CHECKIN_UPDATE_FAILED:", err);
       }
 
       toast.success(t("meal_saved"));
       resetMeal();
+      console.log("🏠 NAVIGATING_TO_HOME");
       navigate(createPageUrl("Home"));
     } catch (err) {
+      console.error("❌ SAVE_FAILED:", err);
       toast.error(t("error_saving"));
-      console.error(err);
     } finally {
       setUploading(false);
     }
