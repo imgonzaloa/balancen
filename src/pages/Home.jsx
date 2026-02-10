@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Home() {
   const { user, profile: cachedProfile, isInitialized } = useAppState();

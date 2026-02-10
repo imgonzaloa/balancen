@@ -320,6 +320,6 @@ export default function Social() {
           )}
         </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

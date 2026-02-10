@@ -32,9 +32,36 @@ function LayoutInner({ children, currentPageName, bootState }) {
   
   // ALL HOOKS UNCONDITIONALLY AT TOP - useRef must be here, not inside useEffect
   const isNavigating = React.useRef(false);
+  const scrollPositions = React.useRef({ Home: 0, Social: 0 });
+  const scrollContainerRef = React.useRef(null);
   const navItems = getNavItems(t);
   const hideNav = noNavPages.includes(currentPageName);
   const isActive = (pageName) => currentPageName === pageName;
+
+  // Save scroll position before page changes
+  React.useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    return () => {
+      if (currentPageName === 'Home' || currentPageName === 'Social') {
+        scrollPositions.current[currentPageName] = container.scrollTop;
+      }
+    };
+  }, [currentPageName]);
+
+  // Restore scroll position after page loads
+  React.useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    if (currentPageName === 'Home' || currentPageName === 'Social') {
+      const savedPosition = scrollPositions.current[currentPageName] || 0;
+      requestAnimationFrame(() => {
+        container.scrollTop = savedPosition;
+      });
+    }
+  }, [currentPageName]);
 
   // ROUTING LOGIC - redirect based on boot state
   React.useEffect(() => {
@@ -84,6 +111,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
       
       <AnimatePresence mode="wait">
         <motion.main
+          ref={scrollContainerRef}
           key={currentPageName}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
