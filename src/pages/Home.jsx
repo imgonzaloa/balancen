@@ -9,7 +9,7 @@ import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
 
 export default function Home() {
-  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
+  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized, refreshTodayMeals } = useAppState();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
@@ -19,6 +19,16 @@ export default function Home() {
     if (cachedProfile) setProfile(cachedProfile);
     if (cachedMeals) setTodayMeals(cachedMeals);
   }, [cachedProfile, cachedMeals]);
+
+  // Auto-refresh if coming back from meal save
+  useEffect(() => {
+    const justSaved = sessionStorage.getItem("meal_just_saved");
+    if (justSaved === "true") {
+      console.log("🔄 HOME_DETECTED_NEW_MEAL - refreshing");
+      sessionStorage.removeItem("meal_just_saved");
+      refreshTodayMeals();
+    }
+  }, [refreshTodayMeals]);
 
   const metrics = useMemo(() => {
     const totalCalories = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);

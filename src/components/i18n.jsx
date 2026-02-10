@@ -24,6 +24,9 @@ const resources = {
       review_and_confirm: "Review and confirm details",
       total_calories: "Total Calories",
       tap_to_edit: "Tap to edit if needed",
+      photo_looks_good: "Does this look good?",
+      retake: "Retake",
+      use_photo: "Use Photo",
       
       // Home
       current_streak: "Current Streak",
@@ -615,6 +618,9 @@ const resources = {
       review_and_confirm: "Revisa y confirma los detalles",
       total_calories: "Calorías Totales",
       tap_to_edit: "Toca para editar si es necesario",
+      photo_looks_good: "¿Se ve bien?",
+      retake: "Repetir",
+      use_photo: "Usar Foto",
       
       // Home
       current_streak: "Racha Actual",
