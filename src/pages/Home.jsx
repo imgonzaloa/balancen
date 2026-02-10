@@ -81,8 +81,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-      <div className="max-w-2xl mx-auto px-6 pt-2 pb-8 space-y-5">
+    <PullToRefresh>
+      <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <div className="max-w-2xl mx-auto px-6 pt-2 pb-8 space-y-5">
         
         {/* Header - Premium CTA only */}
         <div className="flex items-center justify-end">
@@ -373,7 +374,8 @@ export default function Home() {
         )}
 
 
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }
