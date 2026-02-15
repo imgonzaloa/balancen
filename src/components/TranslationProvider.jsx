@@ -16,23 +16,34 @@ export function useTranslation() {
     }
     
     await i18n.changeLanguage(newLang);
+    // Persist to both storage keys
+    localStorage.setItem('balancen.lang', newLang);
+    localStorage.setItem('i18nextLng', newLang);
   };
   
-  // Production-ready translation with silent fallback
+  // CRITICAL: Production-ready translation with STRICT fallback - NEVER show "Missing"
   const safeT = (key, options) => {
+    if (!key) return '';
+    
     const result = t(key, options);
-    // If translation is missing, return English fallback silently
-    if (result === key) {
+    
+    // If translation is missing (returns the key itself)
+    if (result === key || !result) {
       // Try English fallback
       const englishResult = i18n.t(key, { ...options, lng: 'en' });
-      return englishResult !== key ? englishResult : '';
+      if (englishResult && englishResult !== key) {
+        return englishResult;
+      }
+      // Last resort: return empty string instead of "Missing" or key
+      console.warn(`Missing translation: ${key}`);
+      return '';
     }
     return result;
   };
   
   return {
     t: safeT,
-    lang: i18n.language,
+    lang: i18n.language || 'en',
     changeLanguage,
     setLang: changeLanguage
   };

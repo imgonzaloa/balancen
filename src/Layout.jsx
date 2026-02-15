@@ -113,13 +113,16 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
   // RENDER (no conditional returns)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)', pointerEvents: 'auto' }}>
+      {/* Background gradient - NO pointer events */}
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 -z-10" style={{ pointerEvents: 'none' }} />
+      
       <NavigationManager />
       <Toaster position="top-center" richColors />
       
-      {/* Brand Mark - shown on main tabs */}
+      {/* Brand Mark - shown on main tabs - NO pointer events */}
       {showBrandPages.includes(currentPageName) && (
-        <div className="fixed top-0 left-0 right-0 z-40 pt-safe" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        <div className="fixed top-0 left-0 right-0 z-40 pt-safe" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', pointerEvents: 'none' }}>
           <div className="max-w-2xl mx-auto px-6 py-1.5">
             <BrandMark size={16} />
           </div>
@@ -142,7 +145,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
       </AnimatePresence>
 
       {!hideNav && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 z-50 safe-area-inset-bottom">
+        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 z-[9999] safe-area-inset-bottom" style={{ pointerEvents: 'auto' }}>
               <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -152,6 +155,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
                       key={item.name}
                       to={createPageUrl(item.name)}
                       onClick={(e) => {
+                        console.log('🔄 TAB_CLICKED', { tab: item.name, current: currentPageName, time: Date.now() });
                         // Prevent navigation if already on page
                         if (active) {
                           e.preventDefault();
@@ -162,6 +166,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
                         }
                       }}
                       className="relative flex flex-col items-center py-2 px-4 touch-manipulation transition-transform duration-75 active:scale-90 cursor-pointer"
+                      style={{ pointerEvents: 'auto' }}
                       replace={active}
                     >
                       {active && (
@@ -198,11 +203,14 @@ function LayoutInner({ children, currentPageName, bootState }) {
           },
         });
 
+import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
+
 export default function Layout({ children, currentPageName }) {
   return (
-    <VersionGate>
-      <ErrorBoundary screen="Layout">
-        <BootGate>
+    <GlobalErrorBoundary>
+      <VersionGate>
+        <ErrorBoundary screen="Layout">
+          <BootGate>
           {({ bootState }) => (
             <QueryClientProvider client={queryClient}>
               <TranslationProvider>
@@ -221,5 +229,6 @@ export default function Layout({ children, currentPageName }) {
         </BootGate>
       </ErrorBoundary>
     </VersionGate>
+    </GlobalErrorBoundary>
   );
 }
