@@ -308,6 +308,12 @@ const resources = {
       view_all: "View all",
       kcal_short: "kcal",
       gram_short: "g",
+      log_meal_button: "Log Meal",
+      workout_button: "Workout",
+      manual_log_description: "Search and add foods manually without taking a photo",
+      premium_features: "Premium Features",
+      premium_features_description: "AI Coaching, Social, Groups, Advanced Analytics & More",
+      log_meal_manually: "Log Meal Manually",
       
       // Social features
       your_groups: "Your Groups",
@@ -902,6 +908,12 @@ const resources = {
       view_all: "Ver todo",
       kcal_short: "kcal",
       gram_short: "g",
+      log_meal_button: "Comida",
+      workout_button: "Entreno",
+      manual_log_description: "Busca y añade comidas manualmente sin tomar foto",
+      premium_features: "Funciones Premium",
+      premium_features_description: "Coach IA, Social, Grupos, Analíticas Avanzadas y Más",
+      log_meal_manually: "Registrar Comida Manualmente",
       
       // Social features
       your_groups: "Tus Grupos",
