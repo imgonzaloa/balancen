@@ -184,7 +184,7 @@ export default function Home() {
              className="h-16 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 hover:shadow-xl hover:shadow-teal-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
            >
              <Camera size={20} strokeWidth={2.5} />
-             Comida
+             {t('log_meal_button')}
            </Button>
            <Button
              onClick={() => navigate(createPageUrl('TrainerDashboard'))}
@@ -194,7 +194,7 @@ export default function Home() {
              style={{ opacity: !isPremium ? 0.6 : 1 }}
            >
              <Dumbbell size={20} strokeWidth={2.5} />
-             Entreno
+             {t('workout_button')}
            </Button>
          </div>
 
@@ -316,7 +316,7 @@ export default function Home() {
                   {t('log_meal_manually')}
                 </p>
                 <p className="text-white/90 text-sm leading-relaxed">
-                  Search and add foods manually without taking a photo
+                  {t('manual_log_description')}
                 </p>
               </div>
             </div>
@@ -366,7 +366,7 @@ export default function Home() {
                   {t('premium_features')}
                 </p>
                 <p className="text-white/90 text-sm leading-relaxed">
-                  AI Coaching, Social, Groups, Advanced Analytics & More
+                  {t('premium_features_description')}
                 </p>
               </div>
             </div>
