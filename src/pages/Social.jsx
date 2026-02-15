@@ -92,7 +92,7 @@ export default function Social() {
   return (
     <PullToRefresh>
       <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <div className="max-w-2xl mx-auto px-6 pt-4 pb-8 space-y-5">
+        <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
         
         {/* Header */}
         <div>

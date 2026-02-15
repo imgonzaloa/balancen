@@ -119,9 +119,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
       
       {/* Brand Mark - shown on main tabs */}
       {showBrandPages.includes(currentPageName) && (
-        <div className="fixed top-0 left-0 right-0 z-40 pt-safe" style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 8px)' }}>
-          <div className="max-w-2xl mx-auto px-6 py-3">
-            <BrandMark size={18} />
+        <div className="fixed top-0 left-0 right-0 z-40 pt-safe" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+          <div className="max-w-2xl mx-auto px-6 py-1.5">
+            <BrandMark size={16} />
           </div>
         </div>
       )}
@@ -135,7 +135,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
           className={hideNav ? "" : "pb-20"}
-          style={{ paddingTop: showBrandPages.includes(currentPageName) ? '60px' : '0' }}
+          style={{ paddingTop: showBrandPages.includes(currentPageName) ? '40px' : '0' }}
         >
           {children}
         </motion.main>

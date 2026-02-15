@@ -83,19 +83,19 @@ export default function Home() {
   return (
     <PullToRefresh>
       <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <div className="max-w-2xl mx-auto px-6 pt-2 pb-8 space-y-5">
+        <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
         
         {/* Header - Premium CTA only */}
-        <div className="flex items-center justify-end">
-          {!isPremium && (
+        {!isPremium && (
+          <div className="flex items-center justify-end">
             <button
               onClick={() => navigate(createPageUrl('Premium'))}
-              className="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold hover:bg-white/20 transition-colors"
+              className="px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold hover:bg-white/20 transition-colors"
             >
               {t('upgrade_to_premium_title')}
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Greeting */}
         <div>
