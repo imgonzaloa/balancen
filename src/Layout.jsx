@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, Users, Award, User } from "lucide-react";
 import { Toaster } from "sonner";
@@ -13,6 +13,7 @@ import VersionGate from "@/components/VersionGate";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import BrandMark from "@/components/BrandMark";
 import { motion, AnimatePresence } from "framer-motion";
+import { NavigationManager } from "@/components/NavigationManager";
 
 function getNavItems(t) {
   return [
@@ -28,6 +29,7 @@ const showBrandPages = ["Home", "Social", "Progress", "Profile"];
 
 function LayoutInner({ children, currentPageName, bootState }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, lang, changeLanguage } = useTranslation();
   
   // ALL HOOKS UNCONDITIONALLY AT TOP - useRef must be here, not inside useEffect
@@ -95,9 +97,24 @@ function LayoutInner({ children, currentPageName, bootState }) {
     }
   }, [bootState, currentPageName]);
 
+  // Handle browser/app back button
+  React.useEffect(() => {
+    const handlePopState = (e) => {
+      const mainPages = ['Home', 'Social', 'Progress', 'Profile'];
+      if (mainPages.includes(currentPageName)) {
+        // Prevent back navigation from main tabs
+        window.history.pushState(null, '', window.location.href);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentPageName]);
+
   // RENDER (no conditional returns)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
+      <NavigationManager />
       <Toaster position="top-center" richColors />
       
       {/* Brand Mark - shown on main tabs */}
@@ -138,9 +155,14 @@ function LayoutInner({ children, currentPageName, bootState }) {
                         // Prevent navigation if already on page
                         if (active) {
                           e.preventDefault();
+                          // Scroll to top when tapping active tab
+                          if (scrollContainerRef.current) {
+                            scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                          }
                         }
                       }}
                       className="relative flex flex-col items-center py-2 px-4 touch-manipulation transition-transform duration-75 active:scale-90 cursor-pointer"
+                      replace={active}
                     >
                       {active && (
                         <div className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full" />
