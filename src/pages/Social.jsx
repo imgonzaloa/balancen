@@ -18,14 +18,22 @@ export default function Social() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    base44.auth.me().then(setUser);
+    base44.auth.me()
+      .then(setUser)
+      .catch(() => setUser(null));
   }, []);
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", user?.email],
     queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
-      return profiles[0] || null;
+      if (!user?.email) return null;
+      try {
+        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+        return profiles[0] || null;
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+        return null;
+      }
     },
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
@@ -85,7 +93,7 @@ export default function Social() {
     cacheTime: 30 * 60 * 1000,
   });
 
-  if (!user || !profile) {
+  if (!user || profileLoading || profile === undefined) {
     return <SocialSkeleton />;
   }
 

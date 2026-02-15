@@ -20,7 +20,16 @@ export default function Progress() {
   const [loading, setLoading] = useState(!cachedProfile);
 
   useEffect(() => {
-    if (!user?.email || cachedProfile) return;
+    if (!user?.email) {
+      setLoading(false);
+      return;
+    }
+    
+    if (cachedProfile) {
+      setProfile(cachedProfile);
+      setLoading(false);
+      return;
+    }
 
     const fetchData = async () => {
       try {
@@ -36,11 +45,11 @@ export default function Progress() {
           base44.entities.MealLog.filter({
             created_by: user.email,
             date: new Date().toISOString().split("T")[0]
-          }, "-meal_time"),
+          }, "-meal_time").catch(() => []),
           base44.entities.MealLog.filter({
             created_by: user.email,
             date: { $in: last7Days }
-          }, "-date")
+          }, "-date").catch(() => [])
         ]);
 
         setProfile(profileData[0] || null);
@@ -48,6 +57,7 @@ export default function Progress() {
         setWeekMeals(weekData || []);
       } catch (err) {
         console.error("Failed to fetch progress data:", err);
+        setProfile(null);
       } finally {
         setLoading(false);
       }
@@ -71,7 +81,7 @@ export default function Progress() {
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
-  if (!isInitialized || loading) {
+  if (!isInitialized || loading || !profile) {
     return <ProgressSkeleton />;
   }
 
