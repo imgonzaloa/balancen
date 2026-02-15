@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
-export default function PullToRefresh({ children }) {
+export default function PullToRefresh({ children, disabled = false }) {
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);

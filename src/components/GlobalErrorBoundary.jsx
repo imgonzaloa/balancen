@@ -20,6 +20,10 @@ export class GlobalErrorBoundary extends React.Component {
     window.location.reload();
   };
 
+  handleNavigate = (page) => {
+    window.location.href = `/${page}`;
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -34,10 +38,16 @@ export class GlobalErrorBoundary extends React.Component {
             </p>
             <Button
               onClick={this.handleReload}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold w-full rounded-xl"
+              className="bg-red-500 hover:bg-red-600 text-white font-bold w-full rounded-xl mb-3"
             >
               Reload App
             </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button onClick={() => this.handleNavigate('Home')} variant="outline" className="text-white border-white/20">Home</Button>
+              <Button onClick={() => this.handleNavigate('Social')} variant="outline" className="text-white border-white/20">Social</Button>
+              <Button onClick={() => this.handleNavigate('Progress')} variant="outline" className="text-white border-white/20">Progress</Button>
+              <Button onClick={() => this.handleNavigate('Profile')} variant="outline" className="text-white border-white/20">Profile</Button>
+            </div>
           </div>
         </div>
       );

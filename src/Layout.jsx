@@ -113,10 +113,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
   // RENDER (no conditional returns)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)', pointerEvents: 'auto' }}>
-      {/* Background gradient - NO pointer events */}
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 -z-10" style={{ pointerEvents: 'none' }} />
-      
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
       <NavigationManager />
       <Toaster position="top-center" richColors />
       
@@ -138,15 +135,27 @@ function LayoutInner({ children, currentPageName, bootState }) {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
           className={hideNav ? "" : "pb-20"}
-          style={{ paddingTop: showBrandPages.includes(currentPageName) ? '40px' : '0' }}
+          style={{ 
+            paddingTop: showBrandPages.includes(currentPageName) ? '40px' : '0',
+            position: 'relative',
+            zIndex: 1,
+            pointerEvents: 'auto'
+          }}
         >
           {children}
         </motion.main>
       </AnimatePresence>
 
       {!hideNav && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 z-[9999] safe-area-inset-bottom" style={{ pointerEvents: 'auto' }}>
-              <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
+        <nav 
+          className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 safe-area-inset-bottom" 
+          style={{ 
+            zIndex: 10000,
+            pointerEvents: 'auto',
+            touchAction: 'manipulation'
+          }}
+        >
+          <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.name);
@@ -165,8 +174,13 @@ function LayoutInner({ children, currentPageName, bootState }) {
                           }
                         }
                       }}
-                      className="relative flex flex-col items-center py-2 px-4 touch-manipulation transition-transform duration-75 active:scale-90 cursor-pointer"
-                      style={{ pointerEvents: 'auto' }}
+                      className="relative flex flex-col items-center py-2 px-4 transition-transform duration-75 active:scale-90 cursor-pointer"
+                      style={{ 
+                        pointerEvents: 'auto',
+                        touchAction: 'manipulation',
+                        WebkitTapHighlightColor: 'transparent',
+                        zIndex: 1
+                      }}
                       replace={active}
                     >
                       {active && (
