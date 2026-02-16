@@ -101,7 +101,7 @@
     overscroll-behavior-y: none;
     touch-action: pan-y;
     min-height: 100vh;
-    min-height: 100dvh; /* iOS dynamic viewport */
+    min-height: 100dvh;
   }
   
   /* iOS Safe Area Support */
@@ -110,7 +110,7 @@
     padding-bottom: env(safe-area-inset-bottom);
     min-height: 100vh;
     min-height: 100dvh;
-    background: rgb(15 23 42); /* Match slate-900 to prevent black bar */
+    background: rgb(15 23 42);
   }
   
   /* iOS-style smooth scrolling */
@@ -192,4 +192,12 @@
   .touch-feedback:active {
     transform: scale(0.97);
   }
+
+  /* DEBUG: Outline all fixed/absolute full-screen containers */
+  /* REMOVE THIS AFTER TESTING */
+  [style*="position: fixed"],
+  [style*="position:fixed"],
+  .fixed {
+    /* outline: 2px solid red !important; */
   }
+}

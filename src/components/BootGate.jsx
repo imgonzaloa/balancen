@@ -121,7 +121,7 @@ export default function BootGate({ children }) {
   // Render NOTHING until boot is resolved
   if (!bootReady || !bootState) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center" style={{ paddingTop: 'env(safe-area-inset-top, 0)' }}>
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center" style={{ paddingTop: 'env(safe-area-inset-top, 0)', pointerEvents: 'none', zIndex: 9999 }}>
         <div className="w-20 h-20 rounded-2xl bg-black flex items-center justify-center border-2 border-white shadow-2xl">
           <span className="text-5xl font-black text-white">B</span>
         </div>
