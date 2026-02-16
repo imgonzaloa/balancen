@@ -15,41 +15,42 @@ export function MealsStoreProvider({ children }) {
   const [mealsByDate, setMealsByDate] = useState({});
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage on mount - NON-BLOCKING
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        console.log("🗄️ MEALS_HYDRATED", { dates: Object.keys(parsed).length });
-        setMealsByDate(parsed);
+    const timer = setTimeout(() => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setMealsByDate(parsed);
+        }
+      } catch (err) {
+        // Silent fail in production
+      } finally {
+        setIsHydrated(true);
       }
-    } catch (err) {
-      console.error("❌ HYDRATION_FAILED:", err);
-    } finally {
-      setIsHydrated(true);
-    }
+    }, 0);
+    
+    return () => clearTimeout(timer);
   }, []);
 
-  // Persist to localStorage whenever mealsByDate changes
+  // Persist to localStorage whenever mealsByDate changes - DEBOUNCED
   useEffect(() => {
     if (!isHydrated) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mealsByDate));
-      console.log("💾 MEALS_PERSISTED", { dates: Object.keys(mealsByDate).length });
-    } catch (err) {
-      console.error("❌ PERSIST_FAILED:", err);
-    }
+    
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mealsByDate));
+      } catch (err) {
+        // Silent fail in production
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [mealsByDate, isHydrated]);
 
   const addMeal = useCallback((meal) => {
     const dateKey = meal.dateKey || formatLocalDateKey(new Date());
-    
-    console.log("➕ ADD_MEAL", {
-      dateKey,
-      id: meal.id,
-      calories: meal.totals.calories
-    });
 
     setMealsByDate(prev => {
       const updated = { ...prev };
@@ -62,7 +63,6 @@ export function MealsStoreProvider({ children }) {
   }, []);
 
   const removeMeal = useCallback((dateKey, mealId) => {
-    console.log("➖ REMOVE_MEAL", { dateKey, mealId });
     setMealsByDate(prev => {
       const updated = { ...prev };
       if (updated[dateKey]) {
