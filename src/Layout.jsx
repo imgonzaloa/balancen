@@ -14,6 +14,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import BrandMark from "@/components/BrandMark";
 import { motion, AnimatePresence } from "framer-motion";
 import { NavigationManager } from "@/components/NavigationManager";
+import DebugOverlay, { debugLogger } from "@/components/DebugOverlay";
 
 function getNavItems(t) {
   return [
@@ -39,6 +40,12 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const navItems = getNavItems(t);
   const hideNav = noNavPages.includes(currentPageName);
   const isActive = (pageName) => currentPageName === pageName;
+  
+  // Debug overlay
+  const [debugOpen, setDebugOpen] = React.useState(false);
+  const tapCount = React.useRef(0);
+  const tapTimer = React.useRef(null);
+  const longPressTimer = React.useRef(null);
 
   // Save scroll position before page changes
   React.useEffect(() => {
@@ -69,13 +76,20 @@ function LayoutInner({ children, currentPageName, bootState }) {
   React.useEffect(() => {
     if (!bootState || isNavigating.current) return;
 
+    debugLogger.log('BOOT_STATE', bootState.type, { 
+      page: currentPageName,
+      language: bootState.language 
+    });
+
     const redirect = (page) => {
       isNavigating.current = true;
       navigate(createPageUrl(page), { replace: true });
+      debugLogger.log('REDIRECT', `${currentPageName} -> ${page}`);
       setTimeout(() => { isNavigating.current = false; }, 200);
     };
 
     if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
+      debugLogger.log('AUTH_STATE', 'Not authenticated');
       redirect('Home');
       return;
     }
@@ -86,8 +100,14 @@ function LayoutInner({ children, currentPageName, bootState }) {
     }
 
     if (bootState.type === 'HOME_READY') {
+      debugLogger.log('AUTH_STATE', 'Authenticated', { 
+        userId: bootState.user?.email,
+        language: bootState.language 
+      });
+      
       // Sync language
       if (bootState.language && lang !== bootState.language) {
+        debugLogger.log('LANG_SET', bootState.language);
         changeLanguage(bootState.language).catch(() => {});
       }
       // Only redirect if stuck on onboarding
@@ -117,10 +137,35 @@ function LayoutInner({ children, currentPageName, bootState }) {
       <NavigationManager />
       <Toaster position="top-center" richColors style={{ pointerEvents: 'auto' }} />
       
-      {/* Brand Mark - shown on main tabs - NO pointer events */}
+      {/* Brand Mark - shown on main tabs - triple tap to open debug */}
       {showBrandPages.includes(currentPageName) && (
-        <div className="fixed top-0 left-0 right-0 z-40 pt-safe" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', pointerEvents: 'none' }}>
-          <div className="max-w-2xl mx-auto px-6 py-1.5">
+        <div className="fixed top-0 left-0 right-0 z-40 pt-safe" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+          <div 
+            className="max-w-2xl mx-auto px-6 py-1.5"
+            onTouchStart={() => {
+              tapCount.current++;
+              if (tapTimer.current) clearTimeout(tapTimer.current);
+              
+              if (tapCount.current === 3) {
+                setDebugOpen(true);
+                debugLogger.log('DEBUG_OVERLAY', 'Opened via triple tap');
+                tapCount.current = 0;
+              }
+              
+              tapTimer.current = setTimeout(() => {
+                tapCount.current = 0;
+              }, 500);
+              
+              // Long press
+              longPressTimer.current = setTimeout(() => {
+                setDebugOpen(true);
+                debugLogger.log('DEBUG_OVERLAY', 'Opened via long press');
+              }, 2000);
+            }}
+            onTouchEnd={() => {
+              if (longPressTimer.current) clearTimeout(longPressTimer.current);
+            }}
+          >
             <BrandMark size={16} />
           </div>
         </div>
@@ -164,6 +209,18 @@ function LayoutInner({ children, currentPageName, bootState }) {
                       key={item.name}
                       to={createPageUrl(item.name)}
                       onClick={(e) => {
+                        debugLogger.log('TAB_CLICK', item.name, { current: currentPageName });
+                        
+                        // Check if navigation worked after 500ms
+                        setTimeout(() => {
+                          if (currentPageName !== item.name && !active) {
+                            debugLogger.log('NAV_STUCK', `Failed to navigate to ${item.name}`, { 
+                              target: item.name, 
+                              current: currentPageName 
+                            });
+                          }
+                        }, 500);
+                        
                         // Prevent navigation if already on page
                         if (active) {
                           e.preventDefault();
@@ -196,6 +253,18 @@ function LayoutInner({ children, currentPageName, bootState }) {
                 })}
               </div>
             </nav>
+        )}
+
+        {/* Debug Overlay */}
+        {debugOpen && (
+          <div className="fixed inset-0 z-[99999]" style={{ pointerEvents: 'auto' }}>
+            <DebugOverlay />
+            <button
+              onClick={() => setDebugOpen(false)}
+              className="fixed inset-0 bg-black/80"
+              style={{ pointerEvents: 'auto' }}
+            />
+          </div>
         )}
         </div>
         );
