@@ -56,6 +56,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
     return () => {
       if (currentPageName === 'Home' || currentPageName === 'Social') {
         scrollPositions.current[currentPageName] = container.scrollTop;
+        console.log(`[SCROLL] Saved ${currentPageName} position:`, container.scrollTop);
       }
     };
   }, [currentPageName]);
@@ -69,6 +70,12 @@ function LayoutInner({ children, currentPageName, bootState }) {
       const savedPosition = scrollPositions.current[currentPageName] || 0;
       requestAnimationFrame(() => {
         container.scrollTop = savedPosition;
+        console.log(`[SCROLL] Restored ${currentPageName} position:`, savedPosition);
+      });
+    } else {
+      // Reset to top for other pages
+      requestAnimationFrame(() => {
+        container.scrollTop = 0;
       });
     }
   }, [currentPageName]);
@@ -184,7 +191,11 @@ function LayoutInner({ children, currentPageName, bootState }) {
             paddingTop: showBrandPages.includes(currentPageName) ? '40px' : '0',
             position: 'relative',
             zIndex: 1,
-            pointerEvents: 'auto'
+            pointerEvents: 'auto',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+            height: '100%'
           }}
         >
           {children}

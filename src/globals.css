@@ -93,6 +93,12 @@
   * {
     @apply border-border;
   }
+
+  html, body, #root {
+    height: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -100,16 +106,12 @@
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior-y: none;
     touch-action: pan-y;
-    min-height: 100vh;
-    min-height: 100dvh;
   }
-  
+
   /* iOS Safe Area Support */
   #root {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
-    min-height: 100vh;
-    min-height: 100dvh;
     background: rgb(15 23 42);
   }
   
