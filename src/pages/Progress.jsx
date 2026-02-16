@@ -9,6 +9,9 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import AdvancedAnalytics from "@/components/progress/AdvancedAnalytics";
 import { motion } from "framer-motion";
+import { withTimeout } from "@/components/utils/fetchWithTimeout";
+import ErrorFallback, { LoadingTimeout } from "@/components/ErrorFallback";
+import { debugLogger } from "@/components/DebugOverlay";
 
 export default function Progress() {
   const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
@@ -18,6 +21,8 @@ export default function Progress() {
   const [todayMeals, setTodayMeals] = useState(cachedMeals || []);
   const [weekMeals, setWeekMeals] = useState([]);
   const [loading, setLoading] = useState(!cachedProfile);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!user?.email) {
@@ -31,9 +36,11 @@ export default function Progress() {
       return;
     }
 
+    const timer = setTimeout(() => setLoadingTimeout(true), 3000);
+
     const fetchData = async () => {
       try {
-        // Get 7 days of data
+        debugLogger.log('PROGRESS_FETCH', 'Starting');
         const last7Days = Array.from({ length: 7 }).map((_, i) => {
           const d = new Date();
           d.setDate(d.getDate() - i);
@@ -41,29 +48,39 @@ export default function Progress() {
         });
 
         const [profileData, mealsData, weekData] = await Promise.all([
-          base44.entities.UserProfile.filter({ created_by: user.email }),
-          base44.entities.MealLog.filter({
-            created_by: user.email,
-            date: new Date().toISOString().split("T")[0]
-          }, "-meal_time").catch(() => []),
-          base44.entities.MealLog.filter({
-            created_by: user.email,
-            date: { $in: last7Days }
-          }, "-date").catch(() => [])
+          withTimeout(base44.entities.UserProfile.filter({ created_by: user.email }), 3000),
+          withTimeout(
+            base44.entities.MealLog.filter({
+              created_by: user.email,
+              date: new Date().toISOString().split("T")[0]
+            }, "-meal_time"),
+            3000
+          ).catch(() => []),
+          withTimeout(
+            base44.entities.MealLog.filter({
+              created_by: user.email,
+              date: { $in: last7Days }
+            }, "-date"),
+            3000
+          ).catch(() => [])
         ]);
 
         setProfile(profileData[0] || null);
         setTodayMeals(mealsData || []);
         setWeekMeals(weekData || []);
+        debugLogger.log('PROGRESS_SUCCESS', `${mealsData.length} meals today`);
       } catch (err) {
-        console.error("Failed to fetch progress data:", err);
+        debugLogger.log('PROGRESS_ERROR', err.message);
+        setError(err);
         setProfile(null);
       } finally {
         setLoading(false);
+        clearTimeout(timer);
       }
     };
 
     fetchData();
+    return () => clearTimeout(timer);
   }, [user?.email, cachedProfile]);
 
   const calculations = useMemo(() => {
@@ -81,8 +98,62 @@ export default function Progress() {
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
-  if (!isInitialized || loading || !profile) {
+  // Loading timeout
+  if (loadingTimeout && loading) {
+    return (
+      <LoadingTimeout 
+        onRetry={() => {
+          setLoadingTimeout(false);
+          setError(null);
+          window.location.reload();
+        }} 
+      />
+    );
+  }
+
+  // Show loading only briefly
+  if (!isInitialized || (loading && !error)) {
     return <ProgressSkeleton />;
+  }
+
+  // Error fallback
+  if (error) {
+    return (
+      <ErrorFallback
+        title="Could not load progress"
+        message={error.message || "Please check your connection"}
+        errorCode="PROGRESS_ERROR"
+        onRetry={() => {
+          setError(null);
+          window.location.reload();
+        }}
+      />
+    );
+  }
+
+  // Anonymous/no data state
+  if (!user?.email || !profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
+            <BarChart3 size={40} className="text-white/30" />
+          </div>
+          <h2 className="text-white text-2xl font-bold mb-3">
+            {t('no_data_yet')}
+          </h2>
+          <p className="text-white/60 mb-8">
+            {t('log_a_meal_to_start_tracking')}
+          </p>
+          <Button
+            onClick={() => navigate(createPageUrl('Home'))}
+            className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold"
+          >
+            {t('go_to_home')}
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
