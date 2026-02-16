@@ -113,9 +113,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
   // RENDER (no conditional returns)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)', position: 'relative' }}>
       <NavigationManager />
-      <Toaster position="top-center" richColors />
+      <Toaster position="top-center" richColors style={{ pointerEvents: 'auto' }} />
       
       {/* Brand Mark - shown on main tabs - NO pointer events */}
       {showBrandPages.includes(currentPageName) && (
