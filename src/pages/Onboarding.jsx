@@ -21,19 +21,18 @@ export default function Onboarding() {
 
   useEffect(() => {
     const init = async () => {
-      const u = await base44.auth.me();
-      setUser(u);
-      
-      // Check if already completed
-      if (localStorage.getItem('onboarding_completed') === 'true') {
-        navigate(createPageUrl('Home'), { replace: true });
-        return;
-      }
-      
-      const profiles = await base44.entities.UserProfile.filter({ created_by: u?.email });
-      if (profiles?.[0]?.onboarding_completed) {
-        localStorage.setItem('onboarding_completed', 'true');
-        navigate(createPageUrl('Home'), { replace: true });
+      try {
+        const u = await base44.auth.me();
+        setUser(u);
+        
+        // Check if already completed (stable key)
+        const completed = localStorage.getItem('balancen_onboarding_complete') === 'true';
+        if (completed) {
+          console.log('[ONBOARDING] Already completed, redirecting to Home');
+          navigate(createPageUrl('Home'), { replace: true });
+        }
+      } catch (err) {
+        console.error('[ONBOARDING] Init error:', err);
       }
     };
     init();
@@ -57,10 +56,10 @@ export default function Onboarding() {
         });
       }
 
-      // Persist completion and language
-      localStorage.setItem('onboarding_completed', 'true');
-      localStorage.setItem('balancen_lang', formData.language);
-      localStorage.setItem('app_language', formData.language);
+      // CRITICAL: Persist completion and language with stable keys
+      localStorage.setItem('balancen_onboarding_complete', 'true');
+      localStorage.setItem('balancen_language', formData.language);
+      console.log('[ONBOARDING] Completion persisted:', formData.language);
       await changeLanguage(formData.language);
 
       // Process referral if exists

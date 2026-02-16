@@ -73,50 +73,48 @@ function LayoutInner({ children, currentPageName, bootState }) {
     }
   }, [currentPageName]);
 
-  // ROUTING LOGIC - redirect based on boot state
+  // ROUTING LOGIC - stable, loop-free redirects
   React.useEffect(() => {
-    if (!bootState || isNavigating.current) return;
+    if (!bootState?.isHydrated || isNavigating.current) return;
 
-    debugLogger.log('BOOT_STATE', bootState.type, { 
-      page: currentPageName,
-      language: bootState.language 
-    });
-
-    const redirect = (page) => {
+    const redirect = (page, reason) => {
+      // Prevent redirect if already on target page
+      if (currentPageName === page) {
+        console.log(`[ROUTING] Already on ${page}, skipping redirect`);
+        return;
+      }
+      
+      console.log(`[ROUTING] Redirect: ${currentPageName} -> ${page} (${reason})`);
       isNavigating.current = true;
       navigate(createPageUrl(page), { replace: true });
-      debugLogger.log('REDIRECT', `${currentPageName} -> ${page}`);
-      setTimeout(() => { isNavigating.current = false; }, 200);
+      setTimeout(() => { isNavigating.current = false; }, 300);
     };
 
+    // Anonymous users stay on Home
     if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
-      debugLogger.log('AUTH_STATE', 'Not authenticated');
-      redirect('Home');
+      redirect('Home', 'anonymous');
       return;
     }
 
-    if (bootState.type === 'ONBOARDING_REQUIRED' && currentPageName !== 'Onboarding') {
-      redirect('Onboarding');
+    // Onboarding incomplete - only redirect if NOT already on Onboarding
+    if (bootState.type === 'ONBOARDING_REQUIRED' && !bootState.onboardingComplete) {
+      redirect('Onboarding', 'incomplete');
       return;
     }
 
-    if (bootState.type === 'HOME_READY') {
-      debugLogger.log('AUTH_STATE', 'Authenticated', { 
-        userId: bootState.user?.email,
-        language: bootState.language 
-      });
-      
-      // Sync language
+    // Authenticated + complete - sync language and leave onboarding
+    if (bootState.type === 'HOME_READY' && bootState.onboardingComplete) {
+      // Sync language once
       if (bootState.language && lang !== bootState.language) {
-        debugLogger.log('LANG_SET', bootState.language);
         changeLanguage(bootState.language).catch(() => {});
       }
-      // Only redirect if stuck on onboarding
+      
+      // Only redirect away from Onboarding (user might be anywhere else)
       if (currentPageName === 'Onboarding') {
-        redirect('Home');
+        redirect('Home', 'completed');
       }
     }
-  }, [bootState, currentPageName]);
+  }, [bootState?.isHydrated, bootState?.type, bootState?.onboardingComplete, currentPageName]);
 
   // Handle browser/app back button
   React.useEffect(() => {
@@ -208,12 +206,12 @@ function LayoutInner({ children, currentPageName, bootState }) {
                   const Icon = item.icon;
                   const active = isActive(item.name);
                   
-                  const handleNavigation = (e) => {
-                    debugLogger.log('TAB_CLICK', item.name, { current: currentPageName });
+                  // Memoized handler to prevent re-creation on every render
+                  const handleNavigation = React.useCallback((e) => {
+                    if (e) e.preventDefault();
                     
-                    // Prevent navigation if already on page
+                    // Already on page - just scroll
                     if (active) {
-                      e.preventDefault();
                       if (scrollContainerRef.current) {
                         scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
                       }
@@ -221,18 +219,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
                     }
                     
                     // Navigate immediately
+                    debugLogger.log('TAB_CLICK', item.name, { current: currentPageName });
                     navigate(createPageUrl(item.name), { replace: true });
-                    
-                    // Check if navigation worked after 500ms
-                    setTimeout(() => {
-                      if (currentPageName !== item.name) {
-                        debugLogger.log('NAV_STUCK', `Failed to navigate to ${item.name}`, { 
-                          target: item.name, 
-                          current: currentPageName 
-                        });
-                      }
-                    }, 500);
-                  };
+                  }, [active, item.name, currentPageName]);
                   
                   return (
                     <button

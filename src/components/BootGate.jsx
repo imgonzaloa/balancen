@@ -3,33 +3,32 @@ import { base44 } from '@/api/base44Client';
 import { logger } from '@/components/logger';
 
 /**
- * BootGate: THE ONLY authoritative entry point.
- * Blocks ALL rendering until boot state is fully resolved.
- * No screen flashes, no loops, no intermediate mounts.
+ * BootGate: Single source of truth for app state hydration.
+ * Prevents flashing and onboarding loops with stable localStorage persistence.
  */
+
+const STORAGE_KEYS = {
+  LANGUAGE: 'balancen_language',
+  ONBOARDING_COMPLETE: 'balancen_onboarding_complete'
+};
 
 export default function BootGate({ children }) {
   const [bootState, setBootState] = useState(null);
-  const [bootReady, setBootReady] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-    let emergencyTimeout;
 
     const resolveBoot = async () => {
-      logger.log('BOOT_START');
-
-      // Emergency timeout - prevent infinite freeze
-      emergencyTimeout = setTimeout(() => {
-        if (isMounted && !bootReady) {
-          logger.log('BOOT_EMERGENCY_TIMEOUT');
-          setBootState({ type: 'AUTH_REQUIRED' });
-          setBootReady(true);
-        }
-      }, 5000);
+      console.log('[BOOT] Starting hydration');
 
       try {
-        // Check auth with timeout
+        // STEP 1: Hydrate from localStorage FIRST (synchronous, fast)
+        const storedLanguage = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
+        const storedOnboarding = localStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
+        
+        console.log('[BOOT] Hydrated:', { language: storedLanguage, onboardingComplete: storedOnboarding });
+
+        // STEP 2: Check auth (with timeout)
         const authPromise = base44.auth.me();
         const timeoutPromise = new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Auth timeout')), 3000)
@@ -40,73 +39,83 @@ export default function BootGate({ children }) {
         if (!isMounted) return;
 
         if (!user?.email) {
-          logger.log('BOOT_NOT_AUTHENTICATED');
-          setBootState({ type: 'AUTH_REQUIRED' });
-          setBootReady(true);
-          clearTimeout(emergencyTimeout);
+          console.log('[BOOT] Not authenticated');
+          if (isMounted) {
+            setBootState({ 
+              type: 'AUTH_REQUIRED',
+              isHydrated: true,
+              language: storedLanguage || 'en',
+              onboardingComplete: storedOnboarding === 'true'
+            });
+          }
           return;
         }
 
-        // Check cached state
-        const cachedOnboarding = localStorage.getItem('onboarding_completed');
-        const cachedLanguage = localStorage.getItem('app_language');
-
-        // Quick path: cached onboarding
-        if (cachedOnboarding === 'true' && cachedLanguage) {
-          logger.log('BOOT_CACHED_READY', { language: cachedLanguage });
-          setBootState({
-            type: 'HOME_READY',
-            user,
-            language: cachedLanguage,
-            onboardingComplete: true,
-          });
-          setBootReady(true);
-          clearTimeout(emergencyTimeout);
+        // STEP 3: If we have cached completion, trust it (no profile fetch needed)
+        if (storedOnboarding === 'true' && storedLanguage) {
+          console.log('[BOOT] Using cached completion state');
+          if (isMounted) {
+            setBootState({
+              type: 'HOME_READY',
+              user,
+              isHydrated: true,
+              language: storedLanguage,
+              onboardingComplete: true,
+            });
+          }
           return;
         }
 
-        // Fetch profile
+        // STEP 4: No cache or incomplete - fetch profile
+        console.log('[BOOT] Fetching profile for verification');
         const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
         const profile = profiles?.[0];
 
         if (!isMounted) return;
 
         if (!profile || !profile.onboarding_completed) {
-          logger.log('BOOT_NEEDS_ONBOARDING');
-          if (profile?.language) {
-            localStorage.setItem('app_language', profile.language);
+          console.log('[BOOT] Onboarding required');
+          // Clear stale cache
+          localStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
+          
+          if (isMounted) {
+            setBootState({
+              type: 'ONBOARDING_REQUIRED',
+              user,
+              profile,
+              isHydrated: true,
+              language: profile?.language || storedLanguage || 'en',
+              onboardingComplete: false,
+            });
           }
-          localStorage.removeItem('onboarding_completed');
-          setBootState({
-            type: 'ONBOARDING_REQUIRED',
-            user,
-            profile,
-            language: profile?.language || cachedLanguage || 'en',
-          });
-          setBootReady(true);
-          clearTimeout(emergencyTimeout);
           return;
         }
 
-        // Ready for home
-        localStorage.setItem('onboarding_completed', 'true');
-        localStorage.setItem('app_language', profile.language);
-        logger.log('BOOT_READY', { language: profile.language });
-        setBootState({
-          type: 'HOME_READY',
-          user,
-          profile,
-          language: profile.language,
-          onboardingComplete: true,
-        });
-        setBootReady(true);
-        clearTimeout(emergencyTimeout);
+        // STEP 5: Profile confirms completion - persist and proceed
+        console.log('[BOOT] Profile confirmed complete');
+        localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETE, 'true');
+        localStorage.setItem(STORAGE_KEYS.LANGUAGE, profile.language);
+        
+        if (isMounted) {
+          setBootState({
+            type: 'HOME_READY',
+            user,
+            profile,
+            isHydrated: true,
+            language: profile.language,
+            onboardingComplete: true,
+          });
+        }
       } catch (err) {
-        if (!isMounted) return;
-        logger.error('BOOT_ERROR', err);
-        setBootState({ type: 'AUTH_REQUIRED' });
-        setBootReady(true);
-        clearTimeout(emergencyTimeout);
+        console.error('[BOOT] Error:', err);
+        if (isMounted) {
+          setBootState({ 
+            type: 'AUTH_REQUIRED',
+            isHydrated: true,
+            language: localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'en',
+            onboardingComplete: false
+          });
+        }
       }
     };
 
@@ -114,12 +123,11 @@ export default function BootGate({ children }) {
     
     return () => {
       isMounted = false;
-      if (emergencyTimeout) clearTimeout(emergencyTimeout);
     };
   }, []);
 
-  // Render NOTHING until boot is resolved
-  if (!bootReady || !bootState) {
+  // Render NOTHING until hydrated
+  if (!bootState || !bootState.isHydrated) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center" style={{ paddingTop: 'env(safe-area-inset-top, 0)', pointerEvents: 'none', zIndex: 9999 }}>
         <div className="w-20 h-20 rounded-2xl bg-black flex items-center justify-center border-2 border-white shadow-2xl">
@@ -129,6 +137,5 @@ export default function BootGate({ children }) {
     );
   }
 
-  // No debug bar in production
   return children({ bootState });
 }
