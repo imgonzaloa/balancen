@@ -164,7 +164,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
                       key={item.name}
                       to={createPageUrl(item.name)}
                       onClick={(e) => {
-                        console.log('🔄 TAB_CLICKED', { tab: item.name, current: currentPageName, time: Date.now() });
                         // Prevent navigation if already on page
                         if (active) {
                           e.preventDefault();

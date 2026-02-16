@@ -57,31 +57,11 @@ export function AppStateProvider({ children }) {
     
     let isMounted = true;
     
-    // Fetch profile first
+    // Fetch profile ONLY - others load on demand per page
     base44.entities.UserProfile.filter({ created_by: user.email })
       .then(profiles => { 
         if (isMounted) {
           setProfile(profiles[0] || null);
-          
-          // Then fetch friends and meals with delay to avoid rate limit
-          setTimeout(() => {
-            if (!isMounted) return;
-            
-            base44.entities.Friend.filter({ created_by: user.email })
-              .then(friendsList => { if (isMounted) setFriends(friendsList); })
-              .catch(() => { if (isMounted) setFriends([]); });
-          }, 300);
-          
-          setTimeout(() => {
-            if (!isMounted) return;
-            
-            base44.entities.MealLog.filter(
-              { created_by: user.email, date: new Date().toISOString().split("T")[0] },
-              "-meal_time"
-            )
-              .then(meals => { if (isMounted) setTodayMeals(meals); })
-              .catch(() => { if (isMounted) setTodayMeals([]); });
-          }, 600);
         }
       })
       .catch(() => { if (isMounted) setProfile(null); });
@@ -113,17 +93,14 @@ export function AppStateProvider({ children }) {
     if (!user?.email) return;
     try {
       const today = new Date().toISOString().split("T")[0];
-      console.log("🔄 REFRESHING_TODAY_MEALS", { user: user.email, date: today });
       
       const meals = await base44.entities.MealLog.filter(
         { created_by: user.email, date: today },
         "-meal_time"
       );
       
-      console.log("✅ MEALS_REFRESHED", { count: meals.length });
       setTodayMeals(meals);
     } catch (err) {
-      console.error("❌ REFRESH_MEALS_FAILED:", err);
       setTodayMeals([]);
     }
   };

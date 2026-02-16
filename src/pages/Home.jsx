@@ -10,7 +10,8 @@ import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
 import PullToRefresh from "@/components/PullToRefresh";
 
-export default function Home() {
+// Memoized Home component for better performance
+const Home = React.memo(() => {
   const { user, profile: cachedProfile, isInitialized } = useAppState();
   const { getTodayMeals, getTodayTotals, isHydrated } = useMealsStore();
   const { t, lang } = useTranslation();
@@ -21,15 +22,9 @@ export default function Home() {
     if (cachedProfile) setProfile(cachedProfile);
   }, [cachedProfile]);
 
-  // Get meals and totals from MealsStore
-  const todayMeals = getTodayMeals();
-  const storeTotals = getTodayTotals();
-
-  console.log("🏠 HOME_RENDER", {
-    mealsCount: todayMeals.length,
-    totals: storeTotals,
-    isHydrated
-  });
+  // Memoize meals and totals to prevent recalculation
+  const todayMeals = useMemo(() => getTodayMeals(), [getTodayMeals]);
+  const storeTotals = useMemo(() => getTodayTotals(), [getTodayTotals]);
 
   const metrics = useMemo(() => {
     const totalCalories = storeTotals.calories;
@@ -42,7 +37,7 @@ export default function Home() {
     return { totalCalories, totalProtein, totalCarbs, totalFats, caloriesGoal, progress };
   }, [storeTotals, profile?.calories_goal]);
 
-  const todayMissions = [
+  const todayMissions = useMemo(() => [
     { 
       id: 1, 
       label: t('meal_logged'), 
@@ -58,30 +53,44 @@ export default function Home() {
       label: t('log_three_meals'), 
       completed: todayMeals.length >= 3, 
     }
-  ];
+  ], [todayMeals.length, metrics.progress, t]);
 
-  const completedCount = todayMissions.filter(m => m.completed).length;
-  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+  const completedCount = useMemo(() => 
+    todayMissions.filter(m => m.completed).length,
+    [todayMissions]
+  );
 
-  const getGreeting = () => {
+  const isPremium = useMemo(() => 
+    profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator',
+    [profile]
+  );
+
+  const getGreeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return t('good_morning');
     if (hour < 18) return t('good_afternoon');
     return t('good_evening');
-  };
+  }, [t]);
 
-  const currentDate = new Date().toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
-    weekday: "long",
-    day: "numeric",
-    month: "long"
-  });
+  const currentDate = useMemo(() => 
+    new Date().toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
+      weekday: "long",
+      day: "numeric",
+      month: "long"
+    }),
+    [lang]
+  );
+
+  const handleNavigate = React.useCallback((page) => {
+    navigate(createPageUrl(page));
+  }, [navigate]);
 
   if (!isInitialized || !isHydrated) {
     return <HomeSkeleton />;
   }
 
   return (
-    <PullToRefresh>
+    <PullToRefresh disabled>
       <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
         <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
         
@@ -89,7 +98,7 @@ export default function Home() {
         {!isPremium && (
           <div className="flex items-center justify-end">
             <button
-              onClick={() => navigate(createPageUrl('Premium'))}
+              onClick={() => handleNavigate('Premium')}
               className="px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold hover:bg-white/20 transition-colors"
             >
               {t('upgrade_to_premium_title')}
@@ -103,7 +112,7 @@ export default function Home() {
             {currentDate}
           </p>
           <h1 className="text-3xl font-black text-white">
-            {getGreeting()}, {profile?.display_name?.split(' ')[0] || t('user')}
+            {getGreeting}, {profile?.display_name?.split(' ')[0] || t('user')}
           </h1>
         </div>
 
@@ -180,14 +189,14 @@ export default function Home() {
         {/* Primary CTAs */}
          <div className="grid grid-cols-2 gap-3">
            <Button
-             onClick={() => navigate(createPageUrl('CameraScreen'))}
+             onClick={() => handleNavigate('CameraScreen')}
              className="h-16 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 hover:shadow-xl hover:shadow-teal-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
            >
              <Camera size={20} strokeWidth={2.5} />
              {t('log_meal_button')}
            </Button>
            <Button
-             onClick={() => navigate(createPageUrl('TrainerDashboard'))}
+             onClick={() => handleNavigate('TrainerDashboard')}
              className="h-16 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 hover:shadow-xl hover:shadow-purple-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
              title={!isPremium ? t('premium_feature') : ''}
              disabled={!isPremium}
@@ -278,9 +287,9 @@ export default function Home() {
                   key={mission.id}
                   onClick={() => {
                     if (mission.id === 1 || mission.id === 3) {
-                      navigate(createPageUrl('CameraScreen'));
+                      handleNavigate('CameraScreen');
                     } else if (mission.id === 2) {
-                      navigate(createPageUrl('Progress'));
+                      handleNavigate('Progress');
                     }
                   }}
                   className="flex items-center gap-2 w-full py-1 px-2 -mx-2 rounded-lg hover:bg-white/5 transition-colors active:scale-95 cursor-pointer"
@@ -304,7 +313,7 @@ export default function Home() {
         {/* Manual Add Meal - FREE USERS OPTION */}
         {!isPremium && (
           <button
-            onClick={() => navigate(createPageUrl('AddMeal'))}
+            onClick={() => handleNavigate('AddMeal')}
             className="w-full text-left bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-xl rounded-2xl p-5 border border-emerald-500/30 hover:border-emerald-500/50 transition-all active:scale-[0.98] cursor-pointer"
           >
             <div className="flex items-start gap-3">
@@ -326,7 +335,7 @@ export default function Home() {
         {/* AI Insights (PREMIUM ONLY) */}
         {isPremium && (
           <button
-            onClick={() => navigate(createPageUrl('GoalsAssistant'))}
+            onClick={() => handleNavigate('GoalsAssistant')}
             className="w-full text-left bg-gradient-to-br from-purple-500/12 to-pink-500/12 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/20 hover:border-purple-500/40 transition-all active:scale-[0.98] cursor-pointer"
           >
             <div className="flex items-start gap-3">
@@ -354,7 +363,7 @@ export default function Home() {
         {/* Premium CTA - All Features Teaser */}
         {!isPremium && (
           <button
-            onClick={() => navigate(createPageUrl('Premium'))}
+            onClick={() => handleNavigate('Premium')}
             className="w-full text-left bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-all active:scale-[0.98] cursor-pointer"
           >
             <div className="flex items-start gap-3">
@@ -378,4 +387,8 @@ export default function Home() {
       </div>
     </PullToRefresh>
   );
-}
+});
+
+Home.displayName = 'Home';
+
+export default Home;
