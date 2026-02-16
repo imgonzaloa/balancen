@@ -8,6 +8,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { useMealsStore } from "@/components/MealsStore";
 import { createPageUrl } from "@/utils";
+import { debugLogger } from "@/components/DebugOverlay";
 import MealAnalysisOverlay from "@/components/home/MealAnalysisOverlay";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -159,28 +160,24 @@ export default function MealResult() {
   };
 
   const handleSave = async () => {
-    console.log("💾 SAVE_MEAL_STARTED", editValues);
+    debugLogger.log('SAVE_MEAL_START', 'User clicked save', { 
+      calories: editValues.calories,
+      protein: editValues.protein_g,
+      items: items.length
+    });
     
     // VALIDATION BLOCK
     if (!result?.file_url) {
-      console.error("❌ SAVE_BLOCKED - no file_url");
+      debugLogger.log('SAVE_MEAL_FAIL', 'No file URL', { hasResult: !!result });
       toast.error("Cannot save - photo upload failed");
       return;
     }
     
     if (!editValues.calories || editValues.calories === 0) {
-      console.error("❌ SAVE_BLOCKED - no calories");
+      debugLogger.log('SAVE_MEAL_FAIL', 'No calories', editValues);
       toast.error("Please add calorie estimate");
       return;
     }
-
-    console.log("✅ MEAL_VALIDATION_OK", {
-      calories: editValues.calories,
-      protein: editValues.protein_g,
-      carbs: editValues.carbs_g,
-      fats: editValues.fats_g,
-      items: items.length
-    });
 
     setUploading(true);
     
@@ -225,9 +222,14 @@ export default function MealResult() {
 
       // Add to local store FIRST (optimistic)
       addMeal(meal);
-      console.log("✅ MEAL_OPTIMISTIC_ADDED", { id: meal.id, dateKey });
+      debugLogger.log('SAVE_MEAL_LOCAL', 'Added to local store', { 
+        id: meal.id, 
+        dateKey,
+        calories: meal.totals.calories 
+      });
 
       // Then persist to backend
+      let backendSuccess = false;
       try {
         const mealLog = await base44.entities.MealLog.create({
           date: dateKey,
@@ -238,9 +240,10 @@ export default function MealResult() {
           estimated_carbs: editValues.carbs_g,
           estimated_fats: editValues.fats_g
         });
-        console.log("✅ MEAL_LOG_CREATED", { id: mealLog.id });
+        backendSuccess = true;
+        debugLogger.log('SAVE_MEAL_BACKEND', 'Backend save OK', { id: mealLog.id });
       } catch (backendErr) {
-        console.error("⚠️ BACKEND_SAVE_FAILED (but local saved):", backendErr);
+        debugLogger.log('SAVE_MEAL_BACKEND_FAIL', backendErr.message, { error: backendErr });
       }
 
       // Update check-in
@@ -250,20 +253,28 @@ export default function MealResult() {
           estimated_calories: editValues.calories,
           meal_photo_fire_awarded: false
         });
-        console.log("✅ CHECKIN_UPDATED");
+        debugLogger.log('CHECKIN_UPDATED', 'Check-in updated');
       } catch (err) {
-        console.error("⚠️ CHECKIN_UPDATE_FAILED:", err);
+        debugLogger.log('CHECKIN_UPDATE_FAIL', err.message);
       }
 
-      // Verify save
+      // Verify save in localStorage
       const savedMeals = JSON.parse(localStorage.getItem("balancen.mealsByDate") || "{}");
       const verifyMeal = savedMeals[dateKey]?.find(m => m.id === meal.id);
       
       if (!verifyMeal) {
+        debugLogger.log('SAVE_MEAL_FAIL', 'Meal not in storage after save', { 
+          dateKey,
+          storageKeys: Object.keys(savedMeals)
+        });
         throw new Error("Meal not found in storage after save");
       }
 
-      console.log("✅ MEAL_PERSIST_SUCCESS - verified in storage");
+      debugLogger.log('SAVE_MEAL_SUCCESS', 'Save verified', { 
+        id: meal.id,
+        calories: verifyMeal.totals.calories,
+        backendSuccess 
+      });
       
       // Success feedback
       toast.success(`${t("meal_saved")} ✓ +${editValues.calories} kcal`);
@@ -271,11 +282,27 @@ export default function MealResult() {
       // Clean up context
       resetMeal();
       
-      console.log("🏠 NAVIGATING_TO_HOME");
+      // Navigate and log reload totals after 1s
       navigate(createPageUrl("Home"));
+      debugLogger.log('NAV_TO_HOME', 'Redirecting to Home');
+      
+      setTimeout(() => {
+        const reloadMeals = JSON.parse(localStorage.getItem("balancen.mealsByDate") || "{}");
+        const todayMeals = reloadMeals[dateKey] || [];
+        const totals = todayMeals.reduce((acc, m) => ({
+          calories: acc.calories + (m.totals?.calories || 0),
+          protein: acc.protein + (m.totals?.protein || 0)
+        }), { calories: 0, protein: 0 });
+        
+        debugLogger.log('AFTER_SAVE_RELOAD', 'Home should show totals', {
+          mealsCount: todayMeals.length,
+          totalCalories: totals.calories,
+          totalProtein: totals.protein
+        });
+      }, 1000);
       
     } catch (err) {
-      console.error("❌ MEAL_PERSIST_FAIL:", err);
+      debugLogger.log('SAVE_MEAL_FAIL', err.message, { error: err });
       toast.error(t("error_saving") + ": " + (err.message || "Unknown error"));
     } finally {
       setUploading(false);
