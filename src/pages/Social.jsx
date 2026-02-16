@@ -11,31 +11,54 @@ import InviteSystemCard from "@/components/social/InviteSystemCard";
 import StatusChip from "@/components/groups/StatusChip";
 import { SocialSkeleton } from "@/components/ui/ScreenSkeleton";
 import PullToRefresh from "@/components/PullToRefresh";
+import { withTimeout } from "@/components/utils/fetchWithTimeout";
+import ErrorFallback, { LoadingTimeout } from "@/components/ErrorFallback";
+import { debugLogger } from "@/components/DebugOverlay";
 
 export default function Social() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   useEffect(() => {
-    base44.auth.me()
-      .then(setUser)
-      .catch(() => setUser(null));
+    const timer = setTimeout(() => setLoadingTimeout(true), 3000);
+    
+    const fetchAuth = async () => {
+      try {
+        const currentUser = await withTimeout(base44.auth.me(), 3000, 'AUTH_TIMEOUT');
+        setUser(currentUser);
+        debugLogger.log('SOCIAL_AUTH', currentUser?.email || 'anonymous');
+      } catch (err) {
+        setAuthError(err);
+        debugLogger.log('SOCIAL_AUTH_ERROR', err.message);
+      } finally {
+        setAuthLoading(false);
+        clearTimeout(timer);
+      }
+    };
+
+    fetchAuth();
+    return () => clearTimeout(timer);
   }, []);
 
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const { data: profile, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: ["profile", user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
-      try {
-        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-        return profiles[0] || null;
-      } catch (err) {
-        console.error("Profile fetch error:", err);
-        return null;
-      }
+      debugLogger.log('SOCIAL_PROFILE_FETCH', 'Starting');
+      const profiles = await withTimeout(
+        base44.entities.UserProfile.filter({ created_by: user.email }),
+        3000,
+        'PROFILE_TIMEOUT'
+      );
+      debugLogger.log('SOCIAL_PROFILE_SUCCESS', profiles[0]?.display_name || 'none');
+      return profiles[0] || null;
     },
     enabled: !!user?.email,
+    retry: false,
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
   });
@@ -45,15 +68,19 @@ export default function Social() {
   const { data: myGroups = [] } = useQuery({
     queryKey: ["myGroups", user?.email],
     queryFn: async () => {
-      const members = await base44.entities.GroupMember.filter({ user_email: user?.email });
+      const members = await withTimeout(
+        base44.entities.GroupMember.filter({ user_email: user?.email }),
+        3000
+      );
       const groupIds = members.map(m => m.group_id);
       if (groupIds.length === 0) return [];
       const groups = await Promise.all(
-        groupIds.map(id => base44.entities.Group.filter({ id }))
+        groupIds.map(id => withTimeout(base44.entities.Group.filter({ id }), 2000))
       );
       return groups.flat();
     },
     enabled: !!user?.email && isPremium,
+    retry: false,
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
   });
@@ -62,12 +89,13 @@ export default function Social() {
     queryKey: ["friends", user?.email],
     queryFn: async () => {
       const [sent, received] = await Promise.all([
-        base44.entities.Friend.filter({ created_by: user?.email }),
-        base44.entities.Friend.filter({ friend_user_id: user?.email })
+        withTimeout(base44.entities.Friend.filter({ created_by: user?.email }), 3000),
+        withTimeout(base44.entities.Friend.filter({ friend_user_id: user?.email }), 3000)
       ]);
       return [...sent, ...received].filter(f => f);
     },
     enabled: !!user?.email && isPremium,
+    retry: false,
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
   });
@@ -79,22 +107,91 @@ export default function Social() {
         f.created_by === user?.email ? f.friend_user_id : f.created_by
       );
       if (friendIds.length === 0) return [];
-      // Fetch profiles with small delays to avoid rate limit
       const profiles = [];
-      for (let i = 0; i < friendIds.length; i++) {
+      for (let i = 0; i < Math.min(friendIds.length, 10); i++) {
         if (i > 0) await new Promise(resolve => setTimeout(resolve, 100));
-        const p = await base44.entities.UserProfile.filter({ created_by: friendIds[i] });
-        profiles.push(p[0]);
+        try {
+          const p = await withTimeout(
+            base44.entities.UserProfile.filter({ created_by: friendIds[i] }),
+            2000
+          );
+          profiles.push(p[0]);
+        } catch {
+          // Skip failed profile
+        }
       }
       return profiles.filter(Boolean);
     },
     enabled: isPremium && friends.length > 0,
+    retry: false,
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
   });
 
-  if (!user || profileLoading || profile === undefined) {
+  // Loading timeout fallback
+  if (loadingTimeout && (authLoading || profileLoading)) {
+    return (
+      <LoadingTimeout 
+        onRetry={() => {
+          setLoadingTimeout(false);
+          window.location.reload();
+        }} 
+      />
+    );
+  }
+
+  // Show loading only for short period
+  if (authLoading || (user?.email && profileLoading && !profileError)) {
     return <SocialSkeleton />;
+  }
+
+  // Auth error fallback
+  if (authError) {
+    return (
+      <ErrorFallback
+        title="Could not load social page"
+        message={authError.message}
+        errorCode="SOCIAL_AUTH_ERROR"
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
+
+  // Profile error fallback
+  if (user?.email && profileError) {
+    return (
+      <ErrorFallback
+        title="Could not load profile"
+        message="Please check your connection and try again"
+        errorCode="PROFILE_ERROR"
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
+
+  // Anonymous user - show empty state
+  if (!user?.email) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
+            <Users size={40} className="text-white/30" />
+          </div>
+          <h2 className="text-white text-2xl font-bold mb-3">
+            {t('connect_with_friends')}
+          </h2>
+          <p className="text-white/60 mb-8">
+            {t('sign_in_to_see_social')}
+          </p>
+          <Button
+            onClick={() => navigate(createPageUrl('Profile'))}
+            className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold"
+          >
+            {t('go_to_profile')}
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
