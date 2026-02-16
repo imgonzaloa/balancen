@@ -270,9 +270,18 @@ export default function MealResult() {
         throw new Error("Meal not found in storage after save");
       }
 
+      // Calculate totals after save
+      const todayMeals = savedMeals[dateKey] || [];
+      const totalsAfterSave = todayMeals.reduce((acc, m) => ({
+        calories: acc.calories + (m.totals?.calories || 0),
+        protein: acc.protein + (m.totals?.protein || 0)
+      }), { calories: 0, protein: 0 });
+
       debugLogger.log('SAVE_MEAL_SUCCESS', 'Save verified', { 
-        id: meal.id,
-        calories: verifyMeal.totals.calories,
+        mealId: meal.id,
+        mealCalories: verifyMeal.totals.calories,
+        todayMealsCount: todayMeals.length,
+        todayTotalCalories: totalsAfterSave.calories,
         backendSuccess 
       });
       

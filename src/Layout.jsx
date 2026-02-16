@@ -15,6 +15,7 @@ import BrandMark from "@/components/BrandMark";
 import { motion, AnimatePresence } from "framer-motion";
 import { NavigationManager } from "@/components/NavigationManager";
 import DebugOverlay, { debugLogger } from "@/components/DebugOverlay";
+import PublicDebugPanel from "@/components/PublicDebugPanel";
 
 function getNavItems(t) {
   return [
@@ -135,6 +136,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900" style={{ paddingTop: 'env(safe-area-inset-top, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0)', position: 'relative' }}>
       <NavigationManager />
+      <PublicDebugPanel />
       <Toaster position="top-center" richColors style={{ pointerEvents: 'auto' }} />
       
       {/* Brand Mark - shown on main tabs - triple tap to open debug */}
@@ -197,47 +199,56 @@ function LayoutInner({ children, currentPageName, bootState }) {
           style={{ 
             zIndex: 10000,
             pointerEvents: 'auto',
-            touchAction: 'manipulation'
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent'
           }}
         >
           <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.name);
+                  
+                  const handleNavigation = (e) => {
+                    debugLogger.log('TAB_CLICK', item.name, { current: currentPageName });
+                    
+                    // Prevent navigation if already on page
+                    if (active) {
+                      e.preventDefault();
+                      if (scrollContainerRef.current) {
+                        scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                      return;
+                    }
+                    
+                    // Navigate immediately
+                    navigate(createPageUrl(item.name), { replace: true });
+                    
+                    // Check if navigation worked after 500ms
+                    setTimeout(() => {
+                      if (currentPageName !== item.name) {
+                        debugLogger.log('NAV_STUCK', `Failed to navigate to ${item.name}`, { 
+                          target: item.name, 
+                          current: currentPageName 
+                        });
+                      }
+                    }, 500);
+                  };
+                  
                   return (
-                    <Link
+                    <button
                       key={item.name}
-                      to={createPageUrl(item.name)}
-                      onClick={(e) => {
-                        debugLogger.log('TAB_CLICK', item.name, { current: currentPageName });
-                        
-                        // Check if navigation worked after 500ms
-                        setTimeout(() => {
-                          if (currentPageName !== item.name && !active) {
-                            debugLogger.log('NAV_STUCK', `Failed to navigate to ${item.name}`, { 
-                              target: item.name, 
-                              current: currentPageName 
-                            });
-                          }
-                        }, 500);
-                        
-                        // Prevent navigation if already on page
-                        if (active) {
-                          e.preventDefault();
-                          // Scroll to top when tapping active tab
-                          if (scrollContainerRef.current) {
-                            scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-                          }
-                        }
-                      }}
-                      className="relative flex flex-col items-center py-2 px-4 transition-transform duration-75 active:scale-90 cursor-pointer"
+                      onPointerUp={handleNavigation}
+                      onClick={handleNavigation}
+                      className="relative flex flex-col items-center py-2 px-4 transition-transform duration-75 active:scale-90"
                       style={{ 
                         pointerEvents: 'auto',
                         touchAction: 'manipulation',
                         WebkitTapHighlightColor: 'transparent',
+                        cursor: 'pointer',
+                        border: 'none',
+                        background: 'transparent',
                         zIndex: 1
                       }}
-                      replace={active}
                     >
                       {active && (
                         <div className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full" />
@@ -248,7 +259,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
                       <span className={`text-[10px] mt-0.5 font-semibold ${active ? "text-teal-300" : "text-slate-500"}`}>
                         {item.label}
                       </span>
-                    </Link>
+                    </button>
                   );
                 })}
               </div>

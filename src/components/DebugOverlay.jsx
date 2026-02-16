@@ -42,6 +42,16 @@ class DebugLogger {
     
     this.saveLogs();
     this.notify();
+    
+    // Dispatch event for PublicDebugPanel
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('debug-log', { detail: entry }));
+    }
+    
+    // Also log to console if ?debug=1
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1') {
+      console.log(`[${type}] ${message}`, data);
+    }
   }
 
   clear() {

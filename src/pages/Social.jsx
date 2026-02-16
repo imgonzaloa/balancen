@@ -66,8 +66,9 @@ export default function Social() {
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
   const { data: myGroups = [] } = useQuery({
-    queryKey: ["myGroups", user?.email],
+    queryKey: ["myGroups", user?.email, isPremium],
     queryFn: async () => {
+      if (!isPremium) return [];
       const members = await withTimeout(
         base44.entities.GroupMember.filter({ user_email: user?.email }),
         3000
@@ -86,8 +87,9 @@ export default function Social() {
   });
 
   const { data: friends = [] } = useQuery({
-    queryKey: ["friends", user?.email],
+    queryKey: ["friends", user?.email, isPremium],
     queryFn: async () => {
+      if (!isPremium) return [];
       const [sent, received] = await Promise.all([
         withTimeout(base44.entities.Friend.filter({ created_by: user?.email }), 3000),
         withTimeout(base44.entities.Friend.filter({ friend_user_id: user?.email }), 3000)
