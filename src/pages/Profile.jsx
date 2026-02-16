@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Settings, LogOut, Edit2, Target, Sparkles, X } from "lucide-react";
+import { Camera, Settings, LogOut, Edit2, Target, Sparkles, X, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -9,6 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ProfileGoalsEdit from "@/components/profile/ProfileGoalsEdit";
 import PhotoPicker from "@/components/PhotoPicker";
+import { withTimeout } from "@/components/utils/fetchWithTimeout";
+import ErrorFallback, { LoadingTimeout } from "@/components/ErrorFallback";
+import { debugLogger } from "@/components/DebugOverlay";
 
 function StatusEditor({ profile, lang, onUpdate }) {
   const { t } = useTranslation();
@@ -90,20 +93,44 @@ export default function Profile() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [showGoalsEdit, setShowGoalsEdit] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [loading, setLoading] = useState(!cachedProfile);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!user?.email || cachedProfile) return;
+    if (!user?.email) {
+      setLoading(false);
+      return;
+    }
+    
+    if (cachedProfile) {
+      setProfile(cachedProfile);
+      setLoading(false);
+      return;
+    }
+
+    const timer = setTimeout(() => setLoadingTimeout(true), 3000);
 
     const fetchProfile = async () => {
       try {
-        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+        debugLogger.log('PROFILE_FETCH', 'Starting');
+        const profiles = await withTimeout(
+          base44.entities.UserProfile.filter({ created_by: user.email }),
+          3000
+        );
         setProfile(profiles[0] || null);
+        debugLogger.log('PROFILE_SUCCESS', profiles[0]?.display_name || 'none');
       } catch (err) {
-        console.error("Failed to fetch profile:", err);
+        debugLogger.log('PROFILE_ERROR', err.message);
+        setError(err);
+      } finally {
+        setLoading(false);
+        clearTimeout(timer);
       }
     };
 
     fetchProfile();
+    return () => clearTimeout(timer);
   }, [user?.email, cachedProfile]);
 
   const handlePhotoUpload = async (file, preview) => {
@@ -186,10 +213,64 @@ export default function Profile() {
     }
   };
 
-  if (!isInitialized) {
+  // Loading timeout
+  if (loadingTimeout && loading) {
+    return (
+      <LoadingTimeout 
+        onRetry={() => {
+          setLoadingTimeout(false);
+          setError(null);
+          window.location.reload();
+        }} 
+      />
+    );
+  }
+
+  // Show loading only briefly
+  if (!isInitialized || (loading && !error)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Error fallback
+  if (error) {
+    return (
+      <ErrorFallback
+        title="Could not load profile"
+        message={error.message || "Please check your connection"}
+        errorCode="PROFILE_ERROR"
+        onRetry={() => {
+          setError(null);
+          window.location.reload();
+        }}
+      />
+    );
+  }
+
+  // Anonymous user - show sign in prompt
+  if (!user?.email) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
+            <UserIcon size={40} className="text-white/30" />
+          </div>
+          <h2 className="text-white text-2xl font-bold mb-3">
+            {t('create_your_profile')}
+          </h2>
+          <p className="text-white/60 mb-8">
+            {t('sign_in_to_access_profile')}
+          </p>
+          <Button
+            onClick={() => base44.auth.redirectToLogin()}
+            className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold"
+          >
+            {t('sign_in')}
+          </Button>
+        </div>
       </div>
     );
   }
