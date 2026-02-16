@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { logger } from "@/components/logger";
 import { useCollaboratorInviteCheck } from "@/components/CheckCollaboratorInvite";
+import { withTimeout } from "@/components/utils/fetchWithTimeout";
+import { debugLogger } from "@/components/DebugOverlay";
 
 const AppStateContext = createContext(null);
 
@@ -17,15 +19,21 @@ export function AppStateProvider({ children }) {
   // Check for collaborator invites
   useCollaboratorInviteCheck(user);
 
-  // Simple auth fetch - NO redirects, NO boot logic (BootGate handles that)
+  // Simple auth fetch with timeout - NO redirects, NO boot logic (BootGate handles that)
   useEffect(() => {
     let isMounted = true;
     
     const fetchUser = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = await withTimeout(
+          base44.auth.me(),
+          3000,
+          'AUTH_TIMEOUT'
+        );
+        
         if (isMounted && currentUser?.email) {
           setUser(currentUser);
+          debugLogger.log('USER_LOADED', currentUser.email);
           
           // Auto-grant owner role to imgonzaloa@gmail.com
           if (currentUser.email.toLowerCase() === "imgonzaloa@gmail.com") {
@@ -38,9 +46,12 @@ export function AppStateProvider({ children }) {
               });
             }
           }
+        } else if (isMounted) {
+          debugLogger.log('USER_ANONYMOUS', 'No authenticated user');
         }
       } catch (err) {
         logger.error('USER_FETCH_ERROR', err);
+        debugLogger.log('USER_FETCH_ERROR', err.message, { code: err.code || 'UNKNOWN' });
       } finally {
         if (isMounted) setIsInitialized(true);
       }
@@ -51,21 +62,30 @@ export function AppStateProvider({ children }) {
     return () => { isMounted = false; };
   }, []);
 
-  // Data fetching - ONLY ONCE per user with staggered loading
+  // Data fetching with timeout - ONLY ONCE per user
   useEffect(() => {
-    if (!user?.email || profile !== null) return; // Skip if already loaded
+    if (!user?.email || profile !== null) return;
     
     let isMounted = true;
     
-    // Fetch profile ONLY - others load on demand per page
-    base44.entities.UserProfile.filter({ created_by: user.email })
-      .then(profiles => { 
+    const fetchProfile = async () => {
+      try {
+        const profiles = await withTimeout(
+          base44.entities.UserProfile.filter({ created_by: user.email }),
+          3000,
+          'PROFILE_TIMEOUT'
+        );
         if (isMounted) {
           setProfile(profiles[0] || null);
+          debugLogger.log('PROFILE_LOADED', profiles[0]?.display_name || 'none');
         }
-      })
-      .catch(() => { if (isMounted) setProfile(null); });
+      } catch (err) {
+        debugLogger.log('PROFILE_FETCH_ERROR', err.message);
+        if (isMounted) setProfile(null);
+      }
+    };
 
+    fetchProfile();
     return () => { isMounted = false; };
   }, [user?.email, profile]);
 
