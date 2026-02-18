@@ -1,104 +1,101 @@
 /**
- * Pull-to-Refresh component for mobile
- * Refresh all queries on pull down
+ * PullToRefresh - standalone floating indicator only.
+ * Does NOT wrap children in a scroll container (that was the scroll bug).
+ * Attaches touch listeners to the nearest scrollable ancestor.
  */
-
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function PullToRefresh({ children, disabled = false }) {
   const queryClient = useQueryClient();
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const startYRef = useRef(0);
-  const scrollableRef = useRef(null);
+  const isPullingRef = useRef(false);
+  const wrapperRef = useRef(null);
+
+  const getScrollParent = useCallback((el) => {
+    while (el && el !== document.documentElement) {
+      const style = window.getComputedStyle(el);
+      const overflow = style.overflowY;
+      if (overflow === 'auto' || overflow === 'scroll') return el;
+      el = el.parentElement;
+    }
+    return document.documentElement;
+  }, []);
 
   useEffect(() => {
-    const element = scrollableRef.current;
-    if (!element) return;
+    if (disabled) return;
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
 
-    let touchStartY = 0;
+    const scrollParent = getScrollParent(wrapper.parentElement || wrapper);
 
     const handleTouchStart = (e) => {
-      if (element.scrollTop === 0) {
-        touchStartY = e.touches[0].clientY;
-        startYRef.current = touchStartY;
+      const scrollTop = scrollParent === document.documentElement
+        ? document.documentElement.scrollTop
+        : scrollParent.scrollTop;
+      if (scrollTop <= 0) {
+        startYRef.current = e.touches[0].clientY;
+        isPullingRef.current = true;
       }
     };
 
     const handleTouchMove = (e) => {
-      if (element.scrollTop !== 0) return;
-      
-      const currentY = e.touches[0].clientY;
-      const distance = Math.max(0, currentY - startYRef.current);
-      
-      if (distance > 0) {
-        e.preventDefault();
-        setPullDistance(Math.min(distance, 120));
+      if (!isPullingRef.current) return;
+      const dy = e.touches[0].clientY - startYRef.current;
+      if (dy > 0) {
+        setPullDistance(Math.min(dy, 100));
       }
     };
 
     const handleTouchEnd = async () => {
+      if (!isPullingRef.current) return;
+      isPullingRef.current = false;
       if (pullDistance > 60 && !isRefreshing) {
+        console.log('[PULL_TO_REFRESH] Triggered');
         setIsRefreshing(true);
-        setPullDistance(0);
-        
-        try {
-          // Refresh all queries
-          await queryClient.refetchQueries();
-        } finally {
-          setIsRefreshing(false);
-        }
-      } else {
-        setPullDistance(0);
+        await queryClient.refetchQueries();
+        setIsRefreshing(false);
       }
+      setPullDistance(0);
     };
 
-    element.addEventListener('touchstart', handleTouchStart, false);
-    element.addEventListener('touchmove', handleTouchMove, { passive: false });
-    element.addEventListener('touchend', handleTouchEnd);
+    scrollParent.addEventListener('touchstart', handleTouchStart, { passive: true });
+    scrollParent.addEventListener('touchmove', handleTouchMove, { passive: true });
+    scrollParent.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      element.removeEventListener('touchstart', handleTouchStart);
-      element.removeEventListener('touchmove', handleTouchMove);
-      element.removeEventListener('touchend', handleTouchEnd);
+      scrollParent.removeEventListener('touchstart', handleTouchStart);
+      scrollParent.removeEventListener('touchmove', handleTouchMove);
+      scrollParent.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [pullDistance, isRefreshing, queryClient]);
+  }, [disabled, pullDistance, isRefreshing, queryClient, getScrollParent]);
 
   const pullProgress = Math.min(pullDistance / 60, 1);
 
   return (
-    <div ref={scrollableRef} className="relative overflow-y-auto">
-      {/* Pull indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: pullProgress > 0.3 ? 1 : 0 }}
-        className="sticky top-0 z-10 flex justify-center py-4"
-      >
+    // Plain div, NO overflow-y: auto - does not create a scroll container
+    <div ref={wrapperRef} style={{ position: 'relative' }}>
+      {/* Floating pull indicator */}
+      {(pullDistance > 10 || isRefreshing) && (
         <motion.div
-          animate={{
-            scale: isRefreshing ? 1 : Math.max(0.5, pullProgress),
-            rotate: isRefreshing ? 360 : 0,
-          }}
-          transition={{
-            rotate: isRefreshing ? { duration: 1, repeat: Infinity } : { duration: 0 },
-          }}
-          className="w-10 h-10 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: pullProgress > 0.3 || isRefreshing ? 1 : 0, scale: Math.max(0.5, pullProgress) }}
+          className="absolute top-2 left-0 right-0 flex justify-center z-10 pointer-events-none"
         >
-          <RefreshCw size={20} className="text-white" />
+          <motion.div
+            animate={{ rotate: isRefreshing ? 360 : 0 }}
+            transition={{ rotate: isRefreshing ? { duration: 1, repeat: Infinity, ease: 'linear' } : { duration: 0 } }}
+            className="w-10 h-10 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg"
+          >
+            <RefreshCw size={18} className="text-white" />
+          </motion.div>
         </motion.div>
-      </motion.div>
-
-      {/* Content with pull transform */}
-      <motion.div
-        style={{
-          y: Math.min(pullDistance, 60),
-        }}
-      >
-        {children}
-      </motion.div>
+      )}
+      {children}
     </div>
   );
 }

@@ -213,20 +213,16 @@ export default function Profile() {
     }
   };
 
-  // Loading timeout
+  const handleRetry = React.useCallback(() => {
+    setLoadingTimeout(false);
+    setError(null);
+    setLoading(true);
+  }, []);
+
   if (loadingTimeout && loading) {
-    return (
-      <LoadingTimeout 
-        onRetry={() => {
-          setLoadingTimeout(false);
-          setError(null);
-          window.location.reload();
-        }} 
-      />
-    );
+    return <LoadingTimeout onRetry={handleRetry} />;
   }
 
-  // Show loading only briefly
   if (!isInitialized || (loading && !error)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -235,17 +231,13 @@ export default function Profile() {
     );
   }
 
-  // Error fallback
   if (error) {
     return (
       <ErrorFallback
         title="Could not load profile"
         message={error.message || "Please check your connection"}
         errorCode="PROFILE_ERROR"
-        onRetry={() => {
-          setError(null);
-          window.location.reload();
-        }}
+        onRetry={handleRetry}
       />
     );
   }
@@ -276,7 +268,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+    <div className="relative" style={{ minHeight: '100%', paddingBottom: '8px' }}>
       {/* Background */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full blur-3xl" />
@@ -303,9 +295,9 @@ export default function Profile() {
                 className="relative cursor-pointer group"
               >
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative ring-2 ring-white/20 group-hover:ring-teal-400 transition-all">
-                  {profile?.profile_photo || profile?.avatar_url ? (
-                    <img src={profile.profile_photo || profile.avatar_url} alt={t('profile')} className="w-full h-full object-cover" />
-                  ) : (
+                    {(profile?.profile_photo || profile?.avatar_url || localStorage.getItem(`balancen_avatar_${user?.email}`)) ? (
+                      <img src={profile?.profile_photo || profile?.avatar_url || localStorage.getItem(`balancen_avatar_${user?.email}`)} alt={t('profile')} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
                     <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || t('user').charAt(0)}</span>
                   )}
                   {uploadingPhoto && (

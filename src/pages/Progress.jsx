@@ -99,34 +99,28 @@ export default function Progress() {
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
   // Loading timeout
+  const handleRetry = React.useCallback(() => {
+    setLoadingTimeout(false);
+    setError(null);
+    setProfile(null);
+    setLoading(true);
+  }, []);
+
   if (loadingTimeout && loading) {
-    return (
-      <LoadingTimeout 
-        onRetry={() => {
-          setLoadingTimeout(false);
-          setError(null);
-          window.location.reload();
-        }} 
-      />
-    );
+    return <LoadingTimeout onRetry={handleRetry} />;
   }
 
-  // Show loading only briefly
   if (!isInitialized || (loading && !error)) {
     return <ProgressSkeleton />;
   }
 
-  // Error fallback
   if (error) {
     return (
       <ErrorFallback
         title="Could not load progress"
         message={error.message || "Please check your connection"}
         errorCode="PROGRESS_ERROR"
-        onRetry={() => {
-          setError(null);
-          window.location.reload();
-        }}
+        onRetry={handleRetry}
       />
     );
   }
@@ -157,7 +151,7 @@ export default function Progress() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ minHeight: '100dvh', overflowY: 'auto' }}>
+    <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
       <div className="max-w-2xl mx-auto px-6 pt-2 pb-6 space-y-6">
         <div>
           <h1 className="text-3xl font-black text-white mb-1">

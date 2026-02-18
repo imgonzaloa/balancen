@@ -1,86 +1,82 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { logger } from "@/components/logger";
 import { useCollaboratorInviteCheck } from "@/components/CheckCollaboratorInvite";
 import { withTimeout } from "@/components/utils/fetchWithTimeout";
-import { debugLogger } from "@/components/DebugOverlay";
 
 const AppStateContext = createContext(null);
 
+const AVATAR_CACHE_KEY = (email) => `balancen_avatar_${email}`;
+
 export function AppStateProvider({ children }) {
-  // ALL HOOKS AT TOP - ALWAYS CALLED UNCONDITIONALLY
   const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState(undefined); // undefined = not yet loaded, null = no profile found
   const [friends, setFriends] = useState(null);
   const [groups, setGroups] = useState(null);
   const [todayMeals, setTodayMeals] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Check for collaborator invites
   useCollaboratorInviteCheck(user);
 
-  // Simple auth fetch with timeout - NO redirects, NO boot logic (BootGate handles that)
+  // Auth fetch - runs once
   useEffect(() => {
     let isMounted = true;
-    
+
     const fetchUser = async () => {
       try {
-        const currentUser = await withTimeout(
-          base44.auth.me(),
-          3000,
-          'AUTH_TIMEOUT'
-        );
-        
+        const currentUser = await withTimeout(base44.auth.me(), 3000, 'AUTH_TIMEOUT');
+
         if (isMounted && currentUser?.email) {
           setUser(currentUser);
-          debugLogger.log('USER_LOADED', currentUser.email);
-          
-          // Auto-grant owner role to imgonzaloa@gmail.com
+
+          // Auto-grant owner role to app owner
           if (currentUser.email.toLowerCase() === "imgonzaloa@gmail.com") {
-            const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
-            if (profiles[0] && profiles[0].role !== "owner") {
-              await base44.entities.UserProfile.update(profiles[0].id, {
-                role: "owner",
-                is_premium: true,
-                premium_source: "owner"
-              });
-            }
+            try {
+              const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
+              if (profiles[0] && profiles[0].role !== "owner") {
+                await base44.entities.UserProfile.update(profiles[0].id, {
+                  role: "owner",
+                  is_premium: true,
+                  premium_source: "owner"
+                });
+              }
+            } catch (_) {}
           }
-        } else if (isMounted) {
-          debugLogger.log('USER_ANONYMOUS', 'No authenticated user');
         }
       } catch (err) {
         logger.error('USER_FETCH_ERROR', err);
-        debugLogger.log('USER_FETCH_ERROR', err.message, { code: err.code || 'UNKNOWN' });
       } finally {
         if (isMounted) setIsInitialized(true);
       }
     };
 
     fetchUser();
-    
     return () => { isMounted = false; };
   }, []);
 
-  // Data fetching with timeout - ONLY ONCE per user
+  // Profile fetch - runs when user is known, doesn't re-run if already loaded
   useEffect(() => {
-    if (!user?.email || profile !== null) return;
-    
+    if (!user?.email || profile !== undefined) return;
+
     let isMounted = true;
-    
+
     const fetchProfile = async () => {
       try {
         const profiles = await withTimeout(
           base44.entities.UserProfile.filter({ created_by: user.email }),
-          3000,
+          4000,
           'PROFILE_TIMEOUT'
         );
         if (isMounted) {
-          setProfile(profiles[0] || null);
-          debugLogger.log('PROFILE_LOADED', profiles[0]?.display_name || 'none');
+          const p = profiles[0] || null;
+          setProfile(p);
+          // Cache avatar in localStorage for instant display on next load
+          if (p?.profile_photo || p?.avatar_url) {
+            localStorage.setItem(AVATAR_CACHE_KEY(user.email), p.profile_photo || p.avatar_url);
+          }
         }
       } catch (err) {
-        debugLogger.log('PROFILE_FETCH_ERROR', err.message);
+        console.error('[AppState] Profile fetch error:', err.message);
         if (isMounted) setProfile(null);
       }
     };
@@ -89,52 +85,62 @@ export function AppStateProvider({ children }) {
     return () => { isMounted = false; };
   }, [user?.email, profile]);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (!user?.email) return;
     try {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-      setProfile(profiles[0] || null);
+      const p = profiles[0] || null;
+      setProfile(p);
+      if (p?.profile_photo || p?.avatar_url) {
+        localStorage.setItem(AVATAR_CACHE_KEY(user.email), p.profile_photo || p.avatar_url);
+      }
     } catch (err) {
-      console.error("Error refreshing profile:", err);
+      console.error('[AppState] refreshProfile error:', err.message);
     }
-  };
+  }, [user?.email]);
 
-  const refreshFriends = async () => {
+  const refreshFriends = useCallback(async () => {
     if (!user?.email) return;
     try {
       const friendsList = await base44.entities.Friend.filter({ created_by: user.email });
       setFriends(friendsList);
     } catch (err) {
-      console.error("Error refreshing friends:", err);
+      console.error('[AppState] refreshFriends error:', err.message);
     }
-  };
+  }, [user?.email]);
 
-  const refreshTodayMeals = async () => {
+  const refreshTodayMeals = useCallback(async () => {
     if (!user?.email) return;
     try {
       const today = new Date().toISOString().split("T")[0];
-      
       const meals = await base44.entities.MealLog.filter(
         { created_by: user.email, date: today },
         "-meal_time"
       );
-      
       setTodayMeals(meals);
     } catch (err) {
       setTodayMeals([]);
     }
-  };
+  }, [user?.email]);
+
+  // Expose getCachedAvatar for instant photo display
+  const getCachedAvatar = useCallback((email) => {
+    return localStorage.getItem(AVATAR_CACHE_KEY(email || user?.email));
+  }, [user?.email]);
 
   const value = {
     user,
-    profile,
+    profile: profile === undefined ? null : profile, // expose null externally while loading
+    profileLoading: profile === undefined && !!user?.email,
     friends,
     groups,
     todayMeals,
     isInitialized,
+    setProfile,
     refreshProfile,
     refreshFriends,
     refreshTodayMeals,
+    getCachedAvatar,
   };
 
   return (
@@ -146,8 +152,6 @@ export function AppStateProvider({ children }) {
 
 export function useAppState() {
   const context = useContext(AppStateContext);
-  if (!context) {
-    throw new Error("useAppState must be used within AppStateProvider");
-  }
+  if (!context) throw new Error("useAppState must be used within AppStateProvider");
   return context;
 }
