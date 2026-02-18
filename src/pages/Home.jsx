@@ -381,7 +381,6 @@ const Home = React.memo(() => {
         )}
 
 
-        </div>
       </div>
     </div>
   );
