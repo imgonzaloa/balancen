@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
-import PullToRefresh from "@/components/PullToRefresh";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
@@ -90,9 +89,8 @@ const Home = React.memo(() => {
   }
 
   return (
-    <PullToRefresh disabled>
-      <div className="min-h-screen" style={{ minHeight: '100dvh', paddingBottom: '96px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
+    <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
+      <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
         
         {/* Header - Premium CTA only */}
         {!isPremium && (
@@ -385,7 +383,7 @@ const Home = React.memo(() => {
 
         </div>
       </div>
-    </PullToRefresh>
+    </div>
   );
 });
 

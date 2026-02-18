@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { TrendingUp, Target, Lock, Crown, Calendar, BarChart3 } from "lucide-react";
+import React, { useMemo } from "react";
+import { Lock, BarChart3 } from "lucide-react";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
 import { base44 } from "@/api/base44Client";
@@ -9,79 +9,36 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import AdvancedAnalytics from "@/components/progress/AdvancedAnalytics";
 import { motion } from "framer-motion";
-import { withTimeout } from "@/components/utils/fetchWithTimeout";
-import ErrorFallback, { LoadingTimeout } from "@/components/ErrorFallback";
-import { debugLogger } from "@/components/DebugOverlay";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Progress() {
-  const { user, profile: cachedProfile, todayMeals: cachedMeals, isInitialized } = useAppState();
+  // ✅ Use global AppState - no duplicate auth/profile fetch on every tab visit
+  const { user, profile, isInitialized, profileLoading } = useAppState();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState(cachedProfile);
-  const [todayMeals, setTodayMeals] = useState(cachedMeals || []);
-  const [weekMeals, setWeekMeals] = useState([]);
-  const [loading, setLoading] = useState(!cachedProfile);
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!user?.email) {
-      setLoading(false);
-      return;
-    }
-    
-    if (cachedProfile) {
-      setProfile(cachedProfile);
-      setLoading(false);
-      return;
-    }
+  const today = new Date().toISOString().split("T")[0];
+  const last7Days = useMemo(() => Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    return d.toISOString().split("T")[0];
+  }), []);
 
-    const timer = setTimeout(() => setLoadingTimeout(true), 3000);
+  const { data: todayMeals = [], isLoading: mealsLoading } = useQuery({
+    queryKey: ["progressMeals", user?.email, today],
+    queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: today }, "-meal_time"),
+    enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
+  });
 
-    const fetchData = async () => {
-      try {
-        debugLogger.log('PROGRESS_FETCH', 'Starting');
-        const last7Days = Array.from({ length: 7 }).map((_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          return d.toISOString().split("T")[0];
-        });
+  const { data: weekMeals = [] } = useQuery({
+    queryKey: ["progressWeekMeals", user?.email, last7Days[0]],
+    queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: { $in: last7Days } }, "-date"),
+    enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
+  });
 
-        const [profileData, mealsData, weekData] = await Promise.all([
-          withTimeout(base44.entities.UserProfile.filter({ created_by: user.email }), 3000),
-          withTimeout(
-            base44.entities.MealLog.filter({
-              created_by: user.email,
-              date: new Date().toISOString().split("T")[0]
-            }, "-meal_time"),
-            3000
-          ).catch(() => []),
-          withTimeout(
-            base44.entities.MealLog.filter({
-              created_by: user.email,
-              date: { $in: last7Days }
-            }, "-date"),
-            3000
-          ).catch(() => [])
-        ]);
-
-        setProfile(profileData[0] || null);
-        setTodayMeals(mealsData || []);
-        setWeekMeals(weekData || []);
-        debugLogger.log('PROGRESS_SUCCESS', `${mealsData.length} meals today`);
-      } catch (err) {
-        debugLogger.log('PROGRESS_ERROR', err.message);
-        setError(err);
-        setProfile(null);
-      } finally {
-        setLoading(false);
-        clearTimeout(timer);
-      }
-    };
-
-    fetchData();
-    return () => clearTimeout(timer);
-  }, [user?.email, cachedProfile]);
+  const loading = !isInitialized || profileLoading || mealsLoading;
 
   const calculations = useMemo(() => {
     const totalCaloriesToday = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
@@ -98,32 +55,7 @@ export default function Progress() {
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
-  // Loading timeout
-  const handleRetry = React.useCallback(() => {
-    setLoadingTimeout(false);
-    setError(null);
-    setProfile(null);
-    setLoading(true);
-  }, []);
-
-  if (loadingTimeout && loading) {
-    return <LoadingTimeout onRetry={handleRetry} />;
-  }
-
-  if (!isInitialized || (loading && !error)) {
-    return <ProgressSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <ErrorFallback
-        title="Could not load progress"
-        message={error.message || "Please check your connection"}
-        errorCode="PROGRESS_ERROR"
-        onRetry={handleRetry}
-      />
-    );
-  }
+  if (loading) return <ProgressSkeleton />;
 
   // Anonymous/no data state
   if (!user?.email || !profile) {
