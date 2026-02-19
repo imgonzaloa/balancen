@@ -136,8 +136,8 @@ export default function Social() {
                 <MessageSquare size={24} className="text-white" />
               </div>
               <div className="text-left">
-                <h3 className="text-white font-bold text-lg">{t('social_feed') || 'Social Feed'}</h3>
-                <p className="text-teal-200 text-sm">{t('share_and_connect') || 'Share progress with friends'}</p>
+                <h3 className="text-white font-bold text-lg">{t('social_feed')}</h3>
+                <p className="text-teal-200 text-sm">{t('share_and_connect')}</p>
               </div>
             </div>
             <Plus size={24} className="text-teal-300" />
