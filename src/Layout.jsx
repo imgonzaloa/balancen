@@ -12,7 +12,7 @@ import BootGate from "@/components/BootGate";
 import VersionGate from "@/components/VersionGate";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import BrandMark from "@/components/BrandMark";
-import { motion, AnimatePresence } from "framer-motion";
+// framer-motion removed from layout to prevent tab navigation lag
 import { NavigationManager } from "@/components/NavigationManager";
 import DebugOverlay, { debugLogger } from "@/components/DebugOverlay";
 import PublicDebugPanel from "@/components/PublicDebugPanel";
