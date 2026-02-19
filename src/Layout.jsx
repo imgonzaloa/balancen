@@ -141,15 +141,23 @@ function LayoutInner({ children, currentPageName, bootState }) {
       redirect('Home', 'anonymous');
       return;
     }
+    if (bootState.type === 'LANGUAGE_REQUIRED') {
+      if (currentPageName !== 'LanguageSelector') {
+        redirect('LanguageSelector', 'language_required');
+      }
+      return;
+    }
     if (bootState.type === 'ONBOARDING_REQUIRED' && !bootState.onboardingComplete) {
-      redirect('Onboarding', 'onboarding_required');
+      if (currentPageName !== 'Onboarding' && currentPageName !== 'LanguageSelector') {
+        redirect('Onboarding', 'onboarding_required');
+      }
       return;
     }
     if (bootState.type === 'HOME_READY' && bootState.onboardingComplete) {
       if (bootState.language && lang !== bootState.language) {
         changeLanguage(bootState.language).catch(() => {});
       }
-      if (currentPageName === 'Onboarding') {
+      if (currentPageName === 'Onboarding' || currentPageName === 'LanguageSelector') {
         redirect('Home', 'onboarding_done');
       }
     }
