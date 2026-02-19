@@ -458,11 +458,14 @@ export default function MealResult() {
     else if (hour >= 11 && hour < 16) mealType = "lunch";
     else if (hour >= 16 && hour < 22) mealType = "dinner";
 
+    // Resolve best available photo URL
+    const resolvedPhotoUrl = photoUrl || uploadedUrlRef.current || uploadedUrl || "";
+
     const meal = {
       id: crypto.randomUUID(),
       dateKey,
       createdAt: now.toISOString(),
-      photoUri: photoUrl || uploadedUrl || "",
+      photoUri: resolvedPhotoUrl,
       mealType,
       totals: saveTotals,
       items: saveItems,
@@ -472,12 +475,12 @@ export default function MealResult() {
     // Optimistic local save — instant UI update
     addMeal(meal);
 
-    // Backend persist (fire and forget, don't block)
+    // Backend persist (fire and forget, don't block UI)
     const meal_time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
     base44.entities.MealLog.create({
       date: dateKey,
       meal_time,
-      photo_url: photoUrl || uploadedUrl || "",
+      photo_url: resolvedPhotoUrl,
       estimated_calories: saveTotals.calories,
       estimated_protein: saveTotals.protein,
       estimated_carbs: saveTotals.carbs,
@@ -485,7 +488,7 @@ export default function MealResult() {
     }).catch(() => {});
 
     base44.functions.invoke('updateDailyCheckIn', {
-      food_photo_url: photoUrl || uploadedUrl || "",
+      food_photo_url: resolvedPhotoUrl,
       estimated_calories: saveTotals.calories,
       meal_photo_fire_awarded: false,
     }).catch(() => {});
