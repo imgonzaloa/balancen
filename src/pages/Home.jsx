@@ -85,6 +85,19 @@ const Home = React.memo(() => {
     navigate(createPageUrl(page));
   }, [navigate]);
 
+  // Calculate trial remaining days
+  const trialDaysRemaining = useMemo(() => {
+    if (!profile?.trial_start_date) return null;
+    const trialStart = new Date(profile.trial_start_date);
+    const trialEnd = new Date(trialStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const daysLeft = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return daysLeft > 0 ? daysLeft : 0;
+  }, [profile?.trial_start_date]);
+
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+  const showTrialBanner = !isPremium && trialDaysRemaining !== null && trialDaysRemaining > 0;
+
   if (!isInitialized || !isHydrated) {
     return <HomeSkeleton />;
   }
@@ -95,6 +108,32 @@ const Home = React.memo(() => {
       <GlobalHeader />
 
       <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
+
+        {/* Trial Countdown Banner */}
+        {showTrialBanner && (
+          <div className="bg-gradient-to-r from-amber-500/30 to-orange-500/30 backdrop-blur-xl rounded-2xl p-4 border border-amber-400/50">
+            <div className="flex items-center gap-3">
+              <Clock size={20} className="text-amber-300 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-amber-100 font-semibold text-sm">
+                  {trialDaysRemaining === 1
+                    ? t('trial_ending_tomorrow') || 'Trial ending tomorrow'
+                    : `${t('trial_days_left') || 'Trial days left'}: ${trialDaysRemaining}`}
+                </p>
+                <p className="text-amber-200/60 text-xs mt-1">
+                  {t('upgrade_to_continue') || 'Upgrade to Premium to continue after trial'}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => navigate(createPageUrl('Premium'))}
+                className="bg-amber-600 hover:bg-amber-700 text-white font-semibold flex-shrink-0"
+              >
+                {t('upgrade')}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Greeting */}
         <div>
