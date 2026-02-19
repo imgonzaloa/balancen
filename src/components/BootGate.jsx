@@ -68,8 +68,15 @@ export default function BootGate({ children }) {
 
         // STEP 4: No cache or incomplete - fetch profile
         console.log('[BOOT] Fetching profile for verification');
-        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-        const profile = profiles?.[0];
+        let profile;
+        try {
+          const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+          profile = profiles?.[0];
+        } catch (err) {
+          console.log('[BOOT] Profile fetch failed:', err.message);
+          // If profile fetch fails (auth issues), assume not onboarded yet
+          profile = null;
+        }
 
         if (!isMounted) return;
 
