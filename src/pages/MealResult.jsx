@@ -465,7 +465,7 @@ export default function MealResult() {
 
   const handleConfirmSave = async () => {
     if (totals.calories === 0) {
-      toast.error("Please add at least calorie info");
+      toast.error(t('enter_calories') || "Please add at least calorie info");
       return;
     }
     setSaving(true);
