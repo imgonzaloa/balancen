@@ -274,12 +274,16 @@ export default function MealResult() {
   const [stepIndex, setStepIndex] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
+  const uploadedUrlRef = useRef(null); // ref so save paths always see latest value
   const [foodItems, setFoodItems] = useState([]);
   const [totals, setTotals] = useState({ calories: 0, protein: 0, carbs: 0, fats: 0 });
   const [confidence, setConfidence] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const [saving, setSaving] = useState(false);
   const hasRun = useRef(false);
+
+  // Keep ref in sync with state
+  useEffect(() => { uploadedUrlRef.current = uploadedUrl; }, [uploadedUrl]);
 
   // Set preview from context or stored URL
   useEffect(() => {
