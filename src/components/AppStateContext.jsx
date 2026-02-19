@@ -95,8 +95,10 @@ export function AppStateProvider({ children }) {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
       const p = profiles[0] || null;
       setProfile(p);
-      if (p?.profile_photo || p?.avatar_url) {
-        localStorage.setItem(AVATAR_CACHE_KEY(user.email), p.profile_photo || p.avatar_url);
+      const photo = p?.profile_photo || p?.avatar_url;
+      if (photo) {
+        localStorage.setItem(AVATAR_CACHE_KEY(user.email), photo);
+        localStorage.setItem(PHOTO_CACHE_KEY(user.email), photo);
       }
     } catch (err) {
       console.error('[AppState] refreshProfile error:', err.message);
