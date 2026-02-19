@@ -58,12 +58,14 @@ export default function Onboarding() {
           ...formData,
           onboarding_completed: true,
           display_name: user?.full_name || existingProfile[0].display_name || 'User',
+          trial_start_date: new Date().toISOString(),
         });
       } else {
         await base44.entities.UserProfile.create({
           ...formData,
           display_name: user?.full_name || 'User',
           onboarding_completed: true,
+          trial_start_date: new Date().toISOString(),
         });
       }
 
