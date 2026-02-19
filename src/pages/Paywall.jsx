@@ -130,19 +130,28 @@ export default function Paywall() {
           {isTrialExpired ? (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
-                {t('trial_ended_title')}
+                {t('trial_ended')}
               </h1>
               <p className="text-lg text-teal-200">
-                {t('upgrade_continue')}
+                To continue using Balancen, upgrade to Premium.
+              </p>
+            </>
+          ) : trialDaysLeft > 0 ? (
+            <>
+              <h1 className="text-3xl font-black text-white mb-2">
+                Trial Active — {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left
+              </h1>
+              <p className="text-lg text-teal-200">
+                Upgrade now to avoid interruption.
               </p>
             </>
           ) : (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
-                {t('choose_plan')}
+                Get Premium
               </h1>
               <p className="text-lg text-teal-200">
-                {t('free_lets_start')}
+                Full access to all features with a 7-day free trial.
               </p>
             </>
           )}
