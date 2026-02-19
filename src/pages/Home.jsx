@@ -222,32 +222,44 @@ const Home = React.memo(() => {
             </div>
           ) : (
             <div className="space-y-2">
-              {todayMeals.slice(0, 3).map((meal) => (
-                <div key={meal.id} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all flex">
-                  {meal.photoUri && (
-                    <img 
-                      src={meal.photoUri} 
-                      alt="Meal" 
-                      className="w-20 h-20 object-cover flex-shrink-0" 
-                      onError={(e) => { e.target.style.display = 'none'; }} 
-                    />
-                  )}
-                  <div className="flex-1 p-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-white text-sm font-bold">
-                        {meal.mealType ? (meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)) : t('meal')}
-                      </p>
-                      <p className="text-white/60 text-xs mt-0.5">
-                        {new Date(meal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-teal-300 font-black text-lg">{Math.round(meal.totals?.calories || 0)}</p>
-                      <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
+              {todayMeals.slice(0, 5).map((meal) => {
+                const photoSrc = meal.photoUri || meal.photo_url || null;
+                return (
+                  <div key={meal.id} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 flex">
+                    {photoSrc ? (
+                      <img
+                        src={photoSrc}
+                        alt="Meal"
+                        className="w-20 h-20 object-cover flex-shrink-0"
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    ) : (
+                      <div className="w-20 h-20 flex-shrink-0 bg-white/5 flex items-center justify-center">
+                        <Camera size={22} className="text-white/20" />
+                      </div>
+                    )}
+                    <div className="flex-1 p-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-white text-sm font-bold">
+                          {meal.mealType ? (meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)) : t('meal')}
+                        </p>
+                        <p className="text-white/50 text-xs mt-0.5">
+                          {meal.createdAt ? new Date(meal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                        </p>
+                        {meal.items?.length > 0 && (
+                          <p className="text-white/40 text-[10px] mt-0.5 truncate max-w-[120px]">
+                            {meal.items.slice(0, 2).map(i => i.name).join(', ')}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-teal-300 font-black text-lg">{Math.round(meal.totals?.calories || 0)}</p>
+                        <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
