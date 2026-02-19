@@ -24,18 +24,20 @@ export default function Progress() {
     return d.toISOString().split("T")[0];
   }), []);
 
-  const { data: todayMeals = [], isLoading: mealsLoading } = useQuery({
+  const { data: todayMeals = [] } = useQuery({
     queryKey: ["progressMeals", user?.email, today],
     queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: today }, "-meal_time"),
     enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const { data: weekMeals = [] } = useQuery({
     queryKey: ["progressWeekMeals", user?.email, last7Days[0]],
     queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: { $in: last7Days } }, "-date"),
     enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const loading = !isInitialized;
