@@ -15,23 +15,26 @@ export function MealsStoreProvider({ children }) {
   const [mealsByDate, setMealsByDate] = useState({});
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Hydrate from localStorage on mount - NON-BLOCKING
+  // Hydrate from localStorage synchronously on mount - prevents flicker
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setMealsByDate(parsed);
-        }
-      } catch (err) {
-        // Silent fail in production
-      } finally {
-        setIsHydrated(true);
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Only keep last 7 days to prevent stale data bloat
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 7);
+        const cutoffKey = formatLocalDateKey(cutoff);
+        const pruned = Object.fromEntries(
+          Object.entries(parsed).filter(([k]) => k >= cutoffKey)
+        );
+        setMealsByDate(pruned);
       }
-    }, 0);
-    
-    return () => clearTimeout(timer);
+    } catch (_) {
+      // Silent fail
+    } finally {
+      setIsHydrated(true);
+    }
   }, []);
 
   // Persist to localStorage whenever mealsByDate changes - DEBOUNCED
