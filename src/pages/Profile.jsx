@@ -284,9 +284,11 @@ export default function Profile() {
               >
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative ring-2 ring-white/20 group-hover:ring-teal-400 transition-all">
                     {displayPhoto ? (
-                      <img src={displayPhoto} alt={t('profile')} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={displayPhoto} alt={t('profile')} className="w-full h-full object-cover" onError={(e) => { e.target.style.display='none'; }} loading="lazy" />
+                    ) : (profile?.display_name?.charAt(0) || user?.full_name?.charAt(0)) ? (
+                      <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0)}</span>
                     ) : (
-                      <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || '?'}</span>
+                      <UserIcon size={32} className="text-white/80" />
                   )}
                   {uploadingPhoto && (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
