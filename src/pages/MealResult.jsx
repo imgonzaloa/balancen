@@ -11,11 +11,11 @@ import { createPageUrl } from "@/utils";
 
 // Progress steps for analysis loader
 const ANALYSIS_STEPS = [
-  { key: "uploading_photo", progress: 20 },
-  { key: "reading_photo", progress: 45 },
-  { key: "identifying_foods", progress: 70 },
-  { key: "calculating_nutrition", progress: 90 },
-  { key: "finalizing", progress: 100 },
+  { key: "uploading_photo", progress: 15 },
+  { key: "reading_photo", progress: 35 },
+  { key: "identifying_foods", progress: 60 },
+  { key: "calculating_nutrition", progress: 85 },
+  { key: "finalizing", progress: 98 },
 ];
 
 function AnalysisLoader({ imagePreview, stepIndex }) {
