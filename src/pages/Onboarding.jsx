@@ -56,10 +56,11 @@ export default function Onboarding() {
         });
       }
 
-      // CRITICAL: Persist completion and language with stable keys
+      // CRITICAL: Persist completion and language - all keys in sync
       localStorage.setItem('balancen_onboarding_complete', 'true');
-      localStorage.setItem('balancen_language', formData.language);
-      console.log('[ONBOARDING] Completion persisted:', formData.language);
+      localStorage.setItem('i18nextLng', formData.language);
+      localStorage.setItem('balancen_lang', formData.language);
+      localStorage.setItem('app_language', formData.language);
       await changeLanguage(formData.language);
 
       // Process referral if exists
