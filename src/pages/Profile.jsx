@@ -158,13 +158,14 @@ export default function Profile() {
 
         await base44.auth.updateMe({ avatar_url: file_url });
 
-        setProfile(prev => ({ ...prev, profile_photo: file_url, avatar_url: file_url }));
+        const updated = { ...profile, profile_photo: file_url, avatar_url: file_url };
+        setProfile(updated);
+        // Update context so other pages see the new photo immediately
+        if (setContextProfile) setContextProfile(updated);
         // Persist to all cache keys so photo never disappears
         localStorage.setItem(`balancen_avatar_${user.email}`, file_url);
         localStorage.setItem(`balancen_photo_${user.email}`, file_url);
         toast.success(t('photo_updated'));
-        
-        if (refreshProfile) refreshProfile();
       }
     } catch (err) {
       console.error("Photo upload failed:", err);
