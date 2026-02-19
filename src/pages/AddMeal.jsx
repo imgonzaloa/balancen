@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { ArrowLeft, Search, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useAppState } from "@/components/AppStateContext";
+import { useMealsStore } from "@/components/MealsStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createPageUrl } from "@/utils";
