@@ -1,7 +1,6 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import { Users, Lock, Plus, UserPlus, Flame, Activity, MessageSquare } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
