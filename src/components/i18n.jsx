@@ -1277,4 +1277,18 @@ i18n.on('languageChanged', (lng) => {
   }
 });
 
+/**
+ * getLanguage() - Returns the current app language ("en" | "es").
+ * Safe to call from any screen, component, or utility.
+ */
+export function getLanguage() {
+  try {
+    const stored = localStorage.getItem("i18nextLng")
+      || localStorage.getItem("balancen_lang")
+      || localStorage.getItem("app_language");
+    if (stored === "en" || stored === "es") return stored;
+  } catch {}
+  return i18n.language === "es" ? "es" : "en";
+}
+
 export default i18n;
