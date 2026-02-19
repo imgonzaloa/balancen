@@ -67,13 +67,9 @@ export function AppStateProvider({ children }) {
     return () => { isMounted = false; };
   }, []);
 
-  // Track whether we've done the real server fetch
-  const profileFetched = React.useRef(false);
-
-  // Profile fetch - runs when user is known, fetches once from server
+  // Profile fetch - runs ONCE when user email is first known
   useEffect(() => {
-    if (!user?.email || profileFetched.current) return;
-    profileFetched.current = true;
+    if (!user?.email) return;
 
     let isMounted = true;
 
@@ -87,7 +83,6 @@ export function AppStateProvider({ children }) {
         if (isMounted) {
           const p = profiles[0] || null;
           setProfile(p);
-          // Persist photo so it survives navigation + refresh
           const photo = p?.profile_photo || p?.avatar_url;
           if (photo) {
             localStorage.setItem(AVATAR_CACHE_KEY(user.email), photo);
@@ -96,14 +91,14 @@ export function AppStateProvider({ children }) {
         }
       } catch (err) {
         console.error('[AppState] Profile fetch error:', err.message);
-        // Don't wipe the cached photo stub on network error — keep what we have
         if (isMounted) setProfile(prev => prev?.id ? prev : null);
       }
     };
 
     fetchProfile();
     return () => { isMounted = false; };
-  }, [user?.email, profile]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email]); // ← only run when email changes, never re-run on profile updates
 
   const refreshProfile = useCallback(async () => {
     if (!user?.email) return;
