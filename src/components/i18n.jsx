@@ -1233,11 +1233,13 @@ i18n
     }
   });
 
-// Save language changes to localStorage
+// Save language changes to localStorage – all keys in sync
 i18n.on('languageChanged', (lng) => {
   try {
+    localStorage.setItem("i18nextLng", lng);
     localStorage.setItem("balancen_lang", lng);
-    localStorage.setItem("app_language", lng); // Keep for backward compat
+    localStorage.setItem("balancen.lang", lng);
+    localStorage.setItem("app_language", lng);
   } catch (e) {
     console.warn("Failed to save language preference", e);
   }
