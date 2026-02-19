@@ -475,7 +475,7 @@ export default function MealResult() {
       resetMeal();
       navigate(createPageUrl("Home"));
     } catch (err) {
-      toast.error("Failed to save. Please try again.");
+      toast.error(t('save_failed') || "Failed to save. Please try again.");
     } finally {
       setSaving(false);
     }
