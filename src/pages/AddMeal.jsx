@@ -63,7 +63,7 @@ export default function AddMeal() {
 
   const handleSave = async () => {
     if (selectedFoods.length === 0) {
-      toast.error("Add at least one food");
+      toast.error(t('add_at_least_one_food') || "Add at least one food");
       return;
     }
 
@@ -86,11 +86,11 @@ export default function AddMeal() {
         estimated_fats: Math.round(totalFats)
       });
 
-      toast.success("Meal logged successfully");
+      toast.success(t('meal_saved') || "Meal logged!");
       navigate(createPageUrl("Home"));
     } catch (err) {
       console.error("Error saving meal:", err);
-      toast.error("Error saving meal");
+      toast.error(t('save_failed') || "Error saving meal");
     } finally {
       setSaving(false);
     }
