@@ -85,8 +85,8 @@ export default function Social() {
     queryClient.invalidateQueries({ queryKey: ["friendProfiles"] });
   }, [queryClient]);
 
-  // Loading - use global init state
-  if (!isInitialized || profileLoading) {
+  // Loading - cap: only show skeleton while truly loading (not after init with no profile)
+  if (!isInitialized || (profileLoading && !profile)) {
     return <SocialSkeleton />;
   }
 
