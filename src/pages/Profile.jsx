@@ -169,7 +169,7 @@ export default function Profile() {
     } catch (err) {
       console.error("Photo upload failed:", err);
       setProfile({ ...profile, profile_photo: prevPhoto });
-      toast.error("Error al subir foto");
+      toast.error(t('upload_failed'));
     } finally {
       setUploadingPhoto(false);
     }
