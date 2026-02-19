@@ -207,7 +207,7 @@ export default function Social() {
                           </div>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                   {friendProfiles.length > 5 && (
                     <button
