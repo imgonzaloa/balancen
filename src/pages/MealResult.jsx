@@ -322,14 +322,35 @@ export default function MealResult() {
     setPhase("analyzing");
     setStepIndex(0);
 
-    try {
-      const file = capturedFile;
-      if (!file) throw new Error("No photo available");
+    // Use file from context; fall back to a blob reconstructed from stored dataUrl
+    let file = capturedFile;
+    if (!file) {
+      const stored = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
+      if (stored) {
+        try {
+          const blob = await fetch(stored).then(r => r.blob());
+          if (blob.size > 0) file = new File([blob], "meal.jpg", { type: "image/jpeg" });
+        } catch (_) {}
+      }
+    }
 
+    if (!file) {
+      setErrorMsg(t('try_again_or_manual') || "No photo available.");
+      setPhase("error");
+      return;
+    }
+
+    try {
       await advanceStep(0); // uploading_photo
 
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setUploadedUrl(file_url);
+      // Always upload first — so we always have a photo_url for manual saves too
+      let file_url = uploadedUrlRef.current;
+      if (!file_url) {
+        const uploadResult = await base44.integrations.Core.UploadFile({ file });
+        file_url = uploadResult.file_url;
+        setUploadedUrl(file_url);
+        uploadedUrlRef.current = file_url;
+      }
 
       await advanceStep(1); // reading_photo
       await advanceStep(2); // identifying_foods
