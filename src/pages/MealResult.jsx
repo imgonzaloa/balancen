@@ -549,29 +549,31 @@ export default function MealResult() {
             <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-2">
               <AlertCircle size={32} className="text-amber-400" />
             </div>
-            <h3 className="text-white font-black text-xl text-center">Couldn't identify food</h3>
+            <h3 className="text-white font-black text-xl text-center">
+              {t('couldnt_recognize_food') || "Couldn't identify food"}
+            </h3>
             <p className="text-white/60 text-sm text-center max-w-xs">
-              {errorMsg || "Your photo is saved. You can add the nutritional info manually or try again."}
+              {errorMsg || t('try_again_or_manual')}
             </p>
           </div>
 
-          <div className="px-5 pb-8 pt-4 space-y-3 border-t border-white/10">
+          <div className="px-5 pt-4 space-y-3 border-t border-white/10" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
             <button
               onClick={() => setPhase("manual")}
               className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-lg flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-teal-500/30"
             >
               <Edit3 size={20} />
-              Add Manually
+              {t('add_manually')}
             </button>
             <button
               onClick={() => { hasRun.current = false; runAnalysis(); }}
               className="w-full py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white font-bold flex items-center justify-center gap-2 active:scale-95"
             >
               <RefreshCw size={18} />
-              Try Again
+              {t('retry_photo') || 'Try Again'}
             </button>
             <button onClick={handleCancel} className="w-full py-3 text-white/50 font-semibold text-sm active:opacity-60">
-              Discard
+              {t('discard') || 'Discard'}
             </button>
           </div>
         </div>
