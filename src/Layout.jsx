@@ -215,32 +215,24 @@ function LayoutInner({ children, currentPageName, bootState }) {
         </div>
       )}
 
-      {/* 
-        Main scroll container - ONE container, no nested scroll.
-        Use simple opacity fade (no mode="wait") so new page mounts immediately.
-      */}
-      <AnimatePresence initial={false}>
-        <motion.main
-          ref={scrollContainerRef}
-          key={currentPageName}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.15 }}
-          className={hideNav ? "" : "pb-20"}
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            WebkitOverflowScrolling: 'touch',
-            overscrollBehavior: 'contain',
-            position: 'relative',
-            zIndex: 1,
-            pointerEvents: 'auto',
-          }}
-        >
-          {children}
-        </motion.main>
-      </AnimatePresence>
+      {/* Main scroll container - instant, no animation overhead */}
+      <main
+        ref={scrollContainerRef}
+        className={hideNav ? "" : "pb-20"}
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain',
+          position: 'relative',
+          zIndex: 1,
+          pointerEvents: 'auto',
+          willChange: 'scroll-position',
+        }}
+      >
+        {children}
+      </main>
 
       {/* Tab bar */}
       {!hideNav && (
