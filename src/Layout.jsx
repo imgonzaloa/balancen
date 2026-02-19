@@ -104,6 +104,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const navItems = React.useMemo(() => getNavItems(t), [t]);
   const hideNav = noNavPages.includes(currentPageName);
   const showBrand = showBrandPages.includes(currentPageName);
+  
+  // Paywall and onboarding pages bypass TrialGate
+  const bypassTrialGate = ["Paywall", "Onboarding", "LanguageSelector", "Premium"].includes(currentPageName);
 
   // Save + restore scroll positions per tab
   React.useEffect(() => {
