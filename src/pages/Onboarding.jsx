@@ -68,11 +68,13 @@ export default function Onboarding() {
       }
 
       // CRITICAL: Persist completion and language - all keys in sync
+      const finalLang = formData.language || localStorage.getItem('i18nextLng') || 'en';
       localStorage.setItem('balancen_onboarding_complete', 'true');
-      localStorage.setItem('i18nextLng', formData.language);
-      localStorage.setItem('balancen_lang', formData.language);
-      localStorage.setItem('app_language', formData.language);
-      await changeLanguage(formData.language);
+      localStorage.setItem('i18nextLng', finalLang);
+      localStorage.setItem('balancen_lang', finalLang);
+      localStorage.setItem('balancen.lang', finalLang);
+      localStorage.setItem('app_language', finalLang);
+      await changeLanguage(finalLang);
 
       // Process referral if exists
       const pendingReferral = localStorage.getItem("pending_referral");
