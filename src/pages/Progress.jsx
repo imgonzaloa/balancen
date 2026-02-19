@@ -180,17 +180,11 @@ export default function Progress() {
 
         {/* PREMIUM: Advanced Analytics Dashboard */}
         {isPremium && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <AdvancedAnalytics
-              profile={profile}
-              todayMeals={todayMeals}
-              weekMeals={weekMeals}
-            />
-          </motion.div>
+          <AdvancedAnalytics
+            profile={profile}
+            todayMeals={todayMeals}
+            weekMeals={weekMeals}
+          />
         )}
       </div>
     </div>
