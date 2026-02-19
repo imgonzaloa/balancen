@@ -420,6 +420,7 @@ export default function MealResult() {
       if (navigator.vibrate) navigator.vibrate(40);
     } catch (err) {
       console.error("[MealResult] Analysis failed:", err);
+      // Even on AI failure, if we got the upload URL, keep it so manual save works
       setErrorMsg(t('try_again_or_manual') || "Analysis failed. You can still add this meal manually.");
       setPhase("error");
     }
