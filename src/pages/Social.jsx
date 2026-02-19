@@ -287,7 +287,7 @@ export default function Social() {
           onClick={handleRefetch}
           className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white/50 text-sm font-semibold hover:bg-white/10 transition-colors"
         >
-          {t('reload') || 'Cargar'}
+          {t('reload')}
         </button>
       </div>
     </div>
