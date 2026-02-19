@@ -83,17 +83,7 @@ const Home = React.memo(() => {
     navigate(createPageUrl(page));
   }, [navigate]);
 
-  // Calculate trial remaining days
-  const trialDaysRemaining = useMemo(() => {
-    if (!profile?.trial_start_date) return null;
-    const trialStart = new Date(profile.trial_start_date);
-    const trialEnd = new Date(trialStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const now = new Date();
-    const daysLeft = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return daysLeft > 0 ? daysLeft : 0;
-  }, [profile?.trial_start_date]);
-
-  const showTrialBanner = !isPremium && trialDaysRemaining !== null && trialDaysRemaining > 0;
+  const showTrialBanner = isTrialActive && trialDaysLeft > 0;
 
   if (!isInitialized || !isHydrated) {
     return <HomeSkeleton />;
