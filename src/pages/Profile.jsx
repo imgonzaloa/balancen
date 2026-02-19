@@ -14,24 +14,22 @@ import { withTimeout } from "@/components/utils/fetchWithTimeout";
 import ErrorFallback, { LoadingTimeout } from "@/components/ErrorFallback";
 import { debugLogger } from "@/components/DebugOverlay";
 
-function StatusEditor({ profile, lang, onUpdate }) {
+function StatusEditor({ profile, onUpdate }) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
-  const [statusText, setStatusText] = useState(profile?.status_text || "");
+  const [statusText, setStatusText] = useState(profile?.status_message || "");
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     if (!profile?.id) return;
-    
     setSaving(true);
     try {
       await base44.entities.UserProfile.update(profile.id, {
-        status_text: statusText.slice(0, 32),
+        status_message: statusText.slice(0, 60),
         status_updated_at: new Date().toISOString(),
       });
-      
       toast.success(t('status_updated'));
-      onUpdate?.();
+      onUpdate?.({ ...profile, status_message: statusText.slice(0, 60) });
       setIsEditing(false);
     } catch (err) {
       console.error("Failed to update status:", err);
@@ -48,8 +46,8 @@ function StatusEditor({ profile, lang, onUpdate }) {
           type="text"
           value={statusText}
           onChange={(e) => setStatusText(e.target.value)}
-          maxLength={32}
-          placeholder={t('status_placeholder')}
+          maxLength={60}
+          placeholder={t('status_placeholder') || "What's on your mind?"}
           className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 text-sm focus:outline-none focus:border-teal-500"
           autoFocus
         />
@@ -68,17 +66,17 @@ function StatusEditor({ profile, lang, onUpdate }) {
             {t('cancel')}
           </button>
         </div>
-        </div>
-        );
-        }
+      </div>
+    );
+  }
 
   return (
     <button
       onClick={() => setIsEditing(true)}
       className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group"
     >
-      <span className={`text-sm ${profile?.status_text ? 'text-white italic' : 'text-white/60'}`}>
-        {profile?.status_text ? `"${profile.status_text}"` : t('status_placeholder')}
+      <span className={`text-sm ${profile?.status_message ? 'text-white italic' : 'text-white/60'}`}>
+        {profile?.status_message ? `"${profile.status_message}"` : (t('status_placeholder') || "Add a status message...")}
       </span>
       <Edit2 size={16} className="text-white/40 group-hover:text-white transition-colors" />
     </button>
