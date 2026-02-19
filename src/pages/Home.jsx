@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
+import GlobalHeader from "@/components/GlobalHeader";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
