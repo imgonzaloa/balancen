@@ -178,12 +178,9 @@ export default function Social() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {friendProfiles.slice(0, 5).map((friend, idx) => (
-                    <motion.div
+                  {friendProfiles.slice(0, 5).map((friend) => (
+                    <div
                       key={friend.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.04 }}
                       className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
                     >
                       <div className="flex items-start gap-3">
