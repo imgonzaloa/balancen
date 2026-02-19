@@ -517,12 +517,21 @@ export default function MealResult() {
   const handleManualSave = async ({ items: saveItems, totals: saveTotals }) => {
     setSaving(true);
     try {
-      // If we have a file but didn't upload yet, upload now
-      let photoUrl = uploadedUrl;
-      if (!photoUrl && capturedFile) {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file: capturedFile });
-        photoUrl = file_url;
-        setUploadedUrl(file_url);
+      // Photo should already be uploaded by runAnalysis; if not, try once more
+      let photoUrl = uploadedUrlRef.current || uploadedUrl;
+      if (!photoUrl) {
+        const fileToUpload = capturedFile || await (async () => {
+          const stored = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
+          if (!stored) return null;
+          const blob = await fetch(stored).then(r => r.blob()).catch(() => null);
+          return blob?.size > 0 ? new File([blob], "meal.jpg", { type: "image/jpeg" }) : null;
+        })();
+        if (fileToUpload) {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToUpload });
+          photoUrl = file_url;
+          setUploadedUrl(file_url);
+          uploadedUrlRef.current = file_url;
+        }
       }
       await persistMeal({ items: saveItems, totals: saveTotals, photoUrl });
       toast.success(`${t("meal_saved")} • +${saveTotals.calories} kcal`);
