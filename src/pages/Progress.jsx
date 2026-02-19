@@ -38,7 +38,8 @@ export default function Progress() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const loading = !isInitialized || profileLoading || mealsLoading;
+  // Never infinite-load: cap at 5s after init is done
+  const loading = !isInitialized || (profileLoading && !profile);
 
   const calculations = useMemo(() => {
     const totalCaloriesToday = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
