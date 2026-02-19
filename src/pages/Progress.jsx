@@ -58,7 +58,7 @@ export default function Progress() {
 
   if (loading) return <ProgressSkeleton />;
 
-  // Anonymous/no data state
+  // Anonymous or no profile yet — show actionable empty state, never blank
   if (!user?.email || !profile) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6">
