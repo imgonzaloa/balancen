@@ -639,6 +639,18 @@ const resources = {
       photo_looks_good: "¿Se ve bien?",
       retake: "Repetir",
       use_photo: "Usar Foto",
+      // Analysis loader steps
+      uploading_photo: "Subiendo foto...",
+      reading_photo: "Leyendo tu foto...",
+      identifying_foods: "Identificando alimentos...",
+      calculating_nutrition: "Calculando nutrición...",
+      finalizing: "Casi listo...",
+      analyzing_meal: "Analizando comida",
+      please_wait: "Por favor espera...",
+      // Review screen
+      review_meal: "Revisar Comida",
+      confidence: "confianza",
+      confirm_save: "Confirmar y Guardar",
       
       // Home
       current_streak: "Racha Actual",
