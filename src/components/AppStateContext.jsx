@@ -96,7 +96,8 @@ export function AppStateProvider({ children }) {
         }
       } catch (err) {
         console.error('[AppState] Profile fetch error:', err.message);
-        if (isMounted) setProfile(null);
+        // Don't wipe the cached photo stub on network error — keep what we have
+        if (isMounted) setProfile(prev => prev?.id ? prev : null);
       }
     };
 
