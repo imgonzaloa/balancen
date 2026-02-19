@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { X, Check, Sparkles, Crown, Loader2 } from "lucide-react";
+import { X, Check, Sparkles, Crown, Loader2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
+import { useAppState } from "@/components/AppStateContext";
+import { useEntitlement } from "@/components/hooks/useEntitlement";
 
 export default function Paywall() {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [pricing, setPricing] = useState(null);
+  const { profile } = useAppState();
+  const { isTrialExpired, trialDaysLeft, isPremium } = useEntitlement(profile);
   
   const { t, lang } = useTranslation();
 
@@ -31,8 +35,8 @@ export default function Paywall() {
       });
   }, []);
 
-  const handleSkip = () => {
-    window.location.href = createPageUrl("Home");
+  const handleSignOut = async () => {
+    await base44.auth.logout(createPageUrl('Paywall'));
   };
 
   const handleContinue = async () => {
