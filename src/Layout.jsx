@@ -93,6 +93,8 @@ function getNavItems(t) {
 function LayoutInner({ children, currentPageName, bootState }) {
   const navigate = useNavigate();
   const { t, lang, changeLanguage } = useTranslation();
+  const { profile } = React.useContext(AppStateProvider);
+  const { isEntitled } = useEntitlement(profile);
 
   const isNavigating = React.useRef(false);
   const scrollPositions = React.useRef({});
@@ -103,7 +105,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const longPressTimer = React.useRef(null);
 
   const navItems = React.useMemo(() => getNavItems(t), [t]);
-  const hideNav = noNavPages.includes(currentPageName);
+  const hideNav = noNavPages.includes(currentPageName) || !isEntitled;
   const showBrand = showBrandPages.includes(currentPageName);
   
   // Paywall and onboarding pages bypass TrialGate
