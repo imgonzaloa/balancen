@@ -206,17 +206,16 @@ export default function Profile() {
     if (refreshProfile) refreshProfile();
   }, [refreshProfile]);
 
-  if (loadingTimeout && loading) {
-    return <LoadingTimeout onRetry={handleRetry} />;
-  }
-
-  // Never show infinite spinner — after 3s we already have loadingTimeout; also if cachedProfile arrived, skip spinner
-  if (!isInitialized) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+
+  if (loadingTimeout && !!user?.email && !profile && !error) {
+    return <LoadingTimeout onRetry={handleRetry} />;
   }
 
   if (error) {
