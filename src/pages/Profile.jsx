@@ -350,7 +350,13 @@ export default function Profile() {
         {/* Status Section - Editable */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 mb-6">
           <h3 className="text-white font-bold text-lg mb-4">{t('status')}</h3>
-          <StatusEditor profile={profile} lang={lang} onUpdate={refreshProfile} />
+          <StatusEditor
+            profile={profile}
+            onUpdate={(updated) => {
+              setProfile(updated);
+              if (setContextProfile) setContextProfile(updated);
+            }}
+          />
         </div>
 
         {/* AI Goals Assistant */}
