@@ -33,6 +33,7 @@ export default function AddMeal() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAppState();
+  const { addMeal, formatLocalDateKey } = useMealsStore();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFoods, setSelectedFoods] = useState([]);
