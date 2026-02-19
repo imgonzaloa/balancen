@@ -87,7 +87,7 @@ function StatusEditor({ profile, lang, onUpdate }) {
 export default function Profile() {
   // ALL HOOKS AT TOP
   const { user, profile: cachedProfile, isInitialized, refreshProfile } = useAppState();
-  const { t, lang } = useTranslation();
+  const { t, lang, changeLanguage } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
