@@ -616,7 +616,7 @@ export default function MealResult() {
           <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
             <div className="flex items-end justify-between mb-3">
               <div>
-                <p className="text-white/50 text-xs font-bold uppercase tracking-wide">Total</p>
+                <p className="text-white/50 text-xs font-bold uppercase tracking-wide">{t('total_calories')}</p>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-white font-black text-4xl">{totals.calories}</span>
                   <span className="text-white/50 font-bold text-sm">kcal</span>
@@ -627,18 +627,18 @@ export default function MealResult() {
                 className="px-3 py-1.5 rounded-xl bg-white/10 border border-white/20 text-white/70 text-xs font-bold flex items-center gap-1.5 active:scale-90"
               >
                 <Edit3 size={12} />
-                Edit manually
+                {t('edit_manually') || t('add_manually')}
               </button>
             </div>
             <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/10">
               {[
-                { label: "Protein", value: totals.protein, color: "text-blue-400" },
-                { label: "Carbs", value: totals.carbs, color: "text-amber-400" },
-                { label: "Fats", value: totals.fats, color: "text-pink-400" },
-              ].map(({ label, value, color }) => (
-                <div key={label} className="text-center">
+                { labelKey: 'protein', value: totals.protein, color: "text-blue-400" },
+                { labelKey: 'carbs', value: totals.carbs, color: "text-amber-400" },
+                { labelKey: 'fats', value: totals.fats, color: "text-pink-400" },
+              ].map(({ labelKey, value, color }) => (
+                <div key={labelKey} className="text-center">
                   <p className={`${color} font-black text-lg`}>{value}g</p>
-                  <p className="text-white/40 text-[10px] uppercase font-bold">{label}</p>
+                  <p className="text-white/40 text-[10px] uppercase font-bold">{t(labelKey)}</p>
                 </div>
               ))}
             </div>
