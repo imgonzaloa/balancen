@@ -8,7 +8,7 @@ import { logger } from '@/components/logger';
  */
 
 const STORAGE_KEYS = {
-  LANGUAGE: 'balancen_language',
+  LANGUAGE: 'i18nextLng',          // single source of truth for i18next
   ONBOARDING_COMPLETE: 'balancen_onboarding_complete'
 };
 
