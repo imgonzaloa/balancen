@@ -158,7 +158,7 @@ export default function AddMeal() {
         {/* Selected Foods */}
         {selectedFoods.length > 0 && (
           <div className="space-y-3 mb-8">
-            <h3 className="text-white font-bold text-sm uppercase tracking-wide">Selected Foods</h3>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wide">{t('selected_foods') || 'Selected'}</h3>
             {selectedFoods.map((food) => (
               <div key={food.id} className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10 flex items-start justify-between">
                 <div className="flex-1">
