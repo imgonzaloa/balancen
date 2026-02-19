@@ -17,6 +17,7 @@ export function getCachedProfilePhoto(email) {
 
 export function AppStateProvider({ children }) {
   const [user, setUser] = useState(null);
+  // Pre-seed profile with cached photo so UI never shows blank avatar on refresh
   const [profile, setProfile] = useState(undefined); // undefined = not yet loaded, null = no profile found
   const [friends, setFriends] = useState(null);
   const [groups, setGroups] = useState(null);
