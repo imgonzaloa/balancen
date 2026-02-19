@@ -110,7 +110,9 @@ const Home = React.memo(() => {
             {currentDate}
           </p>
           <h1 className="text-3xl font-black text-white">
-            {getGreeting}, {profile?.display_name?.split(' ')[0] || t('user')}
+            {profile?.display_name?.split(' ')[0] || user?.full_name?.split(' ')[0]
+              ? `${getGreeting}, ${(profile?.display_name || user?.full_name || '').split(' ')[0]}`
+              : getGreeting}
           </h1>
         </div>
 
