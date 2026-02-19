@@ -192,7 +192,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
           willChange: 'scroll-position',
         }}
       >
-        {children}
+        {bypassTrialGate ? children : <TrialGate>{children}</TrialGate>}
       </main>
 
       {/* Tab bar */}
