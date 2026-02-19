@@ -280,12 +280,12 @@ export default function Paywall() {
             ) : isTrialExpired ? (
               <>
                 <Crown size={20} className="mr-2" />
-                {t("continue_with_premium")}
+                Continue with Premium
               </>
             ) : (
               <>
                 <Crown size={20} className="mr-2" />
-                {t("start_free_trial")}
+                Upgrade to Premium
               </>
             )}
           </Button>
