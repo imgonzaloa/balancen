@@ -94,7 +94,11 @@ export default function BootGate({ children }) {
         // STEP 5: Profile confirms completion - persist and proceed
         console.log('[BOOT] Profile confirmed complete');
         localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETE, 'true');
-        localStorage.setItem(STORAGE_KEYS.LANGUAGE, profile.language);
+        // Persist language under the unified key read by i18n.js
+        const lang = profile.language || 'en';
+        localStorage.setItem('i18nextLng', lang);
+        localStorage.setItem('balancen_lang', lang);
+        localStorage.setItem('app_language', lang);
         
         if (isMounted) {
           setBootState({
