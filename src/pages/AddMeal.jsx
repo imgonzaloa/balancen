@@ -121,7 +121,8 @@ export default function AddMeal() {
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
             <Input
               type="text"
-              placeholder="Search foods..."
+              placeholder={t('search_foods') || 'Search foods...'}
+              autoComplete="off"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-white/10 border-white/20 text-white placeholder-white/40"
