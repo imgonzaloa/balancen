@@ -1204,11 +1204,15 @@ const resources = {
   }
 };
 
-// Get initial language from localStorage or default to ENGLISH
+// Get initial language from localStorage - single source of truth: i18nextLng
 const getInitialLanguage = () => {
   try {
-    const stored = localStorage.getItem("balancen_lang") || localStorage.getItem("app_language");
-    return stored || "en"; // Default ENGLISH
+    const stored = localStorage.getItem("i18nextLng")
+      || localStorage.getItem("balancen_lang")
+      || localStorage.getItem("app_language")
+      || localStorage.getItem("balancen.lang");
+    if (stored === "en" || stored === "es") return stored;
+    return "en";
   } catch {
     return "en";
   }
