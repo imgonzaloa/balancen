@@ -145,17 +145,18 @@ export default function Profile() {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
       if (file_url) {
-        const finalUrl = file_url + `?v=${Date.now()}`;
         await base44.entities.UserProfile.update(profile.id, {
-          profile_photo: finalUrl,
-          avatar_url: finalUrl
+          profile_photo: file_url,
+          avatar_url: file_url
         });
 
-        await base44.auth.updateMe({ avatar_url: finalUrl });
+        await base44.auth.updateMe({ avatar_url: file_url });
 
-        setProfile({ ...profile, profile_photo: finalUrl, avatar_url: finalUrl });
-        localStorage.setItem(`avatar_cache_${user.email}`, finalUrl);
-        toast.success("Foto actualizada permanentemente");
+        setProfile(prev => ({ ...prev, profile_photo: file_url, avatar_url: file_url }));
+        // Persist to all cache keys so photo never disappears
+        localStorage.setItem(`balancen_avatar_${user.email}`, file_url);
+        localStorage.setItem(`balancen_photo_${user.email}`, file_url);
+        toast.success(t('photo_updated'));
         
         if (refreshProfile) refreshProfile();
       }
