@@ -69,20 +69,37 @@ export default function Paywall() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden flex flex-col">
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
         <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10">
-        {/* Skip button */}
-        <div className="flex justify-end mb-6">
+      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 flex-1 flex flex-col">
+        {/* Top actions */}
+        <div className="flex justify-between items-center mb-6">
+          {isTrialExpired && (
+            <div className="px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
+              <span className="text-red-300 text-xs font-semibold">{t('trial_ended')}</span>
+            </div>
+          )}
+          {trialDaysLeft > 0 && !isPremium && (
+            <div className="px-3 py-1 bg-teal-500/20 border border-teal-500/30 rounded-full">
+              <span className="text-teal-300 text-xs font-semibold">{t('trial')}: {trialDaysLeft} {t('days_left')}</span>
+            </div>
+          )}
+          {isPremium && (
+            <div className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center gap-1">
+              <Crown size={12} className="text-emerald-300" />
+              <span className="text-emerald-300 text-xs font-semibold">{t('premium_active')}</span>
+            </div>
+          )}
+          <div className="flex-1" />
           <button
-            onClick={handleSkip}
+            onClick={handleSignOut}
             className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors"
           >
-            <X size={20} className="text-white" />
+            <LogOut size={20} className="text-white" />
           </button>
         </div>
 
@@ -92,12 +109,25 @@ export default function Paywall() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-3xl font-black text-white mb-2">
-            {t('choose_plan')}
-          </h1>
-          <p className="text-lg text-teal-200">
-            {t('free_lets_start')}
-          </p>
+          {isTrialExpired ? (
+            <>
+              <h1 className="text-3xl font-black text-white mb-2">
+                {t('trial_ended_title')}
+              </h1>
+              <p className="text-lg text-teal-200">
+                {t('upgrade_continue')}
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-3xl font-black text-white mb-2">
+                {t('choose_plan')}
+              </h1>
+              <p className="text-lg text-teal-200">
+                {t('free_lets_start')}
+              </p>
+            </>
+          )}
         </motion.div>
 
         {/* Plan Comparison */}
