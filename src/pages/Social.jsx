@@ -11,6 +11,7 @@ import StatusChip from "@/components/groups/StatusChip";
 import { SocialSkeleton } from "@/components/ui/ScreenSkeleton";
 import { withTimeout } from "@/components/utils/fetchWithTimeout";
 import { useAppState } from "@/components/AppStateContext";
+import GlobalHeader from "@/components/GlobalHeader";
 
 export default function Social() {
   const { t } = useTranslation();
