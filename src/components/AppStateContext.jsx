@@ -7,8 +7,13 @@ import { withTimeout } from "@/components/utils/fetchWithTimeout";
 const AppStateContext = createContext(null);
 
 const AVATAR_CACHE_KEY = (email) => `balancen_avatar_${email}`;
-// Persist profile photo so it survives navigation & refresh
 const PHOTO_CACHE_KEY = (email) => `balancen_photo_${email}`;
+
+// Read cached photo synchronously before any fetch
+export function getCachedProfilePhoto(email) {
+  if (!email) return null;
+  return localStorage.getItem(PHOTO_CACHE_KEY(email)) || localStorage.getItem(AVATAR_CACHE_KEY(email)) || null;
+}
 
 export function AppStateProvider({ children }) {
   const [user, setUser] = useState(null);
