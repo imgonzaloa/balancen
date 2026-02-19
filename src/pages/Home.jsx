@@ -95,7 +95,6 @@ const Home = React.memo(() => {
     return daysLeft > 0 ? daysLeft : 0;
   }, [profile?.trial_start_date]);
 
-  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
   const showTrialBanner = !isPremium && trialDaysRemaining !== null && trialDaysRemaining > 0;
 
   if (!isInitialized || !isHydrated) {
