@@ -24,13 +24,24 @@ export default function Onboarding() {
       try {
         const u = await base44.auth.me();
         setUser(u);
-        
-        // Check if already completed (stable key)
+
+        // If already completed, go Home
         const completed = localStorage.getItem('balancen_onboarding_complete') === 'true';
         if (completed) {
-          console.log('[ONBOARDING] Already completed, redirecting to Home');
           navigate(createPageUrl('Home'), { replace: true });
+          return;
         }
+
+        // If no language selected yet, go to LanguageSelector first
+        const lang = localStorage.getItem('i18nextLng') || localStorage.getItem('balancen_lang');
+        if (!lang) {
+          navigate(createPageUrl('LanguageSelector'), { replace: true });
+          return;
+        }
+
+        // Start at goals step (language already handled by LanguageSelector)
+        setStep(1);
+        setFormData(prev => ({ ...prev, language: lang }));
       } catch (err) {
         console.error('[ONBOARDING] Init error:', err);
       }
