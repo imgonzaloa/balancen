@@ -10,15 +10,13 @@ export function useTranslation() {
   const { t, i18n } = useI18nTranslation();
   
   const changeLanguage = async (newLang) => {
-    if (newLang !== "en" && newLang !== "es") {
-      console.error("❌ Invalid language:", newLang);
-      return;
-    }
-    
+    if (newLang !== "en" && newLang !== "es") return;
     await i18n.changeLanguage(newLang);
-    // Persist to both storage keys
-    localStorage.setItem('balancen.lang', newLang);
+    // Single source of truth – keep all legacy keys in sync
     localStorage.setItem('i18nextLng', newLang);
+    localStorage.setItem('balancen_lang', newLang);
+    localStorage.setItem('balancen.lang', newLang);
+    localStorage.setItem('app_language', newLang);
   };
   
   // CRITICAL: Production-ready translation with STRICT fallback - NEVER show "Missing"
