@@ -19,6 +19,7 @@ import PublicDebugPanel from "@/components/PublicDebugPanel";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import TrialGate from "@/components/TrialGate";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
+import { useAppState } from "@/components/AppStateContext";
 
 // Global React Query client - aggressive caching to prevent rate limits and re-fetches
 const queryClient = new QueryClient({
