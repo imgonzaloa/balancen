@@ -67,9 +67,13 @@ export function AppStateProvider({ children }) {
     return () => { isMounted = false; };
   }, []);
 
-  // Profile fetch - runs when user is known, doesn't re-run if already loaded
+  // Track whether we've done the real server fetch
+  const profileFetched = React.useRef(false);
+
+  // Profile fetch - runs when user is known, fetches once from server
   useEffect(() => {
-    if (!user?.email || profile !== undefined) return;
+    if (!user?.email || profileFetched.current) return;
+    profileFetched.current = true;
 
     let isMounted = true;
 
