@@ -91,19 +91,10 @@ const Home = React.memo(() => {
 
   return (
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
+      {/* Global Header */}
+      <GlobalHeader />
+
       <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
-        
-        {/* Header - Premium CTA only */}
-        {!isPremium && (
-          <div className="flex items-center justify-end">
-            <button
-              onClick={() => handleNavigate('Premium')}
-              className="px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold hover:bg-white/20 transition-colors"
-            >
-              {t('upgrade_to_premium_title')}
-            </button>
-          </div>
-        )}
 
         {/* Greeting */}
         <div>
@@ -115,6 +106,9 @@ const Home = React.memo(() => {
               ? `${getGreeting}, ${(profile?.display_name || user?.full_name || '').split(' ')[0]}`
               : getGreeting}
           </h1>
+          {profile?.status_message && (
+            <p className="text-white/50 text-sm mt-1 italic">"{profile.status_message}"</p>
+          )}
         </div>
 
         {/* Daily Intake - Hero Card */}
