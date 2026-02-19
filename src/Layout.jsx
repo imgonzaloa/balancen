@@ -199,29 +199,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
       <PublicDebugPanel />
       <Toaster position="top-center" richColors style={{ pointerEvents: 'auto' }} />
 
-      {/* Brand mark - triple tap opens debug */}
-      {showBrand && (
-        <div className="flex-shrink-0 z-40" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-          <div
-            className="max-w-2xl mx-auto px-6 py-1.5"
-            onTouchStart={() => {
-              tapCount.current++;
-              if (tapTimer.current) clearTimeout(tapTimer.current);
-              if (tapCount.current === 3) {
-                setDebugOpen(true);
-                tapCount.current = 0;
-              }
-              tapTimer.current = setTimeout(() => { tapCount.current = 0; }, 500);
-              longPressTimer.current = setTimeout(() => { setDebugOpen(true); }, 2000);
-            }}
-            onTouchEnd={() => {
-              if (longPressTimer.current) clearTimeout(longPressTimer.current);
-            }}
-          >
-            <BrandMark size={16} />
-          </div>
-        </div>
-      )}
+  
 
       {/* Main scroll container - instant, no animation overhead */}
       <main
