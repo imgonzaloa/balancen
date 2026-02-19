@@ -36,6 +36,11 @@ export function AppStateProvider({ children }) {
 
         if (isMounted && currentUser?.email) {
           setUser(currentUser);
+          // Immediately seed profile with cached photo so avatar shows before fetch
+          const cachedPhoto = getCachedProfilePhoto(currentUser.email);
+          if (cachedPhoto) {
+            setProfile(prev => prev === undefined ? { profile_photo: cachedPhoto, avatar_url: cachedPhoto } : prev);
+          }
 
           // Auto-grant owner role to app owner
           if (currentUser.email.toLowerCase() === "imgonzaloa@gmail.com") {
