@@ -347,13 +347,13 @@ export default function Profile() {
             <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
               <span className="text-white/70 text-sm">{t('main_goal')}</span>
               <span className="font-semibold text-white">
-                {goalLabels[lang]?.[profile?.primary_goal] || t('not_defined')}
+                {goalLabel(profile?.primary_goal)}
               </span>
             </div>
             <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
               <span className="text-white/70 text-sm">{t('intensity')}</span>
               <span className="font-semibold text-white">
-                {intensityLabels[lang]?.[profile?.intensity_level] || t('not_defined')}
+                {intensityLabel(profile?.intensity_level)}
               </span>
             </div>
             {profile?.calories_goal && (
