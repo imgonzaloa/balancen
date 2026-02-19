@@ -399,7 +399,7 @@ export default function MealResult() {
         portion: item.portion || "",
       }));
 
-      // If confidence is very low or no items, show manual entry option but keep photo
+      // If confidence is very low or no items, go to manual — photo is already uploaded
       if (conf < 20 && items.length === 0) {
         setConfidence(conf);
         setPhase("error");
