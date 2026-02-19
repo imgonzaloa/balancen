@@ -109,9 +109,9 @@ export default function AddMeal() {
           </button>
           <div>
             <h1 className="text-3xl font-black text-white">
-              {t('log_meal_manually') || 'Log Meal'}
+              {t('log_meal_manually') || t('add_manually')}
             </h1>
-            <p className="text-white/60 text-sm">Search & add foods</p>
+            <p className="text-white/60 text-sm">{t('search_and_add') || 'Search & add foods'}</p>
           </div>
         </div>
 
