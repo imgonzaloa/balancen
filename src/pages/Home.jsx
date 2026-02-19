@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Camera, Lock, Sparkles, Dumbbell } from "lucide-react";
+import { Camera, Lock, Sparkles, Dumbbell, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useMealsStore } from "@/components/MealsStore";
