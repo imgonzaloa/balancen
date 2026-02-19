@@ -395,7 +395,7 @@ export default function MealResult() {
       if (navigator.vibrate) navigator.vibrate(40);
     } catch (err) {
       console.error("[MealResult] Analysis failed:", err);
-      setErrorMsg(err.message || "Analysis failed. You can still add this meal manually.");
+      setErrorMsg(t('try_again_or_manual') || "Analysis failed. You can still add this meal manually.");
       setPhase("error");
     }
   };
