@@ -72,9 +72,11 @@ export function AppStateProvider({ children }) {
         if (isMounted) {
           const p = profiles[0] || null;
           setProfile(p);
-          // Cache avatar in localStorage for instant display on next load
-          if (p?.profile_photo || p?.avatar_url) {
-            localStorage.setItem(AVATAR_CACHE_KEY(user.email), p.profile_photo || p.avatar_url);
+          // Persist photo so it survives navigation + refresh
+          const photo = p?.profile_photo || p?.avatar_url;
+          if (photo) {
+            localStorage.setItem(AVATAR_CACHE_KEY(user.email), photo);
+            localStorage.setItem(PHOTO_CACHE_KEY(user.email), photo);
           }
         }
       } catch (err) {
