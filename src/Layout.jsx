@@ -17,6 +17,7 @@ import { NavigationManager } from "@/components/NavigationManager";
 import DebugOverlay, { debugLogger } from "@/components/DebugOverlay";
 import PublicDebugPanel from "@/components/PublicDebugPanel";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
+import TrialGate from "@/components/TrialGate";
 
 // Global React Query client - aggressive caching to prevent rate limits and re-fetches
 const queryClient = new QueryClient({
