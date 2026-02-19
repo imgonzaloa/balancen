@@ -256,12 +256,10 @@ export default function Social() {
           ) : (
             <div className="space-y-3">
               {myGroups.map((group) => (
-                <motion.div
+                <div
                   key={group.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
                   onClick={() => navigate(`${createPageUrl('GroupDetail')}?id=${group.id}`)}
-                  className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-all cursor-pointer"
+                  className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -272,7 +270,7 @@ export default function Social() {
                       <Flame size={18} className="text-amber-400" />
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}
