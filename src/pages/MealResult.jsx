@@ -89,11 +89,20 @@ function AnalysisLoader({ imagePreview, stepIndex }) {
 }
 
 function FoodItem({ item, onUpdate, onRemove }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
+
+  const macroFields = [
+    { label: `${t('calories')} (kcal)`, field: "calories", color: "text-teal-300" },
+    { label: `${t('protein')} (g)`, field: "protein", color: "text-blue-400" },
+    { label: `${t('carbs')} (g)`, field: "carbs", color: "text-amber-400" },
+    { label: `${t('fats')} (g)`, field: "fats", color: "text-pink-400" },
+  ];
+
   return (
     <div className="bg-white/8 rounded-2xl border border-white/10 overflow-hidden">
       <div
-        className="flex items-center gap-3 p-3 cursor-pointer"
+        className="flex items-center gap-3 p-3 cursor-pointer active:bg-white/5"
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex-1">
@@ -125,12 +134,7 @@ function FoodItem({ item, onUpdate, onRemove }) {
             className="overflow-hidden"
           >
             <div className="px-3 pb-3 space-y-2 border-t border-white/10 pt-2">
-              {[
-                { label: "Calories", field: "calories", color: "text-teal-300" },
-                { label: "Protein (g)", field: "protein", color: "text-blue-400" },
-                { label: "Carbs (g)", field: "carbs", color: "text-amber-400" },
-                { label: "Fats (g)", field: "fats", color: "text-pink-400" },
-              ].map(({ label, field, color }) => (
+              {macroFields.map(({ label, field, color }) => (
                 <div key={field} className="flex items-center justify-between">
                   <span className="text-white/60 text-xs">{label}</span>
                   <div className="flex items-center gap-2">
@@ -156,7 +160,7 @@ function FoodItem({ item, onUpdate, onRemove }) {
                 onClick={() => onRemove(item.id)}
                 className="w-full mt-1 py-1.5 rounded-xl bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/30 active:scale-95"
               >
-                Remove item
+                {t('remove_item') || 'Remove'}
               </button>
             </div>
           </motion.div>
