@@ -93,44 +93,46 @@ export default function Profile() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [showGoalsEdit, setShowGoalsEdit] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [loading, setLoading] = useState(!cachedProfile);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [error, setError] = useState(null);
 
-  // Immediately restore cached photo so it never disappears between loads
+  // Sync local profile state whenever context profile updates (e.g. initial server fetch arrives)
+  useEffect(() => {
+    if (cachedProfile) {
+      setProfile(cachedProfile);
+    }
+  }, [cachedProfile]);
+
+  // Cached photo for instant display before server fetch completes
   const cachedPhoto = user?.email
     ? (localStorage.getItem(`balancen_photo_${user.email}`) || localStorage.getItem(`balancen_avatar_${user.email}`))
     : null;
   const displayPhoto = profile?.profile_photo || profile?.avatar_url || cachedPhoto;
 
+  // If no context profile yet and user exists, fetch directly (first load / hard refresh)
   useEffect(() => {
-    if (!user?.email) {
-      setLoading(false);
-      return;
-    }
-    
-    if (cachedProfile) {
-      setProfile(cachedProfile);
-      setLoading(false);
-      return;
-    }
+    if (!user?.email || cachedProfile) return;
 
-    const timer = setTimeout(() => setLoadingTimeout(true), 3000);
+    const timer = setTimeout(() => setLoadingTimeout(true), 4000);
 
     const fetchProfile = async () => {
       try {
-        debugLogger.log('PROFILE_FETCH', 'Starting');
         const profiles = await withTimeout(
           base44.entities.UserProfile.filter({ created_by: user.email }),
-          3000
+          4000
         );
-        setProfile(profiles[0] || null);
-        debugLogger.log('PROFILE_SUCCESS', profiles[0]?.display_name || 'none');
+        const p = profiles[0] || null;
+        setProfile(p);
+        if (setContextProfile) setContextProfile(p);
+        if (p?.profile_photo || p?.avatar_url) {
+          const url = p.profile_photo || p.avatar_url;
+          localStorage.setItem(`balancen_photo_${user.email}`, url);
+          localStorage.setItem(`balancen_avatar_${user.email}`, url);
+        }
       } catch (err) {
         debugLogger.log('PROFILE_ERROR', err.message);
         setError(err);
       } finally {
-        setLoading(false);
         clearTimeout(timer);
       }
     };
@@ -138,6 +140,8 @@ export default function Profile() {
     fetchProfile();
     return () => clearTimeout(timer);
   }, [user?.email, cachedProfile]);
+
+  const loading = !isInitialized || (!!user?.email && !profile && !cachedProfile && !error);
 
   const handlePhotoUpload = async (file, preview) => {
     if (!file || !profile?.id) return;
