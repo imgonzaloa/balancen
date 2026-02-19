@@ -157,113 +157,63 @@ export default function Paywall() {
           )}
         </motion.div>
 
-        {/* Plan Comparison */}
+        {/* Premium Plan Card */}
         <motion.div
-          className="grid gap-4 mb-8"
+          className="relative overflow-hidden bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl border-2 border-amber-400/50 rounded-3xl p-5 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          {/* Free Plan */}
-          <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-5">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-amber-400/30 to-orange-400/30 rounded-full blur-2xl" />
+          
+          <div className="relative z-10">
             <div className="flex items-center gap-3 mb-4">
-              <div className="px-3 py-1 bg-slate-500/30 rounded-full">
-                <span className="text-white text-sm font-semibold">{t('free_plan')}</span>
+              <div className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
+                <span className="text-white text-sm font-bold">Premium</span>
               </div>
+              <Crown size={18} className="text-amber-300" />
             </div>
 
             <div className="space-y-2 mb-4">
-              <p className="text-white/80 text-sm font-semibold mb-2">{t('includes')}</p>
+              <p className="text-white text-sm font-semibold mb-2">Everything you need:</p>
               {[
-                t('daily_checkins'),
-                t('basic_fire_tracking'),
-                t('manual_tracking'),
-                t('one_group_max'),
-                t('basic_stats')
+                'Unlimited streaks & consistency tracking',
+                'Three fire metrics for motivation',
+                'Auto-adjusting goals based on progress',
+                'AI-powered coaching & personalized insights',
+                'Advanced analytics & progress tracking',
+                'Unlimited group creation & social features',
+                'Leaderboards & social challenges',
+                'Priority sync across devices',
+                'Full history export & backup',
+                'Progressive challenges & rewards'
               ].map((feature, i) => (
-                <div key={i} className="flex items-start gap-2 text-white/70 text-sm">
-                  <Check size={16} className="text-teal-400 mt-0.5 flex-shrink-0" />
+                <div key={i} className="flex items-start gap-2 text-white text-sm">
+                  <Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
                   <span>{feature}</span>
                 </div>
               ))}
             </div>
 
-            <div className="space-y-2 mb-3">
-              <p className="text-white/80 text-sm font-semibold mb-2">{t('not_included')}</p>
-              {[
-                t('streak_capped'),
-                t('limited_fire_system'),
-                t('no_auto_goals'),
-                t('no_ai_coaching'),
-                t('no_advanced_analytics'),
-                t('no_progressive_challenges'),
-                t('limited_social')
-              ].map((limit, i) => (
-                <div key={i} className="flex items-start gap-2 text-white/50 text-sm">
-                  <X size={16} className="text-red-400/60 mt-0.5 flex-shrink-0" />
-                  <span>{limit}</span>
-                </div>
-              ))}
+            {/* AI Coaching Explanation */}
+            <div className="bg-purple-500/20 border border-purple-400/30 rounded-xl p-4 mb-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles size={16} className="text-purple-300" />
+                <p className="text-white text-sm font-semibold">
+                  AI Coaching helps you:
+                </p>
+              </div>
+              <ul className="space-y-1 text-white/90 text-xs">
+                <li>• Review your activity and patterns</li>
+                <li>• Get personalized recommendations</li>
+                <li>• Adjust habits that matter most</li>
+                <li>• Stay consistent and motivated</li>
+              </ul>
             </div>
 
-            <p className="text-white/40 text-xs italic">
-              {t('free_for_trial')}
+            <p className="text-emerald-200 text-sm font-medium italic">
+              Premium is designed for lasting results.
             </p>
-          </div>
-
-          {/* Premium Plan */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl border-2 border-amber-400/50 rounded-3xl p-5">
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-amber-400/30 to-orange-400/30 rounded-full blur-2xl" />
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
-                  <span className="text-white text-sm font-bold">{t('premium_plan')}</span>
-                </div>
-                <Crown size={18} className="text-amber-300" />
-              </div>
-
-              <div className="space-y-2 mb-4">
-                <p className="text-white text-sm font-semibold mb-2">{t('full_experience')}</p>
-                {[
-                  t('unlimited_streaks'),
-                  t('three_fire_metrics'),
-                  t('auto_goal_progression'),
-                  t('ai_coaching_personalized'),
-                  t('advanced_analytics'),
-                  t('unlimited_groups'),
-                  t('social_leaderboards'),
-                  t('priority_sync'),
-                  t('full_history_export'),
-                  t('progressive_challenges')
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-start gap-2 text-white text-sm">
-                    <Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* AI Coaching Explanation */}
-              <div className="bg-purple-500/20 border border-purple-400/30 rounded-xl p-4 mb-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles size={16} className="text-purple-300" />
-                  <p className="text-white text-sm font-semibold">
-                    {t('ai_coaching_helps')}
-                  </p>
-                </div>
-                <ul className="space-y-1 text-white/90 text-xs">
-                  <li>• {t('review_activity')}</li>
-                  <li>• {t('give_recommendations')}</li>
-                  <li>• {t('adjust_habits')}</li>
-                  <li>• {t('support_consistency')}</li>
-                </ul>
-              </div>
-
-              <p className="text-emerald-200 text-sm font-medium italic">
-                {t('premium_for_lasting')}
-              </p>
-            </div>
           </div>
         </motion.div>
 
