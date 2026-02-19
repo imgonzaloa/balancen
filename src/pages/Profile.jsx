@@ -420,6 +420,35 @@ export default function Profile() {
           </div>
         </button>
 
+        {/* Language Toggle */}
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                <Globe size={20} className="text-teal-300" />
+              </div>
+              <div>
+                <p className="font-semibold text-white">{t('language')}</p>
+                <p className="text-xs text-white/50">{lang === 'es' ? 'Español' : 'English'}</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => changeLanguage('en')}
+                className={`px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${lang === 'en' ? 'bg-teal-500 text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => changeLanguage('es')}
+                className={`px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${lang === 'es' ? 'bg-teal-500 text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+              >
+                ES
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Settings Button */}
         <button
           onClick={() => navigate(createPageUrl('Settings'))}
