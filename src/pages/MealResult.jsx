@@ -378,7 +378,7 @@ export default function MealResult() {
       if (conf < 20 && items.length === 0) {
         setConfidence(conf);
         setPhase("error");
-        setErrorMsg("Could not identify food in this photo.");
+        setErrorMsg(t('couldnt_recognize_food') || "Could not identify food in this photo.");
         return;
       }
 
