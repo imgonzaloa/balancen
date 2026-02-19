@@ -131,7 +131,8 @@ export function AppStateProvider({ children }) {
 
   // Expose getCachedAvatar for instant photo display
   const getCachedAvatar = useCallback((email) => {
-    return localStorage.getItem(AVATAR_CACHE_KEY(email || user?.email));
+    const key = email || user?.email;
+    return localStorage.getItem(PHOTO_CACHE_KEY(key)) || localStorage.getItem(AVATAR_CACHE_KEY(key));
   }, [user?.email]);
 
   const value = {
