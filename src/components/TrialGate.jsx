@@ -25,25 +25,17 @@ export default function TrialGate({ children }) {
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
   const hasAccess = isPremium || isTrialActive;
+  const shouldRedirect = isInitialized && (!user?.email || !hasAccess);
 
-  // While loading, show nothing (prevent flashing)
-  if (!isInitialized) return null;
-
-  // No user = redirect to Paywall
-  if (!user?.email) {
-    React.useEffect(() => {
+  // Redirect effect must be unconditional
+  React.useEffect(() => {
+    if (shouldRedirect) {
       navigate(createPageUrl('Paywall'), { replace: true });
-    }, [navigate]);
-    return null;
-  }
+    }
+  }, [shouldRedirect, navigate]);
 
-  // Trial expired + not premium = locked
-  if (!hasAccess) {
-    React.useEffect(() => {
-      navigate(createPageUrl('Paywall'), { replace: true });
-    }, [navigate]);
-    return null;
-  }
+  // While loading or redirecting, show nothing
+  if (!isInitialized || shouldRedirect) return null;
 
   // Trial active or premium = allow access
   return <>{children}</>;
