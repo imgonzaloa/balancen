@@ -308,13 +308,6 @@ export default function Paywall() {
           <p className="text-center text-xs text-white/60 mt-1">
             {t("cancel_anytime")}
           </p>
-          
-          <button
-            onClick={handleSkip}
-            className="w-full py-4 text-white/50 hover:text-white/70 text-sm transition-colors mt-4"
-          >
-            {t('continue_free_limited')}
-          </button>
         </motion.div>
       </div>
     </div>
