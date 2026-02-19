@@ -71,24 +71,45 @@ export default function AddMeal() {
 
     setSaving(true);
     try {
-      const today = new Date().toISOString().split("T")[0];
-      const meal_time = new Date().toLocaleTimeString("en-US", {
+      const now = new Date();
+      const dateKey = formatLocalDateKey(now);
+      const meal_time = now.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false
       });
 
-      await base44.entities.MealLog.create({
-        date: today,
-        meal_time,
-        photo_url: null,
-        estimated_calories: Math.round(totalCalories),
-        estimated_protein: Math.round(totalProtein),
-        estimated_carbs: Math.round(totalCarbs),
-        estimated_fats: Math.round(totalFats)
+      const totals = {
+        calories: Math.round(totalCalories),
+        protein: Math.round(totalProtein),
+        carbs: Math.round(totalCarbs),
+        fats: Math.round(totalFats),
+      };
+
+      // Optimistic local update - instant UI feedback
+      addMeal({
+        id: crypto.randomUUID(),
+        dateKey,
+        createdAt: now.toISOString(),
+        photoUri: "",
+        mealType: "snack",
+        totals,
+        items: selectedFoods.map(f => ({ name: f.name, calories: f.calories, protein: f.protein, carbs: f.carbs, fats: f.fats })),
+        confidence: 100,
       });
 
-      toast.success(t('meal_saved') || "Meal logged!");
+      // Backend persist (fire and forget)
+      base44.entities.MealLog.create({
+        date: dateKey,
+        meal_time,
+        photo_url: null,
+        estimated_calories: totals.calories,
+        estimated_protein: totals.protein,
+        estimated_carbs: totals.carbs,
+        estimated_fats: totals.fats
+      }).catch(() => {});
+
+      toast.success(`${t('meal_saved')} • +${totals.calories} kcal`);
       navigate(createPageUrl("Home"));
     } catch (err) {
       console.error("Error saving meal:", err);
