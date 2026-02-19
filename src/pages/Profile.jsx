@@ -303,10 +303,10 @@ export default function Profile() {
                 className="relative cursor-pointer group"
               >
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative ring-2 ring-white/20 group-hover:ring-teal-400 transition-all">
-                    {(profile?.profile_photo || profile?.avatar_url || localStorage.getItem(`balancen_avatar_${user?.email}`)) ? (
-                      <img src={profile?.profile_photo || profile?.avatar_url || localStorage.getItem(`balancen_avatar_${user?.email}`)} alt={t('profile')} className="w-full h-full object-cover" loading="lazy" />
+                    {displayPhoto ? (
+                      <img src={displayPhoto} alt={t('profile')} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
-                    <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || t('user').charAt(0)}</span>
+                      <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0) || '?'}</span>
                   )}
                   {uploadingPhoto && (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
