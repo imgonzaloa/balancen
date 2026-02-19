@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import AdvancedAnalytics from "@/components/progress/AdvancedAnalytics";
-import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Progress() {
