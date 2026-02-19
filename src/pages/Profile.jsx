@@ -337,17 +337,18 @@ export default function Profile() {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-sm rounded-2xl p-5 text-center border border-amber-400/30 min-h-[140px] flex flex-col items-center justify-center">
-                <div className="text-5xl mb-3">🔥</div>
-                <p className="text-xs text-white/70 font-semibold">{t('current_streak')}</p>
+              <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-sm rounded-2xl p-4 text-center border border-amber-400/30 flex flex-col items-center justify-center gap-1">
+                <div className="text-3xl">🔥</div>
+                <p className="text-2xl font-black text-amber-300">{profile?.current_streak || 0}</p>
+                <p className="text-[10px] text-white/60 font-semibold uppercase tracking-wide">{t('current_streak')}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20 min-h-[140px] flex flex-col items-center justify-center">
-                <p className="text-4xl font-bold text-teal-300 mb-2">{profile?.longest_streak || 0}</p>
-                <p className="text-xs text-white/70 font-semibold">{t('best_streak')}</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20 flex flex-col items-center justify-center gap-1">
+                <p className="text-3xl font-black text-teal-300">{profile?.longest_streak || 0}</p>
+                <p className="text-[10px] text-white/60 font-semibold uppercase tracking-wide">{t('best_streak')}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20 min-h-[140px] flex flex-col items-center justify-center">
-                <p className="text-4xl font-bold text-white mb-2">{profile?.total_checkins || 0}</p>
-                <p className="text-xs text-white/70 font-semibold">{t('total_checkins')}</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20 flex flex-col items-center justify-center gap-1">
+                <p className="text-3xl font-black text-white">{profile?.total_checkins || 0}</p>
+                <p className="text-[10px] text-white/60 font-semibold uppercase tracking-wide">{t('total_checkins')}</p>
               </div>
             </div>
           </div>
