@@ -191,7 +191,7 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
       )}
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-12 pb-4">
+        <div className="flex items-center justify-between px-5 pb-4" style={{ paddingTop: 'env(safe-area-inset-top, 48px)' }}>
           <button onClick={onCancel} className="p-2 rounded-xl bg-white/10 text-white active:scale-90">
             <X size={20} />
           </button>
