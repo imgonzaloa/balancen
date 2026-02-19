@@ -135,6 +135,10 @@ const resources = {
       barcode: "Barcode",
       gallery: "Gallery",
       
+      // Profile
+      language: "Language",
+      photo_updated: "Photo updated",
+
       // Misc
       role: "Role",
       collaborator: "Collaborator",
