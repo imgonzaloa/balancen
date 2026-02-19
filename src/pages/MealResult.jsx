@@ -1,99 +1,329 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { X, Loader2, AlertCircle, Check } from "lucide-react";
-import { motion } from "framer-motion";
+import { X, Loader2, AlertCircle, Check, Plus, Minus, ChevronDown, ChevronUp, RefreshCw, Edit3 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { useMealsStore } from "@/components/MealsStore";
 import { createPageUrl } from "@/utils";
-import { debugLogger } from "@/components/DebugOverlay";
-import MealAnalysisOverlay from "@/components/home/MealAnalysisOverlay";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
+// Progress steps for analysis loader
+const ANALYSIS_STEPS = [
+  { key: "uploading_photo", progress: 20 },
+  { key: "reading_photo", progress: 45 },
+  { key: "identifying_foods", progress: 70 },
+  { key: "calculating_nutrition", progress: 90 },
+  { key: "finalizing", progress: 100 },
+];
+
+function AnalysisLoader({ imagePreview, stepIndex }) {
+  const { t } = useTranslation();
+  const step = ANALYSIS_STEPS[Math.min(stepIndex, ANALYSIS_STEPS.length - 1)];
+  const progress = step?.progress ?? 0;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+      {/* Blurred photo background */}
+      {imagePreview && (
+        <img
+          src={imagePreview}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
+          style={{ filter: "blur(8px)", transform: "scale(1.1)" }}
+        />
+      )}
+
+      <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-8">
+        {/* Spinner ring */}
+        <div className="relative w-24 h-24 mb-8">
+          <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 96 96">
+            <circle cx="48" cy="48" r="42" stroke="rgba(255,255,255,0.1)" strokeWidth="8" fill="none" />
+            <circle
+              cx="48" cy="48" r="42"
+              stroke="url(#loaderGrad)"
+              strokeWidth="8"
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray="264"
+              strokeDashoffset={264 - (progress / 100) * 264}
+              style={{ transition: "stroke-dashoffset 0.7s ease" }}
+            />
+            <defs>
+              <linearGradient id="loaderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#14b8a6" />
+                <stop offset="100%" stopColor="#10b981" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-white font-black text-xl">{progress}%</span>
+          </div>
+        </div>
+
+        <h2 className="text-white text-2xl font-black mb-2 text-center">
+          {t("analyzing_meal")}
+        </h2>
+        <p className="text-white/70 text-base text-center mb-8">
+          {t(step?.key || "please_wait")}
+        </p>
+
+        {/* Step dots */}
+        <div className="flex gap-2">
+          {ANALYSIS_STEPS.map((_, i) => (
+            <div
+              key={i}
+              className="rounded-full transition-all duration-500"
+              style={{
+                width: i <= stepIndex ? "20px" : "8px",
+                height: "8px",
+                backgroundColor: i <= stepIndex ? "rgb(20 184 166)" : "rgba(255,255,255,0.2)",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FoodItem({ item, onUpdate, onRemove }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="bg-white/8 rounded-2xl border border-white/10 overflow-hidden">
+      <div
+        className="flex items-center gap-3 p-3 cursor-pointer"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex-1">
+          <p className="text-white font-semibold text-sm">{item.name}</p>
+          {item.portion && (
+            <p className="text-white/50 text-xs mt-0.5">{item.portion}</p>
+          )}
+        </div>
+        <div className="text-right flex items-center gap-2">
+          <div>
+            <p className="text-teal-300 font-black text-base">{item.calories}</p>
+            <p className="text-white/40 text-[10px] uppercase font-bold">kcal</p>
+          </div>
+          {expanded ? (
+            <ChevronUp size={16} className="text-white/40" />
+          ) : (
+            <ChevronDown size={16} className="text-white/40" />
+          )}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-3 pb-3 space-y-2 border-t border-white/10 pt-2">
+              {[
+                { label: "Calories", field: "calories", color: "text-teal-300" },
+                { label: "Protein (g)", field: "protein", color: "text-blue-400" },
+                { label: "Carbs (g)", field: "carbs", color: "text-amber-400" },
+                { label: "Fats (g)", field: "fats", color: "text-pink-400" },
+              ].map(({ label, field, color }) => (
+                <div key={field} className="flex items-center justify-between">
+                  <span className="text-white/60 text-xs">{label}</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white/60 active:scale-90"
+                      onClick={() => onUpdate(item.id, field, Math.max(0, (item[field] || 0) - 5))}
+                    >
+                      <Minus size={10} />
+                    </button>
+                    <span className={`${color} font-black text-sm w-10 text-center`}>
+                      {item[field] || 0}
+                    </span>
+                    <button
+                      className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white/60 active:scale-90"
+                      onClick={() => onUpdate(item.id, field, (item[field] || 0) + 5)}
+                    >
+                      <Plus size={10} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button
+                onClick={() => onRemove(item.id)}
+                className="w-full mt-1 py-1.5 rounded-xl bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/30 active:scale-95"
+              >
+                Remove item
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function ManualEntryForm({ imagePreview, onSave, onCancel }) {
+  const { t } = useTranslation();
+  const [values, setValues] = useState({ calories: "", protein: "", carbs: "", fats: "" });
+  const [mealName, setMealName] = useState("");
+
+  const set = (field, val) => setValues(v => ({ ...v, [field]: val }));
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+      {imagePreview && (
+        <img src={imagePreview} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" style={{ filter: "blur(6px)" }} />
+      )}
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-12 pb-4">
+          <button onClick={onCancel} className="p-2 rounded-xl bg-white/10 text-white">
+            <X size={20} />
+          </button>
+          <h2 className="text-white font-black text-lg">Add Manually</h2>
+          <div className="w-9" />
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 space-y-4 pb-4">
+          {/* Photo preview */}
+          {imagePreview && (
+            <div className="w-full h-40 rounded-2xl overflow-hidden border border-white/10">
+              <img src={imagePreview} alt="Meal" className="w-full h-full object-cover" />
+            </div>
+          )}
+
+          <div>
+            <label className="text-white/60 text-xs font-bold uppercase tracking-wide mb-1.5 block">Meal name (optional)</label>
+            <input
+              value={mealName}
+              onChange={e => setMealName(e.target.value)}
+              placeholder="e.g. Chicken salad..."
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-teal-500/60"
+            />
+          </div>
+
+          {[
+            { label: "Calories (kcal)", field: "calories", color: "text-teal-300", required: true },
+            { label: "Protein (g)", field: "protein", color: "text-blue-400" },
+            { label: "Carbs (g)", field: "carbs", color: "text-amber-400" },
+            { label: "Fats (g)", field: "fats", color: "text-pink-400" },
+          ].map(({ label, field, color, required }) => (
+            <div key={field}>
+              <label className="text-white/60 text-xs font-bold uppercase tracking-wide mb-1.5 block">
+                {label}{required && <span className="text-red-400 ml-1">*</span>}
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={values[field]}
+                onChange={e => set(field, e.target.value)}
+                placeholder="0"
+                className={`w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 ${color} placeholder-white/30 text-sm font-black focus:outline-none focus:border-teal-500/60`}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="px-5 pb-8 pt-4 border-t border-white/10">
+          <button
+            onClick={() => {
+              if (!values.calories || parseInt(values.calories) === 0) {
+                toast.error("Please enter calories");
+                return;
+              }
+              onSave({
+                items: mealName ? [{ name: mealName, calories: parseInt(values.calories) || 0, protein: parseInt(values.protein) || 0, carbs: parseInt(values.carbs) || 0, fats: parseInt(values.fats) || 0 }] : [],
+                totals: {
+                  calories: parseInt(values.calories) || 0,
+                  protein: parseInt(values.protein) || 0,
+                  carbs: parseInt(values.carbs) || 0,
+                  fats: parseInt(values.fats) || 0,
+                }
+              });
+            }}
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-lg shadow-xl shadow-teal-500/30 active:scale-95 flex items-center justify-center gap-2"
+          >
+            <Check size={20} />
+            Save Meal
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function MealResult() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { capturedFile, resetMeal } = useMeal();
+  const { capturedFile, previewUrl, resetMeal } = useMeal();
   const { addMeal, formatLocalDateKey } = useMealsStore();
 
+  const [phase, setPhase] = useState("analyzing"); // analyzing | review | saving | error | manual
+  const [stepIndex, setStepIndex] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
-  const [analyzing, setAnalyzing] = useState(true);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [editValues, setEditValues] = useState({});
-  const [items, setItems] = useState([]);
+  const [uploadedUrl, setUploadedUrl] = useState(null);
+  const [foodItems, setFoodItems] = useState([]);
+  const [totals, setTotals] = useState({ calories: 0, protein: 0, carbs: 0, fats: 0 });
   const [confidence, setConfidence] = useState(0);
-  const [uploading, setUploading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [saving, setSaving] = useState(false);
+  const hasRun = useRef(false);
 
+  // Set preview from context or stored URL
   useEffect(() => {
-    console.log("🔍 MEAL_RESULT_MOUNT", { 
-      hasCapturedFile: !!capturedFile, 
-      fileSize: capturedFile?.size 
-    });
+    if (previewUrl) {
+      setImagePreview(previewUrl);
+    } else {
+      // Try stored fallback
+      const stored = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
+      if (stored) setImagePreview(stored);
+    }
+  }, [previewUrl]);
 
-    // CRITICAL: Check for photo in multiple sources
+  // Redirect if no file at all
+  useEffect(() => {
     if (!capturedFile) {
-      console.error("❌ NO_CAPTURED_FILE - checking storage...");
-      
-      // Try to restore from storage as fallback
-      const storedDataUrl = sessionStorage.getItem("balancen_last_capture") || 
-                           localStorage.getItem("meal_last_capture_dataurl");
-      
-      if (storedDataUrl) {
-        console.warn("⚠️ RESTORING_FROM_STORAGE");
-        // Don't navigate away - let context restore the file
-        setTimeout(() => {
-          if (!capturedFile) {
-            console.error("❌ RESTORE_FAILED - redirecting to Home");
-            navigate(createPageUrl("Home"));
-          }
-        }, 500);
-        return;
+      const stored = sessionStorage.getItem("balancen_last_capture");
+      if (!stored) {
+        navigate(createPageUrl("Home"));
       }
-      
-      console.error("❌ NO_PHOTO_FOUND - redirecting to Home");
-      navigate(createPageUrl("Home"));
-      return;
     }
+  }, [capturedFile]);
 
-    // Show instant preview
-    const previewUrl = URL.createObjectURL(capturedFile);
-    setImagePreview(previewUrl);
-    console.log("✅ PREVIEW_SET", { previewUrl: previewUrl.substring(0, 50) });
+  // Run analysis once
+  useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+    runAnalysis();
+  }, []);
 
-    // Start analysis immediately
-    console.log("🚀 ANALYSIS_STARTED");
-    analyzePhoto();
-  }, [capturedFile, navigate]);
+  const advanceStep = (idx) => {
+    setStepIndex(idx);
+    return new Promise(r => setTimeout(r, 600));
+  };
 
-  const analyzePhoto = async () => {
-    if (!capturedFile) {
-      console.error("❌ ANALYSIS_BLOCKED - no capturedFile");
-      setError("Photo not available. Please try again.");
-      setAnalyzing(false);
-      return;
-    }
-
-    console.log("📸 ANALYSIS_STARTING", { fileSize: capturedFile.size });
+  const runAnalysis = async () => {
+    setPhase("analyzing");
+    setStepIndex(0);
 
     try {
-      setAnalyzing(true);
-      setError(null);
+      const file = capturedFile;
+      if (!file) throw new Error("No photo available");
 
-      // Upload file
-      console.log("☁️ UPLOADING_FILE...");
-      const { file_url } = await base44.integrations.Core.UploadFile({
-        file: capturedFile
-      });
-      console.log("✅ FILE_UPLOADED", { file_url: file_url.substring(0, 50) });
+      await advanceStep(0); // uploading_photo
 
-      // Analyze with AI
-      console.log("🤖 AI_ANALYSIS_STARTING...");
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setUploadedUrl(file_url);
+
+      await advanceStep(1); // reading_photo
+      await advanceStep(2); // identifying_foods
+
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this food photo and provide detailed nutritional estimates in JSON format: { items: [{name: "food name", calories: number, protein: number, carbs: number, fats: number, portion: "size estimate"}, ...], total_calories: number, total_protein: number, total_carbs: number, total_fats: number, health_score: 0-100, confidence: 0-100 }. Provide realistic estimates.`,
+        prompt: `You are a professional nutritionist. Analyze this food photo precisely. Return a JSON with: items (array of each food with name, calories, protein, carbs, fats as numbers, portion as descriptive string), total_calories, total_protein, total_carbs, total_fats (all numbers), health_score (0-100), confidence (0-100 integer). Be accurate and realistic. If you cannot detect any food, set confidence to 0 and items to empty array.`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
@@ -122,199 +352,149 @@ export default function MealResult() {
         }
       });
 
-      console.log("✅ ANALYSIS_SUCCESS", {
-        itemsCount: analysis.items?.length || 0,
-        totalCalories: analysis.total_calories,
-        confidence: analysis.confidence
-      });
+      await advanceStep(3); // calculating_nutrition
+      await advanceStep(4); // finalizing
 
-      // Format items
-      const formattedItems = (analysis.items || []).map(item => ({
-        name: item.name,
+      const conf = Math.round(analysis.confidence ?? 0);
+      const items = (analysis.items || []).map((item, i) => ({
+        id: crypto.randomUUID(),
+        name: item.name || `Food ${i + 1}`,
         calories: Math.round(item.calories || 0),
-        portion: item.portion
+        protein: Math.round(item.protein || 0),
+        carbs: Math.round(item.carbs || 0),
+        fats: Math.round(item.fats || 0),
+        portion: item.portion || "",
       }));
 
-      // CRITICAL: Ensure we have at least calories
-      if (!analysis.total_calories && formattedItems.length === 0) {
-        console.error("❌ ANALYSIS_EMPTY - no data returned");
-        throw new Error("Could not detect any food in this photo");
+      // If confidence is very low or no items, show manual entry option but keep photo
+      if (conf < 20 && items.length === 0) {
+        setConfidence(conf);
+        setPhase("error");
+        setErrorMsg("Could not identify food in this photo.");
+        return;
       }
 
-      setResult({ ...analysis, file_url });
-      setItems(formattedItems);
-      const conf = Math.round(analysis.confidence || 0);
-      setConfidence(conf);
-      setEditValues({
-        calories: Math.round(analysis.total_calories || 0),
-        protein_g: Math.round(analysis.total_protein || 0),
-        carbs_g: Math.round(analysis.total_carbs || 0),
-        fats_g: Math.round(analysis.total_fats || 0)
+      setFoodItems(items);
+      setTotals({
+        calories: Math.round(analysis.total_calories || items.reduce((s, i) => s + i.calories, 0)),
+        protein: Math.round(analysis.total_protein || items.reduce((s, i) => s + i.protein, 0)),
+        carbs: Math.round(analysis.total_carbs || items.reduce((s, i) => s + i.carbs, 0)),
+        fats: Math.round(analysis.total_fats || items.reduce((s, i) => s + i.fats, 0)),
       });
-      setAnalyzing(false);
+      setConfidence(conf);
+      setPhase("review");
+
+      if (navigator.vibrate) navigator.vibrate(40);
     } catch (err) {
-      console.error("❌ ANALYSIS_FAILED", err);
-      setError(err.message || "Analysis failed. Please try again.");
-      setAnalyzing(false);
+      console.error("[MealResult] Analysis failed:", err);
+      setErrorMsg(err.message || "Analysis failed. You can still add this meal manually.");
+      setPhase("error");
     }
   };
 
-  const handleSave = async () => {
-    debugLogger.log('SAVE_MEAL_START', 'User clicked save', { 
-      calories: editValues.calories,
-      protein: editValues.protein_g,
-      items: items.length
+  const recalcTotals = (items) => {
+    setTotals({
+      calories: items.reduce((s, i) => s + (i.calories || 0), 0),
+      protein: items.reduce((s, i) => s + (i.protein || 0), 0),
+      carbs: items.reduce((s, i) => s + (i.carbs || 0), 0),
+      fats: items.reduce((s, i) => s + (i.fats || 0), 0),
     });
-    
-    // VALIDATION BLOCK
-    if (!result?.file_url) {
-      debugLogger.log('SAVE_MEAL_FAIL', 'No file URL', { hasResult: !!result });
-      toast.error("Cannot save - photo upload failed");
-      return;
-    }
-    
-    if (!editValues.calories || editValues.calories === 0) {
-      debugLogger.log('SAVE_MEAL_FAIL', 'No calories', editValues);
-      toast.error("Please add calorie estimate");
-      return;
-    }
+  };
 
-    setUploading(true);
-    
+  const handleItemUpdate = (id, field, value) => {
+    const updated = foodItems.map(item =>
+      item.id === id ? { ...item, [field]: Math.max(0, Math.round(value)) } : item
+    );
+    setFoodItems(updated);
+    recalcTotals(updated);
+  };
+
+  const handleItemRemove = (id) => {
+    const updated = foodItems.filter(item => item.id !== id);
+    setFoodItems(updated);
+    recalcTotals(updated);
+  };
+
+  const persistMeal = async ({ items: saveItems, totals: saveTotals, photoUrl }) => {
+    const now = new Date();
+    const dateKey = formatLocalDateKey(now);
+    const hour = now.getHours();
+    let mealType = "snack";
+    if (hour >= 5 && hour < 11) mealType = "breakfast";
+    else if (hour >= 11 && hour < 16) mealType = "lunch";
+    else if (hour >= 16 && hour < 22) mealType = "dinner";
+
+    const meal = {
+      id: crypto.randomUUID(),
+      dateKey,
+      createdAt: now.toISOString(),
+      photoUri: photoUrl || uploadedUrl || "",
+      mealType,
+      totals: saveTotals,
+      items: saveItems,
+      confidence,
+    };
+
+    // Optimistic local save — instant UI update
+    addMeal(meal);
+
+    // Backend persist (fire and forget, don't block)
+    const meal_time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+    base44.entities.MealLog.create({
+      date: dateKey,
+      meal_time,
+      photo_url: photoUrl || uploadedUrl || "",
+      estimated_calories: saveTotals.calories,
+      estimated_protein: saveTotals.protein,
+      estimated_carbs: saveTotals.carbs,
+      estimated_fats: saveTotals.fats,
+    }).catch(() => {});
+
+    base44.functions.invoke('updateDailyCheckIn', {
+      food_photo_url: photoUrl || uploadedUrl || "",
+      estimated_calories: saveTotals.calories,
+      meal_photo_fire_awarded: false,
+    }).catch(() => {});
+
+    return meal;
+  };
+
+  const handleConfirmSave = async () => {
+    if (totals.calories === 0) {
+      toast.error("Please add at least calorie info");
+      return;
+    }
+    setSaving(true);
     try {
-      const now = new Date();
-      const dateKey = formatLocalDateKey(now);
-      const meal_time = now.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      });
-
-      // Auto-detect meal type by time
-      const hour = now.getHours();
-      let mealType = "snack";
-      if (hour >= 5 && hour < 11) mealType = "breakfast";
-      else if (hour >= 11 && hour < 16) mealType = "lunch";
-      else if (hour >= 16 && hour < 22) mealType = "dinner";
-
-      console.log("📝 CREATING_MEAL", { dateKey, time: meal_time, mealType });
-
-      // Create meal object for local store
-      const meal = {
-        id: crypto.randomUUID(),
-        dateKey,
-        createdAt: now.toISOString(),
-        photoUri: result.file_url,
-        mealType,
-        totals: {
-          calories: editValues.calories,
-          protein: editValues.protein_g,
-          carbs: editValues.carbs_g,
-          fats: editValues.fats_g
-        },
-        items: items.map(item => ({
-          name: item.name,
-          calories: item.calories,
-          portion: item.portion
-        })),
-        confidence: confidence || 0
-      };
-
-      // Add to local store FIRST (optimistic)
-      addMeal(meal);
-      debugLogger.log('SAVE_MEAL_LOCAL', 'Added to local store', { 
-        id: meal.id, 
-        dateKey,
-        calories: meal.totals.calories 
-      });
-
-      // Then persist to backend
-      let backendSuccess = false;
-      try {
-        const mealLog = await base44.entities.MealLog.create({
-          date: dateKey,
-          meal_time,
-          photo_url: result.file_url,
-          estimated_calories: editValues.calories,
-          estimated_protein: editValues.protein_g,
-          estimated_carbs: editValues.carbs_g,
-          estimated_fats: editValues.fats_g
-        });
-        backendSuccess = true;
-        debugLogger.log('SAVE_MEAL_BACKEND', 'Backend save OK', { id: mealLog.id });
-      } catch (backendErr) {
-        debugLogger.log('SAVE_MEAL_BACKEND_FAIL', backendErr.message, { error: backendErr });
-      }
-
-      // Update check-in
-      try {
-        await base44.functions.invoke('updateDailyCheckIn', {
-          food_photo_url: result.file_url,
-          estimated_calories: editValues.calories,
-          meal_photo_fire_awarded: false
-        });
-        debugLogger.log('CHECKIN_UPDATED', 'Check-in updated');
-      } catch (err) {
-        debugLogger.log('CHECKIN_UPDATE_FAIL', err.message);
-      }
-
-      // Verify save in localStorage
-      const savedMeals = JSON.parse(localStorage.getItem("balancen.mealsByDate") || "{}");
-      const verifyMeal = savedMeals[dateKey]?.find(m => m.id === meal.id);
-      
-      if (!verifyMeal) {
-        debugLogger.log('SAVE_MEAL_FAIL', 'Meal not in storage after save', { 
-          dateKey,
-          storageKeys: Object.keys(savedMeals)
-        });
-        throw new Error("Meal not found in storage after save");
-      }
-
-      // Calculate totals after save
-      const todayMeals = savedMeals[dateKey] || [];
-      const totalsAfterSave = todayMeals.reduce((acc, m) => ({
-        calories: acc.calories + (m.totals?.calories || 0),
-        protein: acc.protein + (m.totals?.protein || 0)
-      }), { calories: 0, protein: 0 });
-
-      debugLogger.log('SAVE_MEAL_SUCCESS', 'Save verified', { 
-        mealId: meal.id,
-        mealCalories: verifyMeal.totals.calories,
-        todayMealsCount: todayMeals.length,
-        todayTotalCalories: totalsAfterSave.calories,
-        backendSuccess 
-      });
-      
-      // Success feedback
-      toast.success(`${t("meal_saved")} ✓ +${editValues.calories} kcal`);
-      
-      // Clean up context
+      await persistMeal({ items: foodItems, totals, photoUrl: uploadedUrl });
+      toast.success(`${t("meal_saved")} • +${totals.calories} kcal`);
       resetMeal();
-      
-      // Navigate and log reload totals after 1s
       navigate(createPageUrl("Home"));
-      debugLogger.log('NAV_TO_HOME', 'Redirecting to Home');
-      
-      setTimeout(() => {
-        const reloadMeals = JSON.parse(localStorage.getItem("balancen.mealsByDate") || "{}");
-        const todayMeals = reloadMeals[dateKey] || [];
-        const totals = todayMeals.reduce((acc, m) => ({
-          calories: acc.calories + (m.totals?.calories || 0),
-          protein: acc.protein + (m.totals?.protein || 0)
-        }), { calories: 0, protein: 0 });
-        
-        debugLogger.log('AFTER_SAVE_RELOAD', 'Home should show totals', {
-          mealsCount: todayMeals.length,
-          totalCalories: totals.calories,
-          totalProtein: totals.protein
-        });
-      }, 1000);
-      
     } catch (err) {
-      debugLogger.log('SAVE_MEAL_FAIL', err.message, { error: err });
-      toast.error(t("error_saving") + ": " + (err.message || "Unknown error"));
+      toast.error("Failed to save. Please try again.");
     } finally {
-      setUploading(false);
+      setSaving(false);
+    }
+  };
+
+  const handleManualSave = async ({ items: saveItems, totals: saveTotals }) => {
+    setSaving(true);
+    try {
+      // If we have a file but didn't upload yet, upload now
+      let photoUrl = uploadedUrl;
+      if (!photoUrl && capturedFile) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: capturedFile });
+        photoUrl = file_url;
+        setUploadedUrl(file_url);
+      }
+      await persistMeal({ items: saveItems, totals: saveTotals, photoUrl });
+      toast.success(`${t("meal_saved")} • +${saveTotals.calories} kcal`);
+      resetMeal();
+      navigate(createPageUrl("Home"));
+    } catch (err) {
+      toast.error("Failed to save. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -323,405 +503,194 @@ export default function MealResult() {
     navigate(createPageUrl("Home"));
   };
 
-  if (!capturedFile) {
-    navigate(createPageUrl("Home"));
-    return null;
+  // ─── PHASES ───
+
+  if (phase === "analyzing") {
+    return <AnalysisLoader imagePreview={imagePreview} stepIndex={stepIndex} />;
   }
 
-  // ANALYZING
-  if (analyzing) {
+  if (phase === "manual") {
     return (
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          zIndex: 50,
-          backgroundColor: "rgba(0,0,0,0.95)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
-        {/* Photo Preview - VISIBLE */}
-        {imagePreview && (
-          <img
-            src={imagePreview}
-            alt="Captured meal"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              opacity: 0.4,
-              zIndex: 0
-            }}
-          />
-        )}
-        
-        {/* Analysis Overlay */}
-        <div style={{ position: "relative", zIndex: 10, textAlign: "center", padding: "2rem" }}>
-          <div style={{ 
-            display: "inline-flex", 
-            alignItems: "center", 
-            justifyContent: "center",
-            width: "80px",
-            height: "80px",
-            borderRadius: "50%",
-            backgroundColor: "rgba(16, 185, 129, 0.2)",
-            marginBottom: "1.5rem"
-          }}>
-            <Loader2 size={48} style={{ color: "rgb(16 185 129)", animation: "spin 1s linear infinite" }} />
-          </div>
-          
-          <p style={{ color: "white", fontSize: "1.5rem", fontWeight: "700", marginBottom: "0.5rem" }}>
-            {t("analyzing_meal")}
-          </p>
-          <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "1rem", marginBottom: "1rem" }}>
-            {t("please_wait")}
-          </p>
-          
-          {/* Progress Dots */}
-          <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  backgroundColor: "rgba(16, 185, 129, 0.5)",
-                  animation: `pulse 1.5s ease-in-out ${i * 0.2}s infinite`
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      <ManualEntryForm
+        imagePreview={imagePreview}
+        onSave={handleManualSave}
+        onCancel={handleCancel}
+      />
     );
   }
 
-  // ERROR
-  if (error) {
+  if (phase === "error") {
     return (
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          zIndex: 50,
-          backgroundColor: "rgba(0,0,0,0.95)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "2rem"
-        }}
-      >
-        {/* Photo Preview - STILL VISIBLE on error */}
+      <div className="fixed inset-0 z-50 bg-black flex flex-col">
         {imagePreview && (
-          <img
-            src={imagePreview}
-            alt="Captured meal"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              opacity: 0.3,
-              zIndex: 0
-            }}
-          />
+          <img src={imagePreview} alt="" className="absolute inset-0 w-full h-full object-cover opacity-25" style={{ filter: "blur(6px)" }} />
         )}
-        
-        <div style={{ maxWidth: "20rem", textAlign: "center", position: "relative", zIndex: 10 }}>
-          <AlertCircle size={56} style={{ margin: "0 auto 1.5rem", color: "rgb(248 113 113)" }} />
-          <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "white", marginBottom: "0.75rem" }}>
-            {t("couldnt_recognize_food")}
-          </h2>
-          <p style={{ color: "rgba(255,255,255,0.7)", marginBottom: "2rem", fontSize: "1rem" }}>
-            {t("try_again_or_manual")}
-          </p>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            <button
-              onClick={() => {
-                setError(null);
-                setAnalyzing(true);
-                analyzePhoto();
-              }}
-              style={{
-                padding: "1rem",
-                borderRadius: "1rem",
-                background: "linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "1rem",
-                cursor: "pointer",
-                border: "none"
-              }}
-            >
-              {t("retry_photo")}
+        <div className="relative z-10 flex flex-col h-full">
+          <div className="flex items-center justify-between px-5 pt-12 pb-4">
+            <button onClick={handleCancel} className="p-2 rounded-xl bg-white/10 text-white">
+              <X size={20} />
             </button>
-            <button
-              onClick={() => navigate(createPageUrl("AddMeal"))}
-              style={{
-                padding: "1rem",
-                borderRadius: "1rem",
-                backgroundColor: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "1rem",
-                cursor: "pointer"
-              }}
-            >
-              {t("add_manually")}
-            </button>
-            <button
-              onClick={handleCancel}
-              style={{
-                padding: "1rem",
-                borderRadius: "1rem",
-                backgroundColor: "transparent",
-                border: "none",
-                color: "rgba(255,255,255,0.6)",
-                fontWeight: "500",
-                fontSize: "0.875rem",
-                cursor: "pointer"
-              }}
-            >
-              {t("cancel")}
-            </button>
+            <h2 className="text-white font-black text-lg">Analysis Result</h2>
+            <div className="w-9" />
           </div>
-        </div>
-      </div>
-    );
-  }
 
-  // RESULT - USER CONFIRMATION SCREEN
-  return (
-    <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 50, backgroundColor: "rgba(0,0,0,0.5)", overflowY: "auto" }}>
-      <div style={{ minHeight: "100vh", backgroundColor: "rgb(15 23 42)", display: "flex", flexDirection: "column" }}>
-        {/* Header */}
-        <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10, backgroundColor: "rgb(15 23 42)" }}>
-          <div>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "white" }}>
-              {t("meal_analysis")}
-            </h2>
-            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", marginTop: "0.25rem" }}>
-              {t("review_and_confirm")}
-            </p>
-          </div>
-          <button
-            onClick={handleCancel}
-            style={{
-              padding: "0.5rem",
-              borderRadius: "0.75rem",
-              backgroundColor: "rgba(255,255,255,0.1)",
-              border: "none",
-              color: "white",
-              cursor: "pointer"
-            }}
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem", maxWidth: "32rem", margin: "0 auto", width: "100%" }}>
-          {/* Preview */}
+          {/* Photo preserved */}
           {imagePreview && (
-            <div style={{ marginBottom: "2rem" }}>
-              <MealAnalysisOverlay
-                imageUrl={imagePreview}
-                items={items}
-                onItemsChange={setItems}
-              />
+            <div className="mx-5 rounded-2xl overflow-hidden border border-white/10 mb-6">
+              <img src={imagePreview} alt="Meal" className="w-full h-48 object-cover" />
             </div>
           )}
 
-          {/* Detected Foods Summary */}
-          <div style={{ marginBottom: "2rem" }}>
-            <div style={{ 
-              backgroundColor: "rgba(16, 185, 129, 0.1)", 
-              border: "1px solid rgba(16, 185, 129, 0.3)",
-              borderRadius: "1rem",
-              padding: "1rem",
-              marginBottom: "1rem"
-            }}>
-              <p style={{ fontSize: "0.75rem", color: "rgba(16, 185, 129, 1)", fontWeight: "600", textTransform: "uppercase", marginBottom: "0.5rem" }}>
-                ✓ {t("detected_items")}
-              </p>
-              <p style={{ color: "white", fontSize: "0.875rem", fontWeight: "500" }}>
-                {items.length > 0 ? items.map(i => i.name).join(", ") : t("food_detected")}
-              </p>
+          <div className="flex-1 px-5 flex flex-col items-center justify-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-2">
+              <AlertCircle size={32} className="text-amber-400" />
             </div>
-            
-            {/* Detailed Items */}
-            {items.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "140px", overflowY: "auto" }}>
-                {items.map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      backgroundColor: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "0.75rem",
-                      padding: "0.75rem"
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <p style={{ color: "white", fontWeight: "600", fontSize: "0.875rem" }}>
-                        {item.name}
-                      </p>
-                      <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>
-                        ~{item.portion || t("estimated")}
-                      </p>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ color: "rgb(16 185 129)", fontWeight: "bold", fontSize: "1.125rem" }}>
-                        ~{item.calories}
-                      </p>
-                      <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>
-                        {t("cal")}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Total Calories - PROMINENT */}
-          <div style={{ marginBottom: "2rem" }}>
-            <label style={{ display: "block", fontSize: "0.875rem", color: "rgba(255,255,255,0.7)", fontWeight: "600", marginBottom: "0.75rem" }}>
-              {t("total_calories")}
-            </label>
-            <div style={{
-              backgroundColor: "rgba(255,255,255,0.08)",
-              border: "2px solid rgba(16, 185, 129, 0.3)",
-              borderRadius: "1rem",
-              padding: "1rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            }}>
-              <input
-                type="number"
-                value={editValues.calories}
-                onChange={(e) => setEditValues({ ...editValues, calories: parseFloat(e.target.value) || 0 })}
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  backgroundColor: "transparent",
-                  border: "none",
-                  color: "white",
-                  fontSize: "2.5rem",
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  outline: "none"
-                }}
-              />
-              <span style={{ fontSize: "1.25rem", color: "rgba(255,255,255,0.6)", fontWeight: "600", marginLeft: "0.5rem" }}>
-                kcal
-              </span>
-            </div>
-            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", textAlign: "center", marginTop: "0.5rem" }}>
-              {t("tap_to_edit")}
+            <h3 className="text-white font-black text-xl text-center">Couldn't identify food</h3>
+            <p className="text-white/60 text-sm text-center max-w-xs">
+              {errorMsg || "Your photo is saved. You can add the nutritional info manually or try again."}
             </p>
           </div>
 
-          {/* Macros */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "2rem" }}>
-            {[
-              { label: t("protein"), key: "protein_g", unit: "g" },
-              { label: t("carbs"), key: "carbs_g", unit: "g" },
-              { label: t("fats"), key: "fats_g", unit: "g" }
-            ].map((macro) => (
-              <div key={macro.key} style={{ backgroundColor: "rgba(255,255,255,0.05)", borderRadius: "0.75rem", padding: "0.75rem" }}>
-                <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", marginBottom: "0.5rem" }}>
-                  {macro.label}
-                </p>
-                <input
-                  type="number"
-                  value={editValues[macro.key] || 0}
-                  onChange={(e) => setEditValues({ ...editValues, [macro.key]: parseFloat(e.target.value) || 0 })}
-                  style={{
-                    width: "100%",
-                    padding: "0.5rem",
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    borderRadius: "0.5rem",
-                    color: "white",
-                    fontWeight: "600",
-                    textAlign: "center"
-                  }}
-                  placeholder="0"
-                />
-                <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", textAlign: "center", marginTop: "0.25rem" }}>
-                  {macro.unit}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Actions */}
-          <div style={{ display: "flex", gap: "0.75rem" }}>
+          <div className="px-5 pb-8 pt-4 space-y-3 border-t border-white/10">
             <button
-              onClick={handleCancel}
-              disabled={uploading}
-              style={{
-                flex: 1,
-                padding: "1rem",
-                borderRadius: "0.75rem",
-                backgroundColor: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "white",
-                fontWeight: "600",
-                cursor: uploading ? "not-allowed" : "pointer",
-                opacity: uploading ? 0.5 : 1
-              }}
+              onClick={() => setPhase("manual")}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-lg flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-teal-500/30"
             >
-              {t("cancel")}
+              <Edit3 size={20} />
+              Add Manually
             </button>
             <button
-              onClick={handleSave}
-              disabled={uploading}
-              style={{
-                flex: 1,
-                padding: "1rem",
-                borderRadius: "0.75rem",
-                background: "linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))",
-                color: "white",
-                fontWeight: "600",
-                cursor: uploading ? "not-allowed" : "pointer",
-                border: "none",
-                opacity: uploading ? 0.7 : 1
-              }}
+              onClick={() => { hasRun.current = false; runAnalysis(); }}
+              className="w-full py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white font-bold flex items-center justify-center gap-2 active:scale-95"
             >
-              {uploading ? (
-                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-                  <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
-                  {t("saving")}
-                </span>
-              ) : (
-                t("save_meal")
-              )}
+              <RefreshCw size={18} />
+              Try Again
+            </button>
+            <button onClick={handleCancel} className="w-full py-3 text-white/50 font-semibold text-sm active:opacity-60">
+              Discard
             </button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // ─── REVIEW SCREEN ───
+  const confidenceColor = confidence >= 70 ? "text-emerald-400" : confidence >= 40 ? "text-amber-400" : "text-red-400";
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col">
+      {/* Header */}
+      <div
+        className="flex-shrink-0 bg-slate-950/95 border-b border-white/10 px-5 flex items-center justify-between"
+        style={{ paddingTop: "env(safe-area-inset-top, 48px)", paddingBottom: "12px" }}
+      >
+        <button onClick={handleCancel} className="p-2 rounded-xl bg-white/10 text-white active:scale-90">
+          <X size={20} />
+        </button>
+        <div className="text-center">
+          <h2 className="text-white font-black text-base">{t("review_meal")}</h2>
+          <p className={`text-xs font-bold ${confidenceColor}`}>
+            {confidence}% {t("confidence")}
+          </p>
+        </div>
+        <div className="w-9" />
+      </div>
+
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Photo */}
+        {imagePreview && (
+          <div className="w-full h-52 relative overflow-hidden">
+            <img src={imagePreview} alt="Meal" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950" />
+          </div>
+        )}
+
+        <div className="px-5 pb-4 space-y-4 -mt-4 relative">
+          {/* Totals summary */}
+          <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+            <div className="flex items-end justify-between mb-3">
+              <div>
+                <p className="text-white/50 text-xs font-bold uppercase tracking-wide">Total</p>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-white font-black text-4xl">{totals.calories}</span>
+                  <span className="text-white/50 font-bold text-sm">kcal</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setPhase("manual")}
+                className="px-3 py-1.5 rounded-xl bg-white/10 border border-white/20 text-white/70 text-xs font-bold flex items-center gap-1.5 active:scale-90"
+              >
+                <Edit3 size={12} />
+                Edit manually
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/10">
+              {[
+                { label: "Protein", value: totals.protein, color: "text-blue-400" },
+                { label: "Carbs", value: totals.carbs, color: "text-amber-400" },
+                { label: "Fats", value: totals.fats, color: "text-pink-400" },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="text-center">
+                  <p className={`${color} font-black text-lg`}>{value}g</p>
+                  <p className="text-white/40 text-[10px] uppercase font-bold">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Low confidence warning */}
+          {confidence < 50 && (
+            <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl p-3 flex items-start gap-3">
+              <AlertCircle size={16} className="text-amber-400 mt-0.5 flex-shrink-0" />
+              <p className="text-amber-300 text-xs font-medium">
+                Low confidence detection. Please review and adjust values before saving.
+              </p>
+            </div>
+          )}
+
+          {/* Food items */}
+          {foodItems.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-white font-black text-sm uppercase tracking-wide">Detected Foods</h3>
+                <span className="text-white/40 text-xs font-bold">{foodItems.length} items</span>
+              </div>
+              {foodItems.map(item => (
+                <FoodItem
+                  key={item.id}
+                  item={item}
+                  onUpdate={handleItemUpdate}
+                  onRemove={handleItemRemove}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="h-4" />
+        </div>
+      </div>
+
+      {/* Save bar */}
+      <div
+        className="flex-shrink-0 px-5 pt-4 border-t border-white/10 bg-slate-950/95 backdrop-blur-xl"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 24px)" }}
+      >
+        <button
+          onClick={handleConfirmSave}
+          disabled={saving}
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-lg shadow-xl shadow-teal-500/30 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2 transition-transform"
+        >
+          {saving ? (
+            <Loader2 size={22} className="animate-spin" />
+          ) : (
+            <>
+              <Check size={22} />
+              {t("confirm_save")}
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
