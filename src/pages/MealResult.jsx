@@ -534,7 +534,7 @@ export default function MealResult() {
             <button onClick={handleCancel} className="p-2 rounded-xl bg-white/10 text-white">
               <X size={20} />
             </button>
-            <h2 className="text-white font-black text-lg">Analysis Result</h2>
+            <h2 className="text-white font-black text-lg">{t('review_meal')}</h2>
             <div className="w-9" />
           </div>
 
