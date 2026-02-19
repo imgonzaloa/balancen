@@ -203,8 +203,8 @@ export default function Profile() {
   const handleRetry = React.useCallback(() => {
     setLoadingTimeout(false);
     setError(null);
-    setLoading(true);
-  }, []);
+    if (refreshProfile) refreshProfile();
+  }, [refreshProfile]);
 
   if (loadingTimeout && loading) {
     return <LoadingTimeout onRetry={handleRetry} />;
