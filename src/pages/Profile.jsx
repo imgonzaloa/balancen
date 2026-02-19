@@ -97,6 +97,12 @@ export default function Profile() {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [error, setError] = useState(null);
 
+  // Immediately restore cached photo so it never disappears between loads
+  const cachedPhoto = user?.email
+    ? (localStorage.getItem(`balancen_photo_${user.email}`) || localStorage.getItem(`balancen_avatar_${user.email}`))
+    : null;
+  const displayPhoto = profile?.profile_photo || profile?.avatar_url || cachedPhoto;
+
   useEffect(() => {
     if (!user?.email) {
       setLoading(false);
