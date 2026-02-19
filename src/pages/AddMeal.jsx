@@ -183,22 +183,22 @@ export default function AddMeal() {
         {/* Totals */}
         {selectedFoods.length > 0 && (
           <div className="bg-gradient-to-br from-teal-500/20 to-emerald-500/20 backdrop-blur-xl rounded-3xl p-6 border border-teal-500/30 mb-6">
-            <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-4">Total Nutrition</h3>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-4">{t('total_nutrition') || t('daily_intake')}</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-white/60 text-xs mb-1">Calories</p>
+                <p className="text-white/60 text-xs mb-1">{t('calories')}</p>
                 <p className="text-3xl font-black text-white">{Math.round(totalCalories)}</p>
               </div>
               <div>
-                <p className="text-white/60 text-xs mb-1">Protein</p>
+                <p className="text-white/60 text-xs mb-1">{t('protein')}</p>
                 <p className="text-2xl font-black text-teal-300">{Math.round(totalProtein)}g</p>
               </div>
               <div>
-                <p className="text-white/60 text-xs mb-1">Carbs</p>
+                <p className="text-white/60 text-xs mb-1">{t('carbs')}</p>
                 <p className="text-2xl font-black text-amber-300">{Math.round(totalCarbs)}g</p>
               </div>
               <div>
-                <p className="text-white/60 text-xs mb-1">Fats</p>
+                <p className="text-white/60 text-xs mb-1">{t('fats')}</p>
                 <p className="text-2xl font-black text-pink-300">{Math.round(totalFats)}g</p>
               </div>
             </div>
