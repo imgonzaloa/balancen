@@ -98,23 +98,23 @@ const Home = React.memo(() => {
 
         {/* Trial Countdown Banner */}
         {showTrialBanner && (
-          <div className="bg-gradient-to-r from-amber-500/30 to-orange-500/30 backdrop-blur-xl rounded-2xl p-4 border border-amber-400/50">
+          <div className="bg-gradient-to-r from-teal-500/20 to-emerald-500/20 backdrop-blur-xl rounded-2xl p-4 border border-teal-400/50">
             <div className="flex items-center gap-3">
-              <Clock size={20} className="text-amber-300 flex-shrink-0" />
+              <Clock size={20} className="text-teal-300 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-amber-100 font-semibold text-sm">
-                  {trialDaysRemaining === 1
+                <p className="text-teal-100 font-semibold text-sm">
+                  {trialDaysLeft === 1
                     ? t('trial_ending_tomorrow') || 'Trial ending tomorrow'
-                    : `${t('trial_days_left') || 'Trial days left'}: ${trialDaysRemaining}`}
+                    : `${t('trial_days_left') || 'Trial days left'}: ${trialDaysLeft}`}
                 </p>
-                <p className="text-amber-200/60 text-xs mt-1">
-                  {t('upgrade_to_continue') || 'Upgrade to Premium to continue after trial'}
+                <p className="text-teal-200/60 text-xs mt-1">
+                  {t('upgrade_to_continue') || 'Upgrade to Premium to continue'}
                 </p>
               </div>
               <Button
                 size="sm"
                 onClick={() => navigate(createPageUrl('Premium'))}
-                className="bg-amber-600 hover:bg-amber-700 text-white font-semibold flex-shrink-0"
+                className="bg-teal-600 hover:bg-teal-700 text-white font-semibold flex-shrink-0"
               >
                 {t('upgrade')}
               </Button>
