@@ -750,7 +750,11 @@ const resources = {
       scan_food: "Escanear Comida",
       barcode: "Código de Barras",
       gallery: "Galería",
-      
+
+      // Profile
+      language: "Idioma",
+      photo_updated: "Foto actualizada",
+
       // Misc
       role: "Rol",
       collaborator: "Colaborador",
