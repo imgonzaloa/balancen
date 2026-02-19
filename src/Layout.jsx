@@ -125,43 +125,14 @@ function LayoutInner({ children, currentPageName, bootState }) {
     });
   }, [currentPageName]);
 
-  // Routing guard - stable, loop-free
+  // Language sync only - pages handle auth/onboarding state instead of blocking nav
   React.useEffect(() => {
-    if (!bootState?.isHydrated || isNavigating.current) return;
-
-    const redirect = (page, reason) => {
-      if (currentPageName === page) return;
-      console.log(`[ROUTING] ${currentPageName} → ${page} (${reason})`);
-      isNavigating.current = true;
-      navigate(createPageUrl(page), { replace: true });
-      setTimeout(() => { isNavigating.current = false; }, 300);
-    };
-
-    if (bootState.type === 'AUTH_REQUIRED' && currentPageName !== 'Home') {
-      redirect('Home', 'anonymous');
-      return;
+    if (!bootState?.isHydrated || bootState?.language === lang) return;
+    
+    if (bootState.language) {
+      changeLanguage(bootState.language).catch(() => {});
     }
-    if (bootState.type === 'LANGUAGE_REQUIRED') {
-      if (currentPageName !== 'LanguageSelector') {
-        redirect('LanguageSelector', 'language_required');
-      }
-      return;
-    }
-    if (bootState.type === 'ONBOARDING_REQUIRED' && !bootState.onboardingComplete) {
-      if (currentPageName !== 'Onboarding' && currentPageName !== 'LanguageSelector') {
-        redirect('Onboarding', 'onboarding_required');
-      }
-      return;
-    }
-    if (bootState.type === 'HOME_READY' && bootState.onboardingComplete) {
-      if (bootState.language && lang !== bootState.language) {
-        changeLanguage(bootState.language).catch(() => {});
-      }
-      if (currentPageName === 'Onboarding' || currentPageName === 'LanguageSelector') {
-        redirect('Home', 'onboarding_done');
-      }
-    }
-  }, [bootState?.isHydrated, bootState?.type, bootState?.onboardingComplete, currentPageName]);
+  }, [bootState?.isHydrated, bootState?.language, lang, changeLanguage]);
 
   // Prevent hardware back from leaving main tabs
   React.useEffect(() => {
