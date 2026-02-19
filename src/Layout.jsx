@@ -165,7 +165,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
         display: 'flex',
         flexDirection: 'column',
         paddingTop: 'env(safe-area-inset-top, 0)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0)',
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -176,10 +175,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
   
 
-      {/* Main scroll container - instant, no animation overhead */}
+      {/* Main scroll container - with padding for fixed bottom nav */}
       <main
         ref={scrollContainerRef}
-        className={hideNav ? "" : "pb-20"}
         style={{
           flex: 1,
           overflowY: 'auto',
@@ -190,21 +188,23 @@ function LayoutInner({ children, currentPageName, bootState }) {
           zIndex: 1,
           pointerEvents: 'auto',
           willChange: 'scroll-position',
+          paddingBottom: hideNav ? 0 : 'calc(72px + env(safe-area-inset-bottom, 0))'
         }}
       >
         {bypassTrialGate ? children : <TrialGate>{children}</TrialGate>}
       </main>
 
-      {/* Tab bar */}
+      {/* Fixed Tab bar - pinned to viewport */}
       {!hideNav && (
         <nav
-          className="flex-shrink-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10"
+          className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10"
           style={{
             zIndex: 10000,
             pointerEvents: 'auto',
             touchAction: 'manipulation',
             WebkitTapHighlightColor: 'transparent',
-            paddingBottom: 'env(safe-area-inset-bottom, 0)'
+            paddingBottom: 'env(safe-area-inset-bottom, 0)',
+            width: '100%'
           }}
         >
           <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
