@@ -141,7 +141,7 @@ export default function Profile() {
     return () => clearTimeout(timer);
   }, [user?.email, cachedProfile]);
 
-  const loading = !isInitialized || (!!user?.email && !profile && !cachedProfile && !error);
+  const loading = !isInitialized;
 
   const handlePhotoUpload = async (file, preview) => {
     if (!file || !profile?.id) return;
