@@ -73,15 +73,15 @@ export default function Paywall() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden flex flex-col">
-      <div className="absolute inset-0 opacity-30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden flex flex-col" style={{ pointerEvents: 'auto' }}>
+      <div className="absolute inset-0 opacity-30" style={{ pointerEvents: 'none' }}>
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
         <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 flex-1 flex flex-col">
+      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 flex-1 flex flex-col" style={{ pointerEvents: 'auto' }}>
         {/* Top actions */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6" style={{ pointerEvents: 'auto' }}>
           {isTrialExpired && (
             <div className="px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
               <span className="text-red-300 text-xs font-semibold">{t('trial_ended')}</span>
@@ -99,12 +99,26 @@ export default function Paywall() {
             </div>
           )}
           <div className="flex-1" />
-          <button
-            onClick={handleSignOut}
-            className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors"
-          >
-            <LogOut size={20} className="text-white" />
-          </button>
+          <div className="flex gap-2" style={{ pointerEvents: 'auto' }}>
+            {isPremium && (
+              <button
+                onClick={handleClose}
+                className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors active:bg-white/30"
+                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                type="button"
+              >
+                <X size={20} className="text-white" />
+              </button>
+            )}
+            <button
+              onClick={handleSignOut}
+              className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors active:bg-white/30"
+              style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+              type="button"
+            >
+              <LogOut size={20} className="text-white" />
+            </button>
+          </div>
         </div>
 
         {/* Hero */}
@@ -251,20 +265,23 @@ export default function Paywall() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
+            style={{ pointerEvents: 'auto' }}
           >
             <h3 className="text-white font-semibold text-lg mb-3 text-center">
               {t('premium_pricing')}
             </h3>
             
-            <div className="flex gap-4">
+            <div className="flex gap-4" style={{ pointerEvents: 'auto' }}>
               {['monthly', 'yearly'].map((key) => (
                 <button
                   key={key}
                   onClick={() => setSelectedPlan(key)}
+                  type="button"
+                  style={{ pointerEvents: 'auto', cursor: 'pointer' }}
                   className={`flex-1 relative overflow-hidden rounded-2xl p-5 transition-all ${
                     selectedPlan === key
                       ? "bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-2 border-amber-400 shadow-xl scale-105"
-                      : "bg-white/10 border-2 border-white/20"
+                      : "bg-white/10 border-2 border-white/20 hover:border-white/30"
                   }`}
                 >
                   {key === 'yearly' && (
@@ -287,16 +304,24 @@ export default function Paywall() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
+          style={{ pointerEvents: 'auto' }}
         >
           <Button
             onClick={handleContinue}
             disabled={loading || !pricing}
+            type="button"
+            style={{ pointerEvents: 'auto', cursor: loading || !pricing ? 'not-allowed' : 'pointer' }}
             className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50 disabled:opacity-50"
           >
             {loading ? (
               <>
                 <Loader2 size={20} className="mr-2 animate-spin" />
                 {t("processing")}
+              </>
+            ) : isTrialExpired ? (
+              <>
+                <Crown size={20} className="mr-2" />
+                {t("continue_with_premium")}
               </>
             ) : (
               <>
