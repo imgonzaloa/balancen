@@ -10,7 +10,7 @@ export default function Onboarding() {
   // ALL HOOKS AT TOP
   const navigate = useNavigate();
   const { t, lang, changeLanguage } = useTranslation();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1); // Start at goals - language is handled by LanguageSelector
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     language: lang || 'es',
