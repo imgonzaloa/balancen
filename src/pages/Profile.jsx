@@ -217,8 +217,8 @@ export default function Profile() {
   if (error) {
     return (
       <ErrorFallback
-        title="Could not load profile"
-        message={error.message || "Please check your connection"}
+        title={t('profile_load_error') || "Could not load profile"}
+        message={error.message || t('check_internet')}
         errorCode="PROFILE_ERROR"
         onRetry={handleRetry}
       />
