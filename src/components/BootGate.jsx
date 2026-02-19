@@ -77,10 +77,13 @@ export default function BootGate({ children }) {
           console.log('[BOOT] Onboarding required');
           // Clear stale cache
           localStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
+
+          // If no language has been chosen yet (truly new user), go to LanguageSelector first
+          const hasLanguage = !!(profile?.language || storedLanguage);
           
           if (isMounted) {
             setBootState({
-              type: 'ONBOARDING_REQUIRED',
+              type: hasLanguage ? 'ONBOARDING_REQUIRED' : 'LANGUAGE_REQUIRED',
               user,
               profile,
               isHydrated: true,
