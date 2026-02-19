@@ -109,35 +109,10 @@ export default function Profile() {
     : null;
   const displayPhoto = profile?.profile_photo || profile?.avatar_url || cachedPhoto;
 
-  // If no context profile yet and user exists, fetch directly (first load / hard refresh)
+  // Timeout guard — only fires if user is logged in but profile still hasn't arrived after 5s
   useEffect(() => {
     if (!user?.email || cachedProfile) return;
-
-    const timer = setTimeout(() => setLoadingTimeout(true), 4000);
-
-    const fetchProfile = async () => {
-      try {
-        const profiles = await withTimeout(
-          base44.entities.UserProfile.filter({ created_by: user.email }),
-          4000
-        );
-        const p = profiles[0] || null;
-        setProfile(p);
-        if (setContextProfile) setContextProfile(p);
-        if (p?.profile_photo || p?.avatar_url) {
-          const url = p.profile_photo || p.avatar_url;
-          localStorage.setItem(`balancen_photo_${user.email}`, url);
-          localStorage.setItem(`balancen_avatar_${user.email}`, url);
-        }
-      } catch (err) {
-        debugLogger.log('PROFILE_ERROR', err.message);
-        setError(err);
-      } finally {
-        clearTimeout(timer);
-      }
-    };
-
-    fetchProfile();
+    const timer = setTimeout(() => setLoadingTimeout(true), 5000);
     return () => clearTimeout(timer);
   }, [user?.email, cachedProfile]);
 
