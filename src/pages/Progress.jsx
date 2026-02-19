@@ -9,6 +9,7 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import AdvancedAnalytics from "@/components/progress/AdvancedAnalytics";
 import { useQuery } from "@tanstack/react-query";
+import GlobalHeader from "@/components/GlobalHeader";
 
 export default function Progress() {
   // ✅ Use global AppState - no duplicate auth/profile fetch on every tab visit
