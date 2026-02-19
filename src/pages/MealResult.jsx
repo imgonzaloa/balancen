@@ -649,7 +649,7 @@ export default function MealResult() {
             <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl p-3 flex items-start gap-3">
               <AlertCircle size={16} className="text-amber-400 mt-0.5 flex-shrink-0" />
               <p className="text-amber-300 text-xs font-medium">
-                Low confidence detection. Please review and adjust values before saving.
+                {t('low_confidence_warning') || 'Low confidence. Please review and adjust values before saving.'}
               </p>
             </div>
           )}
@@ -658,8 +658,8 @@ export default function MealResult() {
           {foodItems.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-white font-black text-sm uppercase tracking-wide">Detected Foods</h3>
-                <span className="text-white/40 text-xs font-bold">{foodItems.length} items</span>
+                <h3 className="text-white font-black text-sm uppercase tracking-wide">{t('detected_foods') || 'Detected Foods'}</h3>
+                <span className="text-white/40 text-xs font-bold">{foodItems.length} {t('items') || 'items'}</span>
               </div>
               {foodItems.map(item => (
                 <FoodItem
