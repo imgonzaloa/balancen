@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Camera, Lock, Sparkles, Dumbbell, Clock } from "lucide-react";
+import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useMealsStore } from "@/components/MealsStore";
@@ -9,6 +9,7 @@ import { createPageUrl } from "@/utils";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
 import GlobalHeader from "@/components/GlobalHeader";
+import { useEntitlement } from "@/components/hooks/useEntitlement";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
