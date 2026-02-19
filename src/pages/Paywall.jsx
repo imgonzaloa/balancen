@@ -39,6 +39,10 @@ export default function Paywall() {
     await base44.auth.logout(createPageUrl('Paywall'));
   };
 
+  const handleClose = () => {
+    window.location.href = createPageUrl('Home');
+  };
+
   const handleContinue = async () => {
     if (!user) {
       toast.error(t("please_login_continue"));
