@@ -173,6 +173,13 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
 
   const set = (field, val) => setValues(v => ({ ...v, [field]: val }));
 
+  const fields = [
+    { label: `${t('calories')} (kcal)`, field: "calories", color: "text-teal-300", required: true },
+    { label: `${t('protein')} (g)`, field: "protein", color: "text-blue-400" },
+    { label: `${t('carbs')} (g)`, field: "carbs", color: "text-amber-400" },
+    { label: `${t('fats')} (g)`, field: "fats", color: "text-pink-400" },
+  ];
+
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
       {imagePreview && (
@@ -181,15 +188,14 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-12 pb-4">
-          <button onClick={onCancel} className="p-2 rounded-xl bg-white/10 text-white">
+          <button onClick={onCancel} className="p-2 rounded-xl bg-white/10 text-white active:scale-90">
             <X size={20} />
           </button>
-          <h2 className="text-white font-black text-lg">Add Manually</h2>
+          <h2 className="text-white font-black text-lg">{t('add_manually')}</h2>
           <div className="w-9" />
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 space-y-4 pb-4">
-          {/* Photo preview */}
           {imagePreview && (
             <div className="w-full h-40 rounded-2xl overflow-hidden border border-white/10">
               <img src={imagePreview} alt="Meal" className="w-full h-full object-cover" />
@@ -197,7 +203,9 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
           )}
 
           <div>
-            <label className="text-white/60 text-xs font-bold uppercase tracking-wide mb-1.5 block">Meal name (optional)</label>
+            <label className="text-white/60 text-xs font-bold uppercase tracking-wide mb-1.5 block">
+              {t('meal_name_optional') || `${t('meal')} (${t('optional') || 'optional'})`}
+            </label>
             <input
               value={mealName}
               onChange={e => setMealName(e.target.value)}
@@ -206,12 +214,7 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
             />
           </div>
 
-          {[
-            { label: "Calories (kcal)", field: "calories", color: "text-teal-300", required: true },
-            { label: "Protein (g)", field: "protein", color: "text-blue-400" },
-            { label: "Carbs (g)", field: "carbs", color: "text-amber-400" },
-            { label: "Fats (g)", field: "fats", color: "text-pink-400" },
-          ].map(({ label, field, color, required }) => (
+          {fields.map(({ label, field, color, required }) => (
             <div key={field}>
               <label className="text-white/60 text-xs font-bold uppercase tracking-wide mb-1.5 block">
                 {label}{required && <span className="text-red-400 ml-1">*</span>}
@@ -219,6 +222,7 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
               <input
                 type="number"
                 min="0"
+                inputMode="numeric"
                 value={values[field]}
                 onChange={e => set(field, e.target.value)}
                 placeholder="0"
@@ -228,11 +232,11 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
           ))}
         </div>
 
-        <div className="px-5 pb-8 pt-4 border-t border-white/10">
+        <div className="px-5 pt-4 border-t border-white/10" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
           <button
             onClick={() => {
               if (!values.calories || parseInt(values.calories) === 0) {
-                toast.error("Please enter calories");
+                toast.error(t('enter_calories') || "Please enter calories");
                 return;
               }
               onSave({
@@ -245,10 +249,10 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
                 }
               });
             }}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-lg shadow-xl shadow-teal-500/30 active:scale-95 flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-lg shadow-xl shadow-teal-500/30 active:scale-95 flex items-center justify-center gap-2 mb-3"
           >
             <Check size={20} />
-            Save Meal
+            {t('save_meal') || t('confirm_save')}
           </button>
         </div>
       </div>
