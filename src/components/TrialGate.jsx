@@ -6,10 +6,7 @@ import { useEntitlement } from "@/components/hooks/useEntitlement";
 import { RefreshCw, LogOut, RotateCcw } from "lucide-react";
 
 function hardReset() {
-  try {
-    localStorage.clear();
-    sessionStorage.clear();
-  } catch (_) {}
+  try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
   window.location.replace('/');
 }
 
@@ -17,77 +14,72 @@ async function safeLogout() {
   try {
     const { base44 } = await import('@/api/base44Client');
     await base44.auth.logout('/');
-  } catch (_) {
-    hardReset();
-  }
+  } catch (_) { hardReset(); }
 }
 
 /**
- * TrialGate: Route guard with correct priority order.
+ * TrialGate — enforces routing priority:
  *
- * Priority (evaluated in order):
- * 1. Not ready yet (loading)        → render nothing
- * 2. No user email                  → render nothing (BootGate/Login handles it)
- * 3. Onboarding not complete        → redirect to LanguageSelector or Onboarding
- * 4. Profile never fetched (error)  → show safe fallback (Retry / Logout / Reset)
- * 5. Not entitled                   → redirect to Paywall
- * 6. All good                       → render children
+ * 1. Still loading  → render nothing (avoid premature redirects)
+ * 2. No user        → render nothing (BootGate / Login handles it)
+ * 3. No onboarding  → redirect to LanguageSelector or Onboarding  ← BEFORE entitlement
+ * 4. Profile error  → safe fallback (never lock out)
+ * 5. Not entitled   → redirect to Paywall
+ * 6. All clear      → render children
  *
- * Key rule: a null profile on a NEW user (no localStorage flag, profile was never created)
- * means onboarding is required, NOT a load failure.
- * A load failure is when the localStorage flag says "done" but profile came back null.
+ * Critical distinction:
+ * - New user (no localStorage flag, null profile) = needs onboarding  (priority 3)
+ * - Returning user (localStorage flag = true, null profile) = server error (priority 4)
+ * This prevents new users ever hitting the Paywall before onboarding.
  */
 export default function TrialGate({ children }) {
   const { user, profile, isInitialized, profileLoading } = useAppState();
   const navigate = useNavigate();
-  const { isEntitled } = useEntitlement(profile);
 
-  // Not ready until auth + profile fetch both settle
-  const isReady = isInitialized && !profileLoading;
+  // CRITICAL: only pass profile to useEntitlement once loading is done.
+  // While profileLoading=true, profile is null which would make isEntitled=false.
+  const profileReady = isInitialized && !profileLoading;
+  const { isEntitled } = useEntitlement(profileReady ? profile : undefined);
 
-  // Onboarding is complete if localStorage OR profile flag says so
   const localOnboardingDone = localStorage.getItem('balancen_onboarding_complete') === 'true';
   const onboardingComplete = localOnboardingDone || profile?.onboarding_completed === true;
 
-  // A load failure is: user exists, localStorage says onboarding is done,
-  // but profile came back null (server/network error). New users never have the flag.
-  const profileLoadFailed = isReady && !!user?.email && localOnboardingDone && profile === null;
+  // Load failure = returning user (local flag says done) but profile came back null
+  // New user = no local flag + null profile → needs onboarding, NOT a load failure
+  const profileLoadFailed = profileReady && !!user?.email && localOnboardingDone && profile === null;
 
   React.useEffect(() => {
-    if (!isReady || !user?.email) return;
+    if (!profileReady || !user?.email) return;
 
-    // If we can't tell if they're entitled (server error), don't redirect to paywall
+    // Don't redirect if we can't determine state (server error)
     if (profileLoadFailed) return;
 
-    // Priority 3: onboarding not done → send to onboarding
+    // Priority 3: onboarding not done → force onboarding flow first
     if (!onboardingComplete) {
       const hasLanguage = !!(
         profile?.language ||
         localStorage.getItem('i18nextLng') ||
         localStorage.getItem('balancen_lang')
       );
-      console.log('[TrialGate] Onboarding required, hasLanguage:', hasLanguage);
+      console.log('[TrialGate] → Onboarding required, hasLanguage:', hasLanguage);
       navigate(createPageUrl(hasLanguage ? 'Onboarding' : 'LanguageSelector'), { replace: true });
       return;
     }
 
     // Priority 5: onboarded but not entitled → paywall
     if (!isEntitled) {
-      console.log('[TrialGate] Not entitled, redirecting to Paywall');
+      console.log('[TrialGate] → Not entitled, redirecting to Paywall');
       navigate(createPageUrl('Paywall'), { replace: true });
     }
-  }, [isReady, user?.email, onboardingComplete, isEntitled, profileLoadFailed, navigate, profile?.language]);
+  }, [profileReady, user?.email, onboardingComplete, isEntitled, profileLoadFailed, navigate, profile?.language]);
 
-  // 1. Not ready
-  if (!isReady) return null;
+  // 1. Loading
+  if (!profileReady) return null;
 
   // 2. Not authenticated
   if (!user?.email) return null;
 
-  // 3. Onboarding redirect in progress
-  if (!onboardingComplete && !profileLoadFailed) return null;
-
-  // 4. Profile load failure — safe fallback, never a dead-end
+  // 4. Profile load error — show safe fallback
   if (profileLoadFailed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex flex-col items-center justify-center p-6">
@@ -129,7 +121,8 @@ export default function TrialGate({ children }) {
     );
   }
 
-  // 5. Paywall redirect in progress
+  // 3 & 5. Redirect in progress — render nothing
+  if (!onboardingComplete) return null;
   if (!isEntitled) return null;
 
   // 6. All clear
