@@ -64,17 +64,16 @@ export default function Onboarding() {
         display_name: currentUser?.full_name || 'User',
         onboarding_completed: true,
         trial_start_date: now.toISOString(),
-        premium_expires: trialEndDate.toISOString().split('T')[0],
-        premium_status: "trialing",
+        trial_end_date: trialEndDate.toISOString(),
+        subscription_status: "trial",
         is_premium: true,
       };
 
       if (existingProfile?.length > 0) {
         // Don't reset trial if already had one
-        if (!existingProfile[0].trial_start_date) {
-          trialData.trial_start_date = now.toISOString();
-        } else {
+        if (existingProfile[0].trial_start_date) {
           trialData.trial_start_date = existingProfile[0].trial_start_date;
+          trialData.trial_end_date = existingProfile[0].trial_end_date;
         }
         await base44.entities.UserProfile.update(existingProfile[0].id, trialData);
       } else {
