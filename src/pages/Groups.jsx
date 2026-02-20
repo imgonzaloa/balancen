@@ -1,287 +1,180 @@
 import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Copy, Users, Flame, Medal } from "lucide-react";
+import { motion } from "framer-motion";
+import { Plus, Users, ChevronRight, Shield, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import CreateGroupModal from "@/components/groups/CreateGroupModal";
+import JoinByCodeModal from "@/components/groups/JoinByCodeModal";
 
 export default function Groups() {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showJoinDialog, setShowJoinDialog] = useState(false);
-  const [newGroupName, setNewGroupName] = useState("");
-  const [inviteCode, setInviteCode] = useState("");
-  const [copiedCode, setCopiedCode] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [showJoinCode, setShowJoinCode] = useState(false);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    base44.auth.me().then(setUser);
+    base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: myGroups = [] } = useQuery({
+  const { data: memberships = [], isLoading } = useQuery({
     queryKey: ["groupMemberships", user?.email],
     queryFn: async () => {
-      const members = await base44.entities.GroupMember.filter({ user_email: user?.email });
-      const groupIds = members.map(m => m.group_id);
-      if (groupIds.length === 0) return [];
+      const members = await base44.entities.GroupMember.filter({ user_email: user.email });
+      if (!members.length) return [];
       const groups = await Promise.all(
-        groupIds.map(id => base44.entities.Group.filter({ id }))
+        members.map(m =>
+          base44.entities.Group.filter({ id: m.group_id }).then(r => r[0]).catch(() => null)
+        )
       );
-      return groups.flat().map((group, idx) => ({ ...group, memberCount: members[idx]?.members?.length || 1 }));
+      return members
+        .map((m, i) => ({ membership: m, group: groups[i] }))
+        .filter(x => x.group);
     },
     enabled: !!user?.email,
   });
 
-  const { data: groupMembersData = {} } = useQuery({
-    queryKey: ["groupMembers", myGroups.map(g => g.id)],
-    queryFn: async () => {
-      const result = {};
-      for (const group of myGroups) {
-        const members = await base44.entities.GroupMember.filter({ group_id: group.id }, "-current_streak");
-        const profiles = await Promise.all(
-          members.map(async (m) => {
-            const p = await base44.entities.UserProfile.filter({ created_by: m.user_email });
-            return { ...m, profile: p[0] };
-          })
-        );
-        result[group.id] = profiles;
-      }
-      return result;
-    },
-    enabled: myGroups.length > 0,
-  });
+  const handleGroupCreated = (group) => {
+    queryClient.invalidateQueries({ queryKey: ["groupMemberships"] });
+    setShowCreate(false);
+    navigate(createPageUrl("GroupDashboard") + `?id=${group.id}`);
+  };
 
-  const createGroupMutation = useMutation({
-    mutationFn: async (name) => {
-      const code = Math.random().toString(36).substring(2, 10).toUpperCase();
-      const group = await base44.entities.Group.create({
-        name,
-        invite_code: code,
-        member_count: 1,
-      });
-      await base44.entities.GroupMember.create({
-        group_id: group.id,
-        user_email: user.email,
-        display_name: user.full_name,
-        role: "admin",
-      });
-      return group;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["groupMemberships"] });
-      setShowCreateDialog(false);
-      setNewGroupName("");
-      toast.success(t("group_created"));
-    },
-  });
+  const handleJoined = () => {
+    queryClient.invalidateQueries({ queryKey: ["groupMemberships"] });
+    setShowJoinCode(false);
+  };
 
-  const joinGroupMutation = useMutation({
-    mutationFn: async (code) => {
-      const groups = await base44.entities.Group.filter({ invite_code: code });
-      if (groups.length === 0) throw new Error(t("group_not_found"));
-      const group = groups[0];
-      await base44.entities.GroupMember.create({
-        group_id: group.id,
-        user_email: user.email,
-        display_name: user.full_name,
-      });
-      return group;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["groupMemberships"] });
-      setShowJoinDialog(false);
-      setInviteCode("");
-      toast.success(t("joined_group"));
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const handleCopyCode = (code) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(code);
-    toast.success(t("code_copied"));
-    setTimeout(() => setCopiedCode(null), 2000);
+  const groupTypeColors = {
+    campus: "from-blue-500 to-indigo-600",
+    team: "from-emerald-500 to-teal-600",
+    friends: "from-pink-500 to-rose-600",
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute -bottom-8 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900">
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full filter blur-3xl" />
+        <div className="absolute -bottom-8 right-20 w-72 h-72 bg-cyan-500 rounded-full filter blur-3xl" />
       </div>
 
       <div className="max-w-lg mx-auto px-4 pb-24 pt-8 relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
-        >
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">{t("groups")}</h1>
-            <p className="text-teal-200 text-sm mt-1">{myGroups.length} {t("groups_joined")}</p>
+            <h1 className="text-3xl font-bold text-white">Groups</h1>
+            <p className="text-teal-200 text-sm mt-1">{memberships.length} active groups</p>
           </div>
-
-          <div className="flex gap-2">
-            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-              <DialogTrigger asChild>
-                <Button className="bg-emerald-500 hover:bg-emerald-600 rounded-full p-2">
-                  <Plus size={20} />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-slate-900 border-slate-700">
-                <DialogHeader>
-                  <DialogTitle className="text-white">{t("create_group")}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 mt-4">
-                  <Input
-                    placeholder={t("group_name_placeholder")}
-                    value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
-                    className="bg-slate-800 border-slate-700 text-white placeholder-white/50"
-                  />
-                  <Button
-                    onClick={() => createGroupMutation.mutate(newGroupName)}
-                    disabled={!newGroupName || createGroupMutation.isPending}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600"
-                  >
-                    {t("create")}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={showJoinDialog} onOpenChange={setShowJoinDialog}>
-              <DialogTrigger asChild>
-                <Button className="bg-teal-500 hover:bg-teal-600 rounded-full p-2">
-                  <Users size={20} />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-slate-900 border-slate-700">
-                <DialogHeader>
-                  <DialogTitle className="text-white">{t("join_group")}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 mt-4">
-                  <Input
-                    placeholder={t("invite_code_placeholder")}
-                    value={inviteCode}
-                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                    className="bg-slate-800 border-slate-700 text-white text-center text-lg tracking-widest placeholder-white/50"
-                  />
-                  <Button
-                    onClick={() => joinGroupMutation.mutate(inviteCode)}
-                    disabled={!inviteCode || joinGroupMutation.isPending}
-                    className="w-full bg-teal-500 hover:bg-teal-600"
-                  >
-                    {t("join")}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+          <Button onClick={() => setShowCreate(true)}
+            className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl px-4 py-2 flex items-center gap-2 font-semibold shadow-lg">
+            <Plus size={18} />
+            Create Group
+          </Button>
         </motion.div>
 
         {/* Groups List */}
-        {myGroups.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center"
-          >
-            <Users size={48} className="text-white/40 mx-auto mb-4" />
-            <p className="text-white/60 mb-2">{t("no_groups_yet")}</p>
-            <p className="text-white/40 text-sm">{t("create_or_join_group")}</p>
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2].map(i => (
+              <div key={i} className="h-28 bg-white/5 rounded-3xl animate-pulse" />
+            ))}
+          </div>
+        ) : memberships.length === 0 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-10 text-center">
+            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users size={32} className="text-white/50" />
+            </div>
+            <p className="text-white font-semibold text-lg mb-1">No groups yet</p>
+            <p className="text-white/50 text-sm mb-6">Create a Campus group to challenge your team</p>
+            <Button onClick={() => setShowCreate(true)}
+              className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl px-6">
+              Create your first group
+            </Button>
           </motion.div>
         ) : (
           <div className="space-y-4">
-            {myGroups.map((group, idx) => {
-              const members = groupMembersData[group.id] || [];
-              const sortedMembers = members.sort((a, b) => (b.profile?.current_streak || 0) - (a.profile?.current_streak || 0));
+            {memberships.map(({ membership, group }, idx) => {
+              const gradient = groupTypeColors[group.group_type] || groupTypeColors.campus;
+              const isAdmin = membership.role === "admin";
+              const startDate = group.start_date ? new Date(group.start_date) : null;
+              const endDate = group.end_date ? new Date(group.end_date) : null;
+              const now = new Date();
+              const totalDays = startDate && endDate
+                ? Math.ceil((endDate - startDate) / 86400000)
+                : null;
+              const daysPassed = startDate
+                ? Math.max(0, Math.ceil((now - startDate) / 86400000))
+                : null;
 
               return (
-                <motion.div
-                  key={group.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                >
-                  <Link to={`${createPageUrl("GroupDetail")}?id=${group.id}`}>
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-5 hover:border-purple-500/50 transition-all cursor-pointer"
-                    >
-                      {/* Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-lg font-bold text-white">{group.name}</h3>
-                          <p className="text-sm text-purple-200">{members.length} {t("members")}</p>
+                <motion.div key={group.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  onClick={() => navigate(createPageUrl("GroupDashboard") + `?id=${group.id}`)}
+                  className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-5 cursor-pointer hover:bg-white/10 transition-all active:scale-98">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center font-bold text-white text-lg shadow-lg`}>
+                        {group.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-white font-bold text-lg leading-tight">{group.name}</h3>
+                          {isAdmin && (
+                            <span className="bg-amber-500/20 text-amber-400 text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <Shield size={10} />Admin
+                            </span>
+                          )}
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleCopyCode(group.invite_code);
-                          }}
-                          className="p-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/40 transition-colors"
-                          title={t("code_copied")}
-                        >
-                          <Copy size={16} className={copiedCode === group.invite_code ? "text-emerald-400" : "text-purple-300"} />
-                        </button>
+                        <p className="text-white/50 text-xs capitalize">{group.group_type} · {group.member_count || 1} members</p>
                       </div>
+                    </div>
+                    <ChevronRight size={20} className="text-white/30 mt-1" />
+                  </div>
 
-                      {/* Members Grid with Avatars */}
-                      <div className="grid grid-cols-4 gap-3">
-                        {sortedMembers.slice(0, 8).map((member, i) => (
-                          <div key={member.id} className="flex flex-col items-center">
-                            {/* Avatar */}
-                            <div className="relative">
-                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg border-2 border-white/20">
-                                {(member.profile?.display_name || member.display_name || "?").charAt(0).toUpperCase()}
-                              </div>
-                              {/* Rank Badge */}
-                              {i < 3 && (
-                                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center">
-                                  {i === 0 && <Medal size={12} className="text-yellow-400" />}
-                                  {i === 1 && <Medal size={12} className="text-gray-300" />}
-                                  {i === 2 && <Medal size={12} className="text-orange-400" />}
-                                </div>
-                              )}
-                            </div>
-                            {/* Name + Fire */}
-                            <p className="text-white/80 text-xs mt-1 truncate w-full text-center">
-                              {(member.profile?.display_name || member.display_name || "").split(" ")[0]}
-                            </p>
-                            <div className="flex items-center gap-1 mt-0.5">
-                              <Flame size={10} className="text-orange-400" />
-                              <span className="text-white text-xs font-bold tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>
-                                {member.profile?.fire_total || 0}
-                              </span>
-                            </div>
-                            {/* Status Text */}
-                            {member.profile?.status_text && (
-                              <p className="text-[9px] text-purple-200/60 mt-0.5 truncate w-full text-center italic">
-                                {member.profile.status_text}
-                              </p>
-                            )}
-                          </div>
-                        ))}
+                  {totalDays && (
+                    <div className="mt-4">
+                      <div className="flex justify-between text-xs text-white/50 mb-1">
+                        <span className="flex items-center gap-1"><Calendar size={10} />Day {Math.min(daysPassed, totalDays)}/{totalDays}</span>
+                        <span>{group.start_date} → {group.end_date}</span>
                       </div>
-                    </motion.div>
-                  </Link>
+                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className={`h-full bg-gradient-to-r ${gradient} rounded-full`}
+                          style={{ width: `${Math.min(100, (daysPassed / totalDays) * 100)}%` }} />
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               );
             })}
+
+            <button onClick={() => setShowJoinCode(true)}
+              className="w-full text-center text-white/40 text-sm py-3 hover:text-white/60 transition-colors">
+              Have a code? Join by code
+            </button>
           </div>
         )}
       </div>
+
+      <CreateGroupModal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        user={user}
+        onCreated={handleGroupCreated}
+      />
+      <JoinByCodeModal
+        open={showJoinCode}
+        onClose={() => setShowJoinCode(false)}
+        user={user}
+        onJoined={handleJoined}
+      />
     </div>
   );
 }
