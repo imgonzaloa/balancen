@@ -24,6 +24,7 @@ export default function Social() {
   const { user, profile, isInitialized, profileLoading } = useAppState();
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+  const isCampusAdmin = profile?.role === 'campus_admin' || profile?.role === 'owner';
   const [showShareModal, setShowShareModal] = React.useState(false);
   const { getTodayMeals } = useMealsStore();
   const todayMeals = React.useMemo(() => getTodayMeals(), [getTodayMeals]);
