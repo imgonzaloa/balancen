@@ -96,30 +96,9 @@ const Home = React.memo(() => {
 
       <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
 
-        {/* Trial Countdown Banner */}
+        {/* Trial Day Banner */}
         {showTrialBanner && (
-          <div className="bg-gradient-to-r from-teal-500/20 to-emerald-500/20 backdrop-blur-xl rounded-2xl p-4 border border-teal-400/50">
-            <div className="flex items-center gap-3">
-              <Clock size={20} className="text-teal-300 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-teal-100 font-semibold text-sm">
-                  {trialDaysLeft === 1
-                    ? t('trial_ending_tomorrow') || 'Trial ending tomorrow'
-                    : `${t('trial_days_left') || 'Trial days left'}: ${trialDaysLeft}`}
-                </p>
-                <p className="text-teal-200/60 text-xs mt-1">
-                  {t('upgrade_to_continue') || 'Upgrade to Premium to continue'}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                onClick={() => navigate(createPageUrl('Premium'))}
-                className="bg-teal-600 hover:bg-teal-700 text-white font-semibold flex-shrink-0"
-              >
-                {t('upgrade')}
-              </Button>
-            </div>
-          </div>
+          <TrialBanner trialDay={trialDaysLeft} lang={lang} navigate={navigate} />
         )}
 
         {/* Greeting */}
