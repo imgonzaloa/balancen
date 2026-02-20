@@ -133,14 +133,16 @@ function LayoutInner({ children, currentPageName, bootState }) {
     });
   }, [currentPageName]);
 
-  // Language sync only - pages handle auth/onboarding state instead of blocking nav
+  // Language sync: apply language from bootState once hydrated
+  // This is the ONLY place language is synced from boot → i18n at startup
   React.useEffect(() => {
-    if (!bootState?.isHydrated || bootState?.language === lang) return;
-    
-    if (bootState.language) {
-      changeLanguage(bootState.language).catch(() => {});
+    if (!bootState?.isHydrated) return;
+    const targetLang = bootState.language;
+    if (targetLang && targetLang !== lang && (targetLang === 'en' || targetLang === 'es')) {
+      changeLanguage(targetLang).catch(() => {});
     }
-  }, [bootState?.isHydrated, bootState?.language, lang, changeLanguage]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bootState?.isHydrated, bootState?.language]);
 
   // Prevent hardware back from leaving main tabs
   React.useEffect(() => {
