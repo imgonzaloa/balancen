@@ -100,7 +100,7 @@ export default function Paywall() {
           )}
           <div className="flex-1" />
           <div className="flex gap-2" style={{ pointerEvents: 'auto' }}>
-            {isPremium && (
+            {isEntitled && (
               <button
                 onClick={handleClose}
                 className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors active:bg-white/30"
