@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { X, Check, Sparkles, Crown, Loader2, LogOut, RefreshCw, Flame, Target, Utensils, Calendar } from "lucide-react";
+import { X, Check, Sparkles, Crown, Loader2, LogOut, Flame, Utensils, Calendar, GraduationCap, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
