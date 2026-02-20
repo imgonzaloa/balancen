@@ -4,9 +4,10 @@ import { createPageUrl } from "@/utils";
 import { useAppState } from "@/components/AppStateContext";
 
 /**
- * Reusable top header for Home, Social, Progress, Profile tabs.
- * Left: "B" brand icon. Right: circular user avatar (photo or initial).
- * Tapping avatar navigates to Profile.
+ * Global app header bar — always rendered by Layout.
+ * LEFT: "B" logo → navigates to Home
+ * RIGHT: user avatar → navigates to Profile
+ * Height: 56px (fixed, full-width, respects safe-area)
  */
 export default function GlobalHeader() {
   const navigate = useNavigate();
@@ -15,17 +16,25 @@ export default function GlobalHeader() {
   const avatarSrc = profile?.profile_photo || profile?.avatar_url || null;
   const initial = (profile?.display_name || user?.full_name || "?")[0]?.toUpperCase();
 
-  const goToProfile = () => {
-    navigate(createPageUrl("Profile"), { replace: false });
-  };
-
   return (
-    <div className="flex items-center justify-end px-6 py-2">
-      {/* Avatar */}
+    <div
+      className="flex items-center justify-between px-4 bg-slate-900/80 backdrop-blur-xl border-b border-white/8"
+      style={{ height: '56px', flexShrink: 0 }}
+    >
+      {/* Brand logo */}
       <button
-        onPointerUp={goToProfile}
-        onClick={goToProfile}
-        className="w-9 h-9 rounded-full overflow-hidden border-2 border-teal-400/60 shadow-lg active:scale-90 transition-transform duration-75 focus:outline-none"
+        onClick={() => navigate(createPageUrl("Home"), { replace: true })}
+        className="w-9 h-9 rounded-xl bg-black/60 flex items-center justify-center border border-white/20 shadow-md active:scale-90 transition-transform duration-75 focus:outline-none select-none"
+        style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
+        aria-label="Go to Home"
+      >
+        <span className="text-white font-black text-lg leading-none">B</span>
+      </button>
+
+      {/* User avatar */}
+      <button
+        onClick={() => navigate(createPageUrl("Profile"), { replace: false })}
+        className="w-9 h-9 rounded-full overflow-hidden border-2 border-teal-400/60 shadow-md active:scale-90 transition-transform duration-75 focus:outline-none"
         style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
         aria-label="Go to profile"
       >
