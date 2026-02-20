@@ -130,7 +130,7 @@ export default function Paywall() {
           {isTrialExpired ? (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
-                {t('trial_ended')}
+                Your 7-day trial has ended
               </h1>
               <p className="text-lg text-teal-200">
                 To continue using Balancen, upgrade to Premium.
@@ -148,10 +148,10 @@ export default function Paywall() {
           ) : (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
-                Get Premium
+                Unlock Balancen Premium
               </h1>
               <p className="text-lg text-teal-200">
-                Full access to all features with a 7-day free trial.
+                Full access to all features. Cancel anytime.
               </p>
             </>
           )}
