@@ -21,29 +21,28 @@ export default function Onboarding() {
 
   useEffect(() => {
     const init = async () => {
+      // If already completed, go Home
+      const completed = localStorage.getItem('balancen_onboarding_complete') === 'true';
+      if (completed) {
+        navigate(createPageUrl('Home'), { replace: true });
+        return;
+      }
+
+      // If no language selected yet, go to LanguageSelector first
+      const storedLang = localStorage.getItem('i18nextLng') || localStorage.getItem('balancen_lang');
+      if (!storedLang) {
+        navigate(createPageUrl('LanguageSelector'), { replace: true });
+        return;
+      }
+
+      setFormData(prev => ({ ...prev, language: storedLang }));
+
+      // Fetch user (non-blocking — onboarding can load before auth settles)
       try {
         const u = await base44.auth.me();
-        setUser(u);
-
-        // If already completed, go Home
-        const completed = localStorage.getItem('balancen_onboarding_complete') === 'true';
-        if (completed) {
-          navigate(createPageUrl('Home'), { replace: true });
-          return;
-        }
-
-        // If no language selected yet, go to LanguageSelector first
-        const lang = localStorage.getItem('i18nextLng') || localStorage.getItem('balancen_lang');
-        if (!lang) {
-          navigate(createPageUrl('LanguageSelector'), { replace: true });
-          return;
-        }
-
-        // Start at goals step (language already handled by LanguageSelector)
-        setStep(1);
-        setFormData(prev => ({ ...prev, language: lang }));
-      } catch (err) {
-        console.error('[ONBOARDING] Init error:', err);
+        if (u?.email) setUser(u);
+      } catch (_) {
+        // If not authenticated yet, user will be fetched when handleComplete runs
       }
     };
     init();
