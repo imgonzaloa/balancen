@@ -35,7 +35,8 @@ export default function TrialGate({ children }) {
   const { user, profile, isInitialized, profileLoading } = useAppState();
   const navigate = useNavigate();
 
-  // Wait until BOTH auth AND profile settle before making any routing decisions
+  // Wait until BOTH auth check has run AND profile fetch has settled.
+  // If there's no user, profileLoading stays false (no profile to fetch), so isReady is true.
   const isReady = isInitialized && !profileLoading;
 
   // Only pass profile once loading is complete — prevents false isEntitled=false
