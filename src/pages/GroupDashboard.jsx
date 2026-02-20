@@ -187,6 +187,9 @@ export default function GroupDashboard() {
             <GroupSettingsPanel group={group} user={user} members={members}
               onUpdated={() => queryClient.invalidateQueries({ queryKey: ["campusGroup"] })} />
           )}
+          {activeTab === "messages" && (
+            <BroadcastPanel group={group} user={user} members={members} isAdmin={isAdmin} />
+          )}
         </motion.div>
       </div>
     </div>
