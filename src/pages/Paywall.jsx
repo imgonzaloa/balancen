@@ -319,12 +319,17 @@ export default function Paywall() {
             ) : isTrialExpired ? (
               <>
                 <Crown size={20} className="mr-2" />
-                Continue with Premium
+                {lang === 'es' ? 'Suscribirme a Premium' : 'Subscribe to Premium'}
+              </>
+            ) : trialDaysLeft > 0 ? (
+              <>
+                <Crown size={20} className="mr-2" />
+                {lang === 'es' ? 'Actualizar a Premium' : 'Upgrade to Premium'}
               </>
             ) : (
               <>
-                <Crown size={20} className="mr-2" />
-                Upgrade to Premium
+                <Sparkles size={20} className="mr-2" />
+                {lang === 'es' ? 'Empezar prueba gratuita' : 'Start Free Trial'}
               </>
             )}
           </Button>
