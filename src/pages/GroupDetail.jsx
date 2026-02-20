@@ -84,28 +84,21 @@ export default function GroupDetail() {
 
         {/* Tabs */}
         <div className="flex gap-2 bg-white/10 backdrop-blur-xl rounded-2xl p-1.5 border border-white/10">
-          <button
-            onClick={() => setActiveTab("leaderboard")}
-            className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-              activeTab === "leaderboard"
-                ? "bg-amber-500 text-white shadow-lg"
-                : "text-white/60 hover:text-white/80"
-            }`}
-          >
-            <Trophy size={16} className="inline mr-2" />
-            {t('leaderboard')}
-          </button>
-          <button
-            onClick={() => setActiveTab("feed")}
-            className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-              activeTab === "feed"
-                ? "bg-teal-500 text-white shadow-lg"
-                : "text-white/60 hover:text-white/80"
-            }`}
-          >
-            <FileText size={16} className="inline mr-2" />
-            {t('feed')}
-          </button>
+          {[
+            { id: "leaderboard", icon: Trophy, label: t('leaderboard'), color: "bg-amber-500" },
+            { id: "feed", icon: FileText, label: t('feed'), color: "bg-teal-500" },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                activeTab === tab.id ? `${tab.color} text-white shadow-lg` : "text-white/60 hover:text-white/80"
+              }`}
+            >
+              <tab.icon size={16} className="inline mr-2" />
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Content */}
