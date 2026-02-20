@@ -50,19 +50,34 @@ export default function Onboarding() {
 
   const handleComplete = async () => {
     try {
-      const existingProfile = await base44.entities.UserProfile.filter({ created_by: user?.email });
+      // Ensure we have the current user (in case auth settled after mount)
+      let currentUser = user;
+      if (!currentUser?.email) {
+        try {
+          currentUser = await base44.auth.me();
+          setUser(currentUser);
+        } catch (_) {}
+      }
+
+      if (!currentUser?.email) {
+        // Not logged in — redirect to login and let them come back
+        base44.auth.redirectToLogin(window.location.href);
+        return;
+      }
+
+      const existingProfile = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
       
       if (existingProfile?.length > 0) {
         await base44.entities.UserProfile.update(existingProfile[0].id, {
           ...formData,
           onboarding_completed: true,
-          display_name: user?.full_name || existingProfile[0].display_name || 'User',
-          trial_start_date: new Date().toISOString(),
+          display_name: currentUser?.full_name || existingProfile[0].display_name || 'User',
+          trial_start_date: existingProfile[0].trial_start_date || new Date().toISOString(),
         });
       } else {
         await base44.entities.UserProfile.create({
           ...formData,
-          display_name: user?.full_name || 'User',
+          display_name: currentUser?.full_name || 'User',
           onboarding_completed: true,
           trial_start_date: new Date().toISOString(),
         });
