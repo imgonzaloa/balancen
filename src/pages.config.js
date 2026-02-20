@@ -50,6 +50,7 @@
 import AddMeal from './pages/AddMeal';
 import Badges from './pages/Badges';
 import CameraScreen from './pages/CameraScreen';
+import CampusAdminHub from './pages/CampusAdminHub';
 import Challenges from './pages/Challenges';
 import Chat from './pages/Chat';
 import CreateStory from './pages/CreateStory';
@@ -79,7 +80,6 @@ import Social from './pages/Social';
 import TrainerDashboard from './pages/TrainerDashboard';
 import UserManagement from './pages/UserManagement';
 import WorkoutTracker from './pages/WorkoutTracker';
-import CampusAdminHub from './pages/CampusAdminHub';
 import __Layout from './Layout.jsx';
 
 
@@ -87,6 +87,7 @@ export const PAGES = {
     "AddMeal": AddMeal,
     "Badges": Badges,
     "CameraScreen": CameraScreen,
+    "CampusAdminHub": CampusAdminHub,
     "Challenges": Challenges,
     "Chat": Chat,
     "CreateStory": CreateStory,
@@ -116,7 +117,6 @@ export const PAGES = {
     "TrainerDashboard": TrainerDashboard,
     "UserManagement": UserManagement,
     "WorkoutTracker": WorkoutTracker,
-    "CampusAdminHub": CampusAdminHub,
 }
 
 export const pagesConfig = {
