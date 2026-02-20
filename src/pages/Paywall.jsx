@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { X, Check, Sparkles, Crown, Loader2, LogOut } from "lucide-react";
+import { X, Check, Sparkles, Crown, Loader2, LogOut, RefreshCw, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
@@ -9,9 +9,30 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { useAppState } from "@/components/AppStateContext";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 
+// Hard reset: clears all local state and redirects to login
+function hardReset() {
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+  } catch (_) {}
+  // Force redirect to root which will re-trigger auth
+  window.location.replace('/');
+}
+
+// Safe logout: tries SDK logout, falls back to hard reset
+async function safeLogout() {
+  try {
+    await base44.auth.logout('/');
+  } catch (err) {
+    console.error('[Paywall] Logout error, forcing hard reset:', err);
+    hardReset();
+  }
+}
+
 export default function Paywall() {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [loading, setLoading] = useState(false);
+  const [purchaseError, setPurchaseError] = useState(null);
   const [user, setUser] = useState(null);
   const [pricing, setPricing] = useState(null);
   const { profile } = useAppState();
@@ -25,7 +46,7 @@ export default function Paywall() {
     base44.functions.invoke('getStripePublishableKey', {})
       .then(response => setPricing(response.data))
       .catch(err => {
-        console.error('Failed to load pricing:', err);
+        console.error('[Paywall] Failed to load pricing:', err);
         setPricing({
           region: 'EU',
           currency: '€',
@@ -35,9 +56,8 @@ export default function Paywall() {
       });
   }, []);
 
-  const handleSignOut = async () => {
-    await base44.auth.logout(createPageUrl('Paywall'));
-  };
+  const handleSignOut = () => safeLogout();
+  const handleResetSession = () => hardReset();
 
   const handleClose = () => {
     window.location.href = createPageUrl('Home');
@@ -55,6 +75,7 @@ export default function Paywall() {
     }
 
     setLoading(true);
+    setPurchaseError(null);
     
     try {
       const priceId = pricing.priceIds[selectedPlan];
@@ -64,10 +85,15 @@ export default function Paywall() {
         planType: selectedPlan,
       });
 
+      if (!response?.data?.url) {
+        throw new Error('No checkout URL returned from server');
+      }
+
       window.location.href = response.data.url;
     } catch (error) {
-      console.error('Checkout error:', error);
-      toast.error(t("checkout_failed"));
+      const msg = error?.response?.data?.error || error?.message || 'Unknown error';
+      console.error('[Paywall] Purchase error:', { code: error?.response?.status, message: msg, raw: error });
+      setPurchaseError(msg);
       setLoading(false);
     }
   };
