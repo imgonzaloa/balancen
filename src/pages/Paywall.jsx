@@ -110,14 +110,6 @@ export default function Paywall() {
                 <X size={20} className="text-white" />
               </button>
             )}
-            <button
-              onClick={handleSignOut}
-              className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors active:bg-white/30"
-              style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-              type="button"
-            >
-              <LogOut size={20} className="text-white" />
-            </button>
           </div>
         </div>
 
