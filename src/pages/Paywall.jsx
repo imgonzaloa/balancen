@@ -20,7 +20,7 @@ export default function Paywall() {
   const { t, lang } = useTranslation();
 
   useEffect(() => {
-    base44.auth.me().then(setUser);
+    base44.auth.me().then(setUser).catch(() => {});
     
     base44.functions.invoke('getStripePublishableKey', {})
       .then(response => setPricing(response.data))
