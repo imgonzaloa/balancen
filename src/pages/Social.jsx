@@ -130,25 +130,62 @@ export default function Social() {
         {/* Invite Friends Card */}
         <InviteSystemCard profile={profile} />
 
-        {/* Social Feed Quick Access */}
-        <button
-          type="button"
-          onClick={() => navigate(createPageUrl('Feed'))}
-          className="w-full bg-gradient-to-br from-teal-500/20 to-emerald-500/20 backdrop-blur-xl border border-teal-400/30 rounded-3xl p-6 hover:from-teal-500/30 transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
-                <MessageSquare size={24} className="text-white" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-white font-bold text-lg">{t('social_feed')}</h3>
-                <p className="text-teal-200 text-sm">{t('share_and_connect')}</p>
-              </div>
+        {/* Quick action cards: Feed, Challenges, Share */}
+        <div className="grid grid-cols-1 gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(createPageUrl('Feed'))}
+            className="w-full bg-gradient-to-br from-teal-500/20 to-emerald-500/20 backdrop-blur-xl border border-teal-400/30 rounded-2xl p-4 hover:from-teal-500/30 transition-all flex items-center gap-4"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
+              <MessageSquare size={20} className="text-white" />
             </div>
-            <Plus size={24} className="text-teal-300" />
-          </div>
-        </button>
+            <div className="text-left flex-1">
+              <h3 className="text-white font-bold">{t('social_feed')}</h3>
+              <p className="text-teal-200 text-xs">{t('share_and_connect')}</p>
+            </div>
+            <Plus size={20} className="text-teal-300" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate(createPageUrl('Challenges'))}
+            className="w-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl border border-amber-400/30 rounded-2xl p-4 hover:from-amber-500/30 transition-all flex items-center gap-4"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+              <Trophy size={20} className="text-white" />
+            </div>
+            <div className="text-left flex-1">
+              <h3 className="text-white font-bold">Challenges</h3>
+              <p className="text-amber-200 text-xs">Join group or solo challenges</p>
+            </div>
+            <Plus size={20} className="text-amber-300" />
+          </button>
+
+          {isPremium && (
+            <button
+              type="button"
+              onClick={() => setShowShareModal(true)}
+              className="w-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl border border-purple-400/30 rounded-2xl p-4 hover:from-purple-500/30 transition-all flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                <Share2 size={20} className="text-white" />
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-white font-bold">Share Summary</h3>
+                <p className="text-purple-200 text-xs">Share today's or weekly stats</p>
+              </div>
+            </button>
+          )}
+        </div>
+
+        {showShareModal && profile && (
+          <ShareSummaryModal
+            profile={profile}
+            todayMeals={todayMeals}
+            onClose={() => setShowShareModal(false)}
+          />
+        )}
 
         {/* Friends section */}
         <div className="space-y-4">
