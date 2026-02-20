@@ -290,12 +290,32 @@ export default function Paywall() {
             )}
           </Button>
           
-          <p className="text-center text-xs text-emerald-200 font-semibold mt-3">
-            💳 {t("card_required_billing")}
-          </p>
           <p className="text-center text-xs text-white/60 mt-1">
             {t("cancel_anytime")}
           </p>
+
+          {/* Restore Purchase */}
+          <button
+            type="button"
+            onClick={async () => {
+              toast.info(lang === "es" ? "Contacta con soporte para restaurar tu compra." : "Contact support to restore your purchase.");
+            }}
+            className="w-full py-3 text-white/50 text-sm font-medium hover:text-white/80 transition-colors"
+            style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+          >
+            {lang === "es" ? "Restaurar compra" : "Restore Purchase"}
+          </button>
+
+          {/* Logout */}
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="w-full py-3 text-white/40 text-sm font-medium hover:text-white/70 transition-colors flex items-center justify-center gap-2"
+            style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+          >
+            <LogOut size={14} />
+            {lang === "es" ? "Cerrar sesión" : "Log out"}
+          </button>
         </motion.div>
       </div>
     </div>
