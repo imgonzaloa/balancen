@@ -26,13 +26,13 @@ export function AppStateProvider({ children }) {
 
   useCollaboratorInviteCheck(user);
 
-  // Auth fetch - runs once
+  // Auth fetch - runs once. NEVER throws — 401 / network / timeout → user stays null.
   useEffect(() => {
     let isMounted = true;
 
     const fetchUser = async () => {
       try {
-        const currentUser = await withTimeout(base44.auth.me(), 3000, 'AUTH_TIMEOUT');
+        const currentUser = await withTimeout(base44.auth.me(), 5000, 'AUTH_TIMEOUT');
 
         if (isMounted && currentUser?.email) {
           setUser(currentUser);
@@ -55,9 +55,14 @@ export function AppStateProvider({ children }) {
               }
             } catch (_) {}
           }
+        } else if (isMounted) {
+          // No user returned (401 or null) — mark profile as settled immediately (no fetch needed)
+          setProfile(null);
         }
       } catch (err) {
-        logger.error('USER_FETCH_ERROR', err);
+        // 401, timeout, network error — treat as unauthenticated, never crash
+        logger.error('USER_FETCH_ERROR', err.message);
+        if (isMounted) setProfile(null); // settle profile so TrialGate doesn't stall
       } finally {
         if (isMounted) setIsInitialized(true);
       }
