@@ -1,7 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, Lock, Plus, UserPlus, Flame, Activity, MessageSquare, Trophy, Share2 } from "lucide-react";
+import { Users, Lock, Plus, UserPlus, Flame, Activity, MessageSquare, Trophy, Share2, GraduationCap } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
