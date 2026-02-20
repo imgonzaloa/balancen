@@ -150,7 +150,8 @@ export function AppStateProvider({ children }) {
     user,
     // undefined = still loading, null = loaded but not found, object = loaded profile
     profile: profile === undefined ? null : profile,
-    profileLoading: profile === undefined, // true until first fetch settles (for any user state)
+    // profileLoading is only true when we have a user AND profile hasn't settled yet
+    profileLoading: profile === undefined && !!user?.email,
     friends,
     groups,
     todayMeals,
