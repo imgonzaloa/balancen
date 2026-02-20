@@ -178,6 +178,23 @@ export default function Social() {
               </div>
             </button>
           )}
+
+          {isCampusAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate(createPageUrl('CampusAdminHub'))}
+              className="w-full bg-gradient-to-br from-teal-500/20 to-cyan-500/20 backdrop-blur-xl border border-teal-400/30 rounded-2xl p-4 hover:from-teal-500/30 transition-all flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                <GraduationCap size={20} className="text-white" />
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-white font-bold">Campus</h3>
+                <p className="text-teal-200 text-xs">Create & manage a private campus group</p>
+              </div>
+              <Plus size={20} className="text-teal-300" />
+            </button>
+          )}
         </div>
 
         {showShareModal && profile && (
