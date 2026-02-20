@@ -108,10 +108,21 @@ export default function Paywall() {
         {/* Header */}
         <motion.div className="text-center mb-8" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 mb-4 shadow-2xl shadow-teal-500/40">
-            <Crown size={28} className="text-white" />
+            {showCampusStats ? <GraduationCap size={28} className="text-white" /> : <Crown size={28} className="text-white" />}
           </div>
 
-          {isTrialExpired ? (
+          {isCampusExpired ? (
+            <>
+              <h1 className="text-3xl font-black text-white mb-2">
+                {isEs ? 'Tu Campus Access ha terminado' : 'Campus Access Ended'}
+              </h1>
+              <p className="text-white/60 text-base">
+                {isEs
+                  ? 'Suscríbete para seguir con tu progreso.'
+                  : 'Subscribe to continue your progress.'}
+              </p>
+            </>
+          ) : isTrialExpired ? (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
                 {isEs ? 'Tu Trial ha terminado' : 'Your Trial Has Ended'}
@@ -134,8 +145,66 @@ export default function Paywall() {
           )}
         </motion.div>
 
-        {/* User stats — shown when trial expired to remind them of progress */}
-        {isTrialExpired && userStats && (
+        {/* Campus stats summary */}
+        {showCampusStats && userStats && (
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          >
+            {userStats.consistencyPercent !== null && (
+              <div className={`rounded-2xl p-4 mb-3 border text-center ${
+                userStats.consistencyPercent >= 80
+                  ? 'bg-emerald-500/15 border-emerald-500/40'
+                  : 'bg-amber-500/15 border-amber-500/40'
+              }`}>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Trophy size={16} className={userStats.consistencyPercent >= 80 ? 'text-emerald-400' : 'text-amber-400'} />
+                  <span className={`text-sm font-bold ${userStats.consistencyPercent >= 80 ? 'text-emerald-300' : 'text-amber-300'}`}>
+                    {isEs ? 'Consistencia del Campus' : 'Campus Consistency'}
+                  </span>
+                </div>
+                <p className={`text-4xl font-black ${userStats.consistencyPercent >= 80 ? 'text-emerald-300' : 'text-amber-300'}`}>
+                  {userStats.consistencyPercent}%
+                </p>
+                {userStats.consistencyPercent >= 80 ? (
+                  <p className="text-emerald-400/80 text-xs mt-1">
+                    {isEs ? '¡Excelente trabajo! Mereces seguir.' : 'Great work! Keep the momentum going.'}
+                  </p>
+                ) : (
+                  <p className="text-amber-400/80 text-xs mt-1">
+                    {isEs ? 'Suscríbete para seguir mejorando tu consistencia.' : 'Subscribe to keep improving your consistency.'}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 grid grid-cols-3 gap-3">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-1">
+                  <Calendar size={16} className="text-teal-400" />
+                </div>
+                <p className="text-2xl font-black text-white">{userStats.daysTracked}</p>
+                <p className="text-white/50 text-xs">{isEs ? 'días rastreados' : 'days tracked'}</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-1">
+                  <Utensils size={16} className="text-emerald-400" />
+                </div>
+                <p className="text-2xl font-black text-white">{userStats.mealsLogged}</p>
+                <p className="text-white/50 text-xs">{isEs ? 'comidas registradas' : 'meals logged'}</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-1">
+                  <Flame size={16} className="text-orange-400" />
+                </div>
+                <p className="text-2xl font-black text-white">{userStats.streak}</p>
+                <p className="text-white/50 text-xs">{isEs ? 'racha' : 'streak'}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Trial stats (non-campus) */}
+        {isTrialExpired && !showCampusStats && userStats && (
           <motion.div
             className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 grid grid-cols-3 gap-3"
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
