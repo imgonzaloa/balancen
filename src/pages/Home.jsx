@@ -10,6 +10,7 @@ import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
 import GlobalHeader from "@/components/GlobalHeader";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
+import TrialBanner from "@/components/home/TrialBanner";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
