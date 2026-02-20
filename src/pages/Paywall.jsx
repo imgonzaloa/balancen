@@ -40,8 +40,11 @@ export default function Paywall() {
   
   const { t, lang } = useTranslation();
 
+  const { user: appUser } = useAppState();
+
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    // Use user from AppState (already authenticated) — never call auth.me() directly from Paywall
+    if (appUser) setUser(appUser);
     
     base44.functions.invoke('getStripePublishableKey', {})
       .then(response => setPricing(response.data))
@@ -54,7 +57,7 @@ export default function Paywall() {
           priceIds: { monthly: 'price_demo', yearly: 'price_demo' }
         });
       });
-  }, []);
+  }, [appUser]);
 
   const handleSignOut = () => safeLogout();
   const handleResetSession = () => hardReset();
