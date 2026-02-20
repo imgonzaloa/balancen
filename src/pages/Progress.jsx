@@ -86,7 +86,6 @@ export default function Progress() {
 
   return (
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
-      <GlobalHeader />
       <div className="max-w-2xl mx-auto px-6 pt-2 pb-6 space-y-6">
         <div>
           <h1 className="text-3xl font-black text-white mb-1">
