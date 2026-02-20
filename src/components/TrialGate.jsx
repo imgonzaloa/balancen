@@ -40,7 +40,7 @@ export default function TrialGate({ children }) {
   const isReady = isInitialized && !profileLoading;
 
   // Only evaluate entitlement once loading is complete — prevents false isEntitled=false flicker
-  const { isEntitled } = useEntitlement(isReady ? profile : undefined);
+  const { isEntitled, isTrialActive } = useEntitlement(isReady ? profile : undefined);
 
   const localOnboardingDone = localStorage.getItem('balancen_onboarding_complete') === 'true';
   const onboardingComplete = localOnboardingDone || profile?.onboarding_completed === true;
