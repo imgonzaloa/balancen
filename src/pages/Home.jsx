@@ -84,6 +84,7 @@ const Home = React.memo(() => {
   }, [navigate]);
 
   const showTrialBanner = isTrialActive && trialDaysLeft > 0;
+  const effectiveTrialDay = 8 - trialDaysLeft; // Day 1 = first day, Day 7 = last day
 
   if (!isInitialized || !isHydrated) {
     return <HomeSkeleton />;
