@@ -50,11 +50,12 @@ export default function Paywall() {
       .then(response => setPricing(response.data))
       .catch(err => {
         console.error('[Paywall] Failed to load pricing:', err);
+        // Fallback pricing (shown only if function call fails) — default to EUR
         setPricing({
-          region: 'EU',
+          region: 'EUR',
           currency: '€',
           prices: { monthly: 6.99, yearly: 49.99 },
-          priceIds: { monthly: 'price_demo', yearly: 'price_demo' }
+          priceIds: { monthly: null, yearly: null }
         });
       });
   }, [appUser]);
