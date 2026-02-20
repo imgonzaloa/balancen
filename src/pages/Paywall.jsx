@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { X, Check, Sparkles, Crown, Loader2, LogOut, RefreshCw, AlertTriangle } from "lucide-react";
+import { X, Check, Sparkles, Crown, Loader2, LogOut, RefreshCw, Flame, Target, Utensils, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
@@ -9,368 +9,272 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { useAppState } from "@/components/AppStateContext";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 
-// Hard reset: clears all local state and redirects to login
 function hardReset() {
-  try {
-    localStorage.clear();
-    sessionStorage.clear();
-  } catch (_) {}
-  // Force redirect to root which will re-trigger auth
+  try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
   window.location.replace('/');
 }
 
-// Safe logout: tries SDK logout, falls back to hard reset
 async function safeLogout() {
-  try {
-    await base44.auth.logout('/');
-  } catch (err) {
-    console.error('[Paywall] Logout error, forcing hard reset:', err);
-    hardReset();
-  }
+  try { await base44.auth.logout('/'); } catch (_) { hardReset(); }
 }
 
 export default function Paywall() {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [loading, setLoading] = useState(false);
   const [purchaseError, setPurchaseError] = useState(null);
-  const [user, setUser] = useState(null);
   const [pricing, setPricing] = useState(null);
-  const { profile } = useAppState();
-  const { isTrialExpired, trialDaysLeft, isPremium, isEntitled } = useEntitlement(profile);
-  
-  const { t, lang } = useTranslation();
+  const [userStats, setUserStats] = useState(null);
 
-  const { user: appUser } = useAppState();
+  const { profile, user: appUser } = useAppState();
+  const { isTrialExpired, trialDaysLeft, isPremium, isEntitled } = useEntitlement(profile);
+  const { t, lang } = useTranslation();
+  const isEs = lang === 'es';
 
   useEffect(() => {
-    // Use user from AppState (already authenticated) — never call auth.me() directly from Paywall
-    if (appUser) setUser(appUser);
-    
     base44.functions.invoke('getStripePublishableKey', {})
-      .then(response => setPricing(response.data))
-      .catch(err => {
-        console.error('[Paywall] Failed to load pricing:', err);
-        // Fallback pricing (shown only if function call fails) — default to EUR
-        setPricing({
-          region: 'EUR',
-          currency: '€',
-          prices: { monthly: 6.99, yearly: 49.99 },
-          priceIds: { monthly: null, yearly: null }
+      .then(res => setPricing(res.data))
+      .catch(() => setPricing({
+        region: 'EUR', currency: '€',
+        prices: { monthly: 6.99, yearly: 49.99 },
+        priceIds: { monthly: null, yearly: null }
+      }));
+
+    // Load user stats to show on subscription screen
+    if (appUser?.email) {
+      Promise.all([
+        base44.entities.MealLog.filter({ created_by: appUser.email }),
+        base44.entities.DailyCheckIn.filter({ created_by: appUser.email }),
+      ]).then(([meals, checkins]) => {
+        setUserStats({
+          mealsLogged: meals?.length || 0,
+          daysTracked: checkins?.length || 0,
+          streak: profile?.current_streak || 0,
         });
+      }).catch(() => {
+        setUserStats({ mealsLogged: 0, daysTracked: 0, streak: 0 });
       });
-  }, [appUser]);
-
-  const handleSignOut = () => safeLogout();
-  const handleResetSession = () => hardReset();
-
-  const handleClose = () => {
-    window.location.href = createPageUrl('Home');
-  };
+    }
+  }, [appUser?.email, profile?.current_streak]);
 
   const handleContinue = async () => {
-    if (!user) {
-      toast.error(t("please_login_continue"));
-      return;
-    }
-
-    if (!pricing) {
-      toast.error(t("payment_not_configured"));
-      return;
-    }
+    if (!appUser) { toast.error(t("please_login_continue")); return; }
+    if (!pricing) { toast.error(t("payment_not_configured")); return; }
 
     setLoading(true);
     setPurchaseError(null);
-    
     try {
       const priceId = pricing.priceIds[selectedPlan];
-      
       const response = await base44.functions.invoke('createCheckoutSession', {
-        priceId: priceId,
+        priceId,
         planType: selectedPlan,
       });
-
-      if (!response?.data?.url) {
-        throw new Error('No checkout URL returned from server');
-      }
-
+      if (!response?.data?.url) throw new Error('No checkout URL returned from server');
       window.location.href = response.data.url;
     } catch (error) {
       const msg = error?.response?.data?.error || error?.message || 'Unknown error';
-      console.error('[Paywall] Purchase error:', { code: error?.response?.status, message: msg, raw: error });
       setPurchaseError(msg);
       setLoading(false);
     }
   };
 
+  const handleClose = () => { window.location.href = createPageUrl('Home'); };
+
+  const yearlyMonthly = pricing ? (pricing.prices.yearly / 12).toFixed(2) : null;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden flex flex-col" style={{ pointerEvents: 'auto' }}>
-      <div className="absolute inset-0 opacity-30" style={{ pointerEvents: 'none' }}>
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute top-20 -right-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950 relative overflow-hidden flex flex-col" style={{ pointerEvents: 'auto' }}>
+      {/* Background glow */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500 rounded-full filter blur-3xl" />
+        <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-emerald-500 rounded-full filter blur-3xl" />
       </div>
 
-      <div className="max-w-lg mx-auto px-5 pb-24 pt-8 relative z-10 flex-1 flex flex-col" style={{ pointerEvents: 'auto' }}>
-        {/* Top actions */}
-        <div className="flex justify-between items-center mb-6" style={{ pointerEvents: 'auto' }}>
-          {isTrialExpired && (
-            <div className="px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
-              <span className="text-red-300 text-xs font-semibold">{t('trial_ended')}</span>
-            </div>
-          )}
-          {trialDaysLeft > 0 && !isPremium && (
-            <div className="px-3 py-1 bg-teal-500/20 border border-teal-500/30 rounded-full">
-              <span className="text-teal-300 text-xs font-semibold">{t('trial')}: {trialDaysLeft} {t('days_left')}</span>
-            </div>
-          )}
-          {isPremium && (
-            <div className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center gap-1">
-              <Crown size={12} className="text-emerald-300" />
-              <span className="text-emerald-300 text-xs font-semibold">{t('premium_active')}</span>
-            </div>
-          )}
-          <div className="flex-1" />
-          <div className="flex gap-2" style={{ pointerEvents: 'auto' }}>
-            {isEntitled && (
-              <button
-                onClick={handleClose}
-                className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors active:bg-white/30"
-                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                type="button"
-              >
-                <X size={20} className="text-white" />
-              </button>
-            )}
-          </div>
-        </div>
+      <div className="max-w-lg mx-auto w-full px-5 pb-10 pt-12 relative z-10 flex flex-col" style={{ paddingTop: 'max(48px, env(safe-area-inset-top, 48px))' }}>
 
-        {/* Hero */}
-        <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        {/* Close button — only if still entitled (trial user browsing paywall) */}
+        {isEntitled && !isTrialExpired && (
+          <div className="flex justify-end mb-4">
+            <button onClick={handleClose}
+              className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <X size={18} className="text-white" />
+            </button>
+          </div>
+        )}
+
+        {/* Header */}
+        <motion.div className="text-center mb-8" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 mb-4 shadow-2xl shadow-teal-500/40">
+            <Crown size={28} className="text-white" />
+          </div>
+
           {isTrialExpired ? (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
-                Your 7-day trial has ended
+                {isEs ? 'Tu Trial ha terminado' : 'Your Trial Has Ended'}
               </h1>
-              <p className="text-lg text-teal-200">
-                To continue using Balancen, upgrade to Premium.
-              </p>
-            </>
-          ) : trialDaysLeft > 0 ? (
-            <>
-              <h1 className="text-3xl font-black text-white mb-2">
-                {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left in your trial
-              </h1>
-              <p className="text-lg text-teal-200">
-                Upgrade now to keep full access.
+              <p className="text-white/60 text-base">
+                {isEs
+                  ? 'Suscríbete para seguir usando Balancen sin interrupciones.'
+                  : 'Subscribe to keep using Balancen without interruption.'}
               </p>
             </>
           ) : (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
-                Start your 7-day free trial
+                {isEs ? 'Hazte Premium' : 'Go Premium'}
               </h1>
-              <p className="text-lg text-teal-200">
-                Full Premium access — no charge until day 8. Cancel anytime.
+              <p className="text-white/60 text-base">
+                {isEs ? 'Acceso completo, sin límites.' : 'Full access, no limits.'}
               </p>
             </>
           )}
         </motion.div>
 
-        {/* Premium Plan Card */}
-        <motion.div
-          className="relative overflow-hidden bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl border-2 border-amber-400/50 rounded-3xl p-5 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-amber-400/30 to-orange-400/30 rounded-full blur-2xl" />
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
-                <span className="text-white text-sm font-bold">Premium</span>
-              </div>
-              <Crown size={18} className="text-amber-300" />
-            </div>
-
-            <div className="space-y-2 mb-4">
-              <p className="text-white text-sm font-semibold mb-2">Everything you need:</p>
-              {[
-                'Unlimited streaks & consistency tracking',
-                'Three fire metrics for motivation',
-                'Auto-adjusting goals based on progress',
-                'AI-powered coaching & personalized insights',
-                'Advanced analytics & progress tracking',
-                'Unlimited group creation & social features',
-                'Leaderboards & social challenges',
-                'Priority sync across devices',
-                'Full history export & backup',
-                'Progressive challenges & rewards'
-              ].map((feature, i) => (
-                <div key={i} className="flex items-start gap-2 text-white text-sm">
-                  <Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>{feature}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* AI Coaching Explanation */}
-            <div className="bg-purple-500/20 border border-purple-400/30 rounded-xl p-4 mb-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles size={16} className="text-purple-300" />
-                <p className="text-white text-sm font-semibold">
-                  AI Coaching helps you:
-                </p>
-              </div>
-              <ul className="space-y-1 text-white/90 text-xs">
-                <li>• Review your activity and patterns</li>
-                <li>• Get personalized recommendations</li>
-                <li>• Adjust habits that matter most</li>
-                <li>• Stay consistent and motivated</li>
-              </ul>
-            </div>
-
-            <p className="text-emerald-200 text-sm font-medium italic">
-              Premium is designed for lasting results.
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Pricing */}
-        {pricing && (
+        {/* User stats — shown when trial expired to remind them of progress */}
+        {isTrialExpired && userStats && (
           <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            style={{ pointerEvents: 'auto' }}
+            className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 grid grid-cols-3 gap-3"
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           >
-            <h3 className="text-white font-semibold text-lg mb-3 text-center">
-              {t('premium_pricing')}
-            </h3>
-            
-            <div className="flex gap-4" style={{ pointerEvents: 'auto' }}>
-              {['monthly', 'yearly'].map((key) => (
-                <button
-                  key={key}
-                  onClick={() => setSelectedPlan(key)}
-                  type="button"
-                  style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                  className={`flex-1 relative overflow-hidden rounded-2xl p-5 transition-all ${
-                    selectedPlan === key
-                      ? "bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-2 border-amber-400 shadow-xl scale-105"
-                      : "bg-white/10 border-2 border-white/20 hover:border-white/30"
-                  }`}
-                >
-                  {key === 'yearly' && (
-                    <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                      {t("best_value")}
-                    </div>
-                  )}
-                  <p className="text-white/80 text-sm mb-1 font-medium">{t(key)}</p>
-                  <p className="text-3xl font-black text-white">{pricing.currency}{pricing.prices[key]}</p>
-                  <p className="text-white/60 text-xs mt-1">/ {t(key === 'monthly' ? 'month' : 'year')}</p>
-                </button>
-              ))}
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-1">
+                <Calendar size={16} className="text-teal-400" />
+              </div>
+              <p className="text-2xl font-black text-white">{userStats.daysTracked}</p>
+              <p className="text-white/50 text-xs">{isEs ? 'días rastreados' : 'days tracked'}</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-1">
+                <Utensils size={16} className="text-emerald-400" />
+              </div>
+              <p className="text-2xl font-black text-white">{userStats.mealsLogged}</p>
+              <p className="text-white/50 text-xs">{isEs ? 'comidas registradas' : 'meals logged'}</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-1">
+                <Flame size={16} className="text-orange-400" />
+              </div>
+              <p className="text-2xl font-black text-white">{userStats.streak}</p>
+              <p className="text-white/50 text-xs">{isEs ? 'racha actual' : 'current streak'}</p>
             </div>
           </motion.div>
         )}
 
-        {/* CTA */}
-        <motion.div
-          className="space-y-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          style={{ pointerEvents: 'auto' }}
-        >
-          {/* Purchase error banner */}
-          {purchaseError && (
-            <div className="flex items-start gap-3 bg-red-500/20 border border-red-400/40 rounded-2xl p-4">
-              <AlertTriangle size={18} className="text-red-300 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="text-red-200 text-sm font-semibold mb-1">
-                  {lang === "es" ? "Error al procesar el pago" : "Payment failed"}
-                </p>
-                <p className="text-red-300/80 text-xs break-words">{purchaseError}</p>
+        {/* Plan selector */}
+        {pricing && (
+          <motion.div className="mb-6" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+            {/* Annual — highlighted */}
+            <button
+              onClick={() => setSelectedPlan("yearly")}
+              className={`w-full relative rounded-2xl p-5 mb-3 border-2 transition-all text-left ${
+                selectedPlan === 'yearly'
+                  ? 'bg-gradient-to-r from-teal-500/25 to-emerald-500/25 border-teal-400 shadow-xl'
+                  : 'bg-white/5 border-white/15 hover:border-white/30'
+              }`}
+            >
+              <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">
+                {isEs ? 'Mejor valor' : 'Best Value'}
               </div>
-            </div>
-          )}
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
+                <span className="text-white/50 text-sm">/ {isEs ? 'año' : 'year'}</span>
+              </div>
+              <p className="text-teal-300 text-sm font-semibold">
+                {pricing.currency}{yearlyMonthly} / {isEs ? 'mes' : 'month'} — {isEs ? 'Ahorra un 40%' : 'Save 40%'}
+              </p>
+            </button>
 
-          <Button
+            {/* Monthly */}
+            <button
+              onClick={() => setSelectedPlan("monthly")}
+              className={`w-full rounded-2xl p-4 border-2 transition-all text-left ${
+                selectedPlan === 'monthly'
+                  ? 'bg-white/10 border-white/40 shadow-lg'
+                  : 'bg-white/5 border-white/15 hover:border-white/30'
+              }`}
+            >
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-white">{pricing.currency}{pricing.prices.monthly}</span>
+                <span className="text-white/50 text-sm">/ {isEs ? 'mes' : 'month'}</span>
+              </div>
+            </button>
+          </motion.div>
+        )}
+
+        {/* Features */}
+        <motion.div
+          className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 space-y-2.5"
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+        >
+          {(isEs ? [
+            'Análisis de comidas con IA ilimitado',
+            'Seguimiento avanzado de progreso',
+            'Grupos y leaderboard social',
+            'Recomendaciones personalizadas de IA',
+            'Racha y métricas de consistencia',
+            'Exportación de historial completo',
+          ] : [
+            'Unlimited AI-powered meal analysis',
+            'Advanced progress tracking',
+            'Groups & social leaderboard',
+            'Personalized AI recommendations',
+            'Streak & consistency metrics',
+            'Full history export & backup',
+          ]).map((f, i) => (
+            <div key={i} className="flex items-center gap-2.5">
+              <Check size={15} className="text-teal-400 flex-shrink-0" />
+              <span className="text-white/80 text-sm">{f}</span>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Error banner */}
+        {purchaseError && (
+          <div className="flex items-start gap-3 bg-red-500/20 border border-red-400/40 rounded-2xl p-4 mb-4">
+            <p className="text-red-200 text-sm">{purchaseError}</p>
+          </div>
+        )}
+
+        {/* CTA */}
+        <motion.div className="space-y-3" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          <button
             onClick={handleContinue}
             disabled={loading || !pricing}
-            type="button"
-            style={{ pointerEvents: 'auto', cursor: loading || !pricing ? 'not-allowed' : 'pointer' }}
-            className="w-full py-7 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/50 disabled:opacity-50"
+            className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-black text-lg shadow-2xl shadow-teal-500/40 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
             {loading ? (
-              <>
-                <Loader2 size={20} className="mr-2 animate-spin" />
-                {t("processing")}
-              </>
-            ) : purchaseError ? (
-              <>
-                <RefreshCw size={20} className="mr-2" />
-                {lang === "es" ? "Reintentar" : "Retry"}
-              </>
-            ) : isTrialExpired ? (
-              <>
-                <Crown size={20} className="mr-2" />
-                {lang === 'es' ? 'Suscribirme a Premium' : 'Subscribe to Premium'}
-              </>
-            ) : trialDaysLeft > 0 ? (
-              <>
-                <Crown size={20} className="mr-2" />
-                {lang === 'es' ? 'Actualizar a Premium' : 'Upgrade to Premium'}
-              </>
+              <><Loader2 size={20} className="animate-spin" /> {isEs ? 'Procesando…' : 'Processing…'}</>
             ) : (
-              <>
-                <Sparkles size={20} className="mr-2" />
-                {lang === 'es' ? 'Empezar prueba gratuita' : 'Start Free Trial'}
-              </>
+              <><Sparkles size={20} /> {isEs ? 'Desbloquear Premium' : 'Unlock Premium'}</>
             )}
-          </Button>
-          
-          <p className="text-center text-xs text-white/60 mt-1">
-            {t("cancel_anytime")}
+          </button>
+
+          <p className="text-center text-xs text-white/40">
+            {isEs ? 'Cancela en cualquier momento' : 'Cancel anytime'}
           </p>
 
-          {/* Restore Purchase */}
           <button
-            type="button"
-            onClick={() => {
-              toast.info(lang === "es" ? "Contacta con soporte para restaurar tu compra." : "Contact support to restore your purchase.");
-            }}
-            className="w-full py-3 text-white/50 text-sm font-medium hover:text-white/80 transition-colors"
-            style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+            onClick={() => toast.info(isEs ? "Contacta con soporte para restaurar tu compra." : "Contact support to restore your purchase.")}
+            className="w-full py-3 text-white/40 text-sm hover:text-white/70 transition-colors"
           >
-            {lang === "es" ? "Restaurar compra" : "Restore Purchase"}
+            {isEs ? 'Restaurar compra' : 'Restore Purchase'}
           </button>
 
-          {/* Logout */}
           <button
-            type="button"
-            onClick={handleSignOut}
-            className="w-full py-3 text-white/40 text-sm font-medium hover:text-white/70 transition-colors flex items-center justify-center gap-2"
-            style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+            onClick={safeLogout}
+            className="w-full py-3 text-white/30 text-xs hover:text-white/60 transition-colors flex items-center justify-center gap-2"
           >
-            <LogOut size={14} />
-            {lang === "es" ? "Cerrar sesión" : "Log out"}
+            <LogOut size={13} />
+            {isEs ? 'Cerrar sesión' : 'Log out'}
           </button>
 
-          {/* Reset Session — always visible escape hatch */}
           <button
-            type="button"
-            onClick={handleResetSession}
-            className="w-full py-3 text-white/30 text-xs font-medium hover:text-white/60 transition-colors flex items-center justify-center gap-1.5"
-            style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+            onClick={hardReset}
+            className="w-full py-2 text-white/20 text-xs hover:text-white/50 transition-colors flex items-center justify-center gap-1.5"
           >
-            <RefreshCw size={12} />
-            {lang === "es" ? "Restablecer sesión" : "Reset Session"}
+            <RefreshCw size={11} />
+            {isEs ? 'Restablecer sesión' : 'Reset Session'}
           </button>
         </motion.div>
       </div>
