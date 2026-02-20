@@ -93,9 +93,6 @@ const Home = React.memo(() => {
 
   return (
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
-      {/* Global Header */}
-      <GlobalHeader />
-
       <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
 
         {/* Trial Day Banner */}
