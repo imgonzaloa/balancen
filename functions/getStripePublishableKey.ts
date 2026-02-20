@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
     } else if (latinAmericaCountries.includes(country)) {
       region = 'USD_LATAM';
       currency = '$';
-      prices = { monthly: 3.99, yearly: 25.99 };
+      prices = { monthly: 3.99, yearly: 26.99 };
       priceIds = {
         monthly: monthlyUSD_LATAM,
         yearly: yearlyUSD_LATAM
