@@ -239,8 +239,6 @@ export default function Profile() {
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full blur-3xl" />
       </div>
 
-      <GlobalHeader />
-
       <div className="max-w-lg mx-auto px-4 pt-2 pb-8 relative z-10">
         <h1 className="text-3xl font-black text-white mb-2">
           {t('profile')}
