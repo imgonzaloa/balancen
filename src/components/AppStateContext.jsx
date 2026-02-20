@@ -148,8 +148,9 @@ export function AppStateProvider({ children }) {
 
   const value = {
     user,
-    profile: profile === undefined ? null : profile, // expose null externally while loading
-    profileLoading: profile === undefined && !!user?.email,
+    // undefined = still loading, null = loaded but not found, object = loaded profile
+    profile: profile === undefined ? null : profile,
+    profileLoading: profile === undefined, // true until first fetch settles (for any user state)
     friends,
     groups,
     todayMeals,
