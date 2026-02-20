@@ -26,9 +26,12 @@ export default function Paywall() {
   const [userStats, setUserStats] = useState(null);
 
   const { profile, user: appUser } = useAppState();
-  const { isTrialExpired, trialDaysLeft, isPremium, isEntitled } = useEntitlement(profile);
+  const { isTrialExpired, trialDaysLeft, isPremium, isEntitled, isCampusAccess, isCampusReward, isAccessExpired, accessDaysLeft, campus_consistency_percent } = useEntitlement(profile);
   const { t, lang } = useTranslation();
   const isEs = lang === 'es';
+
+  const isCampusExpired = isAccessExpired && (profile?.access_type === 'campus_access' || profile?.access_type === 'campus_reward' || profile?.access_type === 'expired');
+  const showCampusStats = isCampusExpired || isCampusAccess || isCampusReward;
 
   useEffect(() => {
     base44.functions.invoke('getStripePublishableKey', {})
@@ -39,7 +42,6 @@ export default function Paywall() {
         priceIds: { monthly: null, yearly: null }
       }));
 
-    // Load user stats to show on subscription screen
     if (appUser?.email) {
       Promise.all([
         base44.entities.MealLog.filter({ created_by: appUser.email }),
@@ -49,12 +51,13 @@ export default function Paywall() {
           mealsLogged: meals?.length || 0,
           daysTracked: checkins?.length || 0,
           streak: profile?.current_streak || 0,
+          consistencyPercent: profile?.campus_consistency_percent ?? null,
         });
       }).catch(() => {
-        setUserStats({ mealsLogged: 0, daysTracked: 0, streak: 0 });
+        setUserStats({ mealsLogged: 0, daysTracked: 0, streak: 0, consistencyPercent: null });
       });
     }
-  }, [appUser?.email, profile?.current_streak]);
+  }, [appUser?.email, profile?.current_streak, profile?.campus_consistency_percent]);
 
   const handleContinue = async () => {
     if (!appUser) { toast.error(t("please_login_continue")); return; }
