@@ -99,7 +99,7 @@ const Home = React.memo(() => {
 
         {/* Trial Day Banner */}
         {showTrialBanner && (
-          <TrialBanner trialDay={trialDaysLeft} lang={lang} navigate={navigate} />
+          <TrialBanner trialDay={effectiveTrialDay} trialDaysLeft={trialDaysLeft} lang={lang} navigate={navigate} />
         )}
 
         {/* Greeting */}
