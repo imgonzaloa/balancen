@@ -79,6 +79,7 @@ export default function GroupDashboard() {
 
   const adminTabs = [
     { id: "leaderboard", icon: Trophy, label: "Leaderboard" },
+    { id: "messages", icon: Megaphone, label: "Messages" },
     { id: "invite", icon: Mail, label: "Invite" },
     { id: "winners", icon: Shield, label: "Winners" },
     { id: "settings", icon: Settings, label: "Settings" },
@@ -86,6 +87,7 @@ export default function GroupDashboard() {
   const memberTabs = [
     { id: "leaderboard", icon: Trophy, label: "Leaderboard" },
     { id: "members", icon: Users, label: "Members" },
+    { id: "messages", icon: Megaphone, label: "Messages" },
   ];
   const tabs = isAdmin ? adminTabs : memberTabs;
 
