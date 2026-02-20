@@ -25,62 +25,69 @@ async function safeLogout() {
 /**
  * TrialGate: Route guard with correct priority order.
  *
- * Priority:
- * 1. Not authenticated → do nothing (BootGate handles Login redirect)
- * 2. Authenticated + onboarding NOT complete → redirect to Onboarding/LanguageSelector
- * 3. Authenticated + onboarded + entitled → allow access
- * 4. Authenticated + onboarded + NOT entitled → redirect to Paywall
+ * Priority (evaluated in order):
+ * 1. Not ready yet (loading)        → render nothing
+ * 2. No user email                  → render nothing (BootGate/Login handles it)
+ * 3. Onboarding not complete        → redirect to LanguageSelector or Onboarding
+ * 4. Profile never fetched (error)  → show safe fallback (Retry / Logout / Reset)
+ * 5. Not entitled                   → redirect to Paywall
+ * 6. All good                       → render children
  *
- * If profile fails to load, shows a safe fallback instead of hard-locking.
+ * Key rule: a null profile on a NEW user (no localStorage flag, profile was never created)
+ * means onboarding is required, NOT a load failure.
+ * A load failure is when the localStorage flag says "done" but profile came back null.
  */
 export default function TrialGate({ children }) {
   const { user, profile, isInitialized, profileLoading } = useAppState();
   const navigate = useNavigate();
   const { isEntitled } = useEntitlement(profile);
 
-  // Don't decide until auth + profile are both settled
+  // Not ready until auth + profile fetch both settle
   const isReady = isInitialized && !profileLoading;
 
-  // Profile fetch finished but came back null (possible timeout/error)
-  const profileLoadFailed = isReady && !!user?.email && profile === null;
+  // Onboarding is complete if localStorage OR profile flag says so
+  const localOnboardingDone = localStorage.getItem('balancen_onboarding_complete') === 'true';
+  const onboardingComplete = localOnboardingDone || profile?.onboarding_completed === true;
 
-  // Onboarding not yet done — check localStorage first (fast), then profile flag
-  const onboardingComplete =
-    localStorage.getItem('balancen_onboarding_complete') === 'true' ||
-    profile?.onboarding_completed === true;
+  // A load failure is: user exists, localStorage says onboarding is done,
+  // but profile came back null (server/network error). New users never have the flag.
+  const profileLoadFailed = isReady && !!user?.email && localOnboardingDone && profile === null;
 
   React.useEffect(() => {
     if (!isReady || !user?.email) return;
 
-    // If profile is null (possibly failed), don't redirect — show fallback
+    // If we can't tell if they're entitled (server error), don't redirect to paywall
     if (profileLoadFailed) return;
 
-    // Priority 2: onboarding not complete → force onboarding
+    // Priority 3: onboarding not done → send to onboarding
     if (!onboardingComplete) {
       const hasLanguage = !!(
         profile?.language ||
         localStorage.getItem('i18nextLng') ||
         localStorage.getItem('balancen_lang')
       );
+      console.log('[TrialGate] Onboarding required, hasLanguage:', hasLanguage);
       navigate(createPageUrl(hasLanguage ? 'Onboarding' : 'LanguageSelector'), { replace: true });
       return;
     }
 
-    // Priority 4: onboarded but not entitled → paywall
+    // Priority 5: onboarded but not entitled → paywall
     if (!isEntitled) {
+      console.log('[TrialGate] Not entitled, redirecting to Paywall');
       navigate(createPageUrl('Paywall'), { replace: true });
     }
   }, [isReady, user?.email, onboardingComplete, isEntitled, profileLoadFailed, navigate, profile?.language]);
 
-  // Show nothing while loading or about to redirect
+  // 1. Not ready
   if (!isReady) return null;
+
+  // 2. Not authenticated
   if (!user?.email) return null;
 
-  // Redirect in progress
-  if (profile !== null && !onboardingComplete) return null;
-  if (profile !== null && onboardingComplete && !isEntitled) return null;
+  // 3. Onboarding redirect in progress
+  if (!onboardingComplete && !profileLoadFailed) return null;
 
-  // Profile failed to load — show safe fallback, never lock out
+  // 4. Profile load failure — safe fallback, never a dead-end
   if (profileLoadFailed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex flex-col items-center justify-center p-6">
@@ -122,5 +129,9 @@ export default function TrialGate({ children }) {
     );
   }
 
+  // 5. Paywall redirect in progress
+  if (!isEntitled) return null;
+
+  // 6. All clear
   return <>{children}</>;
 }
