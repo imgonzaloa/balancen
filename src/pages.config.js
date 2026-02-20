@@ -56,6 +56,7 @@ import CreateStory from './pages/CreateStory';
 import Feed from './pages/Feed';
 import Friends from './pages/Friends';
 import GoalsAssistant from './pages/GoalsAssistant';
+import GroupDashboard from './pages/GroupDashboard';
 import GroupDetail from './pages/GroupDetail';
 import Groups from './pages/Groups';
 import Home from './pages/Home';
@@ -78,7 +79,6 @@ import Social from './pages/Social';
 import TrainerDashboard from './pages/TrainerDashboard';
 import UserManagement from './pages/UserManagement';
 import WorkoutTracker from './pages/WorkoutTracker';
-import GroupDashboard from './pages/GroupDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -92,6 +92,7 @@ export const PAGES = {
     "Feed": Feed,
     "Friends": Friends,
     "GoalsAssistant": GoalsAssistant,
+    "GroupDashboard": GroupDashboard,
     "GroupDetail": GroupDetail,
     "Groups": Groups,
     "Home": Home,
@@ -114,7 +115,6 @@ export const PAGES = {
     "TrainerDashboard": TrainerDashboard,
     "UserManagement": UserManagement,
     "WorkoutTracker": WorkoutTracker,
-    "GroupDashboard": GroupDashboard,
 }
 
 export const pagesConfig = {
