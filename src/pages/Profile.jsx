@@ -172,6 +172,8 @@ export default function Profile() {
     }
   };
 
+  const { isTrialActive, trialDaysLeft, isPremium } = useEntitlement(profile);
+
   const goalLabel = (key) => t(key) || t('not_defined');
   const intensityLabel = (key) => t(key) || t('not_defined');
 
