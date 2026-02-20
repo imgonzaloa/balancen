@@ -160,19 +160,19 @@ export default function Paywall() {
           ) : trialDaysLeft > 0 ? (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
-                Trial Active — {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left
+                {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left in your trial
               </h1>
               <p className="text-lg text-teal-200">
-                Upgrade now to avoid interruption.
+                Upgrade now to keep full access.
               </p>
             </>
           ) : (
             <>
               <h1 className="text-3xl font-black text-white mb-2">
-                Unlock Balancen Premium
+                Start your 7-day free trial
               </h1>
               <p className="text-lg text-teal-200">
-                Full access to all features. Cancel anytime.
+                Full Premium access — no charge until day 8. Cancel anytime.
               </p>
             </>
           )}
