@@ -138,8 +138,8 @@ export default function TrialGate({ children }) {
 // Triggers Base44 login redirect without crashing if SDK not ready
 function base44AuthRedirect() {
   try {
-    import('@/api/base44Client').then(({ base44 }) => {
-      base44.auth.redirectToLogin(window.location.href);
-    });
-  } catch (_) {}
+    base44.auth.redirectToLogin(window.location.href);
+  } catch (_) {
+    window.location.href = '/login';
+  }
 }
