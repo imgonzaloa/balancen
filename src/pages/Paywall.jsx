@@ -283,6 +283,19 @@ export default function Paywall() {
           transition={{ delay: 0.5 }}
           style={{ pointerEvents: 'auto' }}
         >
+          {/* Purchase error banner */}
+          {purchaseError && (
+            <div className="flex items-start gap-3 bg-red-500/20 border border-red-400/40 rounded-2xl p-4">
+              <AlertTriangle size={18} className="text-red-300 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-red-200 text-sm font-semibold mb-1">
+                  {lang === "es" ? "Error al procesar el pago" : "Payment failed"}
+                </p>
+                <p className="text-red-300/80 text-xs break-words">{purchaseError}</p>
+              </div>
+            </div>
+          )}
+
           <Button
             onClick={handleContinue}
             disabled={loading || !pricing}
@@ -294,6 +307,11 @@ export default function Paywall() {
               <>
                 <Loader2 size={20} className="mr-2 animate-spin" />
                 {t("processing")}
+              </>
+            ) : purchaseError ? (
+              <>
+                <RefreshCw size={20} className="mr-2" />
+                {lang === "es" ? "Reintentar" : "Retry"}
               </>
             ) : isTrialExpired ? (
               <>
@@ -315,7 +333,7 @@ export default function Paywall() {
           {/* Restore Purchase */}
           <button
             type="button"
-            onClick={async () => {
+            onClick={() => {
               toast.info(lang === "es" ? "Contacta con soporte para restaurar tu compra." : "Contact support to restore your purchase.");
             }}
             className="w-full py-3 text-white/50 text-sm font-medium hover:text-white/80 transition-colors"
@@ -333,6 +351,17 @@ export default function Paywall() {
           >
             <LogOut size={14} />
             {lang === "es" ? "Cerrar sesión" : "Log out"}
+          </button>
+
+          {/* Reset Session — always visible escape hatch */}
+          <button
+            type="button"
+            onClick={handleResetSession}
+            className="w-full py-3 text-white/30 text-xs font-medium hover:text-white/60 transition-colors flex items-center justify-center gap-1.5"
+            style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+          >
+            <RefreshCw size={12} />
+            {lang === "es" ? "Restablecer sesión" : "Reset Session"}
           </button>
         </motion.div>
       </div>
