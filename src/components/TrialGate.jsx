@@ -23,11 +23,15 @@ async function safeLogout() {
 }
 
 /**
- * TrialGate: Hard paywall — only entitled users see content.
+ * TrialGate: Route guard with correct priority order.
  *
- * Waits for BOTH isInitialized AND profile to finish loading.
- * If entitlement cannot be determined (error/timeout), shows a safe fallback
- * with Retry / Logout / Reset — never hard-locks the user out.
+ * Priority:
+ * 1. Not authenticated → do nothing (BootGate handles Login redirect)
+ * 2. Authenticated + onboarding NOT complete → redirect to Onboarding/LanguageSelector
+ * 3. Authenticated + onboarded + entitled → allow access
+ * 4. Authenticated + onboarded + NOT entitled → redirect to Paywall
+ *
+ * If profile fails to load, shows a safe fallback instead of hard-locking.
  */
 export default function TrialGate({ children }) {
   const { user, profile, isInitialized, profileLoading } = useAppState();
@@ -37,23 +41,46 @@ export default function TrialGate({ children }) {
   // Don't decide until auth + profile are both settled
   const isReady = isInitialized && !profileLoading;
 
-  // Profile failed to load (isInitialized but user exists yet profile is still null after timeout)
-  // We treat this as uncertain — don't redirect, show fallback
+  // Profile fetch finished but came back null (possible timeout/error)
   const profileLoadFailed = isReady && !!user?.email && profile === null;
 
-  // Redirect only when we're sure the user is not entitled
-  const shouldRedirect = isReady && (!user?.email || (!isEntitled && !profileLoadFailed));
+  // Onboarding not yet done — check localStorage first (fast), then profile flag
+  const onboardingComplete =
+    localStorage.getItem('balancen_onboarding_complete') === 'true' ||
+    profile?.onboarding_completed === true;
 
   React.useEffect(() => {
-    if (shouldRedirect) {
+    if (!isReady || !user?.email) return;
+
+    // If profile is null (possibly failed), don't redirect — show fallback
+    if (profileLoadFailed) return;
+
+    // Priority 2: onboarding not complete → force onboarding
+    if (!onboardingComplete) {
+      const hasLanguage = !!(
+        profile?.language ||
+        localStorage.getItem('i18nextLng') ||
+        localStorage.getItem('balancen_lang')
+      );
+      navigate(createPageUrl(hasLanguage ? 'Onboarding' : 'LanguageSelector'), { replace: true });
+      return;
+    }
+
+    // Priority 4: onboarded but not entitled → paywall
+    if (!isEntitled) {
       navigate(createPageUrl('Paywall'), { replace: true });
     }
-  }, [shouldRedirect, navigate]);
+  }, [isReady, user?.email, onboardingComplete, isEntitled, profileLoadFailed, navigate, profile?.language]);
 
   // Show nothing while loading or about to redirect
-  if (!isReady || shouldRedirect) return null;
+  if (!isReady) return null;
+  if (!user?.email) return null;
 
-  // If profile failed to load, show a non-blocking fallback instead of hard-locking
+  // Redirect in progress
+  if (profile !== null && !onboardingComplete) return null;
+  if (profile !== null && onboardingComplete && !isEntitled) return null;
+
+  // Profile failed to load — show safe fallback, never lock out
   if (profileLoadFailed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex flex-col items-center justify-center p-6">
