@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Trophy, Users, Mail, Settings, Shield } from "lucide-react";
+import { ChevronLeft, Trophy, Users, Mail, Settings, Shield, Megaphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import AdminLeaderboard from "@/components/groups/AdminLeaderboard";
@@ -10,6 +10,7 @@ import MemberLeaderboard from "@/components/groups/MemberLeaderboard";
 import InviteMembersPanel from "@/components/groups/InviteMembersPanel";
 import WinnersPanel from "@/components/groups/WinnersPanel";
 import GroupSettingsPanel from "@/components/groups/GroupSettingsPanel";
+import BroadcastPanel from "@/components/groups/BroadcastPanel";
 
 export default function GroupDashboard() {
   const [user, setUser] = useState(null);
