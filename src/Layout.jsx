@@ -36,7 +36,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector", "Premium", "ProfileSetup"];
+const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector", "Premium", "ProfileSetup", "GroupDashboard"];
 const showBrandPages = ["Home", "Social", "Progress", "Profile"];
 const mainTabs = ["Home", "Social", "Progress", "Profile"];
 
