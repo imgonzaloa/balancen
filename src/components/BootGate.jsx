@@ -1,16 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { logger } from '@/components/logger';
 
 /**
- * BootGate: Single source of truth for app state hydration.
- * Prevents flashing and onboarding loops with stable localStorage persistence.
+ * BootGate: hydrates auth state before rendering the app.
+ *
+ * - NEVER throws on 401 / network errors — treats them as "unauthenticated"
+ * - Reads localStorage for language + onboarding FIRST (sync, instant)
+ * - Auth check has a 4-second timeout to avoid infinite spinner
  */
 
 const STORAGE_KEYS = {
-  LANGUAGE: 'i18nextLng',          // single source of truth for i18next
-  ONBOARDING_COMPLETE: 'balancen_onboarding_complete'
+  LANGUAGE: 'i18nextLng',
+  ONBOARDING_COMPLETE: 'balancen_onboarding_complete',
 };
+
+async function safeAuthCheck() {
+  try {
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Auth timeout')), 4000)
+    );
+    const user = await Promise.race([base44.auth.me(), timeout]);
+    return user?.email ? user : null;
+  } catch (_) {
+    // 401, network error, timeout — treat as unauthenticated, do NOT throw
+    return null;
+  }
+}
 
 export default function BootGate({ children }) {
   const [bootState, setBootState] = useState(null);
@@ -19,131 +34,96 @@ export default function BootGate({ children }) {
     let isMounted = true;
 
     const resolveBoot = async () => {
-      console.log('[BOOT] Starting hydration');
+      // STEP 1: Sync reads from localStorage (instant)
+      const storedLanguage = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
+      const storedOnboarding = localStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETE) === 'true';
 
+      // STEP 2: Check auth without throwing
+      const user = await safeAuthCheck();
+
+      if (!isMounted) return;
+
+      if (!user) {
+        // Not authenticated — show language selector or login
+        setBootState({
+          type: 'AUTH_REQUIRED',
+          isHydrated: true,
+          user: null,
+          language: storedLanguage || 'en',
+          onboardingComplete: storedOnboarding,
+        });
+        return;
+      }
+
+      // STEP 3: Authenticated + cached onboarding done → go straight to app
+      if (storedOnboarding && storedLanguage) {
+        setBootState({
+          type: 'HOME_READY',
+          isHydrated: true,
+          user,
+          language: storedLanguage,
+          onboardingComplete: true,
+        });
+        return;
+      }
+
+      // STEP 4: Authenticated but no cache — fetch profile to determine state
+      let profile = null;
       try {
-        // STEP 1: Hydrate from localStorage FIRST (synchronous, fast)
-        const storedLanguage = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
-        const storedOnboarding = localStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
-        
-        console.log('[BOOT] Hydrated:', { language: storedLanguage, onboardingComplete: storedOnboarding });
+        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+        profile = profiles?.[0] || null;
+      } catch (_) {
+        // Profile fetch failed — treat as new user, don't crash
+        profile = null;
+      }
 
-        // STEP 2: Check auth (with timeout)
-        const authPromise = base44.auth.me();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth timeout')), 3000)
-        );
-        
-        const user = await Promise.race([authPromise, timeoutPromise]);
+      if (!isMounted) return;
 
-        if (!isMounted) return;
+      if (!profile || !profile.onboarding_completed) {
+        // New user or onboarding incomplete — clear stale flag
+        localStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
+        const hasLanguage = !!(profile?.language || storedLanguage);
 
-        if (!user?.email) {
-          console.log('[BOOT] Not authenticated');
-          if (isMounted) {
-            setBootState({ 
-              type: 'AUTH_REQUIRED',
-              isHydrated: true,
-              language: storedLanguage || 'en',
-              onboardingComplete: storedOnboarding === 'true'
-            });
-          }
-          return;
-        }
+        setBootState({
+          type: hasLanguage ? 'ONBOARDING_REQUIRED' : 'LANGUAGE_REQUIRED',
+          isHydrated: true,
+          user,
+          profile,
+          language: profile?.language || storedLanguage || 'en',
+          onboardingComplete: false,
+        });
+        return;
+      }
 
-        // STEP 3: If we have cached completion, trust it (no profile fetch needed)
-        if (storedOnboarding === 'true' && storedLanguage) {
-          console.log('[BOOT] Using cached completion state');
-          if (isMounted) {
-            setBootState({
-              type: 'HOME_READY',
-              user,
-              isHydrated: true,
-              language: storedLanguage,
-              onboardingComplete: true,
-            });
-          }
-          return;
-        }
+      // STEP 5: Profile confirmed complete — persist and proceed
+      const lang = profile.language || storedLanguage || 'en';
+      localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETE, 'true');
+      localStorage.setItem('i18nextLng', lang);
+      localStorage.setItem('balancen_lang', lang);
+      localStorage.setItem('app_language', lang);
 
-        // STEP 4: No cache or incomplete - fetch profile
-        console.log('[BOOT] Fetching profile for verification');
-        let profile;
-        try {
-          const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-          profile = profiles?.[0];
-        } catch (err) {
-          console.log('[BOOT] Profile fetch failed:', err.message);
-          // If profile fetch fails (auth issues), assume not onboarded yet
-          profile = null;
-        }
-
-        if (!isMounted) return;
-
-        if (!profile || !profile.onboarding_completed) {
-          console.log('[BOOT] Onboarding required');
-          // Clear stale cache
-          localStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
-
-          // If no language has been chosen yet (truly new user), go to LanguageSelector first
-          const hasLanguage = !!(profile?.language || storedLanguage);
-          
-          if (isMounted) {
-            setBootState({
-              type: hasLanguage ? 'ONBOARDING_REQUIRED' : 'LANGUAGE_REQUIRED',
-              user,
-              profile,
-              isHydrated: true,
-              language: profile?.language || storedLanguage || 'en',
-              onboardingComplete: false,
-            });
-          }
-          return;
-        }
-
-        // STEP 5: Profile confirms completion - persist and proceed
-        console.log('[BOOT] Profile confirmed complete');
-        localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETE, 'true');
-        // Persist language under the unified key read by i18n.js
-        const lang = profile.language || 'en';
-        localStorage.setItem('i18nextLng', lang);
-        localStorage.setItem('balancen_lang', lang);
-        localStorage.setItem('app_language', lang);
-        
-        if (isMounted) {
-          setBootState({
-            type: 'HOME_READY',
-            user,
-            profile,
-            isHydrated: true,
-            language: profile.language,
-            onboardingComplete: true,
-          });
-        }
-      } catch (err) {
-        console.error('[BOOT] Error:', err);
-        if (isMounted) {
-          setBootState({ 
-            type: 'AUTH_REQUIRED',
-            isHydrated: true,
-            language: localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'en',
-            onboardingComplete: false
-          });
-        }
+      if (isMounted) {
+        setBootState({
+          type: 'HOME_READY',
+          isHydrated: true,
+          user,
+          profile,
+          language: lang,
+          onboardingComplete: true,
+        });
       }
     };
 
     resolveBoot();
-    
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
-  // Render NOTHING until hydrated
-  if (!bootState || !bootState.isHydrated) {
+  if (!bootState?.isHydrated) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center" style={{ paddingTop: 'env(safe-area-inset-top, 0)', pointerEvents: 'none', zIndex: 9999 }}>
+      <div
+        className="fixed inset-0 bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0)', zIndex: 9999 }}
+      >
         <div className="w-20 h-20 rounded-2xl bg-black flex items-center justify-center border-2 border-white shadow-2xl">
           <span className="text-5xl font-black text-white">B</span>
         </div>
