@@ -3,6 +3,7 @@ import { useAppState } from "@/components/AppStateContext";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
+import { base44 } from "@/api/base44Client";
 import { RefreshCw, LogOut, RotateCcw } from "lucide-react";
 
 function hardReset() {
