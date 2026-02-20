@@ -1,0 +1,82 @@
+import React from "react";
+import { Clock, Sparkles, AlertTriangle, Zap } from "lucide-react";
+import { createPageUrl } from "@/utils";
+
+/**
+ * Trial banner shown on Home screen.
+ * trialDay: current day of trial (1–7)
+ * trialDaysLeft: days remaining (7–1)
+ */
+export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate }) {
+  const isEs = lang === 'es';
+
+  // Message variants by urgency
+  const getMessage = () => {
+    if (trialDaysLeft <= 1) {
+      // Day 7 — last day
+      return {
+        icon: <AlertTriangle size={18} className="text-red-300 flex-shrink-0" />,
+        bg: "from-red-500/20 to-orange-500/20",
+        border: "border-red-400/50",
+        title: isEs ? "⚠️ Último día de tu Trial" : "⚠️ Last day of your Trial",
+        sub: isEs ? "Tu acceso termina hoy. Suscríbete para no perder nada." : "Your access ends today. Subscribe to keep everything.",
+        btnColor: "bg-red-500 hover:bg-red-400",
+        btnText: isEs ? "Suscribirse" : "Subscribe Now",
+      };
+    }
+    if (trialDaysLeft === 2) {
+      // Day 6 — ends tomorrow
+      return {
+        icon: <Clock size={18} className="text-orange-300 flex-shrink-0" />,
+        bg: "from-orange-500/20 to-amber-500/20",
+        border: "border-orange-400/50",
+        title: isEs ? "⏰ Tu Trial termina mañana" : "⏰ Your Trial ends tomorrow",
+        sub: isEs ? "Activa Premium para continuar sin interrupciones." : "Activate Premium to continue uninterrupted.",
+        btnColor: "bg-orange-500 hover:bg-orange-400",
+        btnText: isEs ? "Ver planes" : "View Plans",
+      };
+    }
+    if (trialDay >= 4 && trialDaysLeft <= 4) {
+      // Day 4 — halfway
+      return {
+        icon: <Sparkles size={18} className="text-amber-300 flex-shrink-0" />,
+        bg: "from-amber-500/20 to-yellow-500/20",
+        border: "border-amber-400/50",
+        title: isEs ? `✨ Día ${trialDay} de tu Trial de 7 días` : `✨ Day ${trialDay} of your 7-Day Trial`,
+        sub: isEs ? "Ya llevas la mitad. ¿Te está gustando?" : "You're halfway through. Enjoying it?",
+        btnColor: "bg-amber-500 hover:bg-amber-400",
+        btnText: isEs ? "Ver Premium" : "Go Premium",
+      };
+    }
+    // Default — days 1-3
+    return {
+      icon: <Zap size={18} className="text-teal-300 flex-shrink-0" />,
+      bg: "from-teal-500/20 to-emerald-500/20",
+      border: "border-teal-400/50",
+      title: isEs ? `🚀 Día ${trialDay} de 7 — Trial Premium` : `🚀 Day ${trialDay} of 7 — Premium Trial`,
+      sub: isEs ? "Acceso completo sin coste. ¡Disfrútalo!" : "Full access, no charge. Enjoy it!",
+      btnColor: "bg-teal-600 hover:bg-teal-500",
+      btnText: isEs ? "Ver planes" : "View Plans",
+    };
+  };
+
+  const msg = getMessage();
+
+  return (
+    <div className={`bg-gradient-to-r ${msg.bg} backdrop-blur-xl rounded-2xl p-4 border ${msg.border}`}>
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5">{msg.icon}</div>
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-bold text-sm leading-snug">{msg.title}</p>
+          <p className="text-white/60 text-xs mt-0.5">{msg.sub}</p>
+        </div>
+        <button
+          onClick={() => navigate(createPageUrl('Paywall'))}
+          className={`${msg.btnColor} text-white text-xs font-bold px-3 py-2 rounded-xl flex-shrink-0 transition-colors`}
+        >
+          {msg.btnText}
+        </button>
+      </div>
+    </div>
+  );
+}
