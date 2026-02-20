@@ -24,6 +24,9 @@ export default function Social() {
   const { user, profile, isInitialized, profileLoading } = useAppState();
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+  const [showShareModal, setShowShareModal] = React.useState(false);
+  const { getTodayMeals } = useMealsStore();
+  const todayMeals = React.useMemo(() => getTodayMeals(), [getTodayMeals]);
 
   const { data: myGroups = [] } = useQuery({
     queryKey: ["myGroups", user?.email, isPremium],
