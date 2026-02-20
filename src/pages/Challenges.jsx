@@ -1,0 +1,329 @@
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { useAppState } from "@/components/AppStateContext";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { ArrowLeft, Trophy, Flame, Droplets, Dumbbell, CheckSquare, Target, Plus, Users, Lock, Loader2, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { useEntitlement } from "@/components/hooks/useEntitlement";
+
+const PRESET_CHALLENGES = [
+  {
+    preset_id: "hydration_7",
+    name: "7-Day Hydration Challenge",
+    description: "Drink 8 glasses of water every day for 7 days straight.",
+    type: "consistency",
+    goal: 7,
+    icon: Droplets,
+    color: "from-cyan-500 to-blue-500",
+    badge: "💧",
+    duration_days: 7,
+  },
+  {
+    preset_id: "streak_30",
+    name: "30-Day Fitness Streak",
+    description: "Check in and log movement every single day for 30 days.",
+    type: "streak",
+    goal: 30,
+    icon: Flame,
+    color: "from-orange-500 to-red-500",
+    badge: "🔥",
+    duration_days: 30,
+  },
+  {
+    preset_id: "meals_21",
+    name: "21-Day Clean Eating",
+    description: "Log every meal for 21 days in a row. Awareness is the first step.",
+    type: "checkins",
+    goal: 21,
+    icon: CheckSquare,
+    color: "from-emerald-500 to-teal-500",
+    badge: "🥗",
+    duration_days: 21,
+  },
+  {
+    preset_id: "workout_10",
+    name: "10-Workout Sprint",
+    description: "Complete 10 workouts in under 14 days. Quality over quantity.",
+    type: "steps",
+    goal: 10,
+    icon: Dumbbell,
+    color: "from-purple-500 to-violet-500",
+    badge: "💪",
+    duration_days: 14,
+  },
+  {
+    preset_id: "consistency_14",
+    name: "2-Week Consistency",
+    description: "Build a solid 14-day streak — log at least one meal each day.",
+    type: "consistency",
+    goal: 14,
+    icon: Target,
+    color: "from-amber-500 to-yellow-500",
+    badge: "⭐",
+    duration_days: 14,
+  },
+];
+
+function PresetChallengeCard({ preset, onJoin, isJoining, myParticipations }) {
+  const Icon = preset.icon;
+  const alreadyJoined = myParticipations.some(p => p.challenge_name === preset.name);
+  const daysLeft = preset.duration_days;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white/5 backdrop-blur-xl rounded-3xl p-5 border border-white/10 overflow-hidden relative"
+    >
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${preset.color}`} />
+      <div className="flex items-start gap-4">
+        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${preset.color} flex items-center justify-center flex-shrink-0`}>
+          <Icon size={24} className="text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-white font-bold text-sm">{preset.name}</h3>
+            <span className="text-lg">{preset.badge}</span>
+          </div>
+          <p className="text-white/60 text-xs mt-1 leading-relaxed">{preset.description}</p>
+          <div className="flex items-center gap-3 mt-2">
+            <span className="text-white/40 text-xs">{daysLeft} days</span>
+            <span className="text-white/40 text-xs">•</span>
+            <span className="text-white/40 text-xs capitalize">{preset.type}</span>
+          </div>
+        </div>
+      </div>
+      <Button
+        onClick={() => onJoin(preset)}
+        disabled={alreadyJoined || isJoining}
+        className={`w-full mt-4 rounded-xl font-semibold ${
+          alreadyJoined
+            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 cursor-default"
+            : `bg-gradient-to-r ${preset.color} text-white hover:opacity-90`
+        }`}
+      >
+        {isJoining ? (
+          <Loader2 size={16} className="animate-spin mr-2" />
+        ) : alreadyJoined ? (
+          <><Trophy size={16} className="mr-2" /> Joined</>
+        ) : (
+          <><Plus size={16} className="mr-2" /> Join Challenge</>
+        )}
+      </Button>
+    </motion.div>
+  );
+}
+
+function ActiveChallengeCard({ participation, challenge }) {
+  if (!challenge) return null;
+  const progress = Math.min((participation.current_progress / challenge.goal) * 100, 100);
+  const daysLeft = challenge.end_date
+    ? Math.max(0, Math.ceil((new Date(challenge.end_date) - new Date()) / (1000 * 60 * 60 * 24)))
+    : null;
+
+  return (
+    <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-white font-semibold text-sm">{challenge.name}</p>
+        {participation.completed && (
+          <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">✓ Done</span>
+        )}
+      </div>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <span className="text-white/70 text-xs font-medium whitespace-nowrap">
+          {participation.current_progress}/{challenge.goal}
+        </span>
+      </div>
+      {daysLeft !== null && (
+        <p className="text-white/40 text-xs">{daysLeft} days remaining</p>
+      )}
+    </div>
+  );
+}
+
+export default function Challenges() {
+  const navigate = useNavigate();
+  const { user, profile } = useAppState();
+  const queryClient = useQueryClient();
+  const [joiningId, setJoiningId] = useState(null);
+  const { isEntitled } = useEntitlement(profile);
+
+  const { data: myParticipations = [] } = useQuery({
+    queryKey: ["myParticipations", user?.email],
+    queryFn: () => base44.entities.ChallengeParticipant.filter({ user_email: user.email }),
+    enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: myChallenges = [] } = useQuery({
+    queryKey: ["myChallenges", myParticipations.map(p => p.challenge_id)],
+    queryFn: async () => {
+      if (myParticipations.length === 0) return [];
+      const results = await Promise.all(
+        myParticipations.map(p =>
+          base44.entities.Challenge.filter({ id: p.challenge_id }).then(r => r[0]).catch(() => null)
+        )
+      );
+      return results.filter(Boolean);
+    },
+    enabled: myParticipations.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const joinMutation = useMutation({
+    mutationFn: async (preset) => {
+      const start = new Date();
+      const end = new Date(start.getTime() + preset.duration_days * 24 * 60 * 60 * 1000);
+
+      // Create challenge record
+      const challenge = await base44.entities.Challenge.create({
+        name: preset.name,
+        description: preset.description,
+        type: preset.type,
+        goal: preset.goal,
+        start_date: start.toISOString().split("T")[0],
+        end_date: end.toISOString().split("T")[0],
+        active: true,
+      });
+
+      // Create participation
+      await base44.entities.ChallengeParticipant.create({
+        challenge_id: challenge.id,
+        user_email: user.email,
+        current_progress: 0,
+        completed: false,
+      });
+
+      return challenge;
+    },
+    onSuccess: (_, preset) => {
+      queryClient.invalidateQueries({ queryKey: ["myParticipations"] });
+      queryClient.invalidateQueries({ queryKey: ["myChallenges"] });
+      toast.success(`Joined "${preset.name}"! 🎉`);
+      setJoiningId(null);
+    },
+    onError: () => {
+      toast.error("Failed to join challenge. Try again.");
+      setJoiningId(null);
+    },
+  });
+
+  const handleJoin = (preset) => {
+    setJoiningId(preset.preset_id);
+    joinMutation.mutate(preset);
+  };
+
+  // Enrich participations with challenge name for duplicate check
+  const enrichedParticipations = myParticipations.map(p => {
+    const ch = myChallenges.find(c => c.id === p.challenge_id);
+    return { ...p, challenge_name: ch?.name };
+  });
+
+  const activeChallenges = myParticipations.filter(p => !p.completed);
+
+  if (!isEntitled) {
+    return (
+      <div className="min-h-screen pb-24 pt-6 px-6 flex items-center justify-center">
+        <div className="text-center max-w-sm">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mx-auto mb-4">
+            <Lock size={32} className="text-white" />
+          </div>
+          <h2 className="text-white font-bold text-xl mb-2">Premium Feature</h2>
+          <p className="text-white/60 text-sm mb-6">Challenges are available with your Premium subscription.</p>
+          <Button
+            onClick={() => navigate(createPageUrl("Premium"))}
+            className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold"
+          >Upgrade to Premium</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen pb-24" style={{ minHeight: '100dvh' }}>
+      <div className="max-w-2xl mx-auto px-4 pt-6 pb-8 space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate(createPageUrl("Social"))}
+            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <ArrowLeft size={20} className="text-white" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-black text-white flex items-center gap-2">
+              <Trophy size={24} className="text-amber-400" />
+              Challenges
+            </h1>
+            <p className="text-white/60 text-sm">Push yourself. Track progress.</p>
+          </div>
+        </div>
+
+        {/* Active Challenges */}
+        {activeChallenges.length > 0 && (
+          <div>
+            <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
+              <Flame size={18} className="text-orange-400" />
+              My Active Challenges ({activeChallenges.length})
+            </h2>
+            <div className="space-y-3">
+              {activeChallenges.map(p => (
+                <ActiveChallengeCard
+                  key={p.id}
+                  participation={p}
+                  challenge={myChallenges.find(c => c.id === p.challenge_id)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Featured Challenges */}
+        <div>
+          <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
+            <Target size={18} className="text-teal-400" />
+            Featured Challenges
+          </h2>
+          <div className="space-y-3">
+            {PRESET_CHALLENGES.map(preset => (
+              <PresetChallengeCard
+                key={preset.preset_id}
+                preset={preset}
+                onJoin={handleJoin}
+                isJoining={joiningId === preset.preset_id}
+                myParticipations={enrichedParticipations}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Group Challenges hint */}
+        <button
+          onClick={() => navigate(createPageUrl("Groups"))}
+          className="w-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-5 border border-purple-400/30 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <Users size={20} className="text-white" />
+            </div>
+            <div className="text-left">
+              <p className="text-white font-bold text-sm">Group Challenges</p>
+              <p className="text-white/50 text-xs">Compete with friends in a group</p>
+            </div>
+          </div>
+          <ChevronRight size={20} className="text-white/40" />
+        </button>
+      </div>
+    </div>
+  );
+}
