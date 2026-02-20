@@ -79,6 +79,7 @@ import Social from './pages/Social';
 import TrainerDashboard from './pages/TrainerDashboard';
 import UserManagement from './pages/UserManagement';
 import WorkoutTracker from './pages/WorkoutTracker';
+import CampusAdminHub from './pages/CampusAdminHub';
 import __Layout from './Layout.jsx';
 
 
@@ -115,6 +116,7 @@ export const PAGES = {
     "TrainerDashboard": TrainerDashboard,
     "UserManagement": UserManagement,
     "WorkoutTracker": WorkoutTracker,
+    "CampusAdminHub": CampusAdminHub,
 }
 
 export const pagesConfig = {
