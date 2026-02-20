@@ -286,8 +286,28 @@ export default function Profile() {
               </div>
             </div>
 
+            {/* Campus Access Badge */}
+            {isCampusAccess && (
+              <div className="mb-4 px-3 py-2 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center gap-2">
+                <GraduationCap size={14} className="text-blue-300" />
+                <span className="text-blue-300 text-xs font-bold">
+                  Campus Access — {accessDaysLeft} {lang === 'es' ? 'días restantes' : 'days left'}
+                </span>
+              </div>
+            )}
+
+            {/* Campus Reward Badge */}
+            {isCampusReward && (
+              <div className="mb-4 px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center gap-2">
+                <GraduationCap size={14} className="text-emerald-300" />
+                <span className="text-emerald-300 text-xs font-bold">
+                  🏆 Campus Reward — {accessDaysLeft} {lang === 'es' ? 'días restantes' : 'days left'}
+                </span>
+              </div>
+            )}
+
             {/* Trial Badge */}
-            {isTrialActive && (
+            {isTrialActive && !isCampusAccess && !isCampusReward && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center gap-2">
                 <Clock size={14} className="text-teal-300" />
                 <span className="text-teal-300 text-xs font-bold">
@@ -297,7 +317,7 @@ export default function Profile() {
             )}
 
             {/* Premium Badge (paid subscription) */}
-            {isPremium && (
+            {isPremium && accessType === 'premium_active' && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center gap-2">
                 <span className="text-purple-300 text-xs font-bold">
                   👑 {t('premium_active')}
