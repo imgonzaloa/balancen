@@ -164,6 +164,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // Only show the global header on pages where it makes sense (hide on full-screen flows)
+  const hideHeader = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector", "Premium", "ProfileSetup"].includes(currentPageName);
+
   return (
     <div
       className="bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900"
@@ -180,37 +183,8 @@ function LayoutInner({ children, currentPageName, bootState }) {
       <PublicDebugPanel />
       <Toaster position="top-center" richColors style={{ pointerEvents: 'auto' }} />
 
-      {/* Persistent B logo — fixed top-left, every screen */}
-      <button
-        onClick={() => navigate(createPageUrl('Home'))}
-        aria-label="Go to Home"
-        style={{
-          position: 'fixed',
-          top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
-          left: '16px',
-          zIndex: 9999,
-          pointerEvents: 'auto',
-          touchAction: 'manipulation',
-          WebkitTapHighlightColor: 'transparent',
-          background: 'rgba(0,0,0,0.45)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: '10px',
-          width: '36px',
-          height: '36px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          transition: 'transform 0.075s ease-out',
-        }}
-        onPointerDown={e => e.currentTarget.style.transform = 'scale(0.9)'}
-        onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
-        onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-      >
-        <span style={{ color: 'white', fontWeight: 900, fontSize: '18px', lineHeight: 1, userSelect: 'none' }}>B</span>
-      </button>
+      {/* Global header bar — Logo left, avatar right */}
+      {!hideHeader && <GlobalHeader />}
 
       {/* Main scroll container - with padding for fixed bottom nav */}
       <main
