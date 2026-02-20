@@ -109,8 +109,8 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const hideNav = noNavPages.includes(currentPageName) || !isEntitled;
   const showBrand = showBrandPages.includes(currentPageName);
   
-  // Paywall and onboarding pages bypass TrialGate
-  const bypassTrialGate = ["Paywall", "Onboarding", "LanguageSelector", "Premium"].includes(currentPageName);
+  // These pages must NOT be gated — they ARE the auth/onboarding/payment flow itself
+  const bypassTrialGate = ["Paywall", "Onboarding", "LanguageSelector", "Premium", "ProfileSetup"].includes(currentPageName);
 
   // Save + restore scroll positions per tab
   React.useEffect(() => {
