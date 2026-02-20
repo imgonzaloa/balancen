@@ -43,7 +43,8 @@ export function AppStateProvider({ children }) {
           }
 
           // Auto-grant owner role to app owner
-          if (currentUser.email.toLowerCase() === "imgonzaloa@gmail.com") {
+          const normalizedEmail = currentUser.email.toLowerCase().trim();
+          if (normalizedEmail === "imgonzaloa@gmail.com") {
             try {
               const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
               if (profiles[0] && profiles[0].role !== "owner") {
@@ -55,6 +56,24 @@ export function AppStateProvider({ children }) {
               }
             } catch (_) {}
           }
+
+          // Campus admin allowlist check
+          try {
+            const allowlist = await base44.entities.CampusAdminAllowlist.filter({
+              email: normalizedEmail,
+              status: "active",
+            });
+            if (allowlist.length > 0) {
+              const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
+              if (profiles[0] && profiles[0].role !== "owner" && profiles[0].role !== "campus_admin") {
+                await base44.entities.UserProfile.update(profiles[0].id, {
+                  role: "campus_admin",
+                  is_premium: true,
+                  premium_source: "collaborator_invite",
+                });
+              }
+            }
+          } catch (_) {}
         } else if (isMounted) {
           // No user returned (401 or null) — mark profile as settled immediately (no fetch needed)
           setProfile(null);
