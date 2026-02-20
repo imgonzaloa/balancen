@@ -15,7 +15,7 @@ export default function Paywall() {
   const [user, setUser] = useState(null);
   const [pricing, setPricing] = useState(null);
   const { profile } = useAppState();
-  const { isTrialExpired, trialDaysLeft, isPremium } = useEntitlement(profile);
+  const { isTrialExpired, trialDaysLeft, isPremium, isEntitled } = useEntitlement(profile);
   
   const { t, lang } = useTranslation();
 
