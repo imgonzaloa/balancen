@@ -76,6 +76,7 @@ export default function TrialGate({ children }) {
     }
 
     // Step 5: Onboarded, authenticated, but not entitled → Paywall
+    // isEntitled = true during trial OR paid subscription, so trial users pass through
     if (!isEntitled) {
       console.log('[TrialGate] Not entitled → Paywall');
       navigate(createPageUrl('Paywall'), { replace: true });
