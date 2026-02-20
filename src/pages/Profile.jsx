@@ -287,7 +287,7 @@ export default function Profile() {
             </div>
 
             {/* Trial Badge */}
-            {isTrialActive && !isPremium && (
+            {isTrialActive && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center gap-2">
                 <Clock size={14} className="text-teal-300" />
                 <span className="text-teal-300 text-xs font-bold">
@@ -296,7 +296,7 @@ export default function Profile() {
               </div>
             )}
 
-            {/* Premium Badge */}
+            {/* Premium Badge (paid subscription) */}
             {isPremium && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center gap-2">
                 <span className="text-purple-300 text-xs font-bold">
@@ -304,6 +304,8 @@ export default function Profile() {
                 </span>
               </div>
             )}
+
+            {/* Collaborator Badge */}
             {(profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite") && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center gap-2">
                 <span className="text-purple-300 text-xs font-bold">
