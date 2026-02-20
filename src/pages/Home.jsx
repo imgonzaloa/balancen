@@ -61,7 +61,7 @@ const Home = React.memo(() => {
     [todayMissions]
   );
 
-  const { isPremium, trialDaysLeft, isTrialActive } = useEntitlement(profile);
+  const { isPremium, trialDaysLeft, trialDay, isTrialActive } = useEntitlement(profile);
 
   const getGreeting = useMemo(() => {
     const hour = new Date().getHours();
