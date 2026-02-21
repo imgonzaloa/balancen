@@ -40,19 +40,25 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  return (
+  const content = (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop — above bottom nav (z-index 10000) */}
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            style={{ position: 'fixed', inset: 0, zIndex: 20000, background: 'rgba(0,0,0,0.6)', touchAction: 'none' }}
+            style={{
+              position: 'fixed', inset: 0,
+              zIndex: 2147483645,
+              background: 'rgba(0,0,0,0.6)',
+              touchAction: 'none',
+              pointerEvents: 'auto',
+            }}
           />
-          {/* Sheet — above backdrop */}
+          {/* Sheet */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -60,18 +66,17 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             style={{
               position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 20001,
+              bottom: 0, left: 0, right: 0,
+              zIndex: 2147483646,
               background: '#0f172a',
               borderTop: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '24px 24px 0 0',
-              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)', // clear tab bar + home indicator
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
               paddingLeft: '24px',
               paddingRight: '24px',
               paddingTop: '24px',
               touchAction: 'pan-y',
+              pointerEvents: 'auto',
             }}
           >
             <div className="flex items-center justify-between mb-6">
@@ -80,7 +85,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               </h3>
               <button
                 onClick={onClose}
-                style={{ pointerEvents: 'auto' }}
+                style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
               >
                 <X size={20} className="text-white/60" />
@@ -90,6 +95,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
             <div className="space-y-3">
               <button
                 onClick={handleGalleryClick}
+                style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
                 className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-4 active:scale-[0.98]"
               >
                 <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center">
@@ -107,6 +113,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
 
               <button
                 onClick={handleCameraClick}
+                style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
                 className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-4 active:scale-[0.98]"
               >
                 <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -125,6 +132,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               <Button
                 onClick={onClose}
                 variant="outline"
+                style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
                 className="w-full h-12 border-white/20 text-white hover:bg-white/10 rounded-xl"
               >
                 {lang === 'es' ? 'Cancelar' : 'Cancel'}
@@ -138,4 +146,6 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
       )}
     </AnimatePresence>
   );
+
+  return createPortal(content, document.body);
 }
