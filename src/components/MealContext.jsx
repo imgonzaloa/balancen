@@ -45,6 +45,9 @@ export function MealProvider({ children }) {
   }, []);
 
   const setCapturedFile = (capturedFile, dataUrl) => {
+    // Also update module-level store for cross-render stability
+    _mealCaptureStore.file = capturedFile;
+    _mealCaptureStore.dataUrl = dataUrl || null;
     console.log("📦 CONTEXT_STORE_FILE", {
       fileSize: capturedFile?.size,
       hasDataUrl: !!dataUrl,
