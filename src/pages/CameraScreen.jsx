@@ -105,9 +105,12 @@ export default function CameraScreen() {
     }
 
     setIsCapturing(true);
+    setCaptureError(null);
     setShowFlash(true);
     setTimeout(() => { if (mountedRef.current) setShowFlash(false); }, 200);
     if (navigator.vibrate) navigator.vibrate(30);
+
+    let blobUrl = null;
 
     try {
       const video = videoRef.current;
@@ -120,9 +123,9 @@ export default function CameraScreen() {
 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // toBlob with fallback
+      // toBlob with dataURL fallback
       let blob = await new Promise((resolve) =>
-        canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.88)
+        canvas.toBlob(b => resolve(b), "image/jpeg", 0.88)
       );
 
       if (!blob || blob.size === 0) {
@@ -137,22 +140,24 @@ export default function CameraScreen() {
       const file = new File([blob], "meal.jpg", { type: "image/jpeg" });
       const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
 
+      // Create a stable blob URL for <img> preview — won't disappear on re-render
+      blobUrl = URL.createObjectURL(blob);
+
       console.log("✅ CAPTURE_OK", { size: file.size, dims: `${canvas.width}x${canvas.height}` });
 
-      // Show optimistic preview immediately — prevents blank white screen
-      if (mountedRef.current) setCapturedPreview(dataUrl);
+      // Show preview BEFORE stopping camera — prevents any blank flash
+      if (mountedRef.current) setCapturedPreview(blobUrl);
 
-      // Write to module-level stable store (survives React re-renders/navigation)
+      // Write to module-level stable store
       _captureStore.file = file;
       _captureStore.dataUrl = dataUrl;
 
-      // Also write to context + sessionStorage
+      // Write to context + sessionStorage
       setCapturedFile(file, dataUrl);
 
-      // Stop stream before navigation
+      // Stop stream (preview is now shown via img, not video)
       stopCamera();
 
-      // Ensure context has settled
       await new Promise(r => setTimeout(r, 80));
 
       if (!mountedRef.current) return;
@@ -162,9 +167,13 @@ export default function CameraScreen() {
     } catch (err) {
       console.error("❌ CAPTURE_ERROR:", err);
       if (mountedRef.current) {
-        setCapturedPreview(null);
-        toast.error(t("error_capturing"));
+        // If we at least have the blob URL, keep showing it with an error
+        if (!blobUrl) {
+          setCapturedPreview(null);
+        }
+        setCaptureError(err.message || "Capture failed");
         setIsCapturing(false);
+        toast.error(t("error_capturing"));
       }
     }
   }, [isCapturing, videoReady, t, setCapturedFile, navigate]);
