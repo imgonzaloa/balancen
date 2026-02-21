@@ -57,34 +57,18 @@ export default function BuildBadge({ currentPageName }) {
 
   const reloadApp = useCallback(() => window.location.reload(), []);
 
+  // Badge is hidden in production — pointer-events:none so taps always go through
   const badge = (
-    <button
-      onClick={() => setOpen(o => !o)}
+    <div
       style={{
         position: 'fixed',
         top: 6,
         left: 6,
-        zIndex: 30000,
-        background: 'rgba(0,0,0,0.85)',
-        border: '1px solid rgba(16,185,129,0.6)',
-        borderRadius: 8,
-        padding: '3px 8px',
-        color: '#6ee7b7',
-        fontSize: 9,
-        fontFamily: 'monospace',
-        fontWeight: 700,
-        pointerEvents: 'auto',
-        touchAction: 'manipulation',
-        lineHeight: 1.4,
-        cursor: 'pointer',
-        maxWidth: 160,
-        textAlign: 'left',
+        zIndex: 1,
+        pointerEvents: 'none',
+        opacity: 0,
       }}
-    >
-      BUILD {BUILD_ID}
-      <br />
-      {currentPageName}
-    </button>
+    />
   );
 
   const panel = open && (
