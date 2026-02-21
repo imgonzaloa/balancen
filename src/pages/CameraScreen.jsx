@@ -278,7 +278,11 @@ export default function CameraScreen() {
 
   const handleClose = () => {
     stopCamera();
-    navigate(-1);
+    try {
+      navigate(-1);
+    } catch (_) {
+      navigate(createPageUrl("Home"), { replace: true });
+    }
   };
 
   // Error fallback UI
