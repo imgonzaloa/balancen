@@ -157,7 +157,14 @@ function LayoutInner({ children, currentPageName, bootState }) {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [currentPageName]);
+    }, [currentPageName]);
+
+    // Listen for debug panel open from GlobalHeader triple-tap
+    React.useEffect(() => {
+    const handler = () => setDebugOpen(true);
+    window.addEventListener('balancen-open-debug', handler);
+    return () => window.removeEventListener('balancen-open-debug', handler);
+    }, []);
 
   const handleNavigate = React.useCallback((pageName) => {
       navigateToTab(pageName);
