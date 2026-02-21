@@ -14,7 +14,8 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import BrandMark from "@/components/BrandMark";
 import GlobalHeader from "@/components/GlobalHeader";
 // framer-motion removed from layout to prevent tab navigation lag
-import { NavigationManager } from "@/components/NavigationManager";
+import { NavigationManager, useTabNavigation } from "@/components/NavigationManager";
+import { useLocation } from "react-router-dom";
 import DebugOverlay, { debugLogger } from "@/components/DebugOverlay";
 import PublicDebugPanel from "@/components/PublicDebugPanel";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
