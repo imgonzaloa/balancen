@@ -494,17 +494,17 @@ export default function MealResult() {
       console.log("✅ SAVE_OK - MealLog created");
     } catch (err) {
       console.error("❌ SAVE_FAIL - MealLog:", err?.message);
-      // Local store already has the meal — still functional, log but don't throw
+      // Local store already has the meal — still functional
     }
 
-    // 3. Verify by re-reading local store totals
-    const todayKey = formatLocalDateKey(now);
-    const storedRaw = localStorage.getItem("balancen.mealsByDate");
-    let verifyOk = false;
+    // 3. Verify local store actually has the meal (flush is debounced 100ms — force-read state)
+    // We rely on addMeal() being synchronous in React state, so just log after a tick
+    await new Promise(r => setTimeout(r, 150));
     try {
+      const storedRaw = localStorage.getItem("balancen.mealsByDate");
       const parsed = JSON.parse(storedRaw || "{}");
-      const todayMeals = parsed[todayKey] || [];
-      verifyOk = todayMeals.some(m => m.id === meal.id);
+      const todayMeals = parsed[dateKey] || [];
+      const verifyOk = todayMeals.some(m => m.id === meal.id);
       console.log(verifyOk ? "✅ SAVE_VERIFY_OK" : "⚠️ SAVE_VERIFY_FAIL", {
         todayMealsCount: todayMeals.length,
         TODAY_TOTALS_AFTER_SAVE: todayMeals.reduce((a, m) => a + (m.totals?.calories || 0), 0)
