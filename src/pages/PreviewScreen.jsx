@@ -10,14 +10,26 @@ export default function PreviewScreen() {
   const navigate = useNavigate();
   const { previewUrl, capturedFile, resetMeal } = useMeal();
 
-  console.log("📷 PREVIEW_SCREEN_MOUNT", { hasPreview: !!previewUrl, hasFile: !!capturedFile });
+  // Resolve preview: context first, then storage fallback (async restore from MealContext may not be done yet)
+  const storedFallback = React.useMemo(() => {
+    try {
+      return sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl") || null;
+    } catch { return null; }
+  }, []);
 
-  // Redirect if no photo
-  if (!previewUrl || !capturedFile) {
-    console.error("❌ NO_PHOTO_IN_PREVIEW - redirecting");
-    navigate(createPageUrl("CameraScreen"));
-    return null;
-  }
+  const resolvedPreview = previewUrl || storedFallback;
+
+  console.log("📷 PREVIEW_SCREEN_MOUNT", { hasPreview: !!previewUrl, hasFile: !!capturedFile, hasFallback: !!storedFallback });
+
+  // Only redirect if truly nothing — not during async restore
+  React.useEffect(() => {
+    if (!resolvedPreview) {
+      console.error("❌ NO_PHOTO_IN_PREVIEW - redirecting");
+      navigate(createPageUrl("CameraScreen"));
+    }
+  }, [resolvedPreview, navigate]);
+
+  if (!resolvedPreview) return null;
 
   const handleRetake = () => {
     console.log("🔄 RETAKE_PHOTO");
