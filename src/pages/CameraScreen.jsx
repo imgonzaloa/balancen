@@ -24,6 +24,8 @@ export default function CameraScreen() {
   const [videoReady, setVideoReady] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
+  const [capturedPreview, setCapturedPreview] = useState(null); // optimistic preview
+  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
 
   useEffect(() => {
     mountedRef.current = true;
