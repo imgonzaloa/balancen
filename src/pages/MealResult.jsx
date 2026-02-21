@@ -281,6 +281,12 @@ export default function MealResult() {
   const [errorMsg, setErrorMsg] = useState("");
   const [saving, setSaving] = useState(false);
   const hasRun = useRef(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   // Keep ref in sync with state
   useEffect(() => { uploadedUrlRef.current = uploadedUrl; }, [uploadedUrl]);
