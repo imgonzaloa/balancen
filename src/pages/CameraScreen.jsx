@@ -24,7 +24,8 @@ export default function CameraScreen() {
   const [videoReady, setVideoReady] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
-  const [capturedPreview, setCapturedPreview] = useState(null); // optimistic preview
+  const [capturedPreview, setCapturedPreview] = useState(null); // stable blob URL
+  const [captureError, setCaptureError] = useState(null); // error after capture
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
   const [livePreview, setLivePreview] = useState(null); // { calories, protein, carbs, fats }
   const [liveAnalyzing, setLiveAnalyzing] = useState(false);
