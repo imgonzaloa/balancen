@@ -88,7 +88,8 @@ export default function CameraScreen() {
     setVideoReady(false);
   };
 
-  const capturePhoto = async () => {
+  const capturePhoto = useCallback(async () => {
+    if (isCapturing) return;
     if (!videoRef.current || !videoReady || videoRef.current.videoWidth === 0) {
       console.error("❌ CAMERA_NOT_READY");
       toast.error(t("camera_not_ready"));
@@ -96,86 +97,65 @@ export default function CameraScreen() {
     }
 
     setIsCapturing(true);
-
-    // Flash effect
     setShowFlash(true);
-    setTimeout(() => setShowFlash(false), 200);
-
-    // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate(30);
-    }
+    setTimeout(() => { if (mountedRef.current) setShowFlash(false); }, 200);
+    if (navigator.vibrate) navigator.vibrate(30);
 
     try {
       const video = videoRef.current;
       const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
 
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Canvas context failed");
 
-      ctx.drawImage(video, 0, 0);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Convert to blob
+      // toBlob with fallback
       let blob = await new Promise((resolve) =>
-        canvas.toBlob(resolve, "image/jpeg", 0.9)
+        canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.88)
       );
 
       if (!blob || blob.size === 0) {
-        console.warn("⚠️ PHOTO_CAPTURE_RETRY");
-        // Retry once
-        await new Promise(r => setTimeout(r, 100));
-        blob = await new Promise((resolve) =>
-          canvas.toBlob(resolve, "image/jpeg", 0.9)
-        );
-        
-        if (!blob || blob.size === 0) {
-          throw new Error("Failed to capture photo - blob is empty");
-        }
+        console.warn("⚠️ PHOTO_CAPTURE_RETRY - using dataURL fallback");
+        const dataUrlFallback = canvas.toDataURL("image/jpeg", 0.88);
+        const res = await fetch(dataUrlFallback);
+        blob = await res.blob();
       }
 
-      // Create File object
+      if (!blob || blob.size === 0) throw new Error("Failed to capture photo");
+
       const file = new File([blob], "meal.jpg", { type: "image/jpeg" });
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
 
-      // Create dataUrl for localStorage
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      console.log("✅ CAPTURE_OK", { size: file.size, dims: `${canvas.width}x${canvas.height}` });
 
-      console.log("✅ PHOTO_CAPTURED", {
-        fileSize: file.size,
-        dataUrlLength: dataUrl.length,
-        dimensions: `${canvas.width}x${canvas.height}`
-      });
+      // Write to module-level stable store (survives React re-renders/navigation)
+      _captureStore.file = file;
+      _captureStore.dataUrl = dataUrl;
 
-      // CRITICAL: Store BEFORE navigation
+      // Also write to context + sessionStorage
       setCapturedFile(file, dataUrl);
-      
-      // Verify storage immediately
-      const stored = sessionStorage.getItem("balancen_last_capture");
-      if (!stored) {
-        console.error("❌ STORAGE_FAILED - photo not in sessionStorage");
-        throw new Error("Failed to store photo");
-      }
-      
-      console.log("✅ PHOTO_CONFIRMED - stored in sessionStorage");
 
-      // Stop camera AFTER storing
+      // Stop stream before navigation
       stopCamera();
 
-      // Small delay to ensure context updates
-      await new Promise(r => setTimeout(r, 50));
+      // Ensure context has settled
+      await new Promise(r => setTimeout(r, 60));
 
-      // Navigate to PREVIEW screen first (not analysis)
-      console.log("🚀 NAVIGATING_TO_PREVIEW");
-      navigate(createPageUrl("PreviewScreen"));
-      setIsCapturing(false);
+      if (!mountedRef.current) return;
+      console.log("🚀 NAVIGATE_RESULT");
+      navigate(createPageUrl("PreviewScreen"), { replace: false });
 
     } catch (err) {
       console.error("❌ CAPTURE_ERROR:", err);
-      toast.error(t("error_capturing"));
-      setIsCapturing(false);
+      if (mountedRef.current) {
+        toast.error(t("error_capturing"));
+        setIsCapturing(false);
+      }
     }
-  };
+  }, [isCapturing, videoReady, t, setCapturedFile, navigate]);
 
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files?.[0];
