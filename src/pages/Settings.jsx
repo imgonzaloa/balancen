@@ -376,6 +376,18 @@ export default function Settings() {
           </>
         )}
 
+        {/* Debug Panel Button — always visible for troubleshooting */}
+        <motion.button
+          onClick={() => window.dispatchEvent(new CustomEvent('balancen-open-debug'))}
+          className="w-full mt-4 h-12 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white/40 font-semibold transition-all flex items-center justify-center gap-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.75 }}
+        >
+          <Bug size={16} />
+          Open Debug Panel
+        </motion.button>
+
         {/* Logout Button */}
         <Button
           onClick={async () => {
