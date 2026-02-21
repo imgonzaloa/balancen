@@ -52,7 +52,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
             onClick={onClose}
             style={{
               position: 'fixed', inset: 0,
-              zIndex: 99999,
+              zIndex: 30000,
               background: 'rgba(0,0,0,0.6)',
               touchAction: 'none',
               pointerEvents: 'auto',
