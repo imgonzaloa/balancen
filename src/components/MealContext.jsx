@@ -76,9 +76,8 @@ export function MealProvider({ children }) {
   };
 
   const clearCapture = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    _mealCaptureStore.file = null;
+    _mealCaptureStore.dataUrl = null;
     setFile(null);
     setPreviewUrl(null);
     setStatus("idle");
