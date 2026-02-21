@@ -205,7 +205,19 @@ function LayoutInner({ children, currentPageName, bootState }) {
           paddingBottom: hideNav ? 0 : 'calc(72px + env(safe-area-inset-bottom, 0))'
         }}
       >
-        {bypassTrialGate ? children : <TrialGate>{children}</TrialGate>}
+        <div
+          key={location.key}
+          className={
+            location.state?.tabSwitch || location.state?.tabRoot
+              ? 'route-tab-switch'
+              : location.state?.back
+              ? 'route-enter-back'
+              : 'route-enter'
+          }
+          style={{ minHeight: '100%' }}
+        >
+          {bypassTrialGate ? children : <TrialGate>{children}</TrialGate>}
+        </div>
       </main>
 
       {/* Fixed Tab bar - pinned to viewport */}
