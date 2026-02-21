@@ -163,15 +163,17 @@ export default function CameraScreen() {
 
     console.log("📁 FILE_SELECTED_FROM_GALLERY", { size: selectedFile.size });
 
-    // Create dataUrl for localStorage
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target.result;
+      _captureStore.file = selectedFile;
+      _captureStore.dataUrl = dataUrl;
       setCapturedFile(selectedFile, dataUrl);
       stopCamera();
-      console.log("🚀 NAVIGATING_TO_PREVIEW (from gallery)");
-      navigate(createPageUrl("PreviewScreen"));
+      console.log("🚀 NAVIGATE_RESULT (gallery)");
+      navigate(createPageUrl("PreviewScreen"), { replace: false });
     };
+    reader.onerror = () => toast.error(t("error_capturing"));
     reader.readAsDataURL(selectedFile);
   };
 
