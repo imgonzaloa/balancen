@@ -26,6 +26,10 @@ export default function CameraScreen() {
   const [showFlash, setShowFlash] = useState(false);
   const [capturedPreview, setCapturedPreview] = useState(null); // optimistic preview
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+  const [livePreview, setLivePreview] = useState(null); // { calories, protein, carbs, fats }
+  const [liveAnalyzing, setLiveAnalyzing] = useState(false);
+  const liveThrottleRef = useRef(null);
+  const liveAbortRef = useRef(null);
 
   useEffect(() => {
     mountedRef.current = true;
