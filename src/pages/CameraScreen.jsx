@@ -190,6 +190,82 @@ export default function CameraScreen() {
     reader.readAsDataURL(selectedFile);
   };
 
+  // Live nutrition preview — throttled, cancellable
+  const runLivePreview = useCallback(async () => {
+    if (!videoRef.current || !videoReady || videoRef.current.videoWidth === 0) return;
+    if (liveAbortRef.current) liveAbortRef.current = true; // signal previous call to abort
+
+    const abortFlag = { cancelled: false };
+    liveAbortRef.current = abortFlag;
+    setLiveAnalyzing(true);
+
+    try {
+      const video = videoRef.current;
+      const canvas = document.createElement("canvas");
+      // Use smaller resolution for live preview to keep it fast
+      canvas.width = Math.min(video.videoWidth, 640);
+      canvas.height = Math.round(canvas.width * (video.videoHeight / video.videoWidth));
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+
+      if (abortFlag.cancelled) return;
+
+      // Upload thumbnail for analysis
+      const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.6));
+      if (abortFlag.cancelled) return;
+      const file = new File([blob], "preview.jpg", { type: "image/jpeg" });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      if (abortFlag.cancelled) return;
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: "Quick nutrition estimate for the food visible in this photo. Return JSON only.",
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            calories: { type: "number" },
+            protein: { type: "number" },
+            carbs: { type: "number" },
+            fats: { type: "number" },
+          }
+        }
+      });
+
+      if (abortFlag.cancelled) return;
+      if (mountedRef.current) {
+        setLivePreview({
+          calories: Math.round(result.calories || 0),
+          protein: Math.round(result.protein || 0),
+          carbs: Math.round(result.carbs || 0),
+          fats: Math.round(result.fats || 0),
+        });
+      }
+    } catch (_) {
+      // silently ignore live preview errors
+    } finally {
+      if (!abortFlag.cancelled && mountedRef.current) setLiveAnalyzing(false);
+    }
+  }, [videoReady]);
+
+  // Trigger live preview once camera is ready, then throttle every 2000ms
+  useEffect(() => {
+    if (!videoReady) return;
+    // Initial run after 1s
+    const initial = setTimeout(() => {
+      runLivePreview();
+    }, 1000);
+    // Recurring every 2000ms
+    const interval = setInterval(() => {
+      runLivePreview();
+    }, 2000);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(interval);
+      if (liveAbortRef.current) liveAbortRef.current.cancelled = true;
+    };
+  }, [videoReady, runLivePreview]);
+
   const handleClose = () => {
     stopCamera();
     navigate(-1);
