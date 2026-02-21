@@ -46,7 +46,7 @@ export default function PreviewScreen() {
     <div className="fixed inset-0 z-[9999] bg-black">
       {/* Photo Preview */}
       <img
-        src={previewUrl}
+        src={resolvedPreview}
         alt="Captured meal"
         className="absolute inset-0 w-full h-full object-cover"
       />
