@@ -20,6 +20,7 @@ import DebugOverlay, { debugLogger } from "@/components/DebugOverlay";
 import PublicDebugPanel from "@/components/PublicDebugPanel";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import TrialGate from "@/components/TrialGate";
+import BuildBadge from "@/components/BuildBadge";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import { useAppState } from "@/components/AppStateContext";
 
