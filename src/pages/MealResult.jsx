@@ -421,11 +421,11 @@ export default function MealResult() {
       });
       setConfidence(conf);
       setPhase("review");
+      console.log("✅ ANALYZE_OK", { items: items.length, calories: analysis.total_calories, confidence: conf });
 
       if (navigator.vibrate) navigator.vibrate(40);
     } catch (err) {
-      console.error("[MealResult] Analysis failed:", err);
-      // Even on AI failure, if we got the upload URL, keep it so manual save works
+      console.error("❌ ANALYZE_FAIL:", err?.message);
       setErrorMsg(t('try_again_or_manual') || "Analysis failed. You can still add this meal manually.");
       setPhase("error");
     }
