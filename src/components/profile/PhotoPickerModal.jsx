@@ -67,7 +67,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
             style={{
               position: 'fixed',
               bottom: 0, left: 0, right: 0,
-              zIndex: 30001,
+              zIndex: 21000,
               background: '#0f172a',
               borderTop: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '24px 24px 0 0',
