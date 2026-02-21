@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera, Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
