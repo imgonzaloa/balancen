@@ -406,8 +406,8 @@ export default function CameraScreen() {
       {/* Close button */}
       <button
         onClick={handleClose}
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
-        className="absolute right-4 z-10 p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)', zIndex: 22000, pointerEvents: 'auto', touchAction: 'manipulation' }}
+        className="absolute right-4 p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white"
       >
         <X size={24} />
       </button>
