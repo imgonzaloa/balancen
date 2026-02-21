@@ -173,6 +173,8 @@ export default function CameraScreen() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target.result;
+      // Show optimistic preview immediately
+      if (mountedRef.current) setCapturedPreview(dataUrl);
       _captureStore.file = selectedFile;
       _captureStore.dataUrl = dataUrl;
       setCapturedFile(selectedFile, dataUrl);
