@@ -572,7 +572,7 @@ export default function MealResult() {
           <img src={imagePreview} alt="" className="absolute inset-0 w-full h-full object-cover opacity-25" style={{ filter: "blur(6px)" }} />
         )}
         <div className="relative z-10 flex flex-col h-full">
-          <div className="flex items-center justify-between px-5 pt-12 pb-4">
+          <div className="flex items-center justify-between px-5 pb-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
             <button onClick={handleCancel} className="p-2 rounded-xl bg-white/10 text-white">
               <X size={20} />
             </button>
