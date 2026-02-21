@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
+// Module-level stable store — same reference as CameraScreen's _captureStore
+// Exported so CameraScreen can import it if needed (they share the same module instance)
+export const _mealCaptureStore = { file: null, dataUrl: null };
+
 const MealContext = createContext(null);
 
 export function MealProvider({ children }) {
