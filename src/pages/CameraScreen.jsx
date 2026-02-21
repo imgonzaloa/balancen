@@ -17,6 +17,7 @@ export default function CameraScreen() {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const fileInputRef = useRef(null);
+  const mountedRef = useRef(true);
   
   const [cameraError, setCameraError] = useState(null);
   const [videoReady, setVideoReady] = useState(false);
@@ -24,8 +25,13 @@ export default function CameraScreen() {
   const [showFlash, setShowFlash] = useState(false);
 
   useEffect(() => {
+    mountedRef.current = true;
+    console.log("📷 CAMERA_OPEN");
     initCamera();
-    return () => stopCamera();
+    return () => {
+      mountedRef.current = false;
+      stopCamera();
+    };
   }, []);
 
   const initCamera = async () => {
