@@ -1,10 +1,13 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, AlertCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
+
+// Module-level stable store so photo survives navigation/re-render
+const _captureStore = { file: null, dataUrl: null };
 
 export default function CameraScreen() {
   const { t } = useTranslation();
