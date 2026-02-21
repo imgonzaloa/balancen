@@ -337,6 +337,64 @@ export default function CameraScreen() {
         onChange={handleFileUpload}
         className="hidden"
       />
+
+      {/* Optimistic preview overlay — shown immediately after capture to prevent blank screen */}
+      {capturedPreview && (
+        <div className="absolute inset-0 z-[30] bg-black flex items-center justify-center">
+          <img src={capturedPreview} alt="Captured" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <div className="text-center text-white">
+              <div className="animate-spin rounded-full h-10 w-10 border-4 border-white/30 border-t-emerald-500 mx-auto mb-3" />
+              <p className="text-sm font-medium">{t("analyzing") || "Analyzing…"}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Barcode coming-soon modal — rendered in top-layer portal */}
+      {showBarcodeModal && createPortal(
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 2147483647, display: 'flex', alignItems: 'flex-end', pointerEvents: 'auto' }}
+          onClick={() => setShowBarcodeModal(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%',
+              background: '#0f172a',
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '24px 24px 0 0',
+              padding: '24px 24px',
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
+              pointerEvents: 'auto',
+            }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white text-xl font-bold">
+                {t("barcode") || "Barcode"}
+              </h3>
+              <button
+                onClick={() => setShowBarcodeModal(false)}
+                className="p-2 rounded-lg hover:bg-white/10 text-white/60"
+                style={{ pointerEvents: 'auto' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-white/70 text-sm mb-6 leading-relaxed">
+              🔜 Barcode scanning is coming soon. Use <strong>Photo</strong> or <strong>Gallery</strong> to log your meal for now.
+            </p>
+            <button
+              onClick={() => setShowBarcodeModal(false)}
+              className="w-full py-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-semibold"
+              style={{ pointerEvents: 'auto' }}
+            >
+              {t("ok") || "Got it"}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
