@@ -99,6 +99,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const { profile } = useAppState();
   const { isEntitled } = useEntitlement(profile);
 
+  const { navigateToTab } = useTabNavigation();
   const isNavigating = React.useRef(false);
   const scrollPositions = React.useRef({});
   const scrollContainerRef = React.useRef(null);
