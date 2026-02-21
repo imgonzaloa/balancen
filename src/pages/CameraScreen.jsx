@@ -463,16 +463,45 @@ export default function CameraScreen() {
         className="hidden"
       />
 
-      {/* Optimistic preview overlay — shown immediately after capture to prevent blank screen */}
+      {/* Captured preview overlay — stable blob URL, never goes blank */}
       {capturedPreview && (
-        <div className="absolute inset-0 z-[30] bg-black flex items-center justify-center">
-          <img src={capturedPreview} alt="Captured" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-            <div className="text-center text-white">
-              <div className="animate-spin rounded-full h-10 w-10 border-4 border-white/30 border-t-emerald-500 mx-auto mb-3" />
-              <p className="text-sm font-medium">{t("analyzing") || "Analyzing…"}</p>
-            </div>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 30, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img
+            src={capturedPreview}
+            alt="Captured"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+          {/* Overlay: error state or loading state */}
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.45)' }}>
+            {captureError ? (
+              <div style={{ textAlign: 'center', color: '#fff', padding: '0 32px' }}>
+                <p style={{ fontSize: 14, marginBottom: 16, color: '#fca5a5' }}>⚠️ {captureError}</p>
+                <button
+                  onClick={() => { setCapturedPreview(null); setCaptureError(null); setIsCapturing(false); }}
+                  style={{
+                    padding: '12px 28px', borderRadius: 12,
+                    background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.5)',
+                    color: '#6ee7b7', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                    pointerEvents: 'auto', touchAction: 'manipulation',
+                  }}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', color: '#fff' }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid rgba(255,255,255,0.3)', borderTopColor: '#10b981', animation: 'spin 1s linear infinite', margin: '0 auto 12px' }} />
+                <p style={{ fontSize: 14, fontWeight: 500 }}>{t("analyzing") || "Analyzing…"}</p>
+              </div>
+            )}
           </div>
+        </div>
+      )}
+
+      {/* Hard fallback: nothing captured but also no camera — should never be fully blank */}
+      {!capturedPreview && !videoReady && !cameraError && !isCapturing && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
+          Initializing camera…
         </div>
       )}
 
