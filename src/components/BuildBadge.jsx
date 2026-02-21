@@ -27,7 +27,14 @@ if (!window.__buildBadgeInstalled) {
   window.addEventListener('unhandledrejection', (e) => addLog('error', `UNHANDLED_REJECTION: ${e.reason}`));
 }
 
+// Only show in debug mode
+const isDebugMode = () =>
+  new URLSearchParams(window.location.search).get('debug') === '1' ||
+  localStorage.getItem('DEBUG_OVERLAY') === '1';
+
 export default function BuildBadge({ currentPageName }) {
+  if (!isDebugMode()) return null;
+
   const [open, setOpen] = useState(false);
   const [logs, setLogs] = useState([]);
   const [route, setRoute] = useState(window.location.pathname);
