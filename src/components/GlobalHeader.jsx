@@ -21,26 +21,8 @@ export default function GlobalHeader() {
   const avatarSrc = profile?.profile_photo || profile?.avatar_url || null;
   const initial = (profile?.display_name || user?.full_name || "?")[0]?.toUpperCase();
 
-  // Triple-tap detection on B logo to open debug panel
-  const tapCount = useRef(0);
-  const tapTimer = useRef(null);
-
   const handleLogoTap = useCallback(() => {
-    tapCount.current += 1;
-    if (tapTimer.current) clearTimeout(tapTimer.current);
-
-    if (tapCount.current >= 3) {
-      tapCount.current = 0;
-      openDebugPanel();
-      return;
-    }
-
-    tapTimer.current = setTimeout(() => {
-      if (tapCount.current < 3) {
-        navigate(createPageUrl("Home"), { replace: true });
-      }
-      tapCount.current = 0;
-    }, 400);
+    navigate(createPageUrl("Home"), { replace: true });
   }, [navigate]);
 
   return (
