@@ -108,6 +108,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const tapTimer = React.useRef(null);
   const longPressTimer = React.useRef(null);
 
+  const location = useLocation();
   const navItems = React.useMemo(() => getNavItems(t), [t]);
   const hideNav = noNavPages.includes(currentPageName) || !isEntitled;
   const showBrand = showBrandPages.includes(currentPageName);
