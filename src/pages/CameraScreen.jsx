@@ -314,7 +314,9 @@ export default function CameraScreen() {
           </button>
           
           <button
+            onClick={() => setShowBarcodeModal(true)}
             className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
+            style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
           >
             {t("barcode")}
           </button>
