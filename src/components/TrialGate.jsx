@@ -62,6 +62,17 @@ export default function TrialGate({ children }) {
     // Don't redirect if profile couldn't load — show safe fallback UI instead
     if (profileLoadFailed) return;
 
+    // GUARD: If user is authenticated and locally flagged as onboarding-complete,
+    // NEVER navigate to onboarding or language selector. This prevents the flash-back bug.
+    if (user?.email && localOnboardingDone) {
+      // Already onboarded — skip to step 5
+      if (!isEntitled) {
+        console.log('[TrialGate] Not entitled → Paywall');
+        navigate(createPageUrl('Paywall'), { replace: true });
+      }
+      return;
+    }
+
     // Step 3: Onboarding not done → must go through onboarding first, always before entitlement check
     if (!onboardingComplete) {
       const hasLanguage = !!(
@@ -76,12 +87,11 @@ export default function TrialGate({ children }) {
     }
 
     // Step 5: Onboarded, authenticated, but not entitled → Paywall (subscription screen)
-    // trial active = entitled; expired_trial or no sub = not entitled → Paywall
     if (!isEntitled) {
       console.log('[TrialGate] Not entitled → Paywall');
       navigate(createPageUrl('Paywall'), { replace: true });
     }
-  }, [isReady, user?.email, onboardingComplete, isEntitled, profileLoadFailed, navigate, profile?.language]);
+  }, [isReady, user?.email, onboardingComplete, isEntitled, profileLoadFailed, navigate, profile?.language, localOnboardingDone]);
 
   // Step 1: Still loading — render nothing
   if (!isReady) return null;
