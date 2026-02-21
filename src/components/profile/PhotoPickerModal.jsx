@@ -29,22 +29,49 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
     }
   };
 
+  // Lock body scroll while open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Backdrop — above bottom nav (z-index 10000) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40"
+            style={{ position: 'fixed', inset: 0, zIndex: 20000, background: 'rgba(0,0,0,0.6)', touchAction: 'none' }}
           />
+          {/* Sheet — above backdrop */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-0 left-0 right-0 bg-slate-900 rounded-t-3xl border-t border-white/10 z-50 p-6"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 20001,
+              background: '#0f172a',
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '24px 24px 0 0',
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)', // clear tab bar + home indicator
+              paddingLeft: '24px',
+              paddingRight: '24px',
+              paddingTop: '24px',
+              touchAction: 'pan-y',
+            }}
           >
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-white">
@@ -52,6 +79,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               </h3>
               <button
                 onClick={onClose}
+                style={{ pointerEvents: 'auto' }}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
               >
                 <X size={20} className="text-white/60" />
@@ -61,7 +89,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
             <div className="space-y-3">
               <button
                 onClick={handleGalleryClick}
-                className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-4"
+                className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-4 active:scale-[0.98]"
               >
                 <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                   <ImageIcon size={24} className="text-emerald-400" />
@@ -78,7 +106,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
 
               <button
                 onClick={handleCameraClick}
-                className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-4"
+                className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-4 active:scale-[0.98]"
               >
                 <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
                   <Camera size={24} className="text-blue-400" />
@@ -102,24 +130,8 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               </Button>
             </div>
 
-            <input
-              ref={galleryInput}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-              aria-label="Gallery input"
-            />
-
-            <input
-              ref={cameraInput}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleFileSelect}
-              className="hidden"
-              aria-label="Camera input"
-            />
+            <input ref={galleryInput} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" aria-label="Gallery input" />
+            <input ref={cameraInput} type="file" accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" aria-label="Camera input" />
           </motion.div>
         </>
       )}
