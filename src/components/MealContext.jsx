@@ -13,37 +13,34 @@ export function MealProvider({ children }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
-  // Restore from sessionStorage on mount (better for camera flow)
+  // Restore from module-level store first (fastest, survives navigation within same session)
+  // then fall back to sessionStorage
   useEffect(() => {
+    if (_mealCaptureStore.file && !file) {
+      console.log("Restoring file from module store");
+      setFile(_mealCaptureStore.file);
+      const url = _mealCaptureStore.dataUrl || URL.createObjectURL(_mealCaptureStore.file);
+      setPreviewUrl(url);
+      setStatus("captured");
+      return;
+    }
     const storedDataUrl = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
     if (storedDataUrl && !file) {
-      console.log("Restoring file from storage");
-      try {
-        fetch(storedDataUrl)
-          .then(res => res.blob())
-          .then(blob => {
-            if (blob.size === 0) {
-              console.error("Restored blob has 0 size");
-              sessionStorage.removeItem("balancen_last_capture");
-              localStorage.removeItem("meal_last_capture_dataurl");
-              return;
-            }
-            const restoredFile = new File([blob], "meal.jpg", { type: "image/jpeg" });
-            console.log("Restored file size:", restoredFile.size);
-            setFile(restoredFile);
-            setPreviewUrl(URL.createObjectURL(restoredFile));
-            setStatus("captured");
-          })
-          .catch(err => {
-            console.error("Failed to restore file:", err);
-            sessionStorage.removeItem("balancen_last_capture");
-            localStorage.removeItem("meal_last_capture_dataurl");
-          });
-      } catch (err) {
-        console.error("Failed to restore file:", err);
-        sessionStorage.removeItem("balancen_last_capture");
-        localStorage.removeItem("meal_last_capture_dataurl");
-      }
+      fetch(storedDataUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          if (blob.size === 0) throw new Error("zero size");
+          const restoredFile = new File([blob], "meal.jpg", { type: "image/jpeg" });
+          _mealCaptureStore.file = restoredFile;
+          _mealCaptureStore.dataUrl = storedDataUrl;
+          setFile(restoredFile);
+          setPreviewUrl(storedDataUrl);
+          setStatus("captured");
+        })
+        .catch(() => {
+          sessionStorage.removeItem("balancen_last_capture");
+          localStorage.removeItem("meal_last_capture_dataurl");
+        });
     }
   }, []);
 
