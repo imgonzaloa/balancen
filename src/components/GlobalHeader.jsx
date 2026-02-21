@@ -30,7 +30,7 @@ export default function GlobalHeader() {
       className="flex items-center justify-between px-4 bg-slate-900/80 backdrop-blur-xl border-b border-white/8"
       style={{ height: '56px', flexShrink: 0 }}
     >
-      {/* Brand logo — triple-tap opens debug panel */}
+      {/* Brand logo */}
       <button
         onClick={handleLogoTap}
         className="w-9 h-9 rounded-xl bg-black/60 flex items-center justify-center border border-white/20 shadow-md active:scale-90 transition-transform duration-75 focus:outline-none select-none"
