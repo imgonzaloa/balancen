@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAppState } from "@/components/AppStateContext";
 
+// Global event so Layout can listen for debug panel open request
+export function openDebugPanel() {
+  window.dispatchEvent(new CustomEvent('balancen-open-debug'));
+}
+
 /**
  * Global app header bar — always rendered by Layout.
- * LEFT: "B" logo → navigates to Home
+ * LEFT: "B" logo → navigates to Home (triple-tap opens debug panel)
  * RIGHT: user avatar → navigates to Profile
  * Height: 56px (fixed, full-width, respects safe-area)
  */
@@ -16,14 +21,36 @@ export default function GlobalHeader() {
   const avatarSrc = profile?.profile_photo || profile?.avatar_url || null;
   const initial = (profile?.display_name || user?.full_name || "?")[0]?.toUpperCase();
 
+  // Triple-tap detection on B logo to open debug panel
+  const tapCount = useRef(0);
+  const tapTimer = useRef(null);
+
+  const handleLogoTap = useCallback(() => {
+    tapCount.current += 1;
+    if (tapTimer.current) clearTimeout(tapTimer.current);
+
+    if (tapCount.current >= 3) {
+      tapCount.current = 0;
+      openDebugPanel();
+      return;
+    }
+
+    tapTimer.current = setTimeout(() => {
+      if (tapCount.current < 3) {
+        navigate(createPageUrl("Home"), { replace: true });
+      }
+      tapCount.current = 0;
+    }, 400);
+  }, [navigate]);
+
   return (
     <div
       className="flex items-center justify-between px-4 bg-slate-900/80 backdrop-blur-xl border-b border-white/8"
       style={{ height: '56px', flexShrink: 0 }}
     >
-      {/* Brand logo */}
+      {/* Brand logo — triple-tap opens debug panel */}
       <button
-        onClick={() => navigate(createPageUrl("Home"), { replace: true })}
+        onClick={handleLogoTap}
         className="w-9 h-9 rounded-xl bg-black/60 flex items-center justify-center border border-white/20 shadow-md active:scale-90 transition-transform duration-75 focus:outline-none select-none"
         style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
         aria-label="Go to Home"
