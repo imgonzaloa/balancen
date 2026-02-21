@@ -291,26 +291,18 @@ export default function MealResult() {
   // Keep ref in sync with state
   useEffect(() => { uploadedUrlRef.current = uploadedUrl; }, [uploadedUrl]);
 
-  // Set preview from context or stored URL
+  // Set preview from context or stored URL — IMMEDIATELY on mount so we never show blank
   useEffect(() => {
-    if (previewUrl) {
-      setImagePreview(previewUrl);
-    } else {
-      // Try stored fallback
-      const stored = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
-      if (stored) setImagePreview(stored);
+    const stored = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
+    const resolvedPreview = previewUrl || stored;
+    if (resolvedPreview) {
+      setImagePreview(resolvedPreview);
+    } else if (!capturedFile) {
+      // Only redirect if there is truly nothing
+      navigate(createPageUrl("Home"));
     }
-  }, [previewUrl]);
-
-  // Redirect if no file at all
-  useEffect(() => {
-    if (!capturedFile) {
-      const stored = sessionStorage.getItem("balancen_last_capture");
-      if (!stored) {
-        navigate(createPageUrl("Home"));
-      }
-    }
-  }, [capturedFile]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Log key events for debug panel
   useEffect(() => {
