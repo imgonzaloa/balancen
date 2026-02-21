@@ -344,6 +344,41 @@ export default function CameraScreen() {
           </div>
         </div>
       )}
+
+      {/* Live nutrition preview panel */}
+      {videoReady && (
+        <div
+          className="absolute top-0 left-0 right-0 z-[6] pointer-events-none"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 64px)', paddingLeft: '16px', paddingRight: '16px' }}
+        >
+          <div className="bg-black/60 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/10">
+            {liveAnalyzing && !livePreview ? (
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-teal-400 animate-pulse" />
+                <span className="text-white/70 text-xs font-semibold">Analyzing…</span>
+              </div>
+            ) : livePreview ? (
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-1.5">
+                  {liveAnalyzing && <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse flex-shrink-0" />}
+                  <span className="text-teal-300 font-black text-base">~{livePreview.calories}</span>
+                  <span className="text-white/50 text-xs font-bold">kcal</span>
+                </div>
+                <div className="flex items-center gap-3 text-xs font-bold">
+                  <span className="text-blue-300">P <span className="font-black">{livePreview.protein}g</span></span>
+                  <span className="text-amber-300">C <span className="font-black">{livePreview.carbs}g</span></span>
+                  <span className="text-pink-300">F <span className="font-black">{livePreview.fats}g</span></span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-white/20" />
+                <span className="text-white/40 text-xs font-semibold">{t("point_camera_at_food")}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       
       {/* Camera Status Indicator */}
       {!videoReady && (
