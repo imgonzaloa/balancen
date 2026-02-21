@@ -277,8 +277,11 @@ export default function CameraScreen() {
         <X size={24} />
       </button>
 
-      {/* Bottom action bar - CAL AI style */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pb-6 pt-8">
+      {/* Bottom action bar */}
+      <div
+        className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pt-8"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
+      >
         {/* Capture button - centered */}
         <div className="flex justify-center mb-6">
           <button
