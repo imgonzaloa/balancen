@@ -458,7 +458,6 @@ export default function MealResult() {
     else if (hour >= 11 && hour < 16) mealType = "lunch";
     else if (hour >= 16 && hour < 22) mealType = "dinner";
 
-    // Resolve best available photo URL
     const resolvedPhotoUrl = photoUrl || uploadedUrlRef.current || uploadedUrl || "";
 
     const meal = {
@@ -472,21 +471,46 @@ export default function MealResult() {
       confidence,
     };
 
-    // Optimistic local save — instant UI update
+    console.log("💾 SAVE_START", { calories: saveTotals.calories, dateKey });
+
+    // 1. Optimistic local save — updates Home/Progress immediately
     addMeal(meal);
 
-    // Backend persist (fire and forget, don't block UI)
+    // 2. Backend persist — AWAITED so we know it succeeded
     const meal_time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
-    base44.entities.MealLog.create({
-      date: dateKey,
-      meal_time,
-      photo_url: resolvedPhotoUrl,
-      estimated_calories: saveTotals.calories,
-      estimated_protein: saveTotals.protein,
-      estimated_carbs: saveTotals.carbs,
-      estimated_fats: saveTotals.fats,
-    }).catch(() => {});
+    try {
+      await base44.entities.MealLog.create({
+        date: dateKey,
+        meal_time,
+        photo_url: resolvedPhotoUrl,
+        estimated_calories: saveTotals.calories,
+        estimated_protein: saveTotals.protein,
+        estimated_carbs: saveTotals.carbs,
+        estimated_fats: saveTotals.fats,
+      });
+      console.log("✅ SAVE_OK - MealLog created");
+    } catch (err) {
+      console.error("❌ SAVE_FAIL - MealLog:", err?.message);
+      // Local store already has the meal — still functional, log but don't throw
+    }
 
+    // 3. Verify by re-reading local store totals
+    const todayKey = formatLocalDateKey(now);
+    const storedRaw = localStorage.getItem("balancen.mealsByDate");
+    let verifyOk = false;
+    try {
+      const parsed = JSON.parse(storedRaw || "{}");
+      const todayMeals = parsed[todayKey] || [];
+      verifyOk = todayMeals.some(m => m.id === meal.id);
+      console.log(verifyOk ? "✅ SAVE_VERIFY_OK" : "⚠️ SAVE_VERIFY_FAIL", {
+        todayMealsCount: todayMeals.length,
+        TODAY_TOTALS_AFTER_SAVE: todayMeals.reduce((a, m) => a + (m.totals?.calories || 0), 0)
+      });
+    } catch (_) {
+      console.warn("⚠️ SAVE_VERIFY_FAIL - could not read localStorage");
+    }
+
+    // Fire-and-forget daily check-in update
     base44.functions.invoke('updateDailyCheckIn', {
       food_photo_url: resolvedPhotoUrl,
       estimated_calories: saveTotals.calories,
@@ -506,8 +530,9 @@ export default function MealResult() {
       await persistMeal({ items: foodItems, totals, photoUrl: uploadedUrl });
       toast.success(`${t("meal_saved")} • +${totals.calories} kcal`);
       resetMeal();
-      navigate(createPageUrl("Home"));
+      navigate(createPageUrl("Home"), { replace: true });
     } catch (err) {
+      console.error("❌ SAVE_FAIL:", err);
       toast.error(t('save_failed') || "Failed to save. Please try again.");
     } finally {
       setSaving(false);
@@ -517,7 +542,6 @@ export default function MealResult() {
   const handleManualSave = async ({ items: saveItems, totals: saveTotals }) => {
     setSaving(true);
     try {
-      // Photo should already be uploaded by runAnalysis; if not, try once more
       let photoUrl = uploadedUrlRef.current || uploadedUrl;
       if (!photoUrl) {
         const fileToUpload = capturedFile || await (async () => {
@@ -536,8 +560,9 @@ export default function MealResult() {
       await persistMeal({ items: saveItems, totals: saveTotals, photoUrl });
       toast.success(`${t("meal_saved")} • +${saveTotals.calories} kcal`);
       resetMeal();
-      navigate(createPageUrl("Home"));
+      navigate(createPageUrl("Home"), { replace: true });
     } catch (err) {
+      console.error("❌ SAVE_FAIL (manual):", err);
       toast.error(t('save_failed') || "Failed to save. Please try again.");
     } finally {
       setSaving(false);
