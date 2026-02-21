@@ -190,6 +190,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
         overflow: 'hidden'
       }}
     >
+      <BuildBadge currentPageName={currentPageName} />
       <NavigationManager />
       <PublicDebugPanel />
       <Toaster position="top-center" richColors style={{ pointerEvents: 'auto' }} />
