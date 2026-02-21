@@ -160,8 +160,10 @@ function LayoutInner({ children, currentPageName, bootState }) {
     return () => window.removeEventListener('popstate', handlePopState);
     }, [currentPageName]);
 
-    // Listen for debug panel open from GlobalHeader triple-tap
+    // Listen for debug panel open — only when debug=1
     React.useEffect(() => {
+    const isDebug = new URLSearchParams(window.location.search).get('debug') === '1' || localStorage.getItem('DEBUG_OVERLAY') === '1';
+    if (!isDebug) return;
     const handler = () => setDebugOpen(true);
     window.addEventListener('balancen-open-debug', handler);
     return () => window.removeEventListener('balancen-open-debug', handler);
