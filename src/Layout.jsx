@@ -159,8 +159,8 @@ function LayoutInner({ children, currentPageName, bootState }) {
   }, [currentPageName]);
 
   const handleNavigate = React.useCallback((pageName) => {
-    navigate(createPageUrl(pageName), { replace: true });
-  }, [navigate]);
+      navigateToTab(pageName);
+    }, [navigateToTab]);
 
   const handleScrollTop = React.useCallback(() => {
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
