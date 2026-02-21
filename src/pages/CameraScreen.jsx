@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
+import { createPortal } from "react-dom";
 
 // Module-level stable store so photo survives navigation/re-render
 const _captureStore = { file: null, dataUrl: null };
