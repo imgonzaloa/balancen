@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
-import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users } from "lucide-react";
+import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
