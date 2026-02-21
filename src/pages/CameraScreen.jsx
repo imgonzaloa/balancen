@@ -43,36 +43,40 @@ export default function CameraScreen() {
         audio: false
       });
 
+      if (!mountedRef.current) { stream.getTracks().forEach(t => t.stop()); return; }
       streamRef.current = stream;
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         
-        // Wait for metadata to load
-        await new Promise((resolve) => {
-          videoRef.current.onloadedmetadata = resolve;
+        await new Promise((resolve, reject) => {
+          const v = videoRef.current;
+          if (!v) return reject(new Error("Video ref gone"));
+          v.onloadedmetadata = resolve;
+          v.onerror = reject;
         });
 
-        // Start playing
-        await videoRef.current.play();
+        if (!mountedRef.current) return;
+        await videoRef.current.play().catch(() => {});
         
-        // Verify video dimensions with retries
         let retries = 0;
-        while (videoRef.current.videoWidth === 0 && retries < 3) {
+        while (videoRef.current && videoRef.current.videoWidth === 0 && retries < 5) {
           await new Promise(r => setTimeout(r, 300));
           retries++;
         }
 
-        if (videoRef.current.videoWidth === 0) {
+        if (!mountedRef.current) return;
+        if (!videoRef.current || videoRef.current.videoWidth === 0) {
           throw new Error("Video stream failed to initialize");
         }
 
         setVideoReady(true);
+        console.log("📷 CAMERA_READY", { w: videoRef.current.videoWidth, h: videoRef.current.videoHeight });
       }
     } catch (err) {
       console.error("Camera error:", err);
+      if (!mountedRef.current) return;
       setCameraError(err.message || t("camera_permission_denied"));
-      toast.error(t("camera_permission_denied"));
     }
   };
 
