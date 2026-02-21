@@ -468,46 +468,72 @@ export default function CameraScreen() {
 
       {/* Barcode coming-soon modal — rendered in top-layer portal */}
       {showBarcodeModal && createPortal(
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 2147483647, display: 'flex', alignItems: 'flex-end', pointerEvents: 'auto' }}
-          onClick={() => setShowBarcodeModal(false)}
-        >
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setShowBarcodeModal(false)}
+            style={{
+              position: 'fixed', inset: 0,
+              zIndex: 20000,
+              background: 'rgba(0,0,0,0.7)',
+              pointerEvents: 'auto',
+              touchAction: 'none',
+            }}
+          />
+          {/* Sheet */}
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              width: '100%',
+              position: 'fixed',
+              bottom: 0, left: 0, right: 0,
+              zIndex: 20001,
               background: '#0f172a',
-              borderTop: '1px solid rgba(255,255,255,0.1)',
+              borderTop: '1px solid rgba(255,255,255,0.12)',
               borderRadius: '24px 24px 0 0',
-              padding: '24px 24px',
+              padding: '24px',
               paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
               pointerEvents: 'auto',
+              touchAction: 'pan-y',
             }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white text-xl font-bold">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: 700, margin: 0 }}>
                 {t("barcode") || "Barcode"}
               </h3>
               <button
                 onClick={() => setShowBarcodeModal(false)}
-                className="p-2 rounded-lg hover:bg-white/10 text-white/60"
-                style={{ pointerEvents: 'auto' }}
+                style={{
+                  padding: '8px', borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: 'none', cursor: 'pointer',
+                  pointerEvents: 'auto', touchAction: 'manipulation',
+                  color: 'rgba(255,255,255,0.6)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
               >
                 <X size={20} />
               </button>
             </div>
-            <p className="text-white/70 text-sm mb-6 leading-relaxed">
-              🔜 Barcode scanning is coming soon. Use <strong>Photo</strong> or <strong>Gallery</strong> to log your meal for now.
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
+              🔜 Barcode scanning is coming soon. Use <strong style={{ color: '#fff' }}>Photo</strong> or <strong style={{ color: '#fff' }}>Gallery</strong> to log your meal for now.
             </p>
             <button
               onClick={() => setShowBarcodeModal(false)}
-              className="w-full py-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-semibold"
-              style={{ pointerEvents: 'auto' }}
+              style={{
+                width: '100%', padding: '14px',
+                borderRadius: '12px',
+                background: 'rgba(16,185,129,0.15)',
+                border: '1px solid rgba(16,185,129,0.4)',
+                color: '#6ee7b7',
+                fontWeight: 600, fontSize: '15px',
+                cursor: 'pointer',
+                pointerEvents: 'auto', touchAction: 'manipulation',
+              }}
             >
               {t("ok") || "Got it"}
             </button>
           </div>
-        </div>,
+        </>,
         document.body
       )}
     </div>
