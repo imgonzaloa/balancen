@@ -306,6 +306,11 @@ export default function MealResult() {
     }
   }, [capturedFile]);
 
+  // Log key events for debug panel
+  useEffect(() => {
+    console.log("🔬 ANALYZE_START");
+  }, []);
+
   // Run analysis once
   useEffect(() => {
     if (hasRun.current) return;
