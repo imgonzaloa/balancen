@@ -71,7 +71,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               background: '#0f172a',
               borderTop: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '24px 24px 0 0',
-              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)',
               paddingLeft: '24px',
               paddingRight: '24px',
               paddingTop: '24px',
