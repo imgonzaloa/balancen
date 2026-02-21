@@ -134,6 +134,9 @@ export default function CameraScreen() {
 
       console.log("✅ CAPTURE_OK", { size: file.size, dims: `${canvas.width}x${canvas.height}` });
 
+      // Show optimistic preview immediately — prevents blank white screen
+      if (mountedRef.current) setCapturedPreview(dataUrl);
+
       // Write to module-level stable store (survives React re-renders/navigation)
       _captureStore.file = file;
       _captureStore.dataUrl = dataUrl;
@@ -145,7 +148,7 @@ export default function CameraScreen() {
       stopCamera();
 
       // Ensure context has settled
-      await new Promise(r => setTimeout(r, 60));
+      await new Promise(r => setTimeout(r, 80));
 
       if (!mountedRef.current) return;
       console.log("🚀 NAVIGATE_RESULT");
@@ -154,6 +157,7 @@ export default function CameraScreen() {
     } catch (err) {
       console.error("❌ CAPTURE_ERROR:", err);
       if (mountedRef.current) {
+        setCapturedPreview(null);
         toast.error(t("error_capturing"));
         setIsCapturing(false);
       }
