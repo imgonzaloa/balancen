@@ -40,7 +40,10 @@ export default function PreviewScreen() {
       />
 
       {/* Top Bar */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent p-4">
+      <div
+        className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent px-4 pb-4"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+      >
         <button
           onClick={handleRetake}
           className="p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white"
@@ -50,7 +53,10 @@ export default function PreviewScreen() {
       </div>
 
       {/* Bottom Actions */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-6">
+      <div
+        className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-6 pt-6"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
+      >
         <div className="max-w-lg mx-auto">
           <p className="text-white/80 text-center mb-6 text-lg font-medium">
             {t("photo_looks_good")}

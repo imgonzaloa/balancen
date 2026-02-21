@@ -1,6 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+
+const MAIN_TABS = ['Home', 'Social', 'Progress', 'Profile'];
+
+// Per-tab navigation stack stored in module scope so it persists across re-renders
+// Structure: { Home: ['/Home', '/Settings', ...], Social: [...], ... }
+const tabStacks = {
+  Home: [createPageUrl('Home')],
+  Social: [createPageUrl('Social')],
+  Progress: [createPageUrl('Progress')],
+  Profile: [createPageUrl('Profile')],
+};
+
+// Which tab is currently active
+let activeTab = 'Home';
+
+function getTabForPath(pathname) {
+  return MAIN_TABS.find(tab => pathname.includes(`/${tab}`)) || null;
+}
 
 /**
  * NavigationManager - Handles navigation stack and back button behavior
@@ -11,34 +29,84 @@ export function NavigationManager() {
   const location = useLocation();
 
   useEffect(() => {
+    const tab = getTabForPath(location.pathname);
+    if (tab) {
+      activeTab = tab;
+    }
+
     // Handle Android hardware back button
     const handleBackButton = (e) => {
       const currentPath = location.pathname;
-      const mainPages = ['/Home', '/Social', '/Progress', '/Profile'];
-      
-      // If on a main tab, don't allow back - prevent app exit
-      if (mainPages.some(page => currentPath.includes(page))) {
+      const isMainTab = MAIN_TABS.some(page => currentPath.includes(`/${page}`) && 
+        !currentPath.replace(`/${page}`, '').includes('/'));
+
+      if (isMainTab) {
         e.preventDefault();
         return false;
       }
-      
-      // Otherwise, allow normal back navigation
       return true;
     };
 
-    // Listen for popstate (browser/app back button)
     window.addEventListener('popstate', handleBackButton);
-
-    return () => {
-      window.removeEventListener('popstate', handleBackButton);
-    };
+    return () => window.removeEventListener('popstate', handleBackButton);
   }, [location, navigate]);
 
   return null;
 }
 
 /**
+ * useTabNavigation - Smart tab navigation with stack preservation
+ * Call navigateToTab(tabName) to switch tabs, remembering their last position.
+ * Call resetTab(tabName) to go back to the root of a tab.
+ */
+export function useTabNavigation() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const navigateToTab = useCallback((tabName) => {
+    const currentTab = getTabForPath(location.pathname);
+    const isAlreadyActive = currentTab === tabName;
+
+    if (isAlreadyActive) {
+      // Reset to root of this tab
+      const root = createPageUrl(tabName);
+      tabStacks[tabName] = [root];
+      navigate(root, { replace: true, state: { tabRoot: true } });
+    } else {
+      // Restore last position in that tab
+      const stack = tabStacks[tabName];
+      const destination = stack?.[stack.length - 1] || createPageUrl(tabName);
+      activeTab = tabName;
+      navigate(destination, { replace: false, state: { tabSwitch: true } });
+    }
+  }, [navigate, location.pathname]);
+
+  // Track pushes within a tab to update that tab's stack
+  const pushInTab = useCallback((pageName, options = {}) => {
+    const url = createPageUrl(pageName);
+    const tab = activeTab;
+    if (tab && tabStacks[tab]) {
+      tabStacks[tab] = [...tabStacks[tab], url];
+    }
+    navigate(url, { replace: options.replace || false, state: options.state });
+  }, [navigate]);
+
+  const goBack = useCallback(() => {
+    const tab = activeTab;
+    if (tab && tabStacks[tab] && tabStacks[tab].length > 1) {
+      tabStacks[tab] = tabStacks[tab].slice(0, -1);
+      navigate(-1);
+    } else {
+      navigate(createPageUrl('Home'), { replace: true });
+    }
+  }, [navigate]);
+
+  return { navigateToTab, pushInTab, goBack };
+}
+
+/**
  * Navigation helper - intelligently navigates with proper stack management
+ * (kept for backward compatibility)
  */
 export function useSmartNavigation() {
   const navigate = useNavigate();
@@ -47,22 +115,11 @@ export function useSmartNavigation() {
   const navigateTo = (pageName, options = {}) => {
     const { replace = false, state = {} } = options;
     const url = createPageUrl(pageName);
-    
-    // Track navigation for analytics
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'page_view', {
-        page_path: url,
-        page_title: pageName
-      });
-    }
-
     navigate(url, { replace, state });
   };
 
   const goBack = () => {
     const mainPages = ['/Home', '/Social', '/Progress', '/Profile'];
-    
-    // If on a main tab or can't go back, go to Home
     if (mainPages.some(page => location.pathname.includes(page)) || window.history.length <= 1) {
       navigateTo('Home', { replace: true });
     } else {
