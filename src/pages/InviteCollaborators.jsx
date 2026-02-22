@@ -93,7 +93,7 @@ export default function InviteCollaborators() {
 
   if (!user || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center">
         <Loader2 size={32} className="text-teal-500 animate-spin" />
       </div>
     );
