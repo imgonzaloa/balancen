@@ -113,7 +113,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const scrollContainerRef = React.useRef(null);
   const [debugOpen, setDebugOpen] = React.useState(false);
 
-  const location = useLocation();
   const navItems = React.useMemo(() => getNavItems(t), [t]);
   const hideNav = noNavPages.includes(currentPageName);
   const showBrand = showBrandPages.includes(currentPageName);
