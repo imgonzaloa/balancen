@@ -13,6 +13,7 @@ import VersionGate from "@/components/VersionGate";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import BrandMark from "@/components/BrandMark";
 import GlobalHeader from "@/components/GlobalHeader";
+import SmartNotificationManager from "@/components/SmartNotificationManager";
 // framer-motion removed from layout to prevent tab navigation lag
 import { NavigationManager, useTabNavigation } from "@/components/NavigationManager";
 import { useLocation } from "react-router-dom";
@@ -195,8 +196,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
     >
       <BuildBadge currentPageName={currentPageName} />
       <NavigationManager />
-      <PublicDebugPanel />
-      <Toaster position="top-center" richColors style={{ pointerEvents: 'auto' }} />
+            <SmartNotificationManager />
+            <PublicDebugPanel />
+            <Toaster position="top-center" richColors style={{ pointerEvents: 'auto' }} />
 
       {/* Global header bar — Logo left, avatar right */}
       {!hideHeader && <GlobalHeader />}
