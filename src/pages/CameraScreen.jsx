@@ -564,7 +564,9 @@ export default function CameraScreen() {
             ) : (
               <div style={{ textAlign: 'center', color: '#fff' }}>
                 <div style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid rgba(255,255,255,0.3)', borderTopColor: '#10b981', animation: 'spin 1s linear infinite', margin: '0 auto 12px' }} />
-                <p style={{ fontSize: 14, fontWeight: 500 }}>{t("analyzing") || "Analyzing…"}</p>
+                <p style={{ fontSize: 14, fontWeight: 500 }}>
+                  {isProfilePhotoMode ? (t("saving") || "Saving…") : (t("analyzing") || "Analyzing…")}
+                </p>
               </div>
             )}
           </div>
