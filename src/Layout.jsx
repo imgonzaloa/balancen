@@ -21,7 +21,7 @@ import PublicDebugPanel from "@/components/PublicDebugPanel";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import TrialGate from "@/components/TrialGate";
 import BuildBadge from "@/components/BuildBadge";
-import { useAppState } from "@/components/AppStateContext";
+
 
 // Global React Query client - aggressive caching to prevent rate limits and re-fetches
 const queryClient = new QueryClient({
@@ -113,7 +113,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
   const navItems = React.useMemo(() => getNavItems(t), [t]);
   const hideNav = noNavPages.includes(currentPageName);
-  const showBrand = showBrandPages.includes(currentPageName);
   
   // These pages must NOT be gated — they ARE the auth/onboarding/payment flow itself
   const bypassTrialGate = ["Paywall", "Onboarding", "LanguageSelector", "Premium", "ProfileSetup"].includes(currentPageName);
