@@ -43,7 +43,7 @@ export default function PreviewScreen() {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black">
+    <div className="fixed inset-0 bg-black" style={{ zIndex: 10001 }}>
       {/* Photo Preview */}
       <img
         src={resolvedPreview}
