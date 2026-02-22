@@ -119,6 +119,7 @@ export default function Social() {
   }
 
   return (
+    <PullToRefresh>
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
       <div className="max-w-2xl mx-auto px-6 pb-8 space-y-4">
 
@@ -347,6 +348,7 @@ export default function Social() {
         </button>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 

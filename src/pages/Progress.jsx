@@ -86,6 +86,7 @@ export default function Progress() {
   }
 
   return (
+    <PullToRefresh>
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
       <div className="max-w-2xl mx-auto px-6 pt-2 pb-6 space-y-6">
         <div>
@@ -190,5 +191,6 @@ export default function Progress() {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
