@@ -116,7 +116,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile, anchor
 
         {/* Camera */}
         <button
-          onClick={() => cameraInput.current?.click()}
+          onClick={handleTakePhoto}
           style={{
             width: '100%', minHeight: '44px', display: 'flex', alignItems: 'center', gap: '12px',
             background: 'none', border: 'none', cursor: 'pointer', padding: '10px 12px',
