@@ -133,8 +133,10 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile, anchor
           </span>
         </button>
 
-        <input ref={galleryInput} type="file" accept="image/*" onChange={handleFileSelect} style={{ display: 'none' }} />
-        <input ref={cameraInput} type="file" accept="image/*" capture="environment" onChange={handleFileSelect} style={{ display: 'none' }} />
+        {/* Gallery input — NO capture attribute */}
+        <input ref={galleryInput} type="file" accept="image/*" onChange={handleGallerySelect} style={{ display: 'none' }} />
+        {/* Camera input — capture="environment" forces camera */}
+        <input ref={cameraInput} type="file" accept="image/*" capture="environment" onChange={handleCameraSelect} style={{ display: 'none' }} />
       </div>
     </>,
     document.body
