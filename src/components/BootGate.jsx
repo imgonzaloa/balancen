@@ -133,27 +133,7 @@ export default function BootGate({ children }) {
   }, []);
 
   if (!bootState?.isHydrated) {
-    return (
-      <div
-        className="fixed inset-0 bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center"
-        style={{ paddingTop: 'env(safe-area-inset-top, 0)', zIndex: 9999 }}
-      >
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-20 h-20 rounded-2xl bg-black flex items-center justify-center border-2 border-white shadow-2xl">
-            <span className="text-5xl font-black text-white">B</span>
-          </div>
-          <div className="flex gap-2">
-            {[0, 1, 2].map(i => (
-              <div
-                key={i}
-                className="w-2 h-2 rounded-full bg-teal-400 animate-bounce"
-                style={{ animationDelay: `${i * 0.2}s` }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <SplashScreen />;
   }
 
   return children({ bootState });
