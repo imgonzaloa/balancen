@@ -291,10 +291,45 @@ export default function CameraScreen() {
     };
   }, [videoReady, runLivePreview]);
 
+  // Save a captured file as a profile photo and return to profile
+  const saveProfilePhoto = useCallback(async (file, dataUrl) => {
+    if (!file) return;
+    try {
+      // Optimistic local preview via AppStateContext if available
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      if (file_url && profile?.id) {
+        await base44.entities.UserProfile.update(profile.id, {
+          profile_photo: file_url,
+          avatar_url: file_url,
+        });
+        await base44.auth.updateMe({ avatar_url: file_url });
+        const updated = { ...profile, profile_photo: file_url, avatar_url: file_url };
+        if (setContextProfile) setContextProfile(updated);
+        if (user?.email) {
+          localStorage.setItem(`balancen_avatar_${user.email}`, file_url);
+          localStorage.setItem(`balancen_photo_${user.email}`, file_url);
+        }
+        toast.success(t('photo_updated') || 'Profile photo updated');
+      }
+    } catch (err) {
+      console.error('Profile photo save failed:', err);
+      toast.error(t('upload_failed') || 'Upload failed');
+    } finally {
+      localStorage.removeItem('CAMERA_MODE');
+      localStorage.removeItem('CAMERA_RETURN_ROUTE');
+      stopCamera();
+      navigate(returnTo, { replace: true });
+    }
+  }, [profile, user, setContextProfile, t, navigate, returnTo]);
+
   const handleClose = React.useCallback(() => {
+    if (isProfilePhotoMode) {
+      localStorage.removeItem('CAMERA_MODE');
+      localStorage.removeItem('CAMERA_RETURN_ROUTE');
+    }
     stopCamera();
     navigate(returnTo, { replace: true });
-  }, [navigate, returnTo]);
+  }, [navigate, returnTo, isProfilePhotoMode]);
 
   // Error fallback UI
   if (cameraError) {
