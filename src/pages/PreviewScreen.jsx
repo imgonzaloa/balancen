@@ -9,7 +9,9 @@ import OverlayPortal from "@/components/OverlayPortal";
 export default function PreviewScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { previewUrl, capturedFile, resetMeal } = useMeal();
+  const returnTo = location.state?.from || createPageUrl("Home");
 
   // Resolve preview: context first, then storage fallback (async restore from MealContext may not be done yet)
   const storedFallback = React.useMemo(() => {
@@ -35,23 +37,14 @@ export default function PreviewScreen() {
   const handleRetake = () => {
     console.log("🔄 RETAKE_PHOTO");
     resetMeal();
-    // replace so we don't push an extra history entry
-    navigate(createPageUrl("CameraScreen"), { replace: true });
+    // Go back to camera, passing the same origin forward
+    navigate(createPageUrl("CameraScreen"), { replace: true, state: { from: returnTo } });
   };
 
   const handleUsePhoto = () => {
     console.log("✅ USE_PHOTO_CONFIRMED - navigating to analysis");
-    navigate(createPageUrl("MealResult"), { replace: true });
+    navigate(createPageUrl("MealResult"), { replace: true, state: { from: returnTo } });
   };
-
-  // Android/browser back button — treat as retake/close
-  React.useEffect(() => {
-    const handlePopState = () => {
-      resetMeal();
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [resetMeal]);
 
   return (
     <OverlayPortal>
