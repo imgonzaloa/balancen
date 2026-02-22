@@ -6,43 +6,36 @@ import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useAppState } from "@/components/AppStateContext";
 
 export default function InviteCollaborators() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const { user, profile: contextProfile } = useAppState();
+  const [profile, setProfile] = useState(contextProfile);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [invites, setInvites] = useState([]);
 
+  // Sync profile from context once available
   useEffect(() => {
-    const init = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-      
-      if (!currentUser) {
-        navigate(createPageUrl("Home"));
-        return;
-      }
+    if (contextProfile) setProfile(contextProfile);
+  }, [contextProfile]);
 
-      const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
-      const userProfile = profiles[0];
-      setProfile(userProfile);
+  useEffect(() => {
+    if (!user) return;
 
-      // Check if owner
-      if (userProfile?.role !== "owner" && currentUser.email.toLowerCase() !== "imgonzaloa@gmail.com") {
-        toast.error(t('only_owner_can_invite'));
-        navigate(createPageUrl("Settings"));
-        return;
-      }
+    if (profile && profile.role !== "owner" && user.email.toLowerCase() !== "imgonzaloa@gmail.com") {
+      toast.error(t('only_owner_can_invite'));
+      navigate(createPageUrl("Settings"));
+      return;
+    }
 
-      // Load existing invites
-      const existingInvites = await base44.entities.CollaboratorInvite.filter({ inviter_email: currentUser.email });
-      setInvites(existingInvites);
-    };
-    init();
-  }, [navigate, t]);
+    // Load existing invites (only once when user is known)
+    base44.entities.CollaboratorInvite.filter({ inviter_email: user.email })
+      .then(setInvites)
+      .catch(console.error);
+  }, [user?.email, profile?.role]);
 
   const handleInvite = async () => {
     if (!email || !email.includes("@")) {
