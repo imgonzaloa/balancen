@@ -26,48 +26,48 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={onClose}
-              style={{
-                position: 'fixed', inset: 0,
-                background: 'rgba(0,0,0,0.6)',
-                touchAction: 'none',
-                pointerEvents: 'auto',
-                zIndex: 50001,
-              }}
-            />
-            {/* Sheet — sits above bottom nav */}
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              onClick={e => e.stopPropagation()}
-              style={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0, right: 0,
-                zIndex: 9999,
-                maxHeight: '90dvh',
-                display: 'flex',
-                flexDirection: 'column',
-                overflowY: 'auto',
-                WebkitOverflowScrolling: 'touch',
-                background: '#0f172a',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '24px 24px 0 0',
-                paddingTop: '24px',
-                paddingLeft: '24px',
-                paddingRight: '24px',
-                paddingBottom: '88px',
-                touchAction: 'pan-y',
-                pointerEvents: 'auto',
-              }}
-            >
+                    {/* Backdrop */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={onClose}
+                      style={{
+                        position: 'fixed', inset: 0,
+                        background: 'rgba(0,0,0,0.6)',
+                        touchAction: 'none',
+                        pointerEvents: 'auto',
+                        zIndex: 49999,
+                      }}
+                    />
+                    {/* Sheet — sits above bottom nav */}
+                    <motion.div
+                      initial={{ y: '100%' }}
+                      animate={{ y: 0 }}
+                      exit={{ y: '100%' }}
+                      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                      onClick={e => e.stopPropagation()}
+                      style={{
+                        position: 'fixed',
+                        bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
+                        left: 0, right: 0,
+                        zIndex: 50000,
+                        maxHeight: 'calc(100vh - (88px + env(safe-area-inset-bottom, 0px) + 24px))',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflowY: 'auto',
+                        WebkitOverflowScrolling: 'touch',
+                        background: '#0f172a',
+                        borderTop: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '24px 24px 0 0',
+                        paddingTop: '24px',
+                        paddingLeft: '24px',
+                        paddingRight: '24px',
+                        paddingBottom: '24px',
+                        touchAction: 'pan-y',
+                        pointerEvents: 'auto',
+                      }}
+                    >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-white">
                   {lang === 'es' ? 'Elegir foto' : 'Choose photo'}
