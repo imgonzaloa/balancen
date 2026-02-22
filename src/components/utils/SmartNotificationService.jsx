@@ -294,7 +294,28 @@ export async function getSmartNotification(userEmail, userLanguage = 'en') {
   }
 
   const segment = await getUserSegment(userEmail);
-  const message = getNextSegmentMessage(segment, userLanguage);
+  
+  // Fetch check-ins for dynamic data
+  let userData = {};
+  try {
+    const checkIns = await base44.entities.DailyCheckIn.filter(
+      { created_by: userEmail },
+      '-date',
+      30
+    );
+    
+    if (checkIns && checkIns.length > 0) {
+      userData = {
+        currentStreak: getCurrentStreak(checkIns),
+        daysInactive: daysSinceLastCheckIn(checkIns),
+        mealsThisWeek: mealsLoggedThisWeek(checkIns),
+      };
+    }
+  } catch (err) {
+    console.error('Error fetching user data for notification:', err);
+  }
+  
+  const message = getNextSegmentMessage(segment, userLanguage, userData);
 
   if (!message) {
     return null;
