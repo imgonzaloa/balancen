@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera, Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
 import { Button } from '@/components/ui/button';
+import OverlayPortal from '@/components/OverlayPortal';
 
 export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
   const { t, lang } = useTranslation();

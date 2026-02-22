@@ -291,6 +291,14 @@ function AppProviders({ children, bootState }) {
   );
 }
 
+// Ensure overlay-root exists in DOM (fallback if index.html doesn't have it)
+if (typeof document !== 'undefined' && !document.getElementById('overlay-root')) {
+  const overlayRoot = document.createElement('div');
+  overlayRoot.id = 'overlay-root';
+  overlayRoot.style.cssText = 'position:fixed;inset:0;z-index:10000;pointer-events:none;';
+  document.body.appendChild(overlayRoot);
+}
+
 export default function Layout({ children, currentPageName }) {
   return (
     <GlobalErrorBoundary>

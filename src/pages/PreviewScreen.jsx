@@ -4,6 +4,7 @@ import { X, Check, RotateCcw } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { createPageUrl } from "@/utils";
+import OverlayPortal from "@/components/OverlayPortal";
 
 export default function PreviewScreen() {
   const { t } = useTranslation();
