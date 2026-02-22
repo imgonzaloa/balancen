@@ -77,8 +77,9 @@ export default function PreviewScreen() {
         <div
           style={{
             position: 'fixed',
-            bottom: 0, left: 0, right: 0,
-            zIndex: 3,
+            bottom: 'var(--bottom-inset, 0px)',
+            left: 0, right: 0,
+            zIndex: 50001,
             maxHeight: '90dvh',
             display: 'flex',
             flexDirection: 'column',
@@ -88,18 +89,14 @@ export default function PreviewScreen() {
             paddingTop: '48px',
             paddingLeft: '24px',
             paddingRight: '24px',
-            paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+            paddingBottom: '16px',
           }}
         >
           <div style={{ maxWidth: '512px', margin: '0 auto', width: '100%', marginTop: 'auto' }}>
             <p style={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginBottom: '20px', fontSize: '18px', fontWeight: 500 }}>
               {t("photo_looks_good")}
             </p>
-            {/* Button row — debug bg removed once confirmed working */}
-            <div style={{
-              display: 'flex', gap: '16px',
-              paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
-            }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
               <button
                 onClick={handleRetake}
                 style={{
