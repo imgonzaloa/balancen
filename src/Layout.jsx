@@ -184,14 +184,15 @@ function LayoutInner({ children, currentPageName, bootState }) {
   return (
     <div
       className="bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900"
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        paddingTop: 'env(safe-area-inset-top, 0)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
+              style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                paddingTop: 'env(safe-area-inset-top, 0)',
+                position: 'relative',
+                overflow: 'hidden',
+                '--bottom-nav-height': '88px',
+              }}
     >
       <BuildBadge currentPageName={currentPageName} />
       <NavigationManager />
