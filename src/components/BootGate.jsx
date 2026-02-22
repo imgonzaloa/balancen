@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
 const SPLASH_PHRASES = [
-  'Stay consistent',
-  'Show up today',
-  'Small steps daily',
-  'Keep going',
-  'Progress over perfection',
-  'Discipline creates freedom',
-  'One day at a time',
-  'Build momentum',
-  "Don't break the streak",
-  'Balance every day',
+  'Win today, repeat tomorrow',
+  'Keep your streak alive',
+  'Your future self is watching',
+  'One good choice leads to another',
+  'Consistency beats motivation',
+  "Don't negotiate with excuses",
+  'Eat like you care about yourself',
+  "You don't need perfect, you need done",
+  'Stay on plan — results follow',
+  "Show up even when it's boring",
 ];
 
 const PHRASES_HISTORY_KEY = 'balancen_splash_phrases_used';
