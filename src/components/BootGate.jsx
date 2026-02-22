@@ -97,16 +97,43 @@ async function safeAuthCheck() {
   }
 }
 
-const SPLASH_DURATION = 2000; // ms
+const SPLASH_DURATION = 2000; // ms — full splash for logged-in users
 
 export default function BootGate({ children }) {
   const [bootState, setBootState] = useState(null);
+  const [splashDone, setSplashDone] = useState(false);
+  const pendingStateRef = React.useRef(null);
 
   useEffect(() => {
     let isMounted = true;
 
+    // Start splash timer — for authenticated users we wait the full 2s
+    const splashTimer = setTimeout(() => {
+      if (!isMounted) return;
+      setSplashDone(true);
+      // If boot already resolved while splash was showing, apply it now
+      if (pendingStateRef.current) {
+        setBootState(pendingStateRef.current);
+        pendingStateRef.current = null;
+      }
+    }, SPLASH_DURATION);
+
+    const applyState = (state) => {
+      if (!isMounted) return;
+      if (state.type === 'AUTH_REQUIRED') {
+        // Not logged in — skip splash, go straight to login
+        clearTimeout(splashTimer);
+        setSplashDone(true);
+        setBootState(state);
+      } else if (splashDone) {
+        setBootState(state);
+      } else {
+        // Logged in but splash still showing — queue it
+        pendingStateRef.current = state;
+      }
+    };
+
     const resolveBoot = async () => {
-      const startTime = Date.now();
       // STEP 1: Sync reads from localStorage (instant)
       const storedLanguage = (
         localStorage.getItem(STORAGE_KEYS.LANGUAGE) ||
@@ -116,14 +143,12 @@ export default function BootGate({ children }) {
       );
       const storedOnboarding = localStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETE) === 'true';
 
-      // STEP 2: Check auth — never throws, never calls protected APIs before this
+      // STEP 2: Check auth
       const user = await safeAuthCheck();
-
       if (!isMounted) return;
 
       if (!user) {
-        // Not authenticated — LanguageSelector handles pre-auth language pick
-        setBootState({
+        applyState({
           type: 'AUTH_REQUIRED',
           isHydrated: true,
           user: null,
@@ -133,9 +158,9 @@ export default function BootGate({ children }) {
         return;
       }
 
-      // STEP 3: Authenticated + locally cached as done → go straight to app
+      // STEP 3: Authenticated + locally cached as done
       if (storedOnboarding && storedLanguage) {
-        setBootState({
+        applyState({
           type: 'HOME_READY',
           isHydrated: true,
           user,
@@ -145,8 +170,7 @@ export default function BootGate({ children }) {
         return;
       }
 
-      // STEP 4: Authenticated but no cache — fetch profile to determine state
-      // Only happens on first login or when localStorage was cleared
+      // STEP 4: Fetch profile
       let profile = null;
       try {
         const profiles = await Promise.race([
@@ -162,11 +186,9 @@ export default function BootGate({ children }) {
       if (!isMounted) return;
 
       if (!profile || !profile.onboarding_completed) {
-        // New user or onboarding incomplete
         localStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
         const effectiveLang = profile?.language || storedLanguage;
-
-        setBootState({
+        applyState({
           type: effectiveLang ? 'ONBOARDING_REQUIRED' : 'LANGUAGE_REQUIRED',
           isHydrated: true,
           user,
@@ -177,7 +199,6 @@ export default function BootGate({ children }) {
         return;
       }
 
-      // STEP 5: Profile confirmed complete — persist and proceed
       const lang = profile.language || storedLanguage || 'en';
       localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETE, 'true');
       localStorage.setItem('i18nextLng', lang);
@@ -185,20 +206,21 @@ export default function BootGate({ children }) {
       localStorage.setItem('balancen.lang', lang);
       localStorage.setItem('app_language', lang);
 
-      if (isMounted) {
-        setBootState({
-          type: 'HOME_READY',
-          isHydrated: true,
-          user,
-          profile,
-          language: lang,
-          onboardingComplete: true,
-        });
-      }
+      applyState({
+        type: 'HOME_READY',
+        isHydrated: true,
+        user,
+        profile,
+        language: lang,
+        onboardingComplete: true,
+      });
     };
 
     resolveBoot();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+      clearTimeout(splashTimer);
+    };
   }, []);
 
   if (!bootState?.isHydrated) {
