@@ -1,6 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
+function SplashScreen() {
+  const [logoVisible, setLogoVisible] = React.useState(false);
+  const [textVisible, setTextVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const t1 = setTimeout(() => setLogoVisible(true), 50);
+    const t2 = setTimeout(() => setTextVisible(true), 300);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        paddingTop: 'env(safe-area-inset-top, 0)',
+      }}
+    >
+      <div style={{
+        transition: 'opacity 350ms ease, transform 350ms ease',
+        opacity: logoVisible ? 1 : 0,
+        transform: logoVisible ? 'scale(1)' : 'scale(0.95)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px',
+      }}>
+        <div style={{
+          width: '80px', height: '80px', borderRadius: '24px',
+          background: 'linear-gradient(135deg, #14b8a6, #10b981)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 20px 60px rgba(20,184,166,0.4)',
+        }}>
+          <span style={{ color: '#fff', fontSize: '48px', fontWeight: 900, lineHeight: 1 }}>B</span>
+        </div>
+        <span style={{ color: '#ffffff', fontSize: '32px', fontWeight: 800, letterSpacing: '-0.5px' }}>
+          Balancen
+        </span>
+      </div>
+      <p style={{
+        transition: 'opacity 300ms ease',
+        opacity: textVisible ? 0.85 : 0,
+        color: '#ffffff', fontSize: '15px', fontWeight: 500,
+        marginTop: '24px', letterSpacing: '0.02em',
+      }}>
+        Stay consistent.
+      </p>
+    </div>
+  );
+}
+
 /**
  * BootGate: hydrates auth state before rendering the app.
  *
