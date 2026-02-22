@@ -151,11 +151,12 @@ function LayoutInner({ children, currentPageName, bootState }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bootState?.isHydrated, bootState?.language]);
 
-  // Set --bottom-nav-height CSS variable from actual nav element
+  // Set --bottom-nav-height and --bottom-inset CSS variables from actual nav
   React.useEffect(() => {
     if (!bottomNavRef.current) return;
-    const navHeight = bottomNavRef.current.offsetHeight || 0;
+    const navHeight = bottomNavRef.current.getBoundingClientRect().height || 0;
     document.documentElement.style.setProperty('--bottom-nav-height', navHeight + 'px');
+    document.documentElement.style.setProperty('--bottom-inset', `calc(${navHeight}px + env(safe-area-inset-bottom, 0px))`);
   });
 
   // Prevent hardware back from leaving main tabs
