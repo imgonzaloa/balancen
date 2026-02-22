@@ -206,12 +206,18 @@ export default function CameraScreen() {
     console.log("📁 FILE_SELECTED_FROM_GALLERY", { size: selectedFile.size });
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const dataUrl = event.target.result;
-      // Show optimistic preview immediately
       if (mountedRef.current) setCapturedPreview(dataUrl);
       _captureStore.file = selectedFile;
       _captureStore.dataUrl = dataUrl;
+
+      if (isProfilePhotoMode) {
+        console.log("🚀 PROFILE_PHOTO_SAVE (gallery fallback)");
+        await saveProfilePhoto(selectedFile, dataUrl);
+        return;
+      }
+
       setCapturedFile(selectedFile, dataUrl);
       stopCamera();
       console.log("🚀 NAVIGATE_RESULT (gallery)");
