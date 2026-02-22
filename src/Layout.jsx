@@ -97,8 +97,6 @@ function getNavItems(t) {
 function LayoutInner({ children, currentPageName, bootState }) {
   const navigate = useNavigate();
   const { t, lang, changeLanguage } = useTranslation();
-  const { profile } = useAppState();
-  const { isEntitled } = useEntitlement(profile);
 
   const { navigateToTab } = useTabNavigation();
   const isNavigating = React.useRef(false);
