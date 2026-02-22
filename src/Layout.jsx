@@ -100,12 +100,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
     console.log('ROOT MOUNT');
   }, []);
 
-  const location = useLocation();
-  // Log every route change (separate from location used for animation below)
-  React.useEffect(() => {
-    console.log('ROUTE CHANGE', location.pathname);
-  }, [location.pathname]);
-
   const { navigateToTab } = useTabNavigation();
   const scrollPositions = React.useRef({});
   const scrollContainerRef = React.useRef(null);
