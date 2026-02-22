@@ -11,6 +11,7 @@ import StreakFire from "@/components/ui/StreakFire";
 import GlobalHeader from "@/components/GlobalHeader";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import TrialBanner from "@/components/home/TrialBanner";
+import PullToRefresh from "@/components/PullToRefresh";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
@@ -92,6 +93,7 @@ const Home = React.memo(() => {
   }
 
   return (
+    <PullToRefresh>
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
       <div className="max-w-2xl mx-auto px-6 pt-4 pb-8 space-y-4">
 
@@ -401,6 +403,7 @@ const Home = React.memo(() => {
 
       </div>
     </div>
+    </PullToRefresh>
   );
 });
 
