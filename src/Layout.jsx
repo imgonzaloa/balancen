@@ -47,19 +47,17 @@ const NavButton = React.memo(function NavButton({ item, isActive, onNavigate, on
   const Icon = item.icon;
 
   const handleNav = React.useCallback((e) => {
-    e.preventDefault();
+    e.stopPropagation();
     if (isActive) {
       onScrollTop();
       return;
     }
-    debugLogger.log('TAB_CLICK', item.name);
     onNavigate(item.name);
   }, [isActive, item.name, onNavigate, onScrollTop]);
 
   return (
     <button
       onPointerUp={handleNav}
-      onClick={handleNav}
       className="relative flex flex-col items-center py-2 px-4 transition-transform duration-75 active:scale-90"
       style={{
         pointerEvents: 'auto',
