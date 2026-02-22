@@ -151,6 +151,13 @@ function LayoutInner({ children, currentPageName, bootState }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bootState?.isHydrated, bootState?.language]);
 
+  // Set --bottom-nav-height CSS variable from actual nav element
+  React.useEffect(() => {
+    if (!bottomNavRef.current) return;
+    const navHeight = bottomNavRef.current.offsetHeight || 0;
+    document.documentElement.style.setProperty('--bottom-nav-height', navHeight + 'px');
+  });
+
   // Prevent hardware back from leaving main tabs
   React.useEffect(() => {
     const handlePopState = () => {
