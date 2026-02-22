@@ -14,7 +14,7 @@ export default function PublicDebugPanel() {
   const [lastError, setLastError] = useState(null);
 
   useEffect(() => {
-
+    if (!IS_DEBUG_MODE) return;
     // Track route changes
     const handleRouteChange = () => {
       setRoute(window.location.pathname);
