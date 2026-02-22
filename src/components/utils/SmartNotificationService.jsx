@@ -115,10 +115,125 @@ async function getUserSegment(userEmail) {
 }
 
 /**
+ * Calculate days since last check-in
+ */
+function daysSinceLastCheckIn(checkIns) {
+  if (!checkIns || checkIns.length === 0) return null;
+  
+  const lastDate = new Date(checkIns[0].date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  lastDate.setHours(0, 0, 0, 0);
+  
+  const daysDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+  return daysDiff > 0 ? daysDiff : null;
+}
+
+/**
+ * Count meals logged this week
+ */
+function mealsLoggedThisWeek(checkIns) {
+  if (!checkIns || checkIns.length === 0) return 0;
+  
+  const today = new Date();
+  const weekAgo = new Date(today);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  
+  const weekStr = weekAgo.toISOString().split('T')[0];
+  return checkIns.filter(c => c.date >= weekStr && c.completed).length;
+}
+
+/**
+ * Get current streak days
+ */
+function getCurrentStreak(checkIns) {
+  if (!checkIns || checkIns.length === 0) return 0;
+  
+  let streak = 0;
+  const today = new Date();
+  
+  for (let i = 0; i < checkIns.length; i++) {
+    const checkInDate = new Date(checkIns[i].date);
+    const expectedDate = new Date(today);
+    expectedDate.setDate(expectedDate.getDate() - i);
+    
+    checkInDate.setHours(0, 0, 0, 0);
+    expectedDate.setHours(0, 0, 0, 0);
+    
+    if (checkInDate.getTime() === expectedDate.getTime() && checkIns[i].completed) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+}
+
+/**
+ * Generate dynamic message with user data
+ */
+function generateDynamicMessage(segment, language, userStreak, daysInactive, mealsThisWeek) {
+  const lang = (language === 'es') ? 'es' : 'en';
+  
+  // Dynamic templates based on user data
+  if (segment === 'STREAK_AT_RISK' && userStreak > 0) {
+    const template = lang === 'es' 
+      ? `Tu racha es de ${userStreak} días. No la rompas`
+      : `Your streak is ${userStreak} days. Don't break it`;
+    return {
+      text: template,
+      intent: "streak",
+      screen: "Progress"
+    };
+  }
+  
+  if (segment === 'INACTIVE_3_DAYS' && daysInactive > 0) {
+    const template = lang === 'es'
+      ? `${daysInactive} días sin registrar. Volvé hoy`
+      : `${daysInactive} days without logging. Come back today`;
+    return {
+      text: template,
+      intent: "logging",
+      screen: "CameraScreen"
+    };
+  }
+  
+  if (segment === 'ACTIVE_USER' && mealsThisWeek > 0) {
+    const template = lang === 'es'
+      ? `Registraste ${mealsThisWeek} comidas esta semana. Seguí así`
+      : `You logged ${mealsThisWeek} meals this week. Keep going`;
+    return {
+      text: template,
+      intent: "logging",
+      screen: "CameraScreen"
+    };
+  }
+  
+  // Fallback to standard rotation
+  return null;
+}
+
+/**
  * Get next message in rotation for a segment (never repeat until all shown)
  */
-function getNextSegmentMessage(segment, language = 'en') {
+function getNextSegmentMessage(segment, language = 'en', userData = {}) {
   const lang = (language === 'es') ? 'es' : 'en';
+  
+  // Try dynamic message first if user data available
+  const dynamicMsg = generateDynamicMessage(
+    segment,
+    lang,
+    userData.currentStreak || 0,
+    userData.daysInactive || 0,
+    userData.mealsThisWeek || 0
+  );
+  
+  if (dynamicMsg) {
+    return dynamicMsg;
+  }
+  
+  // Fallback to standard rotation
   const messages = SMART_MESSAGES[lang][segment] || [];
 
   if (messages.length === 0) return null;
