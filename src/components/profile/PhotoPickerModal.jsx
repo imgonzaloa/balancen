@@ -5,6 +5,8 @@ import { X, Camera, Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
 import { Button } from '@/components/ui/button';
 
+const BOTTOM_NAV_HEIGHT = 88;
+
 export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
   const { lang } = useTranslation();
   const galleryInput = useRef(null);
