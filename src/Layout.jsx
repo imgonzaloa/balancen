@@ -111,7 +111,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
   const location = useLocation();
   const navItems = React.useMemo(() => getNavItems(t), [t]);
-  const hideNav = noNavPages.includes(currentPageName) || !isEntitled;
+  const hideNav = noNavPages.includes(currentPageName);
   const showBrand = showBrandPages.includes(currentPageName);
   
   // These pages must NOT be gated — they ARE the auth/onboarding/payment flow itself

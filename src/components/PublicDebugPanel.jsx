@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 export default function PublicDebugPanel() {
-  const [isVisible, setIsVisible] = useState(false);
+  // Only mount in debug mode — never visible to normal users
+  const isDebugMode = new URLSearchParams(window.location.search).get('debug') === '1' ||
+    localStorage.getItem('DEBUG_OVERLAY') === '1';
+
+  if (!isDebugMode) return null;
+
+  const [isVisible, setIsVisible] = useState(true);
   const [route, setRoute] = useState(window.location.pathname);
   const [navAttempts, setNavAttempts] = useState([]);
   const [lastClick, setLastClick] = useState(null);
@@ -10,11 +16,6 @@ export default function PublicDebugPanel() {
   const [lastError, setLastError] = useState(null);
 
   useEffect(() => {
-    // Check for ?debug=1 in URL
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('debug') === '1') {
-      setIsVisible(true);
-    }
 
     // Track route changes
     const handleRouteChange = () => {
