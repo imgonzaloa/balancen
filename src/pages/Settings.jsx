@@ -409,25 +409,21 @@ export default function Settings() {
           {t('logout')}
         </Button>
 
-        {/* Danger Zone */}
+        {/* Delete account */}
         <motion.div
-          className="mt-8"
+          className="mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          <div className="flex items-center gap-2 mb-4">
-            <Trash2 size={18} className="text-red-400" />
-            <h2 className="text-lg font-bold text-red-400">Danger Zone</h2>
-          </div>
           <button
             onClick={() => setShowDeleteDialog(true)}
-            className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all"
+            className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
           >
-            <Trash2 size={20} className="text-red-400" />
+            <Trash2 size={18} className="text-white/40" />
             <div className="text-left">
-              <p className="text-red-300 font-semibold">{lang === 'es' ? 'Eliminar cuenta' : 'Delete account'}</p>
-              <p className="text-red-400/60 text-xs">{lang === 'es' ? 'Esta acción no se puede deshacer' : 'This action cannot be undone'}</p>
+              <p className="text-white/60 font-medium text-sm">{lang === 'es' ? 'Eliminar cuenta' : 'Delete account'}</p>
+              <p className="text-white/30 text-xs">{lang === 'es' ? 'Esta acción no se puede deshacer' : 'This action cannot be undone'}</p>
             </div>
           </button>
         </motion.div>
