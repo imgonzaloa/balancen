@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ProfileGoalsEdit from "@/components/profile/ProfileGoalsEdit";
-import PhotoPicker from "@/components/PhotoPicker";
+import PhotoPickerModal from "@/components/profile/PhotoPickerModal";
 import { withTimeout } from "@/components/utils/fetchWithTimeout";
 import ErrorFallback, { LoadingTimeout } from "@/components/ErrorFallback";
 import { debugLogger } from "@/components/DebugOverlay";
