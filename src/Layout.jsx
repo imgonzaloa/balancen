@@ -150,14 +150,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bootState?.isHydrated, bootState?.language]);
 
-  // Set --bottom-nav-height and --bottom-inset CSS variables from actual nav
-  React.useEffect(() => {
-    if (!bottomNavRef.current) return;
-    const navHeight = bottomNavRef.current.getBoundingClientRect().height || 0;
-    document.documentElement.style.setProperty('--bottom-nav-height', navHeight + 'px');
-    document.documentElement.style.setProperty('--bottom-inset', `calc(${navHeight}px + env(safe-area-inset-bottom, 0px))`);
-  });
-
   // Prevent hardware back from leaving main tabs
   React.useEffect(() => {
     const handlePopState = () => {
@@ -243,7 +235,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
       {/* Fixed Tab bar - pinned to viewport */}
       {!hideNav && (
         <nav
-          ref={bottomNavRef}
           className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10"
             style={{
               zIndex: 1000,
