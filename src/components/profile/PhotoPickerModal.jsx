@@ -1,149 +1,123 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Camera, Image as ImageIcon } from 'lucide-react';
+import { Camera, Image as ImageIcon, X } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
-import { Button } from '@/components/ui/button';
 
-const BOTTOM_NAV_HEIGHT = 88;
-
-export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
+export default function PhotoPickerModal({ isOpen, onClose, onSelectFile, anchorRef }) {
   const { lang } = useTranslation();
   const galleryInput = useRef(null);
   const cameraInput = useRef(null);
+  const [pos, setPos] = useState({ top: 80, left: 16 });
 
-  // Prevent background scroll while open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      if (anchorRef?.current) {
+        const rect = anchorRef.current.getBoundingClientRect();
+        const popoverWidth = 220;
+        const spaceRight = window.innerWidth - rect.right;
+        const left = spaceRight >= popoverWidth + 8
+          ? rect.right + 8
+          : rect.left - popoverWidth - 8;
+        setPos({
+          top: rect.top,
+          left: Math.max(8, Math.min(left, window.innerWidth - popoverWidth - 8)),
+        });
+      }
     } else {
       document.body.style.overflow = '';
     }
     return () => { document.body.style.overflow = ''; };
-  }, [isOpen]);
-
-  const handleGalleryClick = () => galleryInput.current?.click();
-  const handleCameraClick = () => cameraInput.current?.click();
+  }, [isOpen, anchorRef]);
 
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      onSelectFile(file);
-      onClose();
-    }
+    if (file) { onSelectFile(file); onClose(); }
   };
 
+  if (!isOpen) return null;
+
   return ReactDOM.createPortal(
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.6)',
-              zIndex: 2147483646,
-              touchAction: 'none',
-              pointerEvents: 'auto',
-            }}
-          />
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(0,0,0,0.35)',
+          zIndex: 2147483646,
+          touchAction: 'none',
+        }}
+      />
 
-          {/* Sheet */}
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            onClick={e => e.stopPropagation()}
-            style={{
-              position: 'fixed',
-              bottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
-              left: 0,
-              right: 0,
-              zIndex: 2147483647,
-              maxHeight: `calc(100vh - (${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px)))`,
-              background: '#0f172a',
-              borderTop: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '24px 24px 0 0',
-              paddingTop: '24px',
-              paddingLeft: '24px',
-              paddingRight: '24px',
-              paddingBottom: '16px',
-              overflowY: 'auto',
-              WebkitOverflowScrolling: 'touch',
-              touchAction: 'pan-y',
-              pointerEvents: 'auto',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', margin: 0 }}>
-                {lang === 'es' ? 'Elegir foto' : 'Choose photo'}
-              </h3>
-              <button
-                onClick={onClose}
-                style={{ padding: '8px', borderRadius: '8px', background: 'transparent', border: 'none', cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation' }}
-              >
-                <X size={20} color="rgba(255,255,255,0.6)" />
-              </button>
-            </div>
+      {/* Popover */}
+      <div
+        style={{
+          position: 'fixed',
+          top: pos.top,
+          left: pos.left,
+          zIndex: 2147483647,
+          minWidth: '220px',
+          background: '#0b1220',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '14px',
+          padding: '8px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 8px 8px' }}>
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {lang === 'es' ? 'Foto de perfil' : 'Profile photo'}
+          </span>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'rgba(255,255,255,0.5)' }}>
+            <X size={16} />
+          </button>
+        </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button
-                onClick={handleGalleryClick}
-                style={{
-                  width: '100%', padding: '16px', borderRadius: '16px',
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                  display: 'flex', alignItems: 'center', gap: '16px',
-                  cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation',
-                }}
-              >
-                <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <ImageIcon size={24} color="#34d399" />
-                </div>
-                <div style={{ textAlign: 'left' }}>
-                  <p style={{ color: '#fff', fontWeight: 600, margin: 0 }}>{lang === 'es' ? 'Galería' : 'Photos'}</p>
-                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: 0 }}>{lang === 'es' ? 'Seleccionar de la galería' : 'Choose from library'}</p>
-                </div>
-              </button>
+        {/* Gallery */}
+        <button
+          onClick={() => galleryInput.current?.click()}
+          style={{
+            width: '100%', minHeight: '44px', display: 'flex', alignItems: 'center', gap: '12px',
+            background: 'none', border: 'none', cursor: 'pointer', padding: '10px 12px',
+            borderRadius: '10px', color: '#fff', touchAction: 'manipulation',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'none'}
+        >
+          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <ImageIcon size={18} color="#34d399" />
+          </div>
+          <span style={{ fontSize: '15px', fontWeight: 500 }}>
+            {lang === 'es' ? 'Elegir de galería' : 'Choose from gallery'}
+          </span>
+        </button>
 
-              <button
-                onClick={handleCameraClick}
-                style={{
-                  width: '100%', padding: '16px', borderRadius: '16px',
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                  display: 'flex', alignItems: 'center', gap: '16px',
-                  cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation',
-                }}
-              >
-                <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'rgba(59,130,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Camera size={24} color="#60a5fa" />
-                </div>
-                <div style={{ textAlign: 'left' }}>
-                  <p style={{ color: '#fff', fontWeight: 600, margin: 0 }}>{lang === 'es' ? 'Cámara' : 'Camera'}</p>
-                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: 0 }}>{lang === 'es' ? 'Tomar una foto ahora' : 'Take a photo now'}</p>
-                </div>
-              </button>
+        {/* Camera */}
+        <button
+          onClick={() => cameraInput.current?.click()}
+          style={{
+            width: '100%', minHeight: '44px', display: 'flex', alignItems: 'center', gap: '12px',
+            background: 'none', border: 'none', cursor: 'pointer', padding: '10px 12px',
+            borderRadius: '10px', color: '#fff', touchAction: 'manipulation',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'none'}
+        >
+          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(59,130,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Camera size={18} color="#60a5fa" />
+          </div>
+          <span style={{ fontSize: '15px', fontWeight: 500 }}>
+            {lang === 'es' ? 'Tomar foto' : 'Take photo'}
+          </span>
+        </button>
 
-              <Button
-                onClick={onClose}
-                variant="outline"
-                style={{ width: '100%', height: '48px', borderColor: 'rgba(255,255,255,0.2)', color: '#fff', borderRadius: '12px', pointerEvents: 'auto', touchAction: 'manipulation' }}
-              >
-                {lang === 'es' ? 'Cancelar' : 'Cancel'}
-              </Button>
-            </div>
-
-            <input ref={galleryInput} type="file" accept="image/*" onChange={handleFileSelect} style={{ display: 'none' }} aria-label="Gallery input" />
-            <input ref={cameraInput} type="file" accept="image/*" capture="environment" onChange={handleFileSelect} style={{ display: 'none' }} aria-label="Camera input" />
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>,
+        <input ref={galleryInput} type="file" accept="image/*" onChange={handleFileSelect} style={{ display: 'none' }} />
+        <input ref={cameraInput} type="file" accept="image/*" capture="environment" onChange={handleFileSelect} style={{ display: 'none' }} />
+      </div>
+    </>,
     document.body
   );
 }
