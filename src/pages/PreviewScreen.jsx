@@ -44,56 +44,76 @@ export default function PreviewScreen() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black" style={{ zIndex: 10001 }}>
-      {/* Photo Preview */}
-      <img
-        src={resolvedPreview}
-        alt="Captured meal"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+    <OverlayPortal>
+      <div style={{ position: 'fixed', inset: 0, background: '#000', pointerEvents: 'auto' }}>
+        {/* Photo Preview */}
+        <img
+          src={resolvedPreview}
+          alt="Captured meal"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
 
-      {/* Top Bar */}
-      <div
-        className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent px-4 pb-4"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
-      >
-        <button
-          onClick={handleRetake}
-          className="p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white"
+        {/* Top Bar */}
+        <div
+          style={{
+            position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)',
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)',
+            paddingLeft: '16px', paddingRight: '16px', paddingBottom: '16px',
+          }}
         >
-          <X size={24} />
-        </button>
-      </div>
+          <button
+            onClick={handleRetake}
+            style={{ padding: '12px', borderRadius: '12px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', color: '#fff', border: 'none', cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation' }}
+          >
+            <X size={24} />
+          </button>
+        </div>
 
-      {/* Bottom Actions */}
-      <div
-        className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-6 pt-6"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
-      >
-        <div className="max-w-lg mx-auto">
-          <p className="text-white/80 text-center mb-6 text-lg font-medium">
-            {t("photo_looks_good")}
-          </p>
-          
-          <div className="flex gap-4">
-            <button
-              onClick={handleRetake}
-              className="flex-1 py-4 px-6 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold flex items-center justify-center gap-2 transition-all active:scale-95"
-            >
-              <RotateCcw size={20} />
-              {t("retake")}
-            </button>
-            
-            <button
-              onClick={handleUsePhoto}
-              className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-emerald-500/50"
-            >
-              <Check size={20} />
-              {t("use_photo")}
-            </button>
+        {/* Bottom Actions */}
+        <div
+          style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7), transparent)',
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
+            paddingLeft: '24px', paddingRight: '24px', paddingTop: '24px',
+          }}
+        >
+          <div style={{ maxWidth: '512px', margin: '0 auto' }}>
+            <p style={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginBottom: '24px', fontSize: '18px', fontWeight: 500 }}>
+              {t("photo_looks_good")}
+            </p>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <button
+                onClick={handleRetake}
+                style={{
+                  flex: 1, padding: '16px 24px', borderRadius: '16px',
+                  background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation',
+                }}
+              >
+                <RotateCcw size={20} />
+                {t("retake")}
+              </button>
+              <button
+                onClick={handleUsePhoto}
+                style={{
+                  flex: 1, padding: '16px 24px', borderRadius: '16px',
+                  background: 'linear-gradient(to right, #10b981, #0d9488)',
+                  color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation',
+                  boxShadow: '0 10px 30px rgba(16,185,129,0.4)',
+                  border: 'none',
+                }}
+              >
+                <Check size={20} />
+                {t("use_photo")}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </OverlayPortal>
   );
 }
