@@ -62,7 +62,7 @@ export default function CameraScreen() {
       setCameraError(null);
       
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+        video: { facingMode: isProfilePhotoMode ? "user" : "environment" },
         audio: false
       });
 
