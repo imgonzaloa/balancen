@@ -21,7 +21,6 @@ import PublicDebugPanel from "@/components/PublicDebugPanel";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import TrialGate from "@/components/TrialGate";
 import BuildBadge from "@/components/BuildBadge";
-import { useEntitlement } from "@/components/hooks/useEntitlement";
 import { useAppState } from "@/components/AppStateContext";
 
 // Global React Query client - aggressive caching to prevent rate limits and re-fetches
@@ -99,13 +98,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const { t, lang, changeLanguage } = useTranslation();
 
   const { navigateToTab } = useTabNavigation();
-  const isNavigating = React.useRef(false);
   const scrollPositions = React.useRef({});
   const scrollContainerRef = React.useRef(null);
   const [debugOpen, setDebugOpen] = React.useState(false);
-  const tapCount = React.useRef(0);
-  const tapTimer = React.useRef(null);
-  const longPressTimer = React.useRef(null);
 
   const location = useLocation();
   const navItems = React.useMemo(() => getNavItems(t), [t]);
