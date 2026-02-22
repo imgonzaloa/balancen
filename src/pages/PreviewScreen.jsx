@@ -55,7 +55,7 @@ export default function PreviewScreen() {
 
   return (
     <OverlayPortal>
-      <div style={{ position: 'fixed', inset: 0, background: '#000', pointerEvents: 'auto' }}>
+      <div style={{ position: 'fixed', inset: 0, background: '#000', pointerEvents: 'auto', zIndex: 1 }}>
         {/* Photo Preview */}
         <img
           src={resolvedPreview}
