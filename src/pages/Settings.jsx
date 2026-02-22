@@ -16,6 +16,7 @@ import MobileSelect from "@/components/MobileSelectWrapper";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
   const { changeLanguage, lang, t } = useTranslation();
 
