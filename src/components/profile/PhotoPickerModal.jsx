@@ -26,7 +26,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop — pointer-events:auto only here to catch dismiss taps */}
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -37,10 +37,10 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
                 background: 'rgba(0,0,0,0.6)',
                 touchAction: 'none',
                 pointerEvents: 'auto',
-                zIndex: 19999,
+                zIndex: 50001,
               }}
             />
-            {/* Sheet */}
+            {/* Sheet — sits above bottom nav */}
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -49,8 +49,9 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               onClick={e => e.stopPropagation()}
               style={{
                 position: 'fixed',
-                bottom: 0, left: 0, right: 0,
-                zIndex: 20001,
+                bottom: 0,
+                left: 0, right: 0,
+                zIndex: 50002,
                 maxHeight: '90dvh',
                 display: 'flex',
                 flexDirection: 'column',
