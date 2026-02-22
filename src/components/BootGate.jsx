@@ -6,43 +6,60 @@ function SplashScreen() {
   const [textVisible, setTextVisible] = React.useState(false);
 
   React.useEffect(() => {
-    const t1 = setTimeout(() => setLogoVisible(true), 50);
-    const t2 = setTimeout(() => setTextVisible(true), 300);
+    const t1 = setTimeout(() => setLogoVisible(true), 200);
+    const t2 = setTimeout(() => setTextVisible(true), 400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
+
+  // Use the exact same icon SVG as the app icon — black square, white B, rounded corners
+  const iconSize = Math.round(Math.min(window.innerWidth, 430) * 0.4);
 
   return (
     <div
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%)',
+        background: 'rgb(15 23 42)', // same as #root background in globals.css
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         paddingTop: 'env(safe-area-inset-top, 0)',
       }}
     >
+      {/* Logo — exact app icon asset */}
       <div style={{
-        transition: 'opacity 350ms ease, transform 350ms ease',
+        transition: 'opacity 300ms ease',
         opacity: logoVisible ? 1 : 0,
-        transform: logoVisible ? 'scale(1)' : 'scale(0.95)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
-        <div style={{
-          width: '80px', height: '80px', borderRadius: '24px',
-          background: 'linear-gradient(135deg, #14b8a6, #10b981)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 20px 60px rgba(20,184,166,0.4)',
-        }}>
-          <span style={{ color: '#fff', fontSize: '48px', fontWeight: 900, lineHeight: 1 }}>B</span>
-        </div>
-        <span style={{ color: '#ffffff', fontSize: '32px', fontWeight: 800, letterSpacing: '-0.5px' }}>
-          Balancen
-        </span>
+        <svg
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 192 192"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ borderRadius: `${iconSize * 0.22}px`, display: 'block' }}
+        >
+          <rect width="192" height="192" fill="#0B0B0B" rx="32" />
+          <text
+            x="96"
+            y="132"
+            fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif"
+            fontSize="126"
+            fontWeight="800"
+            fill="#FFFFFF"
+            textAnchor="middle"
+            dominantBaseline="auto"
+          >B</text>
+        </svg>
       </div>
+
+      {/* Tagline */}
       <p style={{
         transition: 'opacity 300ms ease',
         opacity: textVisible ? 0.85 : 0,
-        color: '#ffffff', fontSize: '15px', fontWeight: 500,
-        marginTop: '24px', letterSpacing: '0.02em',
+        color: '#ffffff',
+        fontSize: '17px',
+        fontWeight: 500,
+        marginTop: '20px',
+        letterSpacing: '0.01em',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
       }}>
         Stay consistent.
       </p>
