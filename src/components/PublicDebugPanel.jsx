@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
+// Check debug mode outside component to avoid hooks-before-return issue
+const IS_DEBUG_MODE = new URLSearchParams(window.location.search).get('debug') === '1' ||
+  localStorage.getItem('DEBUG_OVERLAY') === '1';
+
 export default function PublicDebugPanel() {
-  // Only mount in debug mode — never visible to normal users
-  const isDebugMode = new URLSearchParams(window.location.search).get('debug') === '1' ||
-    localStorage.getItem('DEBUG_OVERLAY') === '1';
-
-  if (!isDebugMode) return null;
-
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(IS_DEBUG_MODE);
   const [route, setRoute] = useState(window.location.pathname);
   const [navAttempts, setNavAttempts] = useState([]);
   const [lastClick, setLastClick] = useState(null);
