@@ -105,6 +105,13 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const scrollContainerRef = React.useRef(null);
   const [debugOpen, setDebugOpen] = React.useState(false);
 
+  const location = useLocation();
+
+  // Log every route change
+  React.useEffect(() => {
+    console.log('ROUTE CHANGE', location.pathname);
+  }, [location.pathname]);
+
   const navItems = React.useMemo(() => getNavItems(t), [t]);
   const hideNav = noNavPages.includes(currentPageName);
   
