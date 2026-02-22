@@ -106,9 +106,14 @@ const Home = React.memo(() => {
             {currentDate}
           </p>
           <h1 className="text-3xl font-black text-white">
-            {profile?.display_name?.split(' ')[0] || user?.full_name?.split(' ')[0]
-              ? `${getGreeting}, ${(profile?.display_name || user?.full_name || '').split(' ')[0]}`
-              : getGreeting}
+            {(() => {
+              const nameForUI = profile?.display_name?.trim()
+                || (user?.email ? user.email.split('@')[0] : null)
+                || null;
+              return nameForUI
+                ? `${getGreeting}, ${nameForUI.split(' ')[0]}`
+                : getGreeting;
+            })()}
           </h1>
           {profile?.status_message && (
             <p className="text-white/50 text-sm mt-1 italic">"{profile.status_message}"</p>
