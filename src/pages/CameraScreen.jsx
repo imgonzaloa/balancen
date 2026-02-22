@@ -499,31 +499,33 @@ export default function CameraScreen() {
           </button>
         </div>
 
-        {/* Action tabs */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <button
-            onClick={capturePhoto}
-            disabled={!videoReady || isCapturing}
-            className="py-3 px-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
-          >
-            {t("scan_food")}
-          </button>
-          
-          <button
-            onClick={() => { console.log("Barcode clicked"); setShowBarcodeModal(true); }}
-            className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
-            style={{ pointerEvents: 'auto', touchAction: 'manipulation', zIndex: 15, position: 'relative' }}
-          >
-            {t("barcode")}
-          </button>
-          
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
-          >
-            {t("gallery")}
-          </button>
-        </div>
+        {/* Action tabs — food mode only */}
+        {!isProfilePhotoMode && (
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <button
+              onClick={capturePhoto}
+              disabled={!videoReady || isCapturing}
+              className="py-3 px-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+            >
+              {t("scan_food")}
+            </button>
+
+            <button
+              onClick={() => { setShowBarcodeModal(true); }}
+              className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
+              style={{ pointerEvents: 'auto', touchAction: 'manipulation', zIndex: 15, position: 'relative' }}
+            >
+              {t("barcode")}
+            </button>
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold transition-all active:scale-95"
+            >
+              {t("gallery")}
+            </button>
+          </div>
+        )}
       </div>
 
       <input
