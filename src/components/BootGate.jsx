@@ -257,9 +257,38 @@ export default function BootGate({ children }) {
     };
   }, []);
 
+  // Crossfade: keep splash visible as overlay, fade it out once bootState is ready
+  const [splashFadeOut, setSplashFadeOut] = React.useState(false);
+  const [splashGone, setSplashGone] = React.useState(false);
+
+  React.useEffect(() => {
+    if (bootState?.isHydrated && !splashFadeOut) {
+      setSplashFadeOut(true);
+      const t = setTimeout(() => setSplashGone(true), 350);
+      return () => clearTimeout(t);
+    }
+  }, [bootState?.isHydrated]);
+
   if (!bootState?.isHydrated) {
     return <SplashScreen />;
   }
 
-  return children({ bootState });
+  return (
+    <>
+      {children({ bootState })}
+      {!splashGone && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            paddingTop: 'env(safe-area-inset-top, 0)',
+            transition: 'opacity 350ms ease',
+            opacity: splashFadeOut ? 0 : 1,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+    </>
+  );
 }
