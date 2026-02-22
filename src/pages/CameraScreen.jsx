@@ -276,14 +276,29 @@ export default function CameraScreen() {
     };
   }, [videoReady, runLivePreview]);
 
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     stopCamera();
     try {
-      navigate(-1);
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate(createPageUrl("Home"), { replace: true });
+      }
     } catch (_) {
       navigate(createPageUrl("Home"), { replace: true });
     }
-  };
+  }, [navigate]);
+
+  // Android/iOS back button closes camera
+  React.useEffect(() => {
+    // Push a dummy state so popstate fires on back
+    window.history.pushState({ cameraOpen: true }, '');
+    const handlePopState = (e) => {
+      handleClose();
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [handleClose]);
 
   // Error fallback UI
   if (cameraError) {
