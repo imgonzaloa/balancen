@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+
+// ─── Phrases ────────────────────────────────────────────────────────────────
 
 const SPLASH_PHRASES = [
   'Win today, repeat tomorrow',
@@ -21,28 +23,27 @@ function getNextPhrase() {
   try {
     used = JSON.parse(localStorage.getItem(PHRASES_HISTORY_KEY) || '[]');
   } catch (_) { used = []; }
-
-  // Reset cycle once all 10 have been shown
-  if (used.length >= SPLASH_PHRASES.length) {
-    used = [];
-  }
-
+  if (used.length >= SPLASH_PHRASES.length) used = [];
   const remaining = SPLASH_PHRASES.filter((_, i) => !used.includes(i));
   const idx = SPLASH_PHRASES.indexOf(remaining[Math.floor(Math.random() * remaining.length)]);
-
   used.push(idx);
   localStorage.setItem(PHRASES_HISTORY_KEY, JSON.stringify(used));
   return SPLASH_PHRASES[idx];
 }
 
-function SplashScreen() {
-  const [logoVisible, setLogoVisible] = React.useState(false);
-  const [textVisible, setTextVisible] = React.useState(false);
-  const [phrase] = React.useState(() => getNextPhrase());
+// ─── Splash Overlay ──────────────────────────────────────────────────────────
 
-  React.useEffect(() => {
-    const t1 = setTimeout(() => setLogoVisible(true), 200);
-    const t2 = setTimeout(() => setTextVisible(true), 400);
+const SPLASH_BG = 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%)';
+const MIN_SPLASH_MS = 1500;
+
+function SplashOverlay({ visible }) {
+  const [logoVisible, setLogoVisible] = useState(false);
+  const [textVisible, setTextVisible] = useState(false);
+  const [phrase] = useState(() => getNextPhrase());
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setLogoVisible(true), 150);
+    const t2 = setTimeout(() => setTextVisible(true), 350);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
@@ -52,16 +53,16 @@ function SplashScreen() {
     <div
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%)',
+        background: SPLASH_BG,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         paddingTop: 'env(safe-area-inset-top, 0)',
+        transition: 'opacity 400ms ease',
+        opacity: visible ? 1 : 0,
+        pointerEvents: visible ? 'auto' : 'none',
       }}
     >
       {/* Logo */}
-      <div style={{
-        transition: 'opacity 300ms ease',
-        opacity: logoVisible ? 1 : 0,
-      }}>
+      <div style={{ transition: 'opacity 300ms ease', opacity: logoVisible ? 1 : 0 }}>
         <svg
           width={iconSize}
           height={iconSize}
@@ -94,6 +95,7 @@ function SplashScreen() {
         letterSpacing: '0.01em',
         fontFamily: 'system-ui, -apple-system, sans-serif',
         textAlign: 'center',
+        padding: '0 24px',
       }}>
         {phrase}
       </p>
@@ -101,16 +103,7 @@ function SplashScreen() {
   );
 }
 
-/**
- * BootGate: hydrates auth state before rendering the app.
- *
- * RULES:
- * - NEVER throws on 401 / network / timeout — treats them as "unauthenticated"
- * - Reads localStorage for language + onboarding FIRST (sync, instant)
- * - Auth check has a 5-second timeout to avoid infinite spinner
- * - Does NOT call /User/me or any protected endpoint without a confirmed auth token
- * - Does NOT redirect to Paywall — that is TrialGate's job
- */
+// ─── Boot Logic ──────────────────────────────────────────────────────────────
 
 const STORAGE_KEYS = {
   LANGUAGE: 'i18nextLng',
@@ -125,50 +118,37 @@ async function safeAuthCheck() {
     const user = await Promise.race([base44.auth.me(), timeout]);
     return user?.email ? user : null;
   } catch (err) {
-    // 401, network error, timeout — treat as unauthenticated, do NOT throw
     console.log('[BootGate] Auth check failed (treating as unauthenticated):', err.message);
     return null;
   }
 }
 
-const SPLASH_DURATION = 2000; // ms — full splash for logged-in users
-
 export default function BootGate({ children }) {
   const [bootState, setBootState] = useState(null);
-  const [splashDone, setSplashDone] = useState(false);
-  const pendingStateRef = React.useRef(null);
+  // Splash overlay state: visible until both min time + boot are done
+  const [splashVisible, setSplashVisible] = useState(true);
+  const [splashGone, setSplashGone] = useState(false);
+
+  const minTimeElapsed = useRef(false);
+  const bootResolved = useRef(false);
+  const bootStateRef = useRef(null);
+
+  // Attempt to hide splash only when BOTH conditions are met
+  const tryHideSplash = () => {
+    if (minTimeElapsed.current && bootResolved.current) {
+      setSplashVisible(false);
+      setTimeout(() => setSplashGone(true), 420); // remove from DOM after fade
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
-
-    // Start splash timer — for authenticated users we wait the full 2s
-    const splashTimer = setTimeout(() => {
-      if (!isMounted) return;
-      setSplashDone(true);
-      // If boot already resolved while splash was showing, apply it now
-      if (pendingStateRef.current) {
-        setBootState(pendingStateRef.current);
-        pendingStateRef.current = null;
-      }
-    }, SPLASH_DURATION);
-
-    const applyState = (state) => {
-      if (!isMounted) return;
-      if (state.type === 'AUTH_REQUIRED') {
-        // Not logged in — skip splash, go straight to login
-        clearTimeout(splashTimer);
-        setSplashDone(true);
-        setBootState(state);
-      } else if (splashDone) {
-        setBootState(state);
-      } else {
-        // Logged in but splash still showing — queue it
-        pendingStateRef.current = state;
-      }
-    };
+    // Minimum splash time
+    const minTimer = setTimeout(() => {
+      minTimeElapsed.current = true;
+      tryHideSplash();
+    }, MIN_SPLASH_MS);
 
     const resolveBoot = async () => {
-      // STEP 1: Sync reads from localStorage (instant)
       const storedLanguage = (
         localStorage.getItem(STORAGE_KEYS.LANGUAGE) ||
         localStorage.getItem('balancen_lang') ||
@@ -177,118 +157,101 @@ export default function BootGate({ children }) {
       );
       const storedOnboarding = localStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETE) === 'true';
 
-      // STEP 2: Check auth
       const user = await safeAuthCheck();
-      if (!isMounted) return;
 
       if (!user) {
-        applyState({
+        // Not logged in — skip splash immediately
+        clearTimeout(minTimer);
+        minTimeElapsed.current = true;
+        bootResolved.current = true;
+        const state = {
           type: 'AUTH_REQUIRED',
           isHydrated: true,
           user: null,
           language: storedLanguage || 'en',
           onboardingComplete: storedOnboarding,
-        });
+        };
+        bootStateRef.current = state;
+        setBootState(state);
+        tryHideSplash();
         return;
       }
 
-      // STEP 3: Authenticated + locally cached as done
+      let resolvedState;
+
       if (storedOnboarding && storedLanguage) {
-        applyState({
+        resolvedState = {
           type: 'HOME_READY',
           isHydrated: true,
           user,
           language: storedLanguage,
           onboardingComplete: true,
-        });
-        return;
+        };
+      } else {
+        let profile = null;
+        try {
+          const profiles = await Promise.race([
+            base44.entities.UserProfile.filter({ created_by: user.email }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Profile timeout')), 5000))
+          ]);
+          profile = profiles?.[0] || null;
+        } catch (err) {
+          console.warn('[BootGate] Profile fetch failed:', err.message);
+        }
+
+        if (!profile || !profile.onboarding_completed) {
+          localStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
+          const effectiveLang = profile?.language || storedLanguage;
+          resolvedState = {
+            type: effectiveLang ? 'ONBOARDING_REQUIRED' : 'LANGUAGE_REQUIRED',
+            isHydrated: true,
+            user,
+            profile,
+            language: effectiveLang || 'en',
+            onboardingComplete: false,
+          };
+        } else {
+          const lang = profile.language || storedLanguage || 'en';
+          localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETE, 'true');
+          localStorage.setItem('i18nextLng', lang);
+          localStorage.setItem('balancen_lang', lang);
+          localStorage.setItem('balancen.lang', lang);
+          localStorage.setItem('app_language', lang);
+          resolvedState = {
+            type: 'HOME_READY',
+            isHydrated: true,
+            user,
+            profile,
+            language: lang,
+            onboardingComplete: true,
+          };
+        }
       }
 
-      // STEP 4: Fetch profile
-      let profile = null;
-      try {
-        const profiles = await Promise.race([
-          base44.entities.UserProfile.filter({ created_by: user.email }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Profile timeout')), 5000))
-        ]);
-        profile = profiles?.[0] || null;
-      } catch (err) {
-        console.warn('[BootGate] Profile fetch failed:', err.message);
-        profile = null;
-      }
-
-      if (!isMounted) return;
-
-      if (!profile || !profile.onboarding_completed) {
-        localStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
-        const effectiveLang = profile?.language || storedLanguage;
-        applyState({
-          type: effectiveLang ? 'ONBOARDING_REQUIRED' : 'LANGUAGE_REQUIRED',
-          isHydrated: true,
-          user,
-          profile,
-          language: effectiveLang || 'en',
-          onboardingComplete: false,
-        });
-        return;
-      }
-
-      const lang = profile.language || storedLanguage || 'en';
-      localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETE, 'true');
-      localStorage.setItem('i18nextLng', lang);
-      localStorage.setItem('balancen_lang', lang);
-      localStorage.setItem('balancen.lang', lang);
-      localStorage.setItem('app_language', lang);
-
-      applyState({
-        type: 'HOME_READY',
-        isHydrated: true,
-        user,
-        profile,
-        language: lang,
-        onboardingComplete: true,
-      });
+      bootStateRef.current = resolvedState;
+      bootResolved.current = true;
+      setBootState(resolvedState);
+      tryHideSplash();
     };
 
     resolveBoot();
-    return () => {
-      isMounted = false;
-      clearTimeout(splashTimer);
-    };
+    return () => clearTimeout(minTimer);
   }, []);
 
-  // Crossfade: keep splash visible as overlay, fade it out once bootState is ready
-  const [splashFadeOut, setSplashFadeOut] = React.useState(false);
-  const [splashGone, setSplashGone] = React.useState(false);
-
-  React.useEffect(() => {
-    if (bootState?.isHydrated && !splashFadeOut) {
-      setSplashFadeOut(true);
-      const t = setTimeout(() => setSplashGone(true), 350);
-      return () => clearTimeout(t);
-    }
-  }, [bootState?.isHydrated]);
-
-  if (!bootState?.isHydrated) {
-    return <SplashScreen />;
-  }
-
+  // Always render children once bootState is known (Home loads behind splash)
+  // Before bootState is known, render a blank blue screen (never white)
   return (
     <>
-      {children({ bootState })}
-      {!splashGone && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 9999,
-            background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            paddingTop: 'env(safe-area-inset-top, 0)',
-            transition: 'opacity 350ms ease',
-            opacity: splashFadeOut ? 0 : 1,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
+      {bootState
+        ? children({ bootState })
+        : (
+          <div style={{
+            position: 'fixed', inset: 0,
+            background: SPLASH_BG,
+          }} />
+        )
+      }
+      {!splashGone && <SplashOverlay visible={splashVisible} />}
     </>
   );
 }
