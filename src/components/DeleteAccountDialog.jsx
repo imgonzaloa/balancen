@@ -54,11 +54,11 @@ export default function DeleteAccountDialog({ isOpen, onClose, email }) {
               </div>
 
               <h2 className="text-xl font-bold text-white mb-2">
-                {t('delete_account')}
+                {t('delete_account_title')}
               </h2>
 
               <p className="text-white/60 text-sm mb-6">
-                {t('delete_warning')}
+                {t('delete_account_message')}
               </p>
 
               <input
