@@ -259,17 +259,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
         </nav>
       )}
 
-      {/* DEBUG: red line at --bottom-inset — remove once confirmed correct */}
-      <div style={{
-        position: 'fixed',
-        bottom: 'var(--bottom-inset, 0px)',
-        left: 0, right: 0,
-        height: '2px',
-        background: 'red',
-        zIndex: 99998,
-        pointerEvents: 'none',
-      }} />
-
       {/* Debug overlay */}
       {debugOpen && (
         <div className="fixed inset-0 z-[99999]" style={{ pointerEvents: 'auto' }}>
