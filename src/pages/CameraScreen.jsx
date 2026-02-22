@@ -17,8 +17,18 @@ export default function CameraScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setCapturedFile } = useMeal();
+  const { user, profile, setProfile: setContextProfile } = useAppState();
+
+  // Detect profilePhoto mode from query params or localStorage
+  const searchParams = new URLSearchParams(location.search);
+  const cameraMode = searchParams.get('mode') || localStorage.getItem('CAMERA_MODE') || null;
+  const isProfilePhotoMode = cameraMode === 'profilePhoto';
+
   // Where to go back when closing camera
-  const returnTo = location.state?.from || createPageUrl("Home");
+  const rawReturn = searchParams.get('return') || localStorage.getItem('CAMERA_RETURN_ROUTE');
+  const returnTo = isProfilePhotoMode
+    ? (rawReturn || createPageUrl('Profile'))
+    : (location.state?.from || createPageUrl('Home'));
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
