@@ -101,9 +101,10 @@ function LayoutInner({ children, currentPageName, bootState }) {
   }, []);
 
   const { navigateToTab } = useTabNavigation();
-  const scrollPositions = React.useRef({});
-  const scrollContainerRef = React.useRef(null);
-  const [debugOpen, setDebugOpen] = React.useState(false);
+    const scrollPositions = React.useRef({});
+    const scrollContainerRef = React.useRef(null);
+    const bottomNavRef = React.useRef(null);
+    const [debugOpen, setDebugOpen] = React.useState(false);
 
   const location = useLocation();
 
