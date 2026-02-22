@@ -30,9 +30,28 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile, anchor
     return () => { document.body.style.overflow = ''; };
   }, [isOpen, anchorRef]);
 
-  const handleFileSelect = (e) => {
+  const handleGallerySelect = (e) => {
     const file = e.target.files?.[0];
     if (file) { onSelectFile(file); onClose(); }
+    e.target.value = '';
+  };
+
+  const handleCameraSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) { onSelectFile(file); onClose(); }
+    e.target.value = '';
+  };
+
+  const handleChooseFromGallery = () => {
+    console.log('[ProfilePhoto] gallery');
+    galleryInput.current.value = '';
+    galleryInput.current.click();
+  };
+
+  const handleTakePhoto = () => {
+    console.log('[ProfilePhoto] camera');
+    cameraInput.current.value = '';
+    cameraInput.current.click();
   };
 
   if (!isOpen) return null;
