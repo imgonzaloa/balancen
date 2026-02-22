@@ -395,25 +395,27 @@ export default function CameraScreen() {
       {/* Live Framing Assist Overlay - Subtle */}
       {videoReady && (
         <div className="absolute inset-0 z-[5] flex items-center justify-center pointer-events-none">
-          <div className="relative w-[80%] aspect-square max-w-md">
-            {/* Corner guides - subtle */}
+          <div className={`relative ${isProfilePhotoMode ? 'w-[70%] aspect-[3/4]' : 'w-[80%] aspect-square'} max-w-md`}>
+            {/* Corner guides */}
             <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white/40 rounded-tl-xl" />
             <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-white/40 rounded-tr-xl" />
             <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-white/40 rounded-bl-xl" />
             <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/40 rounded-br-xl" />
-            
-            {/* Preview State Text */}
+
+            {/* Hint text */}
             <div className="absolute -top-12 left-0 right-0 text-center">
               <p className="text-white text-sm font-medium bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full inline-block">
-                {t("point_camera_at_food")}
+                {isProfilePhotoMode
+                  ? (t("center_face_hint") || "Center your face and take a photo.")
+                  : t("point_camera_at_food")}
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Live nutrition preview panel */}
-      {videoReady && (
+      {/* Live nutrition preview panel — hidden in profile photo mode */}
+      {videoReady && !isProfilePhotoMode && (
         <div
           className="absolute top-0 left-0 right-0 z-[6] pointer-events-none"
           style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 64px)', paddingLeft: '16px', paddingRight: '16px' }}
@@ -443,6 +445,18 @@ export default function CameraScreen() {
                 <span className="text-white/40 text-xs font-semibold">{t("point_camera_at_food")}</span>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Profile photo mode header label */}
+      {isProfilePhotoMode && (
+        <div
+          className="absolute top-0 left-0 right-0 z-[6] flex justify-center pointer-events-none"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
+        >
+          <div className="bg-black/60 backdrop-blur-md rounded-2xl px-5 py-2 border border-white/10">
+            <span className="text-white text-sm font-semibold">{t("profile_photo") || "Profile photo"}</span>
           </div>
         </div>
       )}
