@@ -97,7 +97,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile, anchor
 
         {/* Gallery */}
         <button
-          onClick={() => galleryInput.current?.click()}
+          onClick={handleChooseFromGallery}
           style={{
             width: '100%', minHeight: '44px', display: 'flex', alignItems: 'center', gap: '12px',
             background: 'none', border: 'none', cursor: 'pointer', padding: '10px 12px',
