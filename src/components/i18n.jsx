@@ -400,6 +400,8 @@ const resources = {
       skip_for_now: "Skip for now",
       
       // Delete account
+      delete_account_title: "Are you sure?",
+      delete_account_message: "Are you sure you want to delete your account? This action cannot be undone.",
       delete_warning: "This action is irreversible. All your data will be deleted.",
       type_delete: "Type DELETE",
       type_delete_confirm: "Type DELETE to confirm",
