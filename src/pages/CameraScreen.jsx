@@ -286,22 +286,17 @@ export default function CameraScreen() {
   }, [videoReady]);
 
   // Trigger live preview once camera is ready, then throttle every 2000ms
+  // DISABLED in profile photo mode — no food analysis
   useEffect(() => {
-    if (!videoReady) return;
-    // Initial run after 1s
-    const initial = setTimeout(() => {
-      runLivePreview();
-    }, 1000);
-    // Recurring every 2000ms
-    const interval = setInterval(() => {
-      runLivePreview();
-    }, 2000);
+    if (!videoReady || isProfilePhotoMode) return;
+    const initial = setTimeout(() => { runLivePreview(); }, 1000);
+    const interval = setInterval(() => { runLivePreview(); }, 2000);
     return () => {
       clearTimeout(initial);
       clearInterval(interval);
       if (liveAbortRef.current) liveAbortRef.current.cancelled = true;
     };
-  }, [videoReady, runLivePreview]);
+  }, [videoReady, runLivePreview, isProfilePhotoMode]);
 
   // Save a captured file as a profile photo and return to profile
   const saveProfilePhoto = useCallback(async (file, dataUrl) => {
