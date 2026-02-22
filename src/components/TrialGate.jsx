@@ -22,39 +22,37 @@ async function safeLogout() {
  *
  * Priority order (checked in sequence):
  * 1. Still loading (auth or profile)       → render nothing (spinner)
- * 2. Not authenticated                     → redirect to Login (NEVER Paywall)
+ * 2. Not authenticated                     → redirect to Login
  * 3. Onboarding not complete               → redirect to LanguageSelector / Onboarding
  * 4. Profile server error (load failure)   → safe fallback UI (retry / logout)
- * 5. Not entitled (trial expired, no sub)  → redirect to Paywall
- * 6. All clear                             → render children
+ * 5. All clear (including non-entitled)    → render children
+ *    (Paywall is shown only when user explicitly taps a premium action)
  *
- * CRITICAL: Steps 2 and 3 are checked BEFORE step 5.
- * - New users (null profile, no localStorage flag) → Onboarding, NEVER Paywall.
- * - Unauthenticated users → Login, NEVER Paywall.
+ * IMPORTANT: We do NOT auto-redirect non-entitled users to /Paywall.
+ * Core routes (Home, Social, Progress, Profile, Camera) are always accessible.
+ * Paywall is triggered per-feature when needed.
  */
 export default function TrialGate({ children }) {
   const { user, profile, isInitialized, profileLoading } = useAppState();
   const navigate = useNavigate();
+  const didRedirectRef = React.useRef(false);
 
   // isReady: auth check done AND profile fetch settled (or no user to fetch profile for)
   const isReady = isInitialized && !profileLoading;
-
-  // Only evaluate entitlement once loading is complete — prevents false isEntitled=false flicker
-  const { isEntitled, isTrialActive } = useEntitlement(isReady ? profile : undefined);
 
   const localOnboardingDone = localStorage.getItem('balancen_onboarding_complete') === 'true';
   const onboardingComplete = localOnboardingDone || profile?.onboarding_completed === true;
 
   // A "load failure" means: returning user (locally flagged as done) but profile couldn't be fetched.
-  // A brand new user (no local flag + null profile) is NOT a failure — they need onboarding.
   const profileLoadFailed = isReady && !!user?.email && localOnboardingDone && profile === null;
 
   React.useEffect(() => {
     if (!isReady) return;
+    if (didRedirectRef.current) return; // prevent repeated redirects
 
     // Step 2: Not authenticated → redirect to Login
     if (!user?.email) {
-      console.log('[TrialGate] Not authenticated → Login');
+      didRedirectRef.current = true;
       redirectToLogin();
       return;
     }
@@ -62,18 +60,7 @@ export default function TrialGate({ children }) {
     // Don't redirect if profile couldn't load — show safe fallback UI instead
     if (profileLoadFailed) return;
 
-    // GUARD: If user is authenticated and locally flagged as onboarding-complete,
-    // NEVER navigate to onboarding or language selector. This prevents the flash-back bug.
-    if (user?.email && localOnboardingDone) {
-      // Already onboarded — skip to step 5
-      if (!isEntitled) {
-        console.log('[TrialGate] Not entitled → Paywall');
-        navigate(createPageUrl('Paywall'), { replace: true });
-      }
-      return;
-    }
-
-    // Step 3: Onboarding not done → must go through onboarding first, always before entitlement check
+    // Step 3: Onboarding not done → must go through onboarding first
     if (!onboardingComplete) {
       const hasLanguage = !!(
         profile?.language ||
@@ -81,17 +68,19 @@ export default function TrialGate({ children }) {
         localStorage.getItem('balancen_lang')
       );
       const target = hasLanguage ? 'Onboarding' : 'LanguageSelector';
-      console.log('[TrialGate] Onboarding required → ', target);
+      didRedirectRef.current = true;
       navigate(createPageUrl(target), { replace: true });
       return;
     }
 
-    // Step 5: Onboarded, authenticated, but not entitled → Paywall (subscription screen)
-    if (!isEntitled) {
-      console.log('[TrialGate] Not entitled → Paywall');
-      navigate(createPageUrl('Paywall'), { replace: true });
-    }
-  }, [isReady, user?.email, onboardingComplete, isEntitled, profileLoadFailed, navigate, profile?.language, localOnboardingDone]);
+    // Step 5: All onboarded users can access core routes.
+    // Non-entitled users will be gated per-feature, not here.
+  }, [isReady, user?.email, onboardingComplete, profileLoadFailed, navigate, profile?.language]);
+
+  // Reset redirect ref when user/auth state changes (e.g. new login)
+  React.useEffect(() => {
+    didRedirectRef.current = false;
+  }, [user?.email]);
 
   // Step 1: Still loading — render nothing
   if (!isReady) return null;
@@ -136,11 +125,10 @@ export default function TrialGate({ children }) {
     );
   }
 
-  // Step 3 / 5: Redirect in progress — render nothing while navigation fires
+  // Step 3: Onboarding redirect in progress — render nothing while navigation fires
   if (!onboardingComplete) return null;
-  if (!isEntitled) return null;
 
-  // Step 6: All clear — render app content
+  // Step 5: All clear — render app content (entitlement gated per-feature, not here)
   return <>{children}</>;
 }
 
