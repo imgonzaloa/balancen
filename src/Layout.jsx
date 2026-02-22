@@ -244,6 +244,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
       {/* Fixed Tab bar - pinned to viewport */}
       {!hideNav && (
         <nav
+          ref={bottomNavRef}
           className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10"
             style={{
               zIndex: 1000,
