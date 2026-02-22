@@ -199,7 +199,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
                 paddingTop: 'env(safe-area-inset-top, 0)',
                 position: 'relative',
                 overflow: 'hidden',
-                '--bottom-nav-height': '88px',
               }}
     >
       <BuildBadge currentPageName={currentPageName} />
