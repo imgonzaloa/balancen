@@ -75,7 +75,7 @@ const NavButton = React.memo(function NavButton({ item, isActive, onNavigate, on
       <div className={`p-2.5 rounded-2xl ${isActive ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/20" : ""}`}>
         <Icon size={22} className={isActive ? "text-teal-300" : "text-slate-400"} />
       </div>
-      <span className={`text-[10px] mt-0.5 font-semibold ${isActive ? "text-teal-300" : "text-slate-500"}`}>
+      <span className={`text-[11px] mt-0.5 font-semibold ${isActive ? "text-teal-300" : "text-slate-500"}`}>
         {item.label}
       </span>
     </button>

@@ -77,10 +77,10 @@ import Progress from './pages/Progress';
 import ProgressTracker from './pages/ProgressTracker';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
+import Splash from './pages/Splash';
 import TrainerDashboard from './pages/TrainerDashboard';
 import UserManagement from './pages/UserManagement';
 import WorkoutTracker from './pages/WorkoutTracker';
-import Splash from './pages/Splash';
 import __Layout from './Layout.jsx';
 
 
@@ -115,10 +115,10 @@ export const PAGES = {
     "ProgressTracker": ProgressTracker,
     "Settings": Settings,
     "Social": Social,
+    "Splash": Splash,
     "TrainerDashboard": TrainerDashboard,
     "UserManagement": UserManagement,
     "WorkoutTracker": WorkoutTracker,
-    "Splash": Splash,
 }
 
 export const pagesConfig = {
