@@ -409,6 +409,35 @@ export default function Settings() {
           {t('logout')}
         </Button>
 
+        {/* Danger Zone */}
+        <motion.div
+          className="mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Trash2 size={18} className="text-red-400" />
+            <h2 className="text-lg font-bold text-red-400">Danger Zone</h2>
+          </div>
+          <button
+            onClick={() => setShowDeleteDialog(true)}
+            className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all"
+          >
+            <Trash2 size={20} className="text-red-400" />
+            <div className="text-left">
+              <p className="text-red-300 font-semibold">{lang === 'es' ? 'Eliminar cuenta' : 'Delete account'}</p>
+              <p className="text-red-400/60 text-xs">{lang === 'es' ? 'Esta acción no se puede deshacer' : 'This action cannot be undone'}</p>
+            </div>
+          </button>
+        </motion.div>
+
+        <DeleteAccountDialog
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          email={user?.email}
+        />
+
         {/* About Section */}
         <motion.div
           className="relative overflow-hidden rounded-3xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 text-center mt-6"

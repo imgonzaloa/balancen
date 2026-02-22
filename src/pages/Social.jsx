@@ -14,6 +14,7 @@ import { useAppState } from "@/components/AppStateContext";
 import GlobalHeader from "@/components/GlobalHeader";
 import ShareSummaryModal from "@/components/social/ShareSummaryModal";
 import { useMealsStore } from "@/components/MealsStore";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Social() {
   const { t } = useTranslation();
