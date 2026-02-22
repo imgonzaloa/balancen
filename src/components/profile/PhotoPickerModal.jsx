@@ -50,7 +50,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               style={{
                 position: 'fixed',
                 bottom: 0, left: 0, right: 0,
-                zIndex: 20000,
+                zIndex: 20001,
                 maxHeight: '90dvh',
                 display: 'flex',
                 flexDirection: 'column',

@@ -66,7 +66,7 @@ export default function PreviewScreen() {
           }}
         >
           <button
-            onClick={handleRetake}
+            onClick={() => { resetMeal(); navigate(returnTo, { replace: true }); }}
             style={{ padding: '12px', borderRadius: '12px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', color: '#fff', border: 'none', cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation' }}
           >
             <X size={24} />
