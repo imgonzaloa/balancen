@@ -2,11 +2,13 @@ import React, { useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Camera, Image as ImageIcon, X } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function PhotoPickerModal({ isOpen, onClose, onSelectFile, anchorRef }) {
   const { lang } = useTranslation();
+  const navigate = useNavigate();
   const galleryInput = useRef(null);
-  const cameraInput = useRef(null);
   const [pos, setPos] = useState({ top: 80, left: 16 });
 
   useEffect(() => {
@@ -30,13 +32,8 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile, anchor
     return () => { document.body.style.overflow = ''; };
   }, [isOpen, anchorRef]);
 
+  // Gallery only — NO capture attribute
   const handleGallerySelect = (e) => {
-    const file = e.target.files?.[0];
-    if (file) { onSelectFile(file); onClose(); }
-    e.target.value = '';
-  };
-
-  const handleCameraSelect = (e) => {
     const file = e.target.files?.[0];
     if (file) { onSelectFile(file); onClose(); }
     e.target.value = '';
@@ -48,10 +45,13 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile, anchor
     galleryInput.current.click();
   };
 
+  // Camera — navigate to CameraScreen in profilePhoto mode, never touch a file input
   const handleTakePhoto = () => {
     console.log('[ProfilePhoto] camera');
-    cameraInput.current.value = '';
-    cameraInput.current.click();
+    localStorage.setItem('CAMERA_MODE', 'profilePhoto');
+    localStorage.setItem('CAMERA_RETURN_ROUTE', createPageUrl('Profile'));
+    onClose();
+    navigate(createPageUrl('CameraScreen') + '?mode=profilePhoto&return=' + encodeURIComponent(createPageUrl('Profile')));
   };
 
   if (!isOpen) return null;
