@@ -35,13 +35,23 @@ export default function PreviewScreen() {
   const handleRetake = () => {
     console.log("🔄 RETAKE_PHOTO");
     resetMeal();
-    navigate(createPageUrl("CameraScreen"));
+    // replace so we don't push an extra history entry
+    navigate(createPageUrl("CameraScreen"), { replace: true });
   };
 
   const handleUsePhoto = () => {
     console.log("✅ USE_PHOTO_CONFIRMED - navigating to analysis");
-    navigate(createPageUrl("MealResult"));
+    navigate(createPageUrl("MealResult"), { replace: true });
   };
+
+  // Android/browser back button — treat as retake/close
+  React.useEffect(() => {
+    const handlePopState = () => {
+      resetMeal();
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [resetMeal]);
 
   return (
     <OverlayPortal>
