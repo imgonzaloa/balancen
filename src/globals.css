@@ -1,3 +1,4 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,9 +6,6 @@
 
 @layer base {
   :root {
-    --safe-bottom: env(safe-area-inset-bottom);
-    --bottom-nav-height: 0px;
-    --bottom-inset: calc(var(--bottom-nav-height) + var(--safe-bottom));
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -226,4 +224,4 @@
   .route-tab-switch {
     animation: none;
   }
-  }
+}
