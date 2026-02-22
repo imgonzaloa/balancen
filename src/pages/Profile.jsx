@@ -256,6 +256,7 @@ export default function Profile() {
             <div className="flex items-center gap-4 mb-6">
               {/* Clickable Profile Photo - Instagram Style */}
               <div 
+                ref={avatarRef}
                 onClick={() => setPhotoPreview(true)}
                 className="relative cursor-pointer group"
               >
