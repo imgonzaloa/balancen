@@ -95,6 +95,7 @@ export default function Profile() {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [error, setError] = useState(null);
+  const avatarRef = React.useRef(null);
 
   // Sync local profile state whenever context profile updates (e.g. initial server fetch arrives)
   useEffect(() => {
