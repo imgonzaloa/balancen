@@ -113,7 +113,12 @@ css
   #root {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
-    background: rgb(15 23 42);
+    background: linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%);
+  }
+
+  /* Prevent white flash on any route transition */
+  html, body {
+    background: #0f172a !important;
   }
   
   /* iOS-style smooth scrolling */
