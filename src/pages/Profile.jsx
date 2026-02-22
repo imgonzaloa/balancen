@@ -481,29 +481,18 @@ export default function Profile() {
         </button>
       </div>
 
-      {/* Photo Picker Modal */}
-      {photoPreview && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end">
-          <div className="w-full bg-slate-900 rounded-t-3xl p-6 border-t border-white/10">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-bold">{t('upload_photo')}</h3>
-              <button
-                onClick={() => setPhotoPreview(false)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <X size={20} className="text-white" />
-              </button>
-            </div>
-            <PhotoPicker
-              onPhotoSelected={(file, preview) => {
-                handlePhotoUpload(file, preview);
-                setPhotoPreview(false);
-              }}
-              onRemovePreview={() => setPhotoPreview(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Photo Picker Popover */}
+      <PhotoPickerModal
+        isOpen={!!photoPreview}
+        onClose={() => setPhotoPreview(false)}
+        anchorRef={avatarRef}
+        onSelectFile={(file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => handlePhotoUpload(file, e.target.result);
+          reader.readAsDataURL(file);
+          setPhotoPreview(false);
+        }}
+      />
 
       {/* Goals Edit Modal - PREMIUM ONLY */}
       {showGoalsEdit && (profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
