@@ -153,24 +153,45 @@ export default function Settings() {
           </div>
         </motion.div>
 
-        {/* Notifications */}
+        {/* Daily Reminders */}
         <motion.div
           className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
-                <Bell size={20} className="text-teal-300" />
+          <div className="relative z-10 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
+                  <Bell size={20} className="text-teal-300" />
+                </div>
+                <div>
+                  <Label className="text-white font-semibold">{lang === 'es' ? 'Recordatorios diarios' : 'Daily reminders'}</Label>
+                  <p className="text-xs text-white/60">{t('gentle_reminders')}</p>
+                </div>
               </div>
-              <div>
-                <Label className="text-white font-semibold">{t('notifications')}</Label>
-                <p className="text-xs text-white/60">{t('gentle_reminders')}</p>
-              </div>
+              <Switch
+                checked={profile?.daily_reminders_enabled ?? true}
+                onCheckedChange={(checked) => handleToggle('daily_reminders_enabled', checked)}
+              />
             </div>
-            <Switch defaultChecked={false} />
+
+            {profile?.daily_reminders_enabled && (
+              <div className="pl-13 pt-3 border-t border-white/10">
+                <Label className="text-white/90 text-sm mb-2 block">
+                  {lang === 'es' ? 'Hora' : 'Time'}
+                </Label>
+                <input
+                  type="time"
+                  value={profile?.daily_reminders_time || '09:00'}
+                  onChange={(e) => {
+                    updateMutation.mutate({ daily_reminders_time: e.target.value });
+                  }}
+                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-teal-300 outline-none text-base"
+                />
+              </div>
+            )}
           </div>
         </motion.div>
 
