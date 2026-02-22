@@ -274,6 +274,23 @@ function LayoutInner({ children, currentPageName, bootState }) {
   );
 }
 
+// Stable providers tree — mounted once, never recreated on navigation
+function AppProviders({ children, bootState }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TranslationProvider>
+        <MealsStoreProvider>
+          <AppStateProvider>
+            <MealProvider>
+              {children}
+            </MealProvider>
+          </AppStateProvider>
+        </MealsStoreProvider>
+      </TranslationProvider>
+    </QueryClientProvider>
+  );
+}
+
 export default function Layout({ children, currentPageName }) {
   return (
     <GlobalErrorBoundary>
@@ -281,19 +298,11 @@ export default function Layout({ children, currentPageName }) {
         <ErrorBoundary screen="Layout">
           <BootGate>
             {({ bootState }) => (
-              <QueryClientProvider client={queryClient}>
-                <TranslationProvider>
-                  <MealsStoreProvider>
-                    <AppStateProvider>
-                      <MealProvider>
-                        <LayoutInner currentPageName={currentPageName} bootState={bootState}>
-                          {children}
-                        </LayoutInner>
-                      </MealProvider>
-                    </AppStateProvider>
-                  </MealsStoreProvider>
-                </TranslationProvider>
-              </QueryClientProvider>
+              <AppProviders bootState={bootState}>
+                <LayoutInner currentPageName={currentPageName} bootState={bootState}>
+                  {children}
+                </LayoutInner>
+              </AppProviders>
             )}
           </BootGate>
         </ErrorBoundary>
