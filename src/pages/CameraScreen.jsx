@@ -13,7 +13,10 @@ const _captureStore = { file: null, dataUrl: null };
 export default function CameraScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { setCapturedFile } = useMeal();
+  // Where to go back when closing camera
+  const returnTo = location.state?.from || createPageUrl("Home");
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -278,27 +281,8 @@ export default function CameraScreen() {
 
   const handleClose = React.useCallback(() => {
     stopCamera();
-    try {
-      if (window.history.length > 1) {
-        navigate(-1);
-      } else {
-        navigate(createPageUrl("Home"), { replace: true });
-      }
-    } catch (_) {
-      navigate(createPageUrl("Home"), { replace: true });
-    }
-  }, [navigate]);
-
-  // Android/iOS back button closes camera
-  React.useEffect(() => {
-    // Push a dummy state so popstate fires on back
-    window.history.pushState({ cameraOpen: true }, '');
-    const handlePopState = (e) => {
-      handleClose();
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [handleClose]);
+    navigate(returnTo, { replace: true });
+  }, [navigate, returnTo]);
 
   // Error fallback UI
   if (cameraError) {
