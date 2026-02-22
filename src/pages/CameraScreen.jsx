@@ -167,15 +167,21 @@ export default function CameraScreen() {
       _captureStore.file = file;
       _captureStore.dataUrl = dataUrl;
 
-      // Write to context + sessionStorage
-      setCapturedFile(file, dataUrl);
-
       // Stop stream (preview is now shown via img, not video)
       stopCamera();
 
       await new Promise(r => setTimeout(r, 80));
 
       if (!mountedRef.current) return;
+
+      if (isProfilePhotoMode) {
+        console.log("🚀 PROFILE_PHOTO_SAVE");
+        await saveProfilePhoto(file, dataUrl);
+        return;
+      }
+
+      // Write to context + sessionStorage (meal flow)
+      setCapturedFile(file, dataUrl);
       console.log("🚀 NAVIGATE_RESULT");
       navigate(createPageUrl("PreviewScreen"), { replace: false });
 
