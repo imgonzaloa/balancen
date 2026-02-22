@@ -97,6 +97,8 @@ async function safeAuthCheck() {
   }
 }
 
+const SPLASH_DURATION = 2000; // ms
+
 export default function BootGate({ children }) {
   const [bootState, setBootState] = useState(null);
 
@@ -104,6 +106,7 @@ export default function BootGate({ children }) {
     let isMounted = true;
 
     const resolveBoot = async () => {
+      const startTime = Date.now();
       // STEP 1: Sync reads from localStorage (instant)
       const storedLanguage = (
         localStorage.getItem(STORAGE_KEYS.LANGUAGE) ||
