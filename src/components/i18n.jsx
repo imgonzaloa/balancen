@@ -1018,6 +1018,8 @@ const resources = {
       skip_for_now: "Omitir por ahora",
       
       // Delete account
+      delete_account_title: "¿Estás seguro?",
+      delete_account_message: "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.",
       delete_warning: "Esta acción es irreversible. Todos tus datos serán eliminados.",
       type_delete: "Escribe DELETE",
       type_delete_confirm: "Escribe DELETE para confirmar",
