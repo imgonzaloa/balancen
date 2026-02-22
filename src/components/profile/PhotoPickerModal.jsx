@@ -25,17 +25,19 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
     <OverlayPortal>
       <AnimatePresence>
         {isOpen && (
-          <div style={{ position: 'fixed', inset: 0, pointerEvents: 'auto' }}>
-            {/* Backdrop */}
+          <>
+            {/* Backdrop — pointer-events:auto only here to catch dismiss taps */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
               style={{
-                position: 'absolute', inset: 0,
+                position: 'fixed', inset: 0,
                 background: 'rgba(0,0,0,0.6)',
                 touchAction: 'none',
+                pointerEvents: 'auto',
+                zIndex: 19999,
               }}
             />
             {/* Sheet */}
@@ -44,9 +46,11 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              onClick={e => e.stopPropagation()}
               style={{
                 position: 'fixed',
                 bottom: 0, left: 0, right: 0,
+                zIndex: 20000,
                 maxHeight: '90dvh',
                 display: 'flex',
                 flexDirection: 'column',
@@ -126,7 +130,7 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               <input ref={galleryInput} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" aria-label="Gallery input" />
               <input ref={cameraInput} type="file" accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" aria-label="Camera input" />
             </motion.div>
-          </div>
+          </>
         )}
       </AnimatePresence>
     </OverlayPortal>
