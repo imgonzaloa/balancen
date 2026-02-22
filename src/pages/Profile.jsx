@@ -98,12 +98,47 @@ export default function Profile() {
   const [error, setError] = useState(null);
   const avatarRef = React.useRef(null);
 
+  // Display name editing
+  const [nameDraft, setNameDraft] = useState("");
+  const [nameDraftSet, setNameDraftSet] = useState(false);
+  const [savingName, setSavingName] = useState(false);
+
   // Sync local profile state whenever context profile updates (e.g. initial server fetch arrives)
   useEffect(() => {
     if (cachedProfile) {
       setProfile(cachedProfile);
     }
   }, [cachedProfile]);
+
+  // Set name draft ONCE when profile first loads — never overwrite user typing
+  useEffect(() => {
+    if (!nameDraftSet && cachedProfile?.display_name) {
+      setNameDraft(cachedProfile.display_name);
+      setNameDraftSet(true);
+    }
+  }, [cachedProfile, nameDraftSet]);
+
+  const handleSaveName = async () => {
+    const trimmed = nameDraft.trim();
+    if (trimmed.length < 2 || trimmed.length > 40) {
+      toast.error(t('name_validation') || "Name must be 2–40 characters.");
+      return;
+    }
+    if (!profile?.id) return;
+    setSavingName(true);
+    try {
+      await base44.entities.UserProfile.update(profile.id, { display_name: trimmed });
+      const updated = { ...profile, display_name: trimmed };
+      setProfile(updated);
+      if (setContextProfile) setContextProfile(updated);
+      toast.success(t('name_updated') || "Name updated");
+    } catch (err) {
+      console.error("Failed to save name:", err);
+      toast.error(t('update_failed') || "Update failed");
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   // Cached photo for instant display before server fetch completes
   const cachedPhoto = user?.email
