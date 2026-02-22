@@ -389,6 +389,31 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Personal Info Section */}
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
+          <h3 className="font-semibold text-white mb-4">{t('personal_info') || "Personal info"}</h3>
+          <div className="space-y-2">
+            <label className="text-white/60 text-xs font-semibold uppercase tracking-wide">{t('name') || "Name"}</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={nameDraft}
+                onChange={(e) => setNameDraft(e.target.value)}
+                maxLength={40}
+                placeholder={t('enter_your_name') || "Enter your name"}
+                className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 text-sm focus:outline-none focus:border-teal-500"
+              />
+              <button
+                onClick={handleSaveName}
+                disabled={savingName || nameDraft.trim() === (profile?.display_name || "")}
+                className="px-4 py-3 bg-teal-500 hover:bg-teal-600 disabled:opacity-40 rounded-xl text-white text-sm font-semibold transition-colors"
+              >
+                {savingName ? "..." : t('save') || "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Goals Section - FREE USERS: READ-ONLY */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
           <div className="flex items-center justify-between mb-4">
