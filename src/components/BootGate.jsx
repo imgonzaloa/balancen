@@ -1,9 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
+const SPLASH_PHRASES = [
+  'Stay consistent',
+  'Show up today',
+  'Small steps daily',
+  'Keep going',
+  'Progress over perfection',
+  'Discipline creates freedom',
+  'One day at a time',
+  'Build momentum',
+  "Don't break the streak",
+  'Balance every day',
+];
+
+const PHRASES_HISTORY_KEY = 'balancen_splash_phrases_used';
+
+function getNextPhrase() {
+  let used = [];
+  try {
+    used = JSON.parse(localStorage.getItem(PHRASES_HISTORY_KEY) || '[]');
+  } catch (_) { used = []; }
+
+  // Reset cycle once all 10 have been shown
+  if (used.length >= SPLASH_PHRASES.length) {
+    used = [];
+  }
+
+  const remaining = SPLASH_PHRASES.filter((_, i) => !used.includes(i));
+  const idx = SPLASH_PHRASES.indexOf(remaining[Math.floor(Math.random() * remaining.length)]);
+
+  used.push(idx);
+  localStorage.setItem(PHRASES_HISTORY_KEY, JSON.stringify(used));
+  return SPLASH_PHRASES[idx];
+}
+
 function SplashScreen() {
   const [logoVisible, setLogoVisible] = React.useState(false);
   const [textVisible, setTextVisible] = React.useState(false);
+  const [phrase] = React.useState(() => getNextPhrase());
 
   React.useEffect(() => {
     const t1 = setTimeout(() => setLogoVisible(true), 200);
@@ -11,23 +46,21 @@ function SplashScreen() {
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  // Use the exact same icon SVG as the app icon — black square, white B, rounded corners
-  const iconSize = Math.round(Math.min(window.innerWidth, 430) * 0.4);
+  const iconSize = Math.round(Math.min(window.innerWidth, 430) * 0.42);
 
   return (
     <div
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'rgb(15 23 42)', // same as #root background in globals.css
+        background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         paddingTop: 'env(safe-area-inset-top, 0)',
       }}
     >
-      {/* Logo — exact app icon asset */}
+      {/* Logo */}
       <div style={{
         transition: 'opacity 300ms ease',
         opacity: logoVisible ? 1 : 0,
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
         <svg
           width={iconSize}
@@ -50,18 +83,19 @@ function SplashScreen() {
         </svg>
       </div>
 
-      {/* Tagline */}
+      {/* Dynamic phrase */}
       <p style={{
         transition: 'opacity 300ms ease',
         opacity: textVisible ? 0.85 : 0,
         color: '#ffffff',
         fontSize: '17px',
         fontWeight: 500,
-        marginTop: '20px',
+        marginTop: '26px',
         letterSpacing: '0.01em',
         fontFamily: 'system-ui, -apple-system, sans-serif',
+        textAlign: 'center',
       }}>
-        Stay consistent.
+        {phrase}
       </p>
     </div>
   );
