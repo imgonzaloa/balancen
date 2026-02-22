@@ -49,10 +49,10 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               onClick={e => e.stopPropagation()}
               style={{
                 position: 'fixed',
-                bottom: 'var(--bottom-nav-height, 88px)',
+                bottom: 'var(--bottom-nav-height, 0px)',
                 left: 0, right: 0,
                 zIndex: 50002,
-                maxHeight: 'calc(90dvh - var(--bottom-nav-height, 88px))',
+                maxHeight: 'calc(90dvh - var(--bottom-nav-height, 0px))',
                 display: 'flex',
                 flexDirection: 'column',
                 overflowY: 'auto',
