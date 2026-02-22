@@ -77,9 +77,9 @@ export default function PreviewScreen() {
         <div
           style={{
             position: 'fixed',
-            bottom: 'var(--bottom-inset, 0px)',
+            bottom: 0,
             left: 0, right: 0,
-            zIndex: 50001,
+            zIndex: 9999,
             maxHeight: '90dvh',
             display: 'flex',
             flexDirection: 'column',
@@ -89,7 +89,7 @@ export default function PreviewScreen() {
             paddingTop: '48px',
             paddingLeft: '24px',
             paddingRight: '24px',
-            paddingBottom: '16px',
+            paddingBottom: '88px',
           }}
         >
           <div style={{ maxWidth: '512px', margin: '0 auto', width: '100%', marginTop: 'auto' }}>
