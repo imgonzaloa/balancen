@@ -45,15 +45,20 @@ export default function PhotoPickerModal({ isOpen, onClose, onSelectFile }) {
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               style={{
-                position: 'absolute',
+                position: 'fixed',
                 bottom: 0, left: 0, right: 0,
+                maxHeight: '90dvh',
+                display: 'flex',
+                flexDirection: 'column',
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
                 background: '#0f172a',
                 borderTop: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: '24px 24px 0 0',
-                paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
+                paddingTop: '24px',
                 paddingLeft: '24px',
                 paddingRight: '24px',
-                paddingTop: '24px',
+                paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
                 touchAction: 'pan-y',
                 pointerEvents: 'auto',
               }}

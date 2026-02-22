@@ -70,20 +70,33 @@ export default function PreviewScreen() {
           </button>
         </div>
 
-        {/* Bottom Actions */}
+        {/* Bottom Sheet */}
         <div
           style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7), transparent)',
-            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
-            paddingLeft: '24px', paddingRight: '24px', paddingTop: '24px',
+            position: 'fixed',
+            bottom: 0, left: 0, right: 0,
+            zIndex: 3,
+            maxHeight: '90dvh',
+            display: 'flex',
+            flexDirection: 'column',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.97) 60%, transparent)',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            paddingTop: '48px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
           }}
         >
-          <div style={{ maxWidth: '512px', margin: '0 auto' }}>
-            <p style={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginBottom: '24px', fontSize: '18px', fontWeight: 500 }}>
+          <div style={{ maxWidth: '512px', margin: '0 auto', width: '100%', marginTop: 'auto' }}>
+            <p style={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginBottom: '20px', fontSize: '18px', fontWeight: 500 }}>
               {t("photo_looks_good")}
             </p>
-            <div style={{ display: 'flex', gap: '16px' }}>
+            {/* Button row — debug bg removed once confirmed working */}
+            <div style={{
+              display: 'flex', gap: '16px',
+              paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+            }}>
               <button
                 onClick={handleRetake}
                 style={{
@@ -91,6 +104,7 @@ export default function PreviewScreen() {
                   background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
                   color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                   cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation',
+                  minHeight: '56px',
                 }}
               >
                 <RotateCcw size={20} />
@@ -105,6 +119,7 @@ export default function PreviewScreen() {
                   cursor: 'pointer', pointerEvents: 'auto', touchAction: 'manipulation',
                   boxShadow: '0 10px 30px rgba(16,185,129,0.4)',
                   border: 'none',
+                  minHeight: '56px',
                 }}
               >
                 <Check size={20} />
