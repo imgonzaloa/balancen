@@ -577,6 +577,48 @@ export default function Settings() {
           email={user?.email}
         />
 
+        {/* Support Fallback Modal */}
+        {showSupportModal && (
+          <div className="fixed inset-0 z-[300] flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-slate-900 border border-white/20 rounded-3xl p-6 w-full max-w-lg shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
+                  <Mail size={20} className="text-teal-300" />
+                </div>
+                <h3 className="text-white font-bold text-lg">
+                  {lang === 'es' ? 'Contactar Soporte' : 'Contact Support'}
+                </h3>
+              </div>
+              <p className="text-white/70 text-sm leading-relaxed mb-6">
+                {lang === 'es' ? 'Escríbenos a ' : 'Email us at '}
+                <span className="text-teal-300 font-medium">hello@balancen.app</span>
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText('hello@balancen.app');
+                    toast.success(lang === 'es' ? 'Copiado' : 'Copied');
+                    setShowSupportModal(false);
+                  }}
+                  className="flex-1 bg-teal-500 hover:bg-teal-600 text-white"
+                >
+                  {lang === 'es' ? 'Copiar email' : 'Copy email'}
+                </Button>
+                <Button
+                  onClick={() => setShowSupportModal(false)}
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white border border-white/20"
+                >
+                  {lang === 'es' ? 'Cerrar' : 'Close'}
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
         {/* About Section */}
         <motion.div
           className="relative overflow-hidden rounded-3xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 text-center mt-6"
