@@ -455,6 +455,49 @@ export default function Settings() {
           email={user?.email}
         />
 
+        {/* Legal Section */}
+        <motion.div
+          className="mt-8 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.75 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Scale size={18} className="text-white/40" />
+            <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">Legal</h2>
+          </div>
+
+          <div className="rounded-3xl overflow-hidden border border-white/10 divide-y divide-white/10">
+            <Link to={createPageUrl("PrivacyPolicy")}>
+              <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-3">
+                  <Shield size={18} className="text-teal-300" />
+                  <span className="text-white/80 text-sm font-medium">Privacy Policy</span>
+                </div>
+                <ChevronLeft size={16} className="text-white/30 rotate-180" />
+              </div>
+            </Link>
+            <Link to={createPageUrl("TermsOfService")}>
+              <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-3">
+                  <FileText size={18} className="text-teal-300" />
+                  <span className="text-white/80 text-sm font-medium">Terms of Service</span>
+                </div>
+                <ChevronLeft size={16} className="text-white/30 rotate-180" />
+              </div>
+            </Link>
+            <Link to={createPageUrl("AIDisclaimer")}>
+              <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle size={18} className="text-amber-300" />
+                  <span className="text-white/80 text-sm font-medium">AI & Medical Disclaimer</span>
+                </div>
+                <ChevronLeft size={16} className="text-white/30 rotate-180" />
+              </div>
+            </Link>
+          </div>
+        </motion.div>
+
         {/* About Section */}
         <motion.div
           className="relative overflow-hidden rounded-3xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 text-center mt-6"
