@@ -22,6 +22,7 @@ import PublicDebugPanel from "@/components/PublicDebugPanel";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import TrialGate from "@/components/TrialGate";
 import BuildBadge from "@/components/BuildBadge";
+import OfflineBanner from "@/components/OfflineBanner";
 
 
 // Global React Query client - aggressive caching to prevent rate limits and re-fetches
