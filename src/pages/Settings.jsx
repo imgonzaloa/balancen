@@ -520,8 +520,8 @@ export default function Settings() {
               className="w-full flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all text-left"
             >
               <div className="flex items-center gap-3">
-                <Trash2 size={18} className="text-red-400" />
-                <span className="text-red-300 text-sm font-medium">
+                <Trash2 size={18} className="text-white/40" />
+                <span className="text-white/60 text-sm font-medium">
                   {lang === 'es' ? 'Eliminar cuenta' : 'Delete Account'}
                 </span>
               </div>
