@@ -8,6 +8,7 @@ import { createPageUrl } from "@/utils";
 import { createPortal } from "react-dom";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
+import CameraPermissionPrompt from "@/components/CameraPermissionPrompt";
 
 // Module-level stable store so photo survives navigation/re-render
 const _captureStore = { file: null, dataUrl: null };
