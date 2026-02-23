@@ -447,20 +447,41 @@ export default function Settings() {
 
           <div className="rounded-3xl overflow-hidden border border-white/10 divide-y divide-white/10">
             {/* Contact Support */}
-            <a href="mailto:hello@balancen.app">
-              <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
-                <div className="flex items-center gap-3">
-                  <Mail size={18} className="text-teal-300" />
-                  <div>
-                    <span className="text-white/80 text-sm font-medium block">
-                      {lang === 'es' ? 'Contactar Soporte' : 'Contact Support'}
-                    </span>
-                    <span className="text-white/40 text-xs">hello@balancen.app</span>
-                  </div>
+            <button
+              aria-label="Contact Support"
+              onClick={() => {
+                const mailto = "mailto:hello@balancen.app?subject=Balancen%20Support%20Request&body=Please%20describe%20your%20issue%20here.%0A%0AAccount%20email:%20%0ADevice:%20%0AApp%20version:%20";
+                try {
+                  window.location.href = mailto;
+                  // After a short delay, if no mail app opened, try the support URL
+                  setTimeout(() => {
+                    try {
+                      window.open("https://balancen.app/support/", "_blank");
+                    } catch {
+                      setShowSupportModal(true);
+                    }
+                  }, 1000);
+                } catch {
+                  try {
+                    window.open("https://balancen.app/support/", "_blank");
+                  } catch {
+                    setShowSupportModal(true);
+                  }
+                }
+              }}
+              className="w-full flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <Mail size={18} className="text-teal-300" />
+                <div>
+                  <span className="text-white/80 text-sm font-medium block">
+                    {lang === 'es' ? 'Contactar Soporte' : 'Contact Support'}
+                  </span>
+                  <span className="text-white/40 text-xs">hello@balancen.app</span>
                 </div>
-                <ExternalLink size={14} className="text-white/30" />
               </div>
-            </a>
+              <ChevronLeft size={16} className="text-white/30 rotate-180" />
+            </button>
 
             {/* Privacy Policy */}
             <a href="https://balancen.app/privacy-policy/" target="_blank" rel="noopener noreferrer">
