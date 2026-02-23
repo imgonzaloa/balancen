@@ -36,6 +36,7 @@ export default function CameraScreen() {
   const fileInputRef = useRef(null);
   const mountedRef = useRef(true);
   
+  const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
   const [cameraError, setCameraError] = useState(null);
   const [videoReady, setVideoReady] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
