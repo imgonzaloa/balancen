@@ -184,6 +184,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
               }}
     >
       <BuildBadge currentPageName={currentPageName} />
+      <OfflineBanner />
       <NavigationManager />
             <SmartNotificationManager />
             <PublicDebugPanel />
