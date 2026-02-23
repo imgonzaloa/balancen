@@ -52,7 +52,21 @@ export default function CameraScreen() {
   useEffect(() => {
     mountedRef.current = true;
     console.log("📷 CAMERA_OPEN");
-    initCamera();
+    // Check if permission was previously granted; if not, show purpose prompt first
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: "camera" }).then((status) => {
+        if (status.state === "granted") {
+          initCamera();
+        } else {
+          setShowPermissionPrompt(true);
+        }
+      }).catch(() => {
+        // permissions API not supported — go straight to camera (will trigger OS prompt naturally)
+        initCamera();
+      });
+    } else {
+      initCamera();
+    }
     return () => {
       mountedRef.current = false;
       stopCamera();
