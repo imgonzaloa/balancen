@@ -354,6 +354,19 @@ export default function CameraScreen() {
     navigate(returnTo, { replace: true });
   }, [navigate, returnTo, isProfilePhotoMode]);
 
+  // Permission prompt (shown before first camera use)
+  if (showPermissionPrompt) {
+    return (
+      <CameraPermissionPrompt
+        mode="camera"
+        lang={t("lang") === "es" ? "es" : "en"}
+        onConfirm={() => { setShowPermissionPrompt(false); initCamera(); }}
+        onGallery={() => { setShowPermissionPrompt(false); fileInputRef.current?.click(); }}
+        onDismiss={handleClose}
+      />
+    );
+  }
+
   // Error fallback UI
   if (cameraError) {
     return (
