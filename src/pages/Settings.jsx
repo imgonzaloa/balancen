@@ -18,6 +18,7 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAIDisclaimer, setShowAIDisclaimer] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
   const queryClient = useQueryClient();
   const { changeLanguage, lang, t } = useTranslation();
 
