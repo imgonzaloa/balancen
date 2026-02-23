@@ -119,24 +119,12 @@ function LayoutInner({ children, currentPageName, bootState }) {
   // These pages must NOT be gated — they ARE the auth/onboarding/payment flow itself
   const bypassTrialGate = ["Paywall", "Onboarding", "LanguageSelector", "Premium", "ProfileSetup"].includes(currentPageName);
 
-  // Save + restore scroll positions per tab
-  React.useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    return () => {
-      if (mainTabs.includes(currentPageName)) {
-        scrollPositions.current[currentPageName] = container.scrollTop;
-      }
-    };
-  }, [currentPageName]);
-
+  // Always reset scroll to top on tab/page change
   React.useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
     requestAnimationFrame(() => {
-      container.scrollTop = mainTabs.includes(currentPageName)
-        ? (scrollPositions.current[currentPageName] || 0)
-        : 0;
+      container.scrollTop = 0;
     });
   }, [currentPageName]);
 

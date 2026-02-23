@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AIDisclaimer from './pages/AIDisclaimer';
 import AddMeal from './pages/AddMeal';
 import Badges from './pages/Badges';
 import CameraScreen from './pages/CameraScreen';
@@ -71,6 +72,7 @@ import OnboardingTransition from './pages/OnboardingTransition';
 import Paywall from './pages/Paywall';
 import Premium from './pages/Premium';
 import PreviewScreen from './pages/PreviewScreen';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import Profile from './pages/Profile';
 import ProfileSetup from './pages/ProfileSetup';
 import Progress from './pages/Progress';
@@ -78,16 +80,15 @@ import ProgressTracker from './pages/ProgressTracker';
 import Settings from './pages/Settings';
 import Social from './pages/Social';
 import Splash from './pages/Splash';
+import TermsOfService from './pages/TermsOfService';
 import TrainerDashboard from './pages/TrainerDashboard';
 import UserManagement from './pages/UserManagement';
 import WorkoutTracker from './pages/WorkoutTracker';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import AIDisclaimer from './pages/AIDisclaimer';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AIDisclaimer": AIDisclaimer,
     "AddMeal": AddMeal,
     "Badges": Badges,
     "CameraScreen": CameraScreen,
@@ -112,6 +113,7 @@ export const PAGES = {
     "Paywall": Paywall,
     "Premium": Premium,
     "PreviewScreen": PreviewScreen,
+    "PrivacyPolicy": PrivacyPolicy,
     "Profile": Profile,
     "ProfileSetup": ProfileSetup,
     "Progress": Progress,
@@ -119,12 +121,10 @@ export const PAGES = {
     "Settings": Settings,
     "Social": Social,
     "Splash": Splash,
+    "TermsOfService": TermsOfService,
     "TrainerDashboard": TrainerDashboard,
     "UserManagement": UserManagement,
     "WorkoutTracker": WorkoutTracker,
-    "PrivacyPolicy": PrivacyPolicy,
-    "TermsOfService": TermsOfService,
-    "AIDisclaimer": AIDisclaimer,
 }
 
 export const pagesConfig = {
