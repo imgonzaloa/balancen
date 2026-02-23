@@ -32,24 +32,32 @@ export default function InviteSystemCard({ profile }) {
     setGenerating(true);
     try {
       const inviteCode = `${profile.created_by.split('@')[0]}-${Date.now().toString(36)}`;
-      
-      await base44.entities.Invite.create({
+      const inviteUrl = `${window.location.origin}/Onboarding?invite=${inviteCode}`;
+
+      // Save invite record in background (don't await — keeps user gesture alive for share)
+      base44.entities.Invite.create({
         inviter_email: profile.created_by,
         inviter_name: profile.display_name,
         invite_code: inviteCode,
         status: "invited",
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      });
+      }).catch(() => {});
 
-      const inviteUrl = `${window.location.origin}/Onboarding?invite=${inviteCode}`;
-      
       if (navigator.share) {
-        await navigator.share({
-          title: t('invite_share_title'),
-          text: t('invite_share_text'),
-          url: inviteUrl,
-        });
-        toast.success(t('invite_shared'));
+        try {
+          await navigator.share({
+            title: t('invite_share_title'),
+            text: t('invite_share_text'),
+            url: inviteUrl,
+          });
+          toast.success(t('invite_shared'));
+        } catch (shareError) {
+          // Share was cancelled or not allowed — fall back to clipboard
+          await navigator.clipboard.writeText(inviteUrl);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+          toast.success(t('link_copied'));
+        }
       } else {
         await navigator.clipboard.writeText(inviteUrl);
         setCopied(true);
