@@ -601,7 +601,7 @@ export default function Settings() {
 
         {/* About Section */}
         <motion.div
-          className="relative overflow-hidden rounded-3xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 text-center mt-6"
+          className="relative overflow-hidden rounded-3xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 text-center mt-6 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -612,8 +612,26 @@ export default function Settings() {
             </div>
             <div>
               <p className="text-white font-semibold text-lg">Balancen</p>
-              <p className="text-white/40 text-xs">v1.0.0</p>
+              <p className="text-white/40 text-xs mb-1">
+                {lang === 'es' ? 'Versión' : 'Version'} 1.0.0
+              </p>
+              <button
+                onClick={() => {
+                  const body = encodeURIComponent("Hi Balancen team,\n\nI need help with: \n\nAccount email: \nDevice: \nApp version: 1.0.0");
+                  const subject = encodeURIComponent("Balancen Support");
+                  window.location.href = `mailto:hello@balancen.app?subject=${subject}&body=${body}`;
+                  setTimeout(() => setShowSupportModal(true), 1500);
+                }}
+                className="text-teal-400 text-xs underline underline-offset-2 mt-1"
+              >
+                hello@balancen.app
+              </button>
             </div>
+            <p className="text-white/25 text-[10px] mt-1">
+              {lang === 'es'
+                ? 'Balancen ofrece sugerencias de fitness, nutrición y bienestar únicamente para fines informativos. No es consejo médico.'
+                : 'Balancen provides fitness, nutrition, and wellness suggestions for informational purposes only. Not medical advice.'}
+            </p>
           </div>
         </motion.div>
 
