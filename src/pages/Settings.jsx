@@ -441,24 +441,14 @@ export default function Settings() {
             <button
               aria-label="Contact Support"
               onClick={() => {
-                const mailto = "mailto:hello@balancen.app?subject=Balancen%20Support%20Request&body=Please%20describe%20your%20issue%20here.%0A%0AAccount%20email:%20%0ADevice:%20%0AApp%20version:%20";
-                try {
-                  window.location.href = mailto;
-                  // After a short delay, if no mail app opened, try the support URL
-                  setTimeout(() => {
-                    try {
-                      window.open("https://balancen.app/support/", "_blank");
-                    } catch {
-                      setShowSupportModal(true);
-                    }
-                  }, 1000);
-                } catch {
-                  try {
-                    window.open("https://balancen.app/support/", "_blank");
-                  } catch {
-                    setShowSupportModal(true);
-                  }
-                }
+                const body = encodeURIComponent(
+                  "Hi Balancen team,\n\nI need help with: \n\nAccount email: \nDevice: \nApp version: "
+                );
+                const subject = encodeURIComponent("Balancen Support");
+                const mailto = `mailto:hello@balancen.app?subject=${subject}&body=${body}`;
+                window.location.href = mailto;
+                // Show fallback modal after a short delay in case no mail app is available
+                setTimeout(() => setShowSupportModal(true), 1500);
               }}
               className="w-full flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all text-left"
             >
