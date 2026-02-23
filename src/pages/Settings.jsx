@@ -430,32 +430,7 @@ export default function Settings() {
           {t('logout')}
         </Button>
 
-        {/* Delete account */}
-        <motion.div
-          className="mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <button
-            onClick={() => setShowDeleteDialog(true)}
-            className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
-          >
-            <Trash2 size={18} className="text-white/40" />
-            <div className="text-left">
-              <p className="text-white/60 font-medium text-sm">{lang === 'es' ? 'Eliminar cuenta' : 'Delete account'}</p>
-              <p className="text-white/30 text-xs">{lang === 'es' ? 'Esta acción no se puede deshacer' : 'This action cannot be undone'}</p>
-            </div>
-          </button>
-        </motion.div>
-
-        <DeleteAccountDialog
-          isOpen={showDeleteDialog}
-          onClose={() => setShowDeleteDialog(false)}
-          email={user?.email}
-        />
-
-        {/* Legal Section */}
+        {/* Legal & Support Section */}
         <motion.div
           className="mt-8 mb-4"
           initial={{ opacity: 0, y: 20 }}
@@ -464,39 +439,120 @@ export default function Settings() {
         >
           <div className="flex items-center gap-2 mb-4">
             <Scale size={18} className="text-white/40" />
-            <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">Legal</h2>
+            <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
+              {lang === 'es' ? 'Legal y Soporte' : 'Legal & Support'}
+            </h2>
           </div>
 
           <div className="rounded-3xl overflow-hidden border border-white/10 divide-y divide-white/10">
-            <Link to={createPageUrl("PrivacyPolicy")}>
+            {/* Contact Support */}
+            <a href="mailto:hello@balancen.app">
+              <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-3">
+                  <Mail size={18} className="text-teal-300" />
+                  <div>
+                    <span className="text-white/80 text-sm font-medium block">
+                      {lang === 'es' ? 'Contactar Soporte' : 'Contact Support'}
+                    </span>
+                    <span className="text-white/40 text-xs">hello@balancen.app</span>
+                  </div>
+                </div>
+                <ExternalLink size={14} className="text-white/30" />
+              </div>
+            </a>
+
+            {/* Privacy Policy */}
+            <a href="https://balancen.app/privacy-policy/" target="_blank" rel="noopener noreferrer">
               <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
                 <div className="flex items-center gap-3">
                   <Shield size={18} className="text-teal-300" />
-                  <span className="text-white/80 text-sm font-medium">Privacy Policy</span>
+                  <span className="text-white/80 text-sm font-medium">
+                    {lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
+                  </span>
                 </div>
-                <ChevronLeft size={16} className="text-white/30 rotate-180" />
+                <ExternalLink size={14} className="text-white/30" />
               </div>
-            </Link>
-            <Link to={createPageUrl("TermsOfService")}>
+            </a>
+
+            {/* Terms of Service */}
+            <a href="https://balancen.app/terms-of-service/" target="_blank" rel="noopener noreferrer">
               <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
                 <div className="flex items-center gap-3">
                   <FileText size={18} className="text-teal-300" />
-                  <span className="text-white/80 text-sm font-medium">Terms of Service</span>
+                  <span className="text-white/80 text-sm font-medium">
+                    {lang === 'es' ? 'Términos de Servicio' : 'Terms of Service'}
+                  </span>
                 </div>
-                <ChevronLeft size={16} className="text-white/30 rotate-180" />
+                <ExternalLink size={14} className="text-white/30" />
               </div>
-            </Link>
-            <Link to={createPageUrl("AIDisclaimer")}>
-              <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle size={18} className="text-amber-300" />
-                  <span className="text-white/80 text-sm font-medium">AI & Medical Disclaimer</span>
-                </div>
-                <ChevronLeft size={16} className="text-white/30 rotate-180" />
+            </a>
+
+            {/* AI Disclaimer */}
+            <button
+              onClick={() => setShowAIDisclaimer(true)}
+              className="w-full flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <AlertTriangle size={18} className="text-amber-300" />
+                <span className="text-white/80 text-sm font-medium">
+                  {lang === 'es' ? 'Aviso sobre IA' : 'AI Disclaimer'}
+                </span>
               </div>
-            </Link>
+              <ChevronLeft size={16} className="text-white/30 rotate-180" />
+            </button>
+
+            {/* Delete Account */}
+            <button
+              onClick={() => setShowDeleteDialog(true)}
+              className="w-full flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <Trash2 size={18} className="text-red-400" />
+                <span className="text-red-300 text-sm font-medium">
+                  {lang === 'es' ? 'Eliminar cuenta' : 'Delete Account'}
+                </span>
+              </div>
+              <ChevronLeft size={16} className="text-white/30 rotate-180" />
+            </button>
           </div>
         </motion.div>
+
+        {/* AI Disclaimer Modal */}
+        {showAIDisclaimer && (
+          <div className="fixed inset-0 z-[300] flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-slate-900 border border-white/20 rounded-3xl p-6 w-full max-w-lg shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                  <AlertTriangle size={20} className="text-amber-300" />
+                </div>
+                <h3 className="text-white font-bold text-lg">
+                  {lang === 'es' ? 'Aviso sobre IA' : 'AI Disclaimer'}
+                </h3>
+              </div>
+              <p className="text-white/70 text-sm leading-relaxed mb-6">
+                {lang === 'es'
+                  ? 'Balancen proporciona sugerencias generadas por IA sobre fitness y nutrición con fines informativos y de estilo de vida únicamente. Esto no es consejo médico y no reemplaza la consulta con profesionales de la salud calificados.'
+                  : 'Balancen provides AI-generated fitness and nutrition suggestions for informational and lifestyle purposes only. This is not medical advice and does not replace consultation with qualified healthcare professionals.'}
+              </p>
+              <Button
+                onClick={() => setShowAIDisclaimer(false)}
+                className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20"
+              >
+                {lang === 'es' ? 'Entendido' : 'Got it'}
+              </Button>
+            </motion.div>
+          </div>
+        )}
+
+        <DeleteAccountDialog
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          email={user?.email}
+        />
 
         {/* About Section */}
         <motion.div
