@@ -45,25 +45,10 @@ export default function Settings() {
 
   const handleLanguageChange = async (newLang) => {
     if (newLang !== "en" && newLang !== "es") return;
-    
-    // 1. Change language immediately
+    // changeLanguage handles i18n, single localStorage key, and DB sync
     await changeLanguage(newLang);
-    
-    // 2. Save to localStorage (instant persistence)
-    localStorage.setItem('balancen_lang', newLang);
-    localStorage.setItem('app_language', newLang);
-    
-    // 3. Save to user profile (async)
-    if (profile?.id) {
-      await base44.entities.UserProfile.update(profile.id, { language: newLang });
-    }
-    
-    // 4. Invalidate queries to refresh translations
     queryClient.invalidateQueries(['profile']);
-    
-    // 5. Show success message
-    const msg = newLang === 'es' ? 'Idioma actualizado' : 'Language updated';
-    toast.success(msg);
+    toast.success(newLang === 'es' ? 'Idioma actualizado' : 'Language updated');
   };
 
   const handleToggle = (field, value) => {

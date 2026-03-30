@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { getLocalLanguage, setLocalLanguage, resolveLanguage } from '@/lib/language';
 
 // ─── Phrases ────────────────────────────────────────────────────────────────
 
@@ -106,7 +107,6 @@ function SplashOverlay({ visible }) {
 // ─── Boot Logic ──────────────────────────────────────────────────────────────
 
 const STORAGE_KEYS = {
-  LANGUAGE: 'i18nextLng',
   ONBOARDING_COMPLETE: 'balancen_onboarding_complete',
 };
 
@@ -149,12 +149,7 @@ export default function BootGate({ children }) {
     }, MIN_SPLASH_MS);
 
     const resolveBoot = async () => {
-      const storedLanguage = (
-        localStorage.getItem(STORAGE_KEYS.LANGUAGE) ||
-        localStorage.getItem('balancen_lang') ||
-        localStorage.getItem('app_language') ||
-        null
-      );
+      const storedLanguage = getLocalLanguage();
       const storedOnboarding = localStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETE) === 'true';
 
       const user = await safeAuthCheck();
@@ -201,22 +196,19 @@ export default function BootGate({ children }) {
 
         if (!profile || !profile.onboarding_completed) {
           localStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
-          const effectiveLang = profile?.language || storedLanguage;
+          const effectiveLang = resolveLanguage(profile?.language);
           resolvedState = {
             type: effectiveLang ? 'ONBOARDING_REQUIRED' : 'LANGUAGE_REQUIRED',
             isHydrated: true,
             user,
             profile,
-            language: effectiveLang || 'en',
+            language: effectiveLang,
             onboardingComplete: false,
           };
         } else {
-          const lang = profile.language || storedLanguage || 'en';
+          const lang = resolveLanguage(profile?.language);
+          setLocalLanguage(lang);
           localStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETE, 'true');
-          localStorage.setItem('i18nextLng', lang);
-          localStorage.setItem('balancen_lang', lang);
-          localStorage.setItem('balancen.lang', lang);
-          localStorage.setItem('app_language', lang);
           resolvedState = {
             type: 'HOME_READY',
             isHydrated: true,

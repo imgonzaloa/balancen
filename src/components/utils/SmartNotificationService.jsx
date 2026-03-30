@@ -1,6 +1,4 @@
 import { base44 } from '@/api/base44Client';
-import { getLanguage } from '@/components/i18n';
-
 // Behavioral message library - segment: [messages with intents]
 const SMART_MESSAGES = {
   en: {

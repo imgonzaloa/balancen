@@ -28,10 +28,10 @@ export default function Onboarding() {
       const completed = localStorage.getItem('balancen_onboarding_complete') === 'true';
       if (completed) { navigate(createPageUrl('Home'), { replace: true }); return; }
 
-      const storedLang = localStorage.getItem('i18nextLng') || localStorage.getItem('balancen_lang');
-      if (!storedLang) { navigate(createPageUrl('LanguageSelector'), { replace: true }); return; }
+      // Language is read exclusively through the TranslationProvider (lang from useTranslation)
+      if (!lang) { navigate(createPageUrl('LanguageSelector'), { replace: true }); return; }
 
-      setFormData(prev => ({ ...prev, language: storedLang }));
+      setFormData(prev => ({ ...prev, language: lang }));
 
       try {
         const u = await base44.auth.me();
@@ -80,12 +80,9 @@ export default function Onboarding() {
         await base44.entities.UserProfile.create(trialData);
       }
 
-      const finalLang = formData.language || localStorage.getItem('i18nextLng') || 'en';
+      const finalLang = formData.language || lang || 'en';
       localStorage.setItem('balancen_onboarding_complete', 'true');
-      localStorage.setItem('i18nextLng', finalLang);
-      localStorage.setItem('balancen_lang', finalLang);
-      localStorage.setItem('balancen.lang', finalLang);
-      localStorage.setItem('app_language', finalLang);
+      // changeLanguage handles both localStorage (single key) and DB sync
       await changeLanguage(finalLang);
 
       const pendingReferral = localStorage.getItem("pending_referral");

@@ -10,11 +10,7 @@ export default function LanguageSelector() {
 
   const handleSelectLanguage = async (lang) => {
     setLoading(true);
-    // Persist all language keys immediately
-    localStorage.setItem('i18nextLng', lang);
-    localStorage.setItem('balancen_lang', lang);
-    localStorage.setItem('balancen.lang', lang);
-    localStorage.setItem('app_language', lang);
+    // changeLanguage handles both localStorage (single key) and DB sync
     await changeLanguage(lang);
     navigate(createPageUrl('Onboarding'), { replace: true });
   };

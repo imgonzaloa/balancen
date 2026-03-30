@@ -1244,19 +1244,9 @@ const resources = {
   }
 };
 
-// Get initial language from localStorage - single source of truth: i18nextLng
-const getInitialLanguage = () => {
-  try {
-    const stored = localStorage.getItem("i18nextLng")
-      || localStorage.getItem("balancen_lang")
-      || localStorage.getItem("app_language")
-      || localStorage.getItem("balancen.lang");
-    if (stored === "en" || stored === "es") return stored;
-    return "en";
-  } catch {
-    return "en";
-  }
-};
+import { getLocalLanguage } from "@/lib/language";
+
+const getInitialLanguage = () => getLocalLanguage() || "en";
 
 i18n
   .use(initReactI18next)
@@ -1273,30 +1263,7 @@ i18n
     }
   });
 
-// Save language changes to localStorage – all keys in sync
-i18n.on('languageChanged', (lng) => {
-  try {
-    localStorage.setItem("i18nextLng", lng);
-    localStorage.setItem("balancen_lang", lng);
-    localStorage.setItem("balancen.lang", lng);
-    localStorage.setItem("app_language", lng);
-  } catch (e) {
-    console.warn("Failed to save language preference", e);
-  }
-});
-
-/**
- * getLanguage() - Returns the current app language ("en" | "es").
- * Safe to call from any screen, component, or utility.
- */
-export function getLanguage() {
-  try {
-    const stored = localStorage.getItem("i18nextLng")
-      || localStorage.getItem("balancen_lang")
-      || localStorage.getItem("app_language");
-    if (stored === "en" || stored === "es") return stored;
-  } catch {}
-  return i18n.language === "es" ? "es" : "en";
-}
+// Language persistence is handled centrally via lib/language.js setLocalLanguage()
+// No listener needed here.
 
 export default i18n;
