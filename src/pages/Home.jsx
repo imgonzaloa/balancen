@@ -6,6 +6,7 @@ import { useMealsStore } from "@/components/MealsStore";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { formatDateLong, formatTime, formatNumber } from "@/lib/locale";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
 import GlobalHeader from "@/components/GlobalHeader";
@@ -72,14 +73,7 @@ const Home = React.memo(() => {
     return t('good_evening');
   }, [t]);
 
-  const currentDate = useMemo(() => 
-    new Date().toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
-      weekday: "long",
-      day: "numeric",
-      month: "long"
-    }),
-    [lang]
-  );
+  const currentDate = useMemo(() => formatDateLong(lang), [lang]);
 
   const handleNavigate = React.useCallback((page) => {
     navigate(createPageUrl(page));
@@ -133,10 +127,10 @@ const Home = React.memo(() => {
             <div>
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-5xl font-black text-white">
-                  {Math.round(metrics.totalCalories)}
+                  {formatNumber(lang, metrics.totalCalories)}
                 </span>
                 <span className="text-xl text-white/50 font-bold">
-                  / {metrics.caloriesGoal}
+                  / {formatNumber(lang, metrics.caloriesGoal)}
                 </span>
               </div>
               <p className="text-white/60 text-sm font-medium">{t('kcal_short')}</p>
@@ -252,7 +246,7 @@ const Home = React.memo(() => {
                           {meal.mealType ? (meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)) : t('meal')}
                         </p>
                         <p className="text-white/50 text-xs mt-0.5">
-                          {meal.createdAt ? new Date(meal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                          {meal.createdAt ? formatTime(lang, meal.createdAt) : ''}
                         </p>
                         {meal.items?.length > 0 && (
                           <p className="text-white/40 text-[10px] mt-0.5 truncate max-w-[120px]">

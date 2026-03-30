@@ -3,6 +3,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { TrendingUp, Activity, Target, Award, Zap, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { formatWeekdayShort } from "@/lib/locale";
 
 const StatCard = ({ icon: Icon, label, value, unit, color, trend, index }) => (
   <motion.div
@@ -32,7 +33,7 @@ const StatCard = ({ icon: Icon, label, value, unit, color, trend, index }) => (
 );
 
 export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
 
   const analytics = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -80,7 +81,7 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
       const dayCalories = dayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
       
       return {
-        date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        date: formatWeekdayShort(lang, date),
         calories: dayCalories,
         goal: caloriesGoal,
         adherence: Math.round((dayCalories / caloriesGoal) * 100)
@@ -96,7 +97,7 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
       chartData,
       caloriesGoal
     };
-  }, [todayMeals, weekMeals, profile?.calories_goal]);
+  }, [todayMeals, weekMeals, profile?.calories_goal, lang]);
 
   return (
     <div className="space-y-6">
@@ -109,7 +110,7 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
         <StatCard
           index={0}
           icon={Activity}
-          label="Today Calories"
+          label={t('calories')}
           value={Math.round(analytics.today.calories)}
           unit="kcal"
           color="from-orange-500/20 to-amber-500/20"
@@ -118,7 +119,7 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
         <StatCard
           index={1}
           icon={Award}
-          label="Goal Adherence"
+          label={t('adherence_label')}
           value={Math.round(analytics.adherence.today)}
           unit="%"
           color="from-emerald-500/20 to-teal-500/20"
@@ -127,7 +128,7 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
         <StatCard
           index={2}
           icon={Zap}
-          label="Avg Weekly"
+          label={t('best_streak')}
           value={analytics.week.calories}
           unit="kcal"
           color="from-blue-500/20 to-cyan-500/20"
@@ -135,9 +136,9 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
         <StatCard
           index={3}
           icon={Target}
-          label="Consistency"
+          label={t('consistency_label')}
           value={analytics.consistency.days}
-          unit="days"
+          unit={t('days_label')}
           color="from-purple-500/20 to-pink-500/20"
         />
       </motion.div>
@@ -150,13 +151,13 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
         className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-5 border border-white/10"
       >
         <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-          <span className="text-lg">📊</span> Today's Macro Balance
+          <span className="text-lg">📊</span> {t('daily_intake')}
         </h3>
         <div className="space-y-4">
           {[
-            { label: 'Protein', value: analytics.macroBalance.protein, color: 'from-blue-400 to-blue-600', icon: '🥛' },
-            { label: 'Carbs', value: analytics.macroBalance.carbs, color: 'from-amber-400 to-amber-600', icon: '🍚' },
-            { label: 'Fats', value: analytics.macroBalance.fats, color: 'from-pink-400 to-pink-600', icon: '🥑' },
+            { label: t('protein'), value: analytics.macroBalance.protein, color: 'from-blue-400 to-blue-600', icon: '🥛' },
+            { label: t('carbs'), value: analytics.macroBalance.carbs, color: 'from-amber-400 to-amber-600', icon: '🍚' },
+            { label: t('fats'), value: analytics.macroBalance.fats, color: 'from-pink-400 to-pink-600', icon: '🥑' },
           ].map((macro, idx) => (
             <motion.div
               key={macro.label}
@@ -192,7 +193,7 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
         className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-5 border border-white/10"
       >
         <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-          <Calendar size={18} /> 7-Day Trend
+          <Calendar size={18} /> {t('week_view')}
         </h3>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={analytics.chartData}>
@@ -233,13 +234,13 @@ export default function AdvancedAnalytics({ profile, todayMeals, weekMeals }) {
         <div className="flex gap-3">
           <span className="text-2xl">✨</span>
           <div>
-            <p className="text-cyan-300 font-bold text-sm mb-1">AI Insight</p>
+            <p className="text-cyan-300 font-bold text-sm mb-1">{t('ai_daily_insight')}</p>
             <p className="text-white/80 text-sm leading-relaxed">
               {analytics.adherence.week > 100
-                ? "You're crushing your goals! Maintain this consistency to see faster results."
+                ? t('ai_coach_goal_reached')
                 : analytics.adherence.week > 70
-                ? "Great progress this week! You're building strong habits. Keep the momentum going."
-                : "You're on the right track. Focus on consistency—every meal counts toward your goals."}
+                ? t('ai_coach_halfway')
+                : t('ai_coach_start')}
             </p>
           </div>
         </div>

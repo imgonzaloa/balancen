@@ -5,9 +5,10 @@ import { Heart, MessageCircle, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatRelativeTime } from "@/lib/locale";
 
 export default function MealCard({ meal, currentUser, currentProfile }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const queryClient = useQueryClient();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -47,7 +48,7 @@ export default function MealCard({ meal, currentUser, currentProfile }) {
         <div>
           <p className="text-white font-semibold text-sm">{meal.created_by}</p>
           <p className="text-white/50 text-xs">
-            {new Date(meal.created_date).toLocaleDateString()}
+            {meal.created_date ? formatRelativeTime(lang, meal.created_date) : ''}
           </p>
         </div>
       </div>
