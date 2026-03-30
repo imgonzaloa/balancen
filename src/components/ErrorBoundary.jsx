@@ -1,6 +1,7 @@
 import React from "react";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import i18n from "@/components/i18n";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -31,6 +32,7 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      const t = (key) => i18n.t(key);
       return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex items-center justify-center p-6">
           <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full border border-white/20 text-center space-y-6">
@@ -40,10 +42,10 @@ class ErrorBoundary extends React.Component {
             
             <div className="space-y-2">
               <h2 className="text-xl font-bold text-white">
-                Algo salió mal
+                {t("error_boundary_title")}
               </h2>
               <p className="text-white/70 text-sm">
-                Estamos trabajando para solucionarlo. Intentá recargar la pantalla.
+                {t("error_boundary_desc")}
               </p>
             </div>
 
@@ -55,7 +57,7 @@ class ErrorBoundary extends React.Component {
                 }}
                 className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600"
               >
-                Recargar
+                {t("reload")}
               </Button>
               
               <Button
@@ -66,7 +68,7 @@ class ErrorBoundary extends React.Component {
                 variant="outline"
                 className="w-full border-white/20 text-white hover:bg-white/10"
               >
-                Volver al inicio
+                {t("go_home")}
               </Button>
             </div>
 

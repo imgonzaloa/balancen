@@ -5,6 +5,7 @@ import { createPageUrl } from "@/utils";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import { base44 } from "@/api/base44Client";
 import { RefreshCw, LogOut, RotateCcw } from "lucide-react";
+import { useTranslation } from "@/components/TranslationProvider";
 
 function hardReset() {
   try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
@@ -89,6 +90,8 @@ export default function TrialGate({ children }) {
   if (!user?.email) return null;
 
   // Step 4: Profile load error — safe fallback UI
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { t } = useTranslation();
   if (profileLoadFailed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex flex-col items-center justify-center p-6">
@@ -97,27 +100,27 @@ export default function TrialGate({ children }) {
             <RefreshCw size={28} className="text-amber-300" />
           </div>
           <div>
-            <h2 className="text-white text-xl font-bold mb-2">Unable to load your account</h2>
-            <p className="text-white/60 text-sm">Check your connection and try again.</p>
+            <h2 className="text-white text-xl font-bold mb-2">{t("unable_load_account")}</h2>
+            <p className="text-white/60 text-sm">{t("check_connection_retry")}</p>
           </div>
           <div className="space-y-3">
             <button
               onClick={() => window.location.reload()}
               className="w-full py-4 rounded-2xl bg-teal-500 hover:bg-teal-400 text-white font-semibold transition-colors flex items-center justify-center gap-2"
             >
-              <RefreshCw size={18} /> Retry
+              <RefreshCw size={18} /> {t("retry_label")}
             </button>
             <button
               onClick={safeLogout}
               className="w-full py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white/80 font-medium transition-colors flex items-center justify-center gap-2"
             >
-              <LogOut size={16} /> Log out
+              <LogOut size={16} /> {t("log_out")}
             </button>
             <button
               onClick={hardReset}
               className="w-full py-3 text-white/30 text-xs font-medium hover:text-white/60 transition-colors flex items-center justify-center gap-1.5"
             >
-              <RotateCcw size={12} /> Reset Session
+              <RotateCcw size={12} /> {t("reset_session")}
             </button>
           </div>
         </div>

@@ -28,8 +28,7 @@ export default function Paywall() {
 
   const { profile, user: appUser } = useAppState();
   const { isTrialExpired, trialDaysLeft, isPremium, isEntitled, isCampusAccess, isCampusReward, isAccessExpired, accessDaysLeft, campus_consistency_percent } = useEntitlement(profile);
-  const { t, lang } = useTranslation();
-  const isEs = lang === 'es';
+  const { t } = useTranslation();
   const { isNative, purchase, restore } = useIAP(appUser?.email);
 
   const isCampusExpired = isAccessExpired && (profile?.access_type === 'campus_access' || profile?.access_type === 'campus_reward' || profile?.access_type === 'expired');
@@ -78,17 +77,17 @@ export default function Paywall() {
       const result = await purchase(selectedPlan);
       if (result.cancelled) { setLoading(false); return; }
       if (!result.success) {
-        setPurchaseError(result.error || 'Purchase failed');
+        setPurchaseError(result.error || t("something_went_wrong"));
         setLoading(false);
         return;
       }
       // Verify server-side and grant premium
       try {
         await base44.functions.invoke('grantRevenueCatPremium', { planType: selectedPlan });
-        toast.success(isEs ? '¡Premium activado!' : 'Premium activated!');
+        toast.success(t("premium_activated"));
         window.location.href = createPageUrl('Home');
       } catch (err) {
-        setPurchaseError(err?.message || 'Verification failed');
+        setPurchaseError(err?.message || t("something_went_wrong"));
       }
       setLoading(false);
       return;
@@ -110,7 +109,7 @@ export default function Paywall() {
 
   const handleRestore = async () => {
     if (!isNative) {
-      toast.info(isEs ? "Contacta con soporte para restaurar tu compra." : "Contact support to restore your purchase.");
+      toast.info(t("contact_support_restore"));
       return;
     }
     setLoading(true);
@@ -118,13 +117,13 @@ export default function Paywall() {
     if (result.success) {
       try {
         await base44.functions.invoke('grantRevenueCatPremium', { planType: 'restored' });
-        toast.success(isEs ? '¡Compra restaurada!' : 'Purchase restored!');
+        toast.success(t("purchase_restored"));
         window.location.href = createPageUrl('Home');
       } catch {
-        toast.error(isEs ? 'No se encontró ninguna compra activa.' : 'No active purchase found.');
+        toast.error(t("no_active_purchase"));
       }
     } else {
-      toast.error(result.error || 'Restore failed');
+      toast.error(result.error || t("restore_failed"));
     }
     setLoading(false);
   };
@@ -162,34 +161,18 @@ export default function Paywall() {
 
           {isCampusExpired ? (
             <>
-              <h1 className="text-3xl font-black text-white mb-2">
-                {isEs ? 'Tu Campus Access ha terminado' : 'Campus Access Ended'}
-              </h1>
-              <p className="text-white/60 text-base">
-                {isEs
-                  ? 'Suscríbete para seguir con tu progreso.'
-                  : 'Subscribe to continue your progress.'}
-              </p>
+              <h1 className="text-3xl font-black text-white mb-2">{t("campus_access_ended")}</h1>
+              <p className="text-white/60 text-base">{t("subscribe_continue_progress")}</p>
             </>
           ) : isTrialExpired ? (
             <>
-              <h1 className="text-3xl font-black text-white mb-2">
-                {isEs ? 'Tu Trial ha terminado' : 'Your Trial Has Ended'}
-              </h1>
-              <p className="text-white/60 text-base">
-                {isEs
-                  ? 'Suscríbete para seguir usando Balancen sin interrupciones.'
-                  : 'Subscribe to keep using Balancen without interruption.'}
-              </p>
+              <h1 className="text-3xl font-black text-white mb-2">{t("your_trial_ended")}</h1>
+              <p className="text-white/60 text-base">{t("subscribe_no_interruption")}</p>
             </>
           ) : (
             <>
-              <h1 className="text-3xl font-black text-white mb-2">
-                {isEs ? 'Hazte Premium' : 'Go Premium'}
-              </h1>
-              <p className="text-white/60 text-base">
-                {isEs ? 'Acceso completo, sin límites.' : 'Full access, no limits.'}
-              </p>
+              <h1 className="text-3xl font-black text-white mb-2">{t("go_premium")}</h1>
+              <p className="text-white/60 text-base">{t("full_access_no_limits")}</p>
             </>
           )}
         </motion.div>
@@ -209,20 +192,16 @@ export default function Paywall() {
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <Trophy size={16} className={userStats.consistencyPercent >= 80 ? 'text-emerald-400' : 'text-amber-400'} />
                   <span className={`text-sm font-bold ${userStats.consistencyPercent >= 80 ? 'text-emerald-300' : 'text-amber-300'}`}>
-                    {isEs ? 'Consistencia del Campus' : 'Campus Consistency'}
+                    {t("campus_consistency")}
                   </span>
                 </div>
                 <p className={`text-4xl font-black ${userStats.consistencyPercent >= 80 ? 'text-emerald-300' : 'text-amber-300'}`}>
                   {userStats.consistencyPercent}%
                 </p>
                 {userStats.consistencyPercent >= 80 ? (
-                  <p className="text-emerald-400/80 text-xs mt-1">
-                    {isEs ? '¡Excelente trabajo! Mereces seguir.' : 'Great work! Keep the momentum going.'}
-                  </p>
+                  <p className="text-emerald-400/80 text-xs mt-1">{t("great_work_keep_going")}</p>
                 ) : (
-                  <p className="text-amber-400/80 text-xs mt-1">
-                    {isEs ? 'Suscríbete para seguir mejorando tu consistencia.' : 'Subscribe to keep improving your consistency.'}
-                  </p>
+                  <p className="text-amber-400/80 text-xs mt-1">{t("subscribe_improve_consistency")}</p>
                 )}
               </div>
             )}
@@ -232,21 +211,21 @@ export default function Paywall() {
                   <Calendar size={16} className="text-teal-400" />
                 </div>
                 <p className="text-2xl font-black text-white">{userStats.daysTracked}</p>
-                <p className="text-white/50 text-xs">{isEs ? 'días rastreados' : 'days tracked'}</p>
+                <p className="text-white/50 text-xs">{t("days_tracked")}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-1">
                   <Utensils size={16} className="text-emerald-400" />
                 </div>
                 <p className="text-2xl font-black text-white">{userStats.mealsLogged}</p>
-                <p className="text-white/50 text-xs">{isEs ? 'comidas registradas' : 'meals logged'}</p>
+                <p className="text-white/50 text-xs">{t("meals_logged_stat")}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-1">
                   <Flame size={16} className="text-orange-400" />
                 </div>
                 <p className="text-2xl font-black text-white">{userStats.streak}</p>
-                <p className="text-white/50 text-xs">{isEs ? 'racha' : 'streak'}</p>
+                <p className="text-white/50 text-xs">{t("streak_label")}</p>
               </div>
             </div>
           </motion.div>
@@ -263,21 +242,21 @@ export default function Paywall() {
                 <Calendar size={16} className="text-teal-400" />
               </div>
               <p className="text-2xl font-black text-white">{userStats.daysTracked}</p>
-              <p className="text-white/50 text-xs">{isEs ? 'días rastreados' : 'days tracked'}</p>
+              <p className="text-white/50 text-xs">{t("days_tracked")}</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center mb-1">
                 <Utensils size={16} className="text-emerald-400" />
               </div>
               <p className="text-2xl font-black text-white">{userStats.mealsLogged}</p>
-              <p className="text-white/50 text-xs">{isEs ? 'comidas registradas' : 'meals logged'}</p>
+              <p className="text-white/50 text-xs">{t("meals_logged_stat")}</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center mb-1">
                 <Flame size={16} className="text-orange-400" />
               </div>
               <p className="text-2xl font-black text-white">{userStats.streak}</p>
-              <p className="text-white/50 text-xs">{isEs ? 'racha actual' : 'current streak'}</p>
+              <p className="text-white/50 text-xs">{t("current_streak_label")}</p>
             </div>
           </motion.div>
         )}
@@ -295,14 +274,14 @@ export default function Paywall() {
               }`}
             >
               <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">
-                {isEs ? 'Mejor valor' : 'Best Value'}
+                {t("best_value_label")}
               </div>
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
-                <span className="text-white/50 text-sm">/ {isEs ? 'año' : 'year'}</span>
+                <span className="text-white/50 text-sm">/ {t("year_label")}</span>
               </div>
               <p className="text-teal-300 text-sm font-semibold">
-                {pricing.currency}{yearlyMonthly} / {isEs ? 'mes' : 'month'} — {isEs ? 'Ahorra un 40%' : 'Save 40%'}
+                {pricing.currency}{yearlyMonthly} / {t("month_label")} — {t("save_40")}
               </p>
             </button>
 
@@ -317,7 +296,7 @@ export default function Paywall() {
             >
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-black text-white">{pricing.currency}{pricing.prices.monthly}</span>
-                <span className="text-white/50 text-sm">/ {isEs ? 'mes' : 'month'}</span>
+                <span className="text-white/50 text-sm">/ {t("month_label")}</span>
               </div>
             </button>
           </motion.div>
@@ -328,24 +307,17 @@ export default function Paywall() {
           className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 space-y-2.5"
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
         >
-          {(isEs ? [
-            'Análisis de comidas con IA ilimitado',
-            'Seguimiento avanzado de progreso',
-            'Grupos y leaderboard social',
-            'Recomendaciones personalizadas de IA',
-            'Racha y métricas de consistencia',
-            'Exportación de historial completo',
-          ] : [
-            'Unlimited AI-powered meal analysis',
-            'Advanced progress tracking',
-            'Groups & social leaderboard',
-            'Personalized AI recommendations',
-            'Streak & consistency metrics',
-            'Full history export & backup',
-          ]).map((f, i) => (
+          {[
+            "feature_unlimited_ai",
+            "feature_advanced_progress",
+            "feature_groups_social",
+            "feature_ai_recommendations",
+            "feature_streak_metrics",
+            "feature_history_export",
+          ].map((key, i) => (
             <div key={i} className="flex items-center gap-2.5">
               <Check size={15} className="text-teal-400 flex-shrink-0" />
-              <span className="text-white/80 text-sm">{f}</span>
+              <span className="text-white/80 text-sm">{t(key)}</span>
             </div>
           ))}
         </motion.div>
@@ -365,21 +337,21 @@ export default function Paywall() {
             className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-black text-lg shadow-2xl shadow-teal-500/40 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
             {loading ? (
-              <><Loader2 size={20} className="animate-spin" /> {isEs ? 'Procesando…' : 'Processing…'}</>
+              <><Loader2 size={20} className="animate-spin" /> {t("processing_ellipsis")}</>
             ) : (
-              <><Sparkles size={20} /> {isEs ? 'Desbloquear Premium' : 'Unlock Premium'}</>
+              <><Sparkles size={20} /> {t("unlock_premium")}</>
             )}
           </button>
 
           <p className="text-center text-xs text-white/40">
-            {isEs ? 'Cancela en cualquier momento' : 'Cancel anytime'}
+            {t("cancel_anytime_short")}
           </p>
 
           <button
             onClick={handleRestore}
             className="w-full py-3 text-white/40 text-sm hover:text-white/70 transition-colors"
           >
-            {isEs ? 'Restaurar compra' : 'Restore Purchase'}
+            {t("restore_purchase")}
           </button>
 
           <button
@@ -387,7 +359,7 @@ export default function Paywall() {
             className="w-full py-3 text-white/30 text-xs hover:text-white/60 transition-colors flex items-center justify-center gap-2"
           >
             <LogOut size={13} />
-            {isEs ? 'Cerrar sesión' : 'Log out'}
+            {t("log_out")}
           </button>
 
           <button
@@ -395,7 +367,7 @@ export default function Paywall() {
             className="w-full py-2 text-white/20 text-xs hover:text-white/50 transition-colors flex items-center justify-center gap-1.5"
           >
             <RefreshCw size={11} />
-            {isEs ? 'Restablecer sesión' : 'Reset Session'}
+            {t("reset_session")}
           </button>
         </motion.div>
       </div>

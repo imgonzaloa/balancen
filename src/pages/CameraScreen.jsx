@@ -435,7 +435,7 @@ export default function CameraScreen() {
             <div className="absolute -top-12 left-0 right-0 text-center">
               <p className="text-white text-sm font-medium bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full inline-block">
                 {isProfilePhotoMode
-                  ? (t("center_face_hint") || "Center your face and take a photo.")
+                  ? t("center_face_hint")
                   : t("point_camera_at_food")}
               </p>
             </div>
@@ -453,7 +453,7 @@ export default function CameraScreen() {
             {liveAnalyzing && !livePreview ? (
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-teal-400 animate-pulse" />
-                <span className="text-white/70 text-xs font-semibold">Analyzing…</span>
+                <span className="text-white/70 text-xs font-semibold">{t("analyzing_ellipsis")}</span>
               </div>
             ) : livePreview ? (
               <div className="flex items-center justify-between gap-4">
@@ -485,7 +485,7 @@ export default function CameraScreen() {
           style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
         >
           <div className="bg-black/60 backdrop-blur-md rounded-2xl px-5 py-2 border border-white/10">
-            <span className="text-white text-sm font-semibold">{t("profile_photo") || "Profile photo"}</span>
+            <span className="text-white text-sm font-semibold">{t("profile_photo")}</span>
           </div>
         </div>
       )}
@@ -594,7 +594,7 @@ export default function CameraScreen() {
               <div style={{ textAlign: 'center', color: '#fff' }}>
                 <div style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid rgba(255,255,255,0.3)', borderTopColor: '#10b981', animation: 'spin 1s linear infinite', margin: '0 auto 12px' }} />
                 <p style={{ fontSize: 14, fontWeight: 500 }}>
-                  {isProfilePhotoMode ? (t("saving") || "Saving…") : (t("analyzing") || "Analyzing…")}
+                  {isProfilePhotoMode ? t("saving_ellipsis") : t("analyzing_ellipsis")}
                 </p>
               </div>
             )}
@@ -605,7 +605,7 @@ export default function CameraScreen() {
       {/* Hard fallback: nothing captured but also no camera — should never be fully blank */}
       {!capturedPreview && !videoReady && !cameraError && !isCapturing && (
         <div style={{ position: 'absolute', inset: 0, zIndex: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
-          Initializing camera…
+          {t("initializing_camera_ellipsis")}
         </div>
       )}
 
@@ -658,7 +658,7 @@ export default function CameraScreen() {
               </button>
             </div>
             <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
-              🔜 Barcode scanning is coming soon. Use <strong style={{ color: '#fff' }}>Photo</strong> or <strong style={{ color: '#fff' }}>Gallery</strong> to log your meal for now.
+              {t("barcode_coming_soon")}
             </p>
             <button
               onClick={() => setShowBarcodeModal(false)}
@@ -673,7 +673,7 @@ export default function CameraScreen() {
                 pointerEvents: 'auto', touchAction: 'manipulation',
               }}
             >
-              {t("ok") || "Got it"}
+              {t("ok")}
             </button>
           </div>
         </>,

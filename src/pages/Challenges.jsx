@@ -9,12 +9,13 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
+import { useTranslation } from "@/components/TranslationProvider";
 
-const PRESET_CHALLENGES = [
+const PRESET_CHALLENGES_CONFIG = [
   {
     preset_id: "hydration_7",
-    name: "7-Day Hydration Challenge",
-    description: "Drink 8 glasses of water every day for 7 days straight.",
+    nameKey: "challenge_hydration_name",
+    descKey: "challenge_hydration_desc",
     type: "consistency",
     goal: 7,
     icon: Droplets,
@@ -24,8 +25,8 @@ const PRESET_CHALLENGES = [
   },
   {
     preset_id: "streak_30",
-    name: "30-Day Fitness Streak",
-    description: "Check in and log movement every single day for 30 days.",
+    nameKey: "challenge_streak_name",
+    descKey: "challenge_streak_desc",
     type: "streak",
     goal: 30,
     icon: Flame,
@@ -35,8 +36,8 @@ const PRESET_CHALLENGES = [
   },
   {
     preset_id: "meals_21",
-    name: "21-Day Clean Eating",
-    description: "Log every meal for 21 days in a row. Awareness is the first step.",
+    nameKey: "challenge_meals_name",
+    descKey: "challenge_meals_desc",
     type: "checkins",
     goal: 21,
     icon: CheckSquare,
@@ -46,8 +47,8 @@ const PRESET_CHALLENGES = [
   },
   {
     preset_id: "workout_10",
-    name: "10-Workout Sprint",
-    description: "Complete 10 workouts in under 14 days. Quality over quantity.",
+    nameKey: "challenge_workout_name",
+    descKey: "challenge_workout_desc",
     type: "steps",
     goal: 10,
     icon: Dumbbell,
@@ -57,8 +58,8 @@ const PRESET_CHALLENGES = [
   },
   {
     preset_id: "consistency_14",
-    name: "2-Week Consistency",
-    description: "Build a solid 14-day streak — log at least one meal each day.",
+    nameKey: "challenge_consistency_name",
+    descKey: "challenge_consistency_desc",
     type: "consistency",
     goal: 14,
     icon: Target,
@@ -69,8 +70,11 @@ const PRESET_CHALLENGES = [
 ];
 
 function PresetChallengeCard({ preset, onJoin, isJoining, myParticipations }) {
+  const { t } = useTranslation();
   const Icon = preset.icon;
-  const alreadyJoined = myParticipations.some(p => p.challenge_name === preset.name);
+  const name = t(preset.nameKey);
+  const description = t(preset.descKey);
+  const alreadyJoined = myParticipations.some(p => p.challenge_name === name);
   const daysLeft = preset.duration_days;
 
   return (
@@ -86,12 +90,12 @@ function PresetChallengeCard({ preset, onJoin, isJoining, myParticipations }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-white font-bold text-sm">{preset.name}</h3>
+            <h3 className="text-white font-bold text-sm">{name}</h3>
             <span className="text-lg">{preset.badge}</span>
           </div>
-          <p className="text-white/60 text-xs mt-1 leading-relaxed">{preset.description}</p>
+          <p className="text-white/60 text-xs mt-1 leading-relaxed">{description}</p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-white/40 text-xs">{daysLeft} days</span>
+            <span className="text-white/40 text-xs">{daysLeft} {t("days_label")}</span>
             <span className="text-white/40 text-xs">•</span>
             <span className="text-white/40 text-xs capitalize">{preset.type}</span>
           </div>
@@ -109,9 +113,9 @@ function PresetChallengeCard({ preset, onJoin, isJoining, myParticipations }) {
         {isJoining ? (
           <Loader2 size={16} className="animate-spin mr-2" />
         ) : alreadyJoined ? (
-          <><Trophy size={16} className="mr-2" /> Joined</>
+          <><Trophy size={16} className="mr-2" /> {t("joined")}</>
         ) : (
-          <><Plus size={16} className="mr-2" /> Join Challenge</>
+          <><Plus size={16} className="mr-2" /> {t("join_challenge")}</>
         )}
       </Button>
     </motion.div>
@@ -119,6 +123,7 @@ function PresetChallengeCard({ preset, onJoin, isJoining, myParticipations }) {
 }
 
 function ActiveChallengeCard({ participation, challenge }) {
+  const { t } = useTranslation();
   if (!challenge) return null;
   const progress = Math.min((participation.current_progress / challenge.goal) * 100, 100);
   const daysLeft = challenge.end_date
@@ -130,7 +135,7 @@ function ActiveChallengeCard({ participation, challenge }) {
       <div className="flex items-center justify-between mb-2">
         <p className="text-white font-semibold text-sm">{challenge.name}</p>
         {participation.completed && (
-          <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">✓ Done</span>
+          <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">✓ {t("joined")}</span>
         )}
       </div>
       <div className="flex items-center gap-3 mb-3">
@@ -145,7 +150,7 @@ function ActiveChallengeCard({ participation, challenge }) {
         </span>
       </div>
       {daysLeft !== null && (
-        <p className="text-white/40 text-xs">{daysLeft} days remaining</p>
+        <p className="text-white/40 text-xs">{daysLeft} {t("days_remaining")}</p>
       )}
     </div>
   );
@@ -155,6 +160,7 @@ export default function Challenges() {
   const navigate = useNavigate();
   const { user, profile } = useAppState();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [joiningId, setJoiningId] = useState(null);
   const { isEntitled } = useEntitlement(profile);
 
@@ -187,8 +193,8 @@ export default function Challenges() {
 
       // Create challenge record
       const challenge = await base44.entities.Challenge.create({
-        name: preset.name,
-        description: preset.description,
+        name: t(preset.nameKey),
+        description: t(preset.descKey),
         type: preset.type,
         goal: preset.goal,
         start_date: start.toISOString().split("T")[0],
@@ -209,11 +215,11 @@ export default function Challenges() {
     onSuccess: (_, preset) => {
       queryClient.invalidateQueries({ queryKey: ["myParticipations"] });
       queryClient.invalidateQueries({ queryKey: ["myChallenges"] });
-      toast.success(`Joined "${preset.name}"! 🎉`);
+      toast.success(t("join_challenge_success"));
       setJoiningId(null);
     },
     onError: () => {
-      toast.error("Failed to join challenge. Try again.");
+      toast.error(t("join_challenge_failed"));
       setJoiningId(null);
     },
   });
@@ -238,12 +244,12 @@ export default function Challenges() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mx-auto mb-4">
             <Lock size={32} className="text-white" />
           </div>
-          <h2 className="text-white font-bold text-xl mb-2">Premium Feature</h2>
-          <p className="text-white/60 text-sm mb-6">Challenges are available with your Premium subscription.</p>
+          <h2 className="text-white font-bold text-xl mb-2">{t("premium_feature_title")}</h2>
+          <p className="text-white/60 text-sm mb-6">{t("challenges_premium_desc")}</p>
           <Button
             onClick={() => navigate(createPageUrl("Premium"))}
             className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold"
-          >Upgrade to Premium</Button>
+          >{t("upgrade_to_premium")}</Button>
         </div>
       </div>
     );
@@ -263,9 +269,9 @@ export default function Challenges() {
           <div>
             <h1 className="text-2xl font-black text-white flex items-center gap-2">
               <Trophy size={24} className="text-amber-400" />
-              Challenges
+              {t("challenges_title")}
             </h1>
-            <p className="text-white/60 text-sm">Push yourself. Track progress.</p>
+            <p className="text-white/60 text-sm">{t("challenges_subtitle")}</p>
           </div>
         </div>
 
@@ -274,7 +280,7 @@ export default function Challenges() {
           <div>
             <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
               <Flame size={18} className="text-orange-400" />
-              My Active Challenges ({activeChallenges.length})
+              {t("my_active_challenges")} ({activeChallenges.length})
             </h2>
             <div className="space-y-3">
               {activeChallenges.map(p => (
@@ -292,10 +298,10 @@ export default function Challenges() {
         <div>
           <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
             <Target size={18} className="text-teal-400" />
-            Featured Challenges
+            {t("featured_challenges")}
           </h2>
           <div className="space-y-3">
-            {PRESET_CHALLENGES.map(preset => (
+            {PRESET_CHALLENGES_CONFIG.map(preset => (
               <PresetChallengeCard
                 key={preset.preset_id}
                 preset={preset}
@@ -317,8 +323,8 @@ export default function Challenges() {
               <Users size={20} className="text-white" />
             </div>
             <div className="text-left">
-              <p className="text-white font-bold text-sm">Group Challenges</p>
-              <p className="text-white/50 text-xs">Compete with friends in a group</p>
+              <p className="text-white font-bold text-sm">{t("group_challenges")}</p>
+              <p className="text-white/50 text-xs">{t("group_challenges_desc")}</p>
             </div>
           </div>
           <ChevronRight size={20} className="text-white/40" />
