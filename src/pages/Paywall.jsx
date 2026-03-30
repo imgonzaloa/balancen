@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useAppState } from "@/components/AppStateContext";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
+import { useIAP } from "@/components/hooks/useIAP";
 
 function hardReset() {
   try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
@@ -29,18 +30,25 @@ export default function Paywall() {
   const { isTrialExpired, trialDaysLeft, isPremium, isEntitled, isCampusAccess, isCampusReward, isAccessExpired, accessDaysLeft, campus_consistency_percent } = useEntitlement(profile);
   const { t, lang } = useTranslation();
   const isEs = lang === 'es';
+  const { isNative, purchase, restore } = useIAP(appUser?.email);
 
   const isCampusExpired = isAccessExpired && (profile?.access_type === 'campus_access' || profile?.access_type === 'campus_reward' || profile?.access_type === 'expired');
   const showCampusStats = isCampusExpired || isCampusAccess || isCampusReward;
 
   useEffect(() => {
-    base44.functions.invoke('getStripePublishableKey', {})
-      .then(res => setPricing(res.data))
-      .catch(() => setPricing({
-        region: 'EUR', currency: '€',
-        prices: { monthly: 6.99, yearly: 49.99 },
-        priceIds: { monthly: null, yearly: null }
-      }));
+    // Only load Stripe pricing on web
+    if (!isNative) {
+      base44.functions.invoke('getStripePublishableKey', {})
+        .then(res => setPricing(res.data))
+        .catch(() => setPricing({
+          region: 'EUR', currency: '€',
+          prices: { monthly: 6.99, yearly: 49.99 },
+          priceIds: { monthly: null, yearly: null }
+        }));
+    } else {
+      // On native, show fallback prices (RevenueCat will use store prices)
+      setPricing({ region: 'EUR', currency: '€', prices: { monthly: 6.99, yearly: 49.99 }, priceIds: {} });
+    }
 
     if (appUser?.email) {
       Promise.all([
@@ -57,20 +65,40 @@ export default function Paywall() {
         setUserStats({ mealsLogged: 0, daysTracked: 0, streak: 0, consistencyPercent: null });
       });
     }
-  }, [appUser?.email, profile?.current_streak, profile?.campus_consistency_percent]);
+  }, [appUser?.email, profile?.current_streak, profile?.campus_consistency_percent, isNative]);
 
   const handleContinue = async () => {
     if (!appUser) { toast.error(t("please_login_continue")); return; }
-    if (!pricing) { toast.error(t("payment_not_configured")); return; }
 
     setLoading(true);
     setPurchaseError(null);
+
+    // ── Native iOS/Android: RevenueCat IAP ──
+    if (isNative) {
+      const result = await purchase(selectedPlan);
+      if (result.cancelled) { setLoading(false); return; }
+      if (!result.success) {
+        setPurchaseError(result.error || 'Purchase failed');
+        setLoading(false);
+        return;
+      }
+      // Verify server-side and grant premium
+      try {
+        await base44.functions.invoke('grantRevenueCatPremium', { planType: selectedPlan });
+        toast.success(isEs ? '¡Premium activado!' : 'Premium activated!');
+        window.location.href = createPageUrl('Home');
+      } catch (err) {
+        setPurchaseError(err?.message || 'Verification failed');
+      }
+      setLoading(false);
+      return;
+    }
+
+    // ── Web/PWA: Stripe Checkout ──
+    if (!pricing) { toast.error(t("payment_not_configured")); setLoading(false); return; }
     try {
       const priceId = pricing.priceIds[selectedPlan];
-      const response = await base44.functions.invoke('createCheckoutSession', {
-        priceId,
-        planType: selectedPlan,
-      });
+      const response = await base44.functions.invoke('createCheckoutSession', { priceId, planType: selectedPlan });
       if (!response?.data?.url) throw new Error('No checkout URL returned from server');
       window.location.href = response.data.url;
     } catch (error) {
@@ -78,6 +106,27 @@ export default function Paywall() {
       setPurchaseError(msg);
       setLoading(false);
     }
+  };
+
+  const handleRestore = async () => {
+    if (!isNative) {
+      toast.info(isEs ? "Contacta con soporte para restaurar tu compra." : "Contact support to restore your purchase.");
+      return;
+    }
+    setLoading(true);
+    const result = await restore();
+    if (result.success) {
+      try {
+        await base44.functions.invoke('grantRevenueCatPremium', { planType: 'restored' });
+        toast.success(isEs ? '¡Compra restaurada!' : 'Purchase restored!');
+        window.location.href = createPageUrl('Home');
+      } catch {
+        toast.error(isEs ? 'No se encontró ninguna compra activa.' : 'No active purchase found.');
+      }
+    } else {
+      toast.error(result.error || 'Restore failed');
+    }
+    setLoading(false);
   };
 
   const handleClose = () => { window.location.href = createPageUrl('Home'); };
@@ -327,7 +376,7 @@ export default function Paywall() {
           </p>
 
           <button
-            onClick={() => toast.info(isEs ? "Contacta con soporte para restaurar tu compra." : "Contact support to restore your purchase.")}
+            onClick={handleRestore}
             className="w-full py-3 text-white/40 text-sm hover:text-white/70 transition-colors"
           >
             {isEs ? 'Restaurar compra' : 'Restore Purchase'}

@@ -7,6 +7,7 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/components/TranslationProvider";
 import { toast } from "sonner";
+import { useIAP } from "@/components/hooks/useIAP";
 
 const featuresData = [
   { icon: Flame, key: "stories_24h" },
@@ -31,73 +32,66 @@ export default function Premium() {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [loading, setLoading] = useState(false);
   const [pricing, setPricing] = useState(null);
+  const { isNative, purchase, restore } = useIAP(user?.email);
 
   useEffect(() => {
-    console.log('Premium useEffect started');
     base44.auth.me().then(setUser);
 
-    // Load regional pricing automatically
-    base44.functions.invoke('getStripePublishableKey', {})
-      .then(response => {
-        console.log('getStripePublishableKey response:', response);
-        console.log('response.data:', response.data);
-        setPricing(response.data);
-      })
-      .catch(err => {
-        console.error('Failed to load pricing:', err);
-        toast.error(t('payment_system_unavailable'));
-      });
-  }, []);
+    if (!isNative) {
+      base44.functions.invoke('getStripePublishableKey', {})
+        .then(response => setPricing(response.data))
+        .catch(() => toast.error(t('payment_system_unavailable')));
+    } else {
+      // On native, use fallback display prices; actual price comes from the App Store
+      setPricing({ region: 'EUR', currency: '€', prices: { monthly: 6.99, yearly: 49.99 }, priceIds: {} });
+    }
+  }, [isNative]);
 
   const handleStartTrial = async () => {
-    if (!user) {
-      toast.error(t("please_login_continue"));
-      return;
-    }
+    if (!user) { toast.error(t("please_login_continue")); return; }
 
-    // Check if user is owner or collaborator (already has Premium)
+    // Already premium check
     try {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
       const profile = profiles[0];
-      
-      if (profile?.role === "owner" || profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite" || profile?.is_premium) {
+      if (profile?.role === "owner" || profile?.role === "collaborator" || profile?.is_premium) {
         toast.success(t('already_have_premium'));
         return;
       }
-    } catch (err) {
-      console.error("Failed to check profile:", err);
-    }
-
-    if (!pricing) {
-      toast.error(t("payment_not_configured"));
-      return;
-    }
+    } catch (_) {}
 
     setLoading(true);
 
-    try {
-      const priceId = pricing.priceIds[selectedPlan];
-      console.log('Premium page - pricing data:', pricing);
-      console.log('Premium page - selected plan:', selectedPlan);
-      console.log('Premium page - priceId:', priceId);
-
-      if (!priceId) {
-        console.error('Price ID is undefined');
-        toast.error(t("price_not_available"));
+    // ── Native iOS/Android: RevenueCat IAP ──
+    if (isNative) {
+      const result = await purchase(selectedPlan);
+      if (result.cancelled) { setLoading(false); return; }
+      if (!result.success) {
+        toast.error(result.error || t("checkout_failed"));
         setLoading(false);
         return;
       }
+      try {
+        await base44.functions.invoke('grantRevenueCatPremium', { planType: selectedPlan });
+        toast.success(lang === 'es' ? '¡Premium activado!' : 'Premium activated!');
+        window.location.href = createPageUrl('Home');
+      } catch (err) {
+        toast.error(err?.message || 'Verification failed');
+      }
+      setLoading(false);
+      return;
+    }
 
+    // ── Web/PWA: Stripe Checkout ──
+    if (!pricing) { toast.error(t("payment_not_configured")); setLoading(false); return; }
+    try {
+      const priceId = pricing.priceIds[selectedPlan];
+      if (!priceId) { toast.error(t("price_not_available")); setLoading(false); return; }
       const response = await base44.functions.invoke('createCheckoutSession', {
-            priceId,
-            planType: selectedPlan,
-            selectedPlan: selectedPlan,
-            region: pricing?.region || 'USD_US',
-          });
-
+        priceId, planType: selectedPlan, region: pricing?.region || 'USD_US',
+      });
       window.location.href = response.data.url;
     } catch (error) {
-      console.error('Checkout error:', error);
       toast.error(t("checkout_failed"));
       setLoading(false);
     }
