@@ -8,7 +8,7 @@
  */
 
 const LS_KEY = "balancen_language";
-const VALID = ["en", "es"];
+const VALID = ["en", "es", "pt"];
 
 /** Read the local fallback language (pre-auth). */
 export function getLocalLanguage() {
@@ -36,3 +36,5 @@ export function resolveLanguage(dbLang) {
   if (VALID.includes(dbLang)) return dbLang;
   return getLocalLanguage() || "en";
 }
+
+export { VALID as VALID_LANGUAGES };

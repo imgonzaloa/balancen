@@ -1,0 +1,266 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "display_name": {
+      "type": "string",
+      "description": "User's display name"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "user",
+        "collaborator",
+        "campus_admin"
+      ],
+      "default": "user",
+      "description": "User role - owner has admin access, collaborator has Premium access, campus_admin can manage campus groups"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "Profile picture URL"
+    },
+    "profile_photo": {
+      "type": "string",
+      "description": "Profile photo URL"
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "en",
+        "es",
+        "pt"
+      ],
+      "default": "es",
+      "description": "Preferred language"
+    },
+    "primary_goal": {
+      "type": "string",
+      "enum": [
+        "consistency",
+        "weight_loss",
+        "healthy_habits",
+        "stay_active"
+      ],
+      "description": "Primary focus goal"
+    },
+    "social_mode": {
+      "type": "string",
+      "enum": [
+        "just_me",
+        "with_friends",
+        "with_team"
+      ],
+      "description": "App usage mode"
+    },
+    "intensity_level": {
+      "type": "string",
+      "enum": [
+        "easy",
+        "normal",
+        "challenging"
+      ],
+      "description": "Preferred pace"
+    },
+    "current_streak": {
+      "type": "number",
+      "default": 0,
+      "description": "Current consecutive days"
+    },
+    "longest_streak": {
+      "type": "number",
+      "default": 0,
+      "description": "Best streak ever"
+    },
+    "total_checkins": {
+      "type": "number",
+      "default": 0,
+      "description": "Total check-ins completed"
+    },
+    "onboarding_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has completed onboarding"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Current weight in kg"
+    },
+    "height": {
+      "type": "number",
+      "description": "Height in cm"
+    },
+    "calories_goal": {
+      "type": "number",
+      "description": "User-configurable daily calories goal"
+    },
+    "auto_adjust_calories_goal": {
+      "type": "boolean",
+      "default": false,
+      "description": "Auto-adjust calories goal when achieved"
+    },
+    "starting_weight": {
+      "type": "number",
+      "description": "Starting weight for tracking progress"
+    },
+    "is_premium": {
+      "type": "boolean",
+      "default": false,
+      "description": "Premium subscription status"
+    },
+    "premium_source": {
+      "type": "string",
+      "enum": [
+        "subscription",
+        "collaborator_invite",
+        "owner"
+      ],
+      "description": "How premium was granted"
+    },
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "trial",
+        "expired_trial",
+        "active",
+        "past_due",
+        "canceled",
+        "unpaid",
+        "canceling"
+      ],
+      "description": "Current subscription/trial status"
+    },
+    "premium_status": {
+      "type": "string",
+      "enum": [
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+        "unpaid",
+        "canceling"
+      ],
+      "description": "Stripe subscription status (legacy)"
+    },
+    "premium_expires": {
+      "type": "string",
+      "format": "date",
+      "description": "Premium expiration date"
+    },
+    "trial_start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Trial start date (7-day access)"
+    },
+    "trial_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Trial end date (start + 7 days)"
+    },
+    "access_type": {
+      "type": "string",
+      "enum": [
+        "campus_access",
+        "campus_reward",
+        "premium_active",
+        "expired"
+      ],
+      "description": "Current access type for entitlement logic"
+    },
+    "access_start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When current access period started"
+    },
+    "access_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When current access period ends"
+    },
+    "campus_group_id": {
+      "type": "string",
+      "description": "The campus group that granted access"
+    },
+    "campus_consistency_percent": {
+      "type": "number",
+      "description": "Consistency % at end of campus access period"
+    },
+    "stripe_customer_id": {
+      "type": "string",
+      "description": "Stripe customer ID"
+    },
+    "stripe_subscription_id": {
+      "type": "string",
+      "description": "Stripe subscription ID"
+    },
+    "ai_recommendations_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "AI recommendations enabled"
+    },
+    "badges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Earned badge IDs"
+    },
+    "ui_version": {
+      "type": "string",
+      "default": "v1.0",
+      "description": "UI version for migration tracking"
+    },
+    "fire_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Total fire count (streak + rewards)"
+    },
+    "status_text": {
+      "type": "string",
+      "description": "User status text (max 32 chars, expires after 24h)"
+    },
+    "status_message": {
+      "type": "string",
+      "description": "Home screen status message shown under greeting (max 60 chars)"
+    },
+    "status_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last status update timestamp"
+    },
+    "share_meals": {
+      "type": "string",
+      "enum": [
+        "private",
+        "friends",
+        "groups"
+      ],
+      "default": "private",
+      "description": "Meal sharing privacy"
+    },
+    "share_macros": {
+      "type": "boolean",
+      "default": false,
+      "description": "Share macro details"
+    },
+    "share_calories": {
+      "type": "boolean",
+      "default": false,
+      "description": "Share calorie details"
+    },
+    "daily_reminders_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Daily reminder notifications enabled"
+    },
+    "daily_reminders_time": {
+      "type": "string",
+      "default": "09:00",
+      "description": "Time for daily reminders (HH:MM format)"
+    }
+  },
+  "required": [
+    "display_name"
+  ]
+}

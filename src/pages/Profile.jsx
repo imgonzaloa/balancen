@@ -487,32 +487,41 @@ export default function Profile() {
           </div>
         </button>
 
-        {/* Language Toggle */}
+        {/* Language Section */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                <Globe size={20} className="text-teal-300" />
-              </div>
-              <div>
-                <p className="font-semibold text-white">{t('language')}</p>
-                <p className="text-xs text-white/50">{lang === 'es' ? 'Español' : 'English'}</p>
-              </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+              <Globe size={20} className="text-teal-300" />
             </div>
-            <div className="flex gap-2">
+            <p className="font-semibold text-white">{t('language')}</p>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { code: 'es', flag: '🇪🇸', label: 'Español' },
+              { code: 'en', flag: '🇺🇸', label: 'English' },
+              { code: 'pt', flag: '🇧🇷', label: 'Português' },
+            ].map(({ code, flag, label }) => (
               <button
-                onClick={() => changeLanguage('en')}
-                className={`px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${lang === 'en' ? 'bg-teal-500 text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+                key={code}
+                onClick={async () => {
+                  if (lang === code) return;
+                  await changeLanguage(code);
+                  const msgs = { en: 'Language updated', es: 'Idioma actualizado', pt: 'Idioma atualizado' };
+                  toast.success(msgs[code] || 'Language updated');
+                }}
+                className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border transition-all ${
+                  lang === code
+                    ? 'bg-teal-500/20 border-teal-400/60 text-white'
+                    : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:border-white/20'
+                }`}
               >
-                EN
+                <span className="text-2xl">{flag}</span>
+                <span className="text-xs font-semibold leading-tight text-center">{label}</span>
+                {lang === code && (
+                  <div className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                )}
               </button>
-              <button
-                onClick={() => changeLanguage('es')}
-                className={`px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${lang === 'es' ? 'bg-teal-500 text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
-              >
-                ES
-              </button>
-            </div>
+            ))}
           </div>
         </div>
 

@@ -16,7 +16,7 @@ export function useTranslation() {
    * Components must always call this instead of writing to localStorage directly.
    */
   const changeLanguage = async (newLang) => {
-    if (newLang !== "en" && newLang !== "es") return;
+    if (!["en", "es", "pt"].includes(newLang)) return;
     // 1. Apply to i18n runtime
     await i18n.changeLanguage(newLang);
     // 2. Persist to single local key (clears legacy keys)
@@ -27,6 +27,7 @@ export function useTranslation() {
       if (user?.email) {
         const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
         if (profiles?.[0]?.id) {
+          // Only save valid DB enum values (en, es) — pt maps to pt but DB accepts it via schema
           await base44.entities.UserProfile.update(profiles[0].id, { language: newLang });
         }
       }
