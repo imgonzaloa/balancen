@@ -67,8 +67,8 @@ export default function Feed() {
       // Fetch recent public posts
       const allPosts = await base44.entities.Post.filter({}, '-created_date', 50);
 
-      // Fetch featured/athlete profiles to tag their posts
-      const featuredProfiles = await base44.entities.UserProfile.filter({ role: 'athlete' }).catch(() => []);
+      // Fetch featured athlete profiles to tag their posts
+      const featuredProfiles = await base44.entities.UserProfile.filter({ is_featured: true }).catch(() => []);
       const featuredEmails = new Set(featuredProfiles.map(p => p.created_by));
 
       const publicPosts = allPosts

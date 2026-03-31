@@ -109,6 +109,11 @@
       "default": false,
       "description": "Premium subscription status"
     },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Featured athlete \u2014 posts appear in the Discovery feed for all users"
+    },
     "premium_source": {
       "type": "string",
       "enum": [

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Crown, Users, Search, CheckCircle, XCircle } from "lucide-react";
+import { ChevronLeft, Crown, Users, Search, CheckCircle, XCircle, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -76,6 +76,16 @@ export default function UserManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries(["allProfiles"]);
       toast.success(t('premium_status_updated'));
+    },
+  });
+
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: async ({ profileId, newStatus }) => {
+      return base44.entities.UserProfile.update(profileId, { is_featured: newStatus });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["allProfiles"]);
+      toast.success("Featured status updated");
     },
   });
 
@@ -192,26 +202,38 @@ export default function UserManagement() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between bg-white/5 rounded-xl p-3">
-                  <div className="flex items-center gap-2">
-                    {userProfile.is_premium ? (
-                      <CheckCircle size={16} className="text-emerald-400" />
-                    ) : (
-                      <XCircle size={16} className="text-white/40" />
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between bg-white/5 rounded-xl p-3">
+                    <div className="flex items-center gap-2">
+                      {userProfile.is_premium ? (
+                        <CheckCircle size={16} className="text-emerald-400" />
+                      ) : (
+                        <XCircle size={16} className="text-white/40" />
+                      )}
+                      <span className="text-white text-sm">{t('premium_access')}</span>
+                    </div>
+                    {!isOwner && (
+                      <Switch
+                        checked={!!userProfile.is_premium}
+                        onCheckedChange={(checked) =>
+                          togglePremiumMutation.mutate({ profileId: userProfile.id, newStatus: checked })
+                        }
+                      />
                     )}
-                    <span className="text-white text-sm">{t('premium_access')}</span>
                   </div>
-                  {!isOwner && (
+
+                  <div className="flex items-center justify-between bg-amber-500/10 border border-amber-400/20 rounded-xl p-3">
+                    <div className="flex items-center gap-2">
+                      <Star size={16} className={userProfile.is_featured ? "text-amber-400 fill-amber-400" : "text-white/40"} />
+                      <span className="text-white text-sm">Featured Athlete</span>
+                    </div>
                     <Switch
-                      checked={userProfile.is_premium}
-                      onCheckedChange={(checked) => 
-                        togglePremiumMutation.mutate({ 
-                          profileId: userProfile.id, 
-                          newStatus: checked 
-                        })
+                      checked={!!userProfile.is_featured}
+                      onCheckedChange={(checked) =>
+                        toggleFeaturedMutation.mutate({ profileId: userProfile.id, newStatus: checked })
                       }
                     />
-                  )}
+                  </div>
                 </div>
               </motion.div>
             );
