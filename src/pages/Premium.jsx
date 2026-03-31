@@ -173,24 +173,40 @@ export default function Premium() {
 
         {/* Always Free Section */}
         <motion.div
-          className="mb-8 rounded-2xl border border-teal-400/40 bg-teal-500/10 backdrop-blur-sm p-5"
+          className="mb-6 rounded-2xl border border-teal-500/30 bg-teal-500/10 backdrop-blur-sm p-5"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          <p className="text-teal-300 font-bold text-sm mb-3 flex items-center gap-2">
-            <CheckCircle2 size={16} className="text-teal-400" />
+          <p className="text-teal-300 font-bold text-sm mb-4 flex items-center gap-2">
+            <Heart size={16} className="text-teal-400" />
             Always free, forever
           </p>
-          <div className="grid grid-cols-2 gap-y-2 gap-x-3">
-            {["Social feed & posts", "Add friends & see their meals", "Streaks & daily missions", "Basic meal logging", "Challenges"].map((item) => (
-              <div key={item} className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-teal-400 flex-shrink-0" />
-                <span className="text-white/70 text-xs">{item}</span>
+          <div className="grid grid-cols-2 gap-y-2.5 gap-x-3">
+            {[
+              "Social feed & posts",
+              "Add & connect with friends",
+              "Streaks & daily missions",
+              "Basic meal logging",
+              "Challenges",
+              "5 AI scans/day",
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-2">
+                <Check size={13} className="text-teal-400 flex-shrink-0" />
+                <span className="text-white/80 text-sm">{item}</span>
               </div>
             ))}
           </div>
         </motion.div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-white/15" />
+          <span className="text-white/40 text-xs uppercase tracking-wider font-semibold whitespace-nowrap">
+            Unlock everything with Premium
+          </span>
+          <div className="flex-1 h-px bg-white/15" />
+        </div>
 
         {/* Features */}
         <motion.div
