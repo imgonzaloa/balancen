@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Settings, LogOut, Edit2, Target, Sparkles, X, User as UserIcon, Globe, Clock, GraduationCap } from "lucide-react";
+import { Camera, Settings, LogOut, Edit2, Target, Sparkles, X, User as UserIcon, Globe, Clock, GraduationCap, Share2, Crown } from "lucide-react";
 
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import GlobalHeader from "@/components/GlobalHeader";
@@ -317,9 +317,36 @@ export default function Profile() {
                   )}
                 </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">{profile?.display_name || user?.full_name}</h2>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-xl font-bold text-white">{profile?.display_name || user?.full_name}</h2>
+                  {profile?.is_featured && (
+                    <span className="flex items-center gap-1 bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 text-amber-300 text-xs font-bold">
+                      <Crown size={12} />
+                      Featured Athlete
+                    </span>
+                  )}
+                </div>
                 <p className="text-teal-200 text-sm">{user?.email}</p>
+                {profile?.display_name && (
+                  <button
+                    onClick={async () => {
+                      const streak = profile.current_streak || 0;
+                      const msg = lang === 'es'
+                        ? `¡Mira mi perfil en Balancen! 🍽️\n${profile.display_name} — ${streak} días de racha 🔥\nComemos mejor juntos. Únete gratis:\n${window.location.origin}`
+                        : `Check out my Balancen profile! 🍽️\n${profile.display_name} — ${streak} day streak 🔥\nLet's eat better together. Join free:\n${window.location.origin}`;
+                      if (navigator.share) {
+                        try { await navigator.share({ title: "Balancen", text: msg }); return; } catch { /* fallthrough */ }
+                      }
+                      await navigator.clipboard.writeText(msg).catch(() => {});
+                      toast.success("Profile link copied!");
+                    }}
+                    className="mt-2 flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white/70 text-sm font-semibold hover:bg-white/20 transition-colors"
+                  >
+                    <Share2 size={14} />
+                    {lang === 'es' ? 'Compartir perfil' : 'Share profile'}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -448,6 +475,42 @@ export default function Profile() {
                 <span className="font-semibold text-white">{profile.calories_goal} kcal</span>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Public Profile Toggle */}
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 mr-4">
+              <p className="text-white font-semibold text-sm">
+                {lang === 'es' ? 'Mostrar comidas en Discovery' : 'Show my meals in Discovery feed'}
+              </p>
+              <p className="text-white/50 text-xs mt-0.5">
+                {lang === 'es'
+                  ? 'Tus comidas aparecerán en el feed público'
+                  : 'Your logged meals will appear in the public Discovery feed'}
+              </p>
+            </div>
+            <button
+              onClick={async () => {
+                if (!profile?.id) return;
+                const next = profile.share_meals === 'public' ? 'private' : 'public';
+                await base44.entities.UserProfile.update(profile.id, { share_meals: next });
+                const updated = { ...profile, share_meals: next };
+                setProfile(updated);
+                if (setContextProfile) setContextProfile(updated);
+                toast.success(next === 'public'
+                  ? (lang === 'es' ? 'Tus comidas aparecen en Discovery 🌍' : 'Your meals now appear in the Discovery feed 🌍')
+                  : (lang === 'es' ? 'Tus comidas ahora son privadas' : 'Your meals are now private'));
+              }}
+              className={`relative w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${
+                profile?.share_meals === 'public' ? 'bg-teal-500' : 'bg-white/20'
+              }`}
+            >
+              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                profile?.share_meals === 'public' ? 'translate-x-6' : 'translate-x-0.5'
+              }`} />
+            </button>
           </div>
         </div>
 
