@@ -106,11 +106,19 @@ function LayoutInner({ children, currentPageName, bootState }) {
     console.log('ROOT MOUNT');
   }, []);
 
-  // Reset scroll on tab change
+  // Reset scroll on tab change with multiple attempts for reliability
   React.useEffect(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = 0;
-    }
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+    const t1 = setTimeout(() => { el.scrollTop = 0; }, 50);
+    const t2 = setTimeout(() => { el.scrollTop = 0; }, 150);
+    const t3 = setTimeout(() => { el.scrollTop = 0; }, 300);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, [currentPageName]);
 
   const { navigateToTab } = useTabNavigation();

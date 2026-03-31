@@ -84,10 +84,13 @@ export function useTabNavigation() {
       navigate(destination, { replace: false, state: { tabSwitch: true } });
     }
 
-    setTimeout(() => {
+    const resetScroll = () => {
       const el = document.querySelector('[data-scroll-container]');
       if (el) el.scrollTop = 0;
-    }, 50);
+    };
+    setTimeout(resetScroll, 0);
+    setTimeout(resetScroll, 100);
+    setTimeout(resetScroll, 300);
   }, [navigate, location.pathname]);
 
   // Track pushes within a tab to update that tab's stack
