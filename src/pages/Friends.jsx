@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Users, CheckCircle, XCircle, Flame, Activity, MessageCircle } from "lucide-react";
+import FriendInviteCard from "@/components/social/FriendInviteCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -84,6 +85,16 @@ export default function Friends() {
   });
 
   const pendingRequests = receivedRequests.filter(f => f.status === "pending");
+
+  const { data: inviteJoinedCount = 0 } = useQuery({
+    queryKey: ["inviteJoined", user?.email],
+    queryFn: async () => {
+      const invites = await base44.entities.Invite.filter({ inviter_email: user.email });
+      return invites.filter(i => i.status === "registered" || i.status === "subscribed" || i.status === "friend_connected").length;
+    },
+    enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const sendRequestMutation = useMutation({
     mutationFn: async (email) => {
@@ -205,6 +216,9 @@ export default function Friends() {
             </DialogContent>
           </Dialog>
         </motion.div>
+
+        {/* Viral Invite Card */}
+        <FriendInviteCard profile={profile} joinedCount={inviteJoinedCount} />
 
         {/* Pending Requests */}
         <AnimatePresence>

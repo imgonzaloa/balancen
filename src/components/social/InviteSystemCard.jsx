@@ -104,7 +104,7 @@ export default function InviteSystemCard({ profile }) {
               {t('invite_friends')}
             </h3>
             <p className="text-white/80 text-sm leading-relaxed">
-              {t('referral_reward_text')}
+              You + your friend both get 7 extra Premium days
             </p>
           </div>
         </div>
@@ -133,6 +133,25 @@ export default function InviteSystemCard({ profile }) {
             </p>
           )}
         </div>
+
+        {/* Invite Code Pill */}
+        {profile?.created_by && (
+          <div className="mb-4 flex items-center justify-between bg-white/10 rounded-xl px-4 py-2.5">
+            <span className="text-teal-300 font-mono font-bold text-base tracking-wider">
+              {profile.created_by.split("@")[0].replace(/[^a-z0-9]/gi, "").slice(0, 10)}
+            </span>
+            <button
+              onClick={async () => {
+                const code = profile.created_by.split("@")[0].replace(/[^a-z0-9]/gi, "").slice(0, 10);
+                await navigator.clipboard.writeText(code).catch(() => {});
+                toast.success("Copied!");
+              }}
+              className="ml-2"
+            >
+              <Copy size={16} className="text-white/50" />
+            </button>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-3">
