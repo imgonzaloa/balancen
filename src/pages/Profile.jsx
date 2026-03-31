@@ -328,31 +328,31 @@ export default function Profile() {
                   )}
                 </div>
                 <p className="text-teal-200 text-sm">{user?.email}</p>
-                {profile?.display_name && (
-                  <button
-                    onClick={async () => {
-                      const streak = profile.current_streak || 0;
-                      try {
-                            const streak = profile.current_streak || 0;
-                            const msg = lang === 'es'
-                              ? `¡Mira mi perfil en Balancen! 🍽️\n${profile.display_name} — ${streak} días de racha 🔥\nComemos mejor juntos. Únete gratis:\n${window.location.origin}`
-                              : `Check out my Balancen profile! 🍽️\n${profile.display_name} — ${streak} day streak 🔥\nLet's eat better together. Join free:\n${window.location.origin}`;
-                            if (navigator?.share) {
-                              try { await navigator.share({ title: "Balancen", text: msg }); return; } catch { /* fallthrough */ }
-                            }
-                            await navigator.clipboard.writeText(msg).catch(() => {});
-                            toast.success("Profile link copied!");
-                          } catch (err) {
-                            console.error("Share failed:", err);
-                            toast.error("Failed to share");
-                          }
-                    }}
-                    className="mt-2 flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white/70 text-sm font-semibold hover:bg-white/20 transition-colors"
-                  >
-                    <Share2 size={14} />
-                    {lang === 'es' ? 'Compartir perfil' : 'Share profile'}
-                  </button>
-                )}
+                {false && profile?.display_name && (
+                   <button
+                     onClick={async () => {
+                       const streak = profile.current_streak || 0;
+                       try {
+                             const streak = profile.current_streak || 0;
+                             const msg = lang === 'es'
+                               ? `¡Mira mi perfil en Balancen! 🍽️\n${profile.display_name} — ${streak} días de racha 🔥\nComemos mejor juntos. Únete gratis:\n${window.location.origin}`
+                               : `Check out my Balancen profile! 🍽️\n${profile.display_name} — ${streak} day streak 🔥\nLet's eat better together. Join free:\n${window.location.origin}`;
+                             if (navigator?.share) {
+                               try { await navigator.share({ title: "Balancen", text: msg }); return; } catch { /* fallthrough */ }
+                             }
+                             await navigator.clipboard.writeText(msg).catch(() => {});
+                             toast.success("Profile link copied!");
+                           } catch (err) {
+                             console.error("Share failed:", err);
+                             toast.error("Failed to share");
+                           }
+                     }}
+                     className="mt-2 flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white/70 text-sm font-semibold hover:bg-white/20 transition-colors"
+                   >
+                     <Share2 size={14} />
+                     {lang === 'es' ? 'Compartir perfil' : 'Share profile'}
+                   </button>
+                 )}
               </div>
             </div>
 
@@ -621,7 +621,7 @@ export default function Profile() {
         </button>
 
         {/* Owner Controls */}
-        {profile?.role === 'owner' && (
+        {false && profile?.role === 'owner' && (
           <OwnerFeaturedControl />
         )}
       </div>

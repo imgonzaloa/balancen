@@ -219,7 +219,7 @@ export default function Friends() {
         </motion.div>
 
         {/* Viral Invite Card */}
-        <FriendInviteCard profile={profile} joinedCount={inviteJoinedCount} />
+        {false && <FriendInviteCard profile={profile} joinedCount={inviteJoinedCount} />}
 
         {/* Pending Requests */}
         <AnimatePresence>
