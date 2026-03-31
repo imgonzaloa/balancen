@@ -30,7 +30,7 @@ export function useCollaboratorInviteCheck(user) {
           }),
           ...pendingInvites.map(inv => 
             base44.entities.CollaboratorInvite.update(inv.id, { status: "accepted" })
-          )
+          ),
         ]);
 
         console.log("Collaborator invite accepted, Premium granted");
