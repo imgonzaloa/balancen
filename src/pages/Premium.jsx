@@ -40,7 +40,7 @@ export default function Premium() {
         .then(response => setPricing(response.data))
         .catch(() => toast.error(t('payment_system_unavailable')));
     } else {
-      // On native, use fallback display prices; actual price comes from the App Store
+      // Fallback pricing display (actual price from Stripe)
       setPricing({ region: 'EUR', currency: '€', prices: { monthly: 6.99, yearly: 49.99 }, priceIds: {} });
     }
   }, [isNative]);
