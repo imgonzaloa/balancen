@@ -14,8 +14,6 @@ const featuresData = [
   { icon: Sparkles, key: "ai_meal_planner_feature" },
   { icon: Sparkles, key: "ai_workout_generator_feature" },
   { icon: Sparkles, key: "advanced_ai" },
-  { icon: Users, key: "social_feed_feature" },
-  { icon: Heart, key: "enhanced_friends_feature" },
   { icon: Users, key: "group_collaboration" },
   { icon: TrendingUp, key: "progress_tracking_advanced" },
   { icon: Target, key: "nutrition_premium" },
