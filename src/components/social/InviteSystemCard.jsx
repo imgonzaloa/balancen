@@ -8,9 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 
 export default function InviteSystemCard({ profile }) {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const [generating, setGenerating] = useState(false);
 
   const { data: referralProgress } = useQuery({
     queryKey: ["referralProgress", profile?.created_by],
@@ -25,52 +24,6 @@ export default function InviteSystemCard({ profile }) {
 
   const pendingCount = referralProgress?.pending_referrals_count || 0;
   const totalReferrals = referralProgress?.total_successful_referrals || 0;
-
-  const generateInviteLink = async () => {
-    if (generating) return;
-    
-    setGenerating(true);
-    try {
-      const inviteCode = `${profile.created_by.split('@')[0]}-${Date.now().toString(36)}`;
-      const inviteUrl = `${window.location.origin}/Onboarding?invite=${inviteCode}`;
-
-      // Save invite record in background (don't await — keeps user gesture alive for share)
-      base44.entities.Invite.create({
-        inviter_email: profile.created_by,
-        inviter_name: profile.display_name,
-        invite_code: inviteCode,
-        status: "invited",
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      }).catch(() => {});
-
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: t('invite_share_title'),
-            text: t('invite_share_text'),
-            url: inviteUrl,
-          });
-          toast.success(t('invite_shared'));
-        } catch (shareError) {
-          // Share was cancelled or not allowed — fall back to clipboard
-          await navigator.clipboard.writeText(inviteUrl);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-          toast.success(t('link_copied'));
-        }
-      } else {
-        await navigator.clipboard.writeText(inviteUrl);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-        toast.success(t('link_copied'));
-      }
-    } catch (error) {
-      console.error("Invite error:", error);
-      toast.error(t('invite_error'));
-    } finally {
-      setGenerating(false);
-    }
-  };
 
   const copyLink = async () => {
     const inviteCode = `${profile.created_by.split('@')[0]}-${Date.now().toString(36)}`;
@@ -109,7 +62,6 @@ export default function InviteSystemCard({ profile }) {
           </div>
         </div>
 
-        {/* Progress Bar */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
             <p className="text-white/90 text-sm font-semibold">
@@ -134,39 +86,10 @@ export default function InviteSystemCard({ profile }) {
           )}
         </div>
 
-        {/* Invite Code Pill */}
-        {profile?.created_by && (
-          <div className="mb-4 flex items-center justify-between bg-white/10 rounded-xl px-4 py-2.5">
-            <span className="text-teal-300 font-mono font-bold text-base tracking-wider">
-              {profile.created_by.split("@")[0].replace(/[^a-z0-9]/gi, "").slice(0, 10)}
-            </span>
-            <button
-              onClick={async () => {
-                const code = profile.created_by.split("@")[0].replace(/[^a-z0-9]/gi, "").slice(0, 10);
-                await navigator.clipboard.writeText(code).catch(() => {});
-                toast.success("Copied!");
-              }}
-              className="ml-2"
-            >
-              <Copy size={16} className="text-white/50" />
-            </button>
-          </div>
-        )}
-
-        {/* Action Buttons */}
         <div className="flex gap-3">
           <Button
-            onClick={generateInviteLink}
-            disabled={generating}
-            className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-13 rounded-xl shadow-xl shadow-purple-500/30 active:scale-[0.98] transition-transform"
-          >
-            <Share2 size={18} className="mr-2" />
-            {t('share_invite')}
-          </Button>
-          <Button
             onClick={copyLink}
-            variant="outline"
-            className="border-white/20 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 h-13 px-5 rounded-xl active:scale-[0.98] transition-transform"
+            className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-12 rounded-xl shadow-xl shadow-purple-500/30"
           >
             {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
           </Button>

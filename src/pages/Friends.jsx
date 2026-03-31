@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Users, CheckCircle, XCircle, Flame, Activity, MessageCircle } from "lucide-react";
-import FriendInviteCard from "@/components/social/FriendInviteCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -14,7 +13,7 @@ import { createPageUrl } from "@/utils";
 import StatusChip from "@/components/groups/StatusChip";
 
 export default function Friends() {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -51,7 +50,6 @@ export default function Friends() {
     queryFn: async () => {
       const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
       if (emails.length === 0) return [];
-      // Stagger requests to avoid rate limit
       const profiles = [];
       for (let i = 0; i < emails.length; i++) {
         if (i > 0) await new Promise(resolve => setTimeout(resolve, 150));
@@ -62,7 +60,6 @@ export default function Friends() {
     },
     enabled: acceptedFriends.length > 0,
     staleTime: 10 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000,
   });
 
   const { data: friendMeals = [] } = useQuery({
@@ -70,7 +67,6 @@ export default function Friends() {
     queryFn: async () => {
       const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
       if (emails.length === 0) return [];
-      // Stagger requests to avoid rate limit
       const meals = [];
       for (let i = 0; i < emails.length; i++) {
         if (i > 0) await new Promise(resolve => setTimeout(resolve, 150));
@@ -81,24 +77,13 @@ export default function Friends() {
     },
     enabled: acceptedFriends.length > 0,
     staleTime: 10 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000,
   });
 
   const pendingRequests = receivedRequests.filter(f => f.status === "pending");
 
-  const { data: inviteJoinedCount = 0 } = useQuery({
-    queryKey: ["inviteJoined", user?.email],
-    queryFn: async () => {
-      const invites = await base44.entities.Invite.filter({ inviter_email: user.email });
-      return invites.filter(i => i.status === "registered" || i.status === "subscribed" || i.status === "friend_connected").length;
-    },
-    enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
-  });
-
   const sendRequestMutation = useMutation({
     mutationFn: async (email) => {
-      if (!user?.email) throw new Error("User not authenticated");
+      if (!user?.email) throw new Error("Not authenticated");
       const existing = [...sentRequests, ...receivedRequests].find(
         f => (f.user_email === email || f.friend_email === email)
       );
@@ -130,7 +115,6 @@ export default function Friends() {
     },
   });
 
-  // Check premium
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
   if (!profile) {
@@ -218,9 +202,6 @@ export default function Friends() {
           </Dialog>
         </motion.div>
 
-        {/* Viral Invite Card */}
-        {false && <FriendInviteCard profile={profile} joinedCount={inviteJoinedCount} />}
-
         {/* Pending Requests */}
         <AnimatePresence>
           {pendingRequests.length > 0 && (
@@ -263,7 +244,7 @@ export default function Friends() {
           )}
         </AnimatePresence>
 
-        {/* Friends Activity Feed */}
+        {/* Friends List */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

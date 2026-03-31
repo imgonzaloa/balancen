@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Settings, LogOut, Edit2, Target, Sparkles, X, User as UserIcon, Globe, Clock, GraduationCap, Share2, Crown } from "lucide-react";
-
+import { Camera, Settings, LogOut, Edit2, Target, User as UserIcon } from "lucide-react";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
-import GlobalHeader from "@/components/GlobalHeader";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -12,106 +10,25 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ProfileGoalsEdit from "@/components/profile/ProfileGoalsEdit";
 import PhotoPickerModal from "@/components/profile/PhotoPickerModal";
-import OwnerFeaturedControl from "@/components/profile/OwnerFeaturedControl";
-import { withTimeout } from "@/components/utils/fetchWithTimeout";
-import ErrorFallback, { LoadingTimeout } from "@/components/ErrorFallback";
-import { debugLogger } from "@/components/DebugOverlay";
-
-function StatusEditor({ profile, onUpdate }) {
-  const { t } = useTranslation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [statusText, setStatusText] = useState(profile?.status_message || "");
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    if (!profile?.id) return;
-    setSaving(true);
-    try {
-      await base44.entities.UserProfile.update(profile.id, {
-        status_message: statusText.slice(0, 60),
-        status_updated_at: new Date().toISOString(),
-      });
-      toast.success(t('status_updated'));
-      onUpdate?.({ ...profile, status_message: statusText.slice(0, 60) });
-      setIsEditing(false);
-    } catch (err) {
-      console.error("Failed to update status:", err);
-      toast.error(t('update_failed'));
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (isEditing) {
-    return (
-      <div className="space-y-3">
-        <input
-          type="text"
-          value={statusText}
-          onChange={(e) => setStatusText(e.target.value)}
-          maxLength={60}
-          placeholder={t('status_placeholder') || "What's on your mind?"}
-          className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 text-sm focus:outline-none focus:border-teal-500"
-          autoFocus
-        />
-        <div className="flex gap-2">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded-xl text-white text-sm font-semibold disabled:opacity-50"
-          >
-            {saving ? "..." : t('save')}
-          </button>
-          <button
-            onClick={() => setIsEditing(false)}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white text-sm"
-          >
-            {t('cancel')}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <button
-      onClick={() => setIsEditing(true)}
-      className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group"
-    >
-      <span className={`text-sm ${profile?.status_message ? 'text-white italic' : 'text-white/60'}`}>
-        {profile?.status_message ? `"${profile.status_message}"` : (t('status_placeholder') || "Add a status message...")}
-      </span>
-      <Edit2 size={16} className="text-white/40 group-hover:text-white transition-colors" />
-    </button>
-  );
-}
 
 export default function Profile() {
-  // ALL HOOKS AT TOP
   const { user, profile: cachedProfile, isInitialized, refreshProfile, setProfile: setContextProfile } = useAppState();
-  const { t, lang, changeLanguage } = useTranslation();
+  const { t, changeLanguage, lang } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [showGoalsEdit, setShowGoalsEdit] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
-  const [error, setError] = useState(null);
-  const avatarRef = React.useRef(null);
-
-  // Display name editing
   const [nameDraft, setNameDraft] = useState("");
   const [nameDraftSet, setNameDraftSet] = useState(false);
   const [savingName, setSavingName] = useState(false);
 
-  // Sync local profile state whenever context profile updates (e.g. initial server fetch arrives)
   useEffect(() => {
     if (cachedProfile) {
       setProfile(cachedProfile);
     }
   }, [cachedProfile]);
 
-  // Set name draft ONCE when profile first loads — never overwrite user typing
   useEffect(() => {
     if (!nameDraftSet && cachedProfile?.display_name) {
       setNameDraft(cachedProfile.display_name);
@@ -141,18 +58,10 @@ export default function Profile() {
     }
   };
 
-  // Cached photo for instant display before server fetch completes
   const cachedPhoto = user?.email
     ? (localStorage.getItem(`balancen_photo_${user.email}`) || localStorage.getItem(`balancen_avatar_${user.email}`))
     : null;
   const displayPhoto = profile?.profile_photo || profile?.avatar_url || cachedPhoto;
-
-  // Timeout guard — only fires if user is logged in but profile still hasn't arrived after 5s
-  useEffect(() => {
-    if (!user?.email || cachedProfile) return;
-    const timer = setTimeout(() => setLoadingTimeout(true), 5000);
-    return () => clearTimeout(timer);
-  }, [user?.email, cachedProfile]);
 
   const loading = !isInitialized;
 
@@ -177,9 +86,7 @@ export default function Profile() {
 
         const updated = { ...profile, profile_photo: file_url, avatar_url: file_url };
         setProfile(updated);
-        // Update context so other pages see the new photo immediately
         if (setContextProfile) setContextProfile(updated);
-        // Persist to all cache keys so photo never disappears
         localStorage.setItem(`balancen_avatar_${user.email}`, file_url);
         localStorage.setItem(`balancen_photo_${user.email}`, file_url);
         toast.success(t('photo_updated'));
@@ -195,14 +102,9 @@ export default function Profile() {
 
   const handleLogout = async () => {
     try {
-      // Clear ALL state
       localStorage.clear();
       sessionStorage.clear();
-      
-      // Logout
       await base44.auth.logout();
-      
-      // Force hard reload
       window.location.href = '/';
     } catch (err) {
       console.error('Logout failed:', err);
@@ -210,16 +112,7 @@ export default function Profile() {
     }
   };
 
-  const { isTrialActive, trialDaysLeft, isPremium, isCampusAccess, isCampusReward, accessDaysLeft, accessType } = useEntitlement(profile);
-
-  const goalLabel = (key) => t(key) || t('not_defined');
-  const intensityLabel = (key) => t(key) || t('not_defined');
-
-  const handleRetry = React.useCallback(() => {
-    setLoadingTimeout(false);
-    setError(null);
-    if (refreshProfile) refreshProfile();
-  }, [refreshProfile]);
+  const { isTrialActive, trialDaysLeft, isPremium } = useEntitlement(profile);
 
   if (loading) {
     return (
@@ -229,22 +122,6 @@ export default function Profile() {
     );
   }
 
-  if (loadingTimeout && !!user?.email && !profile && !error) {
-    return <LoadingTimeout onRetry={handleRetry} />;
-  }
-
-  if (error) {
-    return (
-      <ErrorFallback
-        title={t('profile_load_error') || "Could not load profile"}
-        message={error.message || t('check_internet')}
-        errorCode="PROFILE_ERROR"
-        onRetry={handleRetry}
-      />
-    );
-  }
-
-  // Anonymous user - show sign in prompt
   if (!user?.email) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6">
@@ -271,7 +148,6 @@ export default function Profile() {
 
   return (
     <div className="relative" style={{ minHeight: '100%', paddingBottom: '8px' }}>
-      {/* Background */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full blur-3xl" />
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-500 rounded-full blur-3xl" />
@@ -291,19 +167,17 @@ export default function Profile() {
           
           <div className="relative z-10">
             <div className="flex items-center gap-4 mb-6">
-              {/* Clickable Profile Photo - Instagram Style */}
               <div 
-                ref={avatarRef}
                 onClick={() => setPhotoPreview(true)}
                 className="relative cursor-pointer group"
               >
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative ring-2 ring-white/20 group-hover:ring-teal-400 transition-all">
-                    {displayPhoto ? (
-                      <img src={displayPhoto} alt={t('profile')} className="w-full h-full object-cover" onError={(e) => { e.target.style.display='none'; }} loading="lazy" />
-                    ) : (profile?.display_name?.charAt(0) || user?.full_name?.charAt(0)) ? (
-                      <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0)}</span>
-                    ) : (
-                      <UserIcon size={32} className="text-white/80" />
+                  {displayPhoto ? (
+                    <img src={displayPhoto} alt={t('profile')} className="w-full h-full object-cover" onError={(e) => { e.target.style.display='none'; }} loading="lazy" />
+                  ) : (profile?.display_name?.charAt(0) || user?.full_name?.charAt(0)) ? (
+                    <span>{profile?.display_name?.charAt(0) || user?.full_name?.charAt(0)}</span>
+                  ) : (
+                    <UserIcon size={32} className="text-white/80" />
                   )}
                   {uploadingPhoto && (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
@@ -318,88 +192,16 @@ export default function Profile() {
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-xl font-bold text-white">{profile?.display_name || user?.full_name}</h2>
-                  {profile?.is_featured && (
-                    <span className="flex items-center gap-1 bg-amber-500/20 border border-amber-500/30 rounded-full px-3 py-1 text-amber-300 text-xs font-bold">
-                      <Crown size={12} />
-                      Featured Athlete
-                    </span>
-                  )}
-                </div>
+                <h2 className="text-xl font-bold text-white">{profile?.display_name || user?.full_name}</h2>
                 <p className="text-teal-200 text-sm">{user?.email}</p>
-                {false && profile?.display_name && (
-                   <button
-                     onClick={async () => {
-                       const streak = profile.current_streak || 0;
-                       try {
-                             const streak = profile.current_streak || 0;
-                             const msg = lang === 'es'
-                               ? `¡Mira mi perfil en Balancen! 🍽️\n${profile.display_name} — ${streak} días de racha 🔥\nComemos mejor juntos. Únete gratis:\n${window.location.origin}`
-                               : `Check out my Balancen profile! 🍽️\n${profile.display_name} — ${streak} day streak 🔥\nLet's eat better together. Join free:\n${window.location.origin}`;
-                             if (navigator?.share) {
-                               try { await navigator.share({ title: "Balancen", text: msg }); return; } catch { /* fallthrough */ }
-                             }
-                             await navigator.clipboard.writeText(msg).catch(() => {});
-                             toast.success("Profile link copied!");
-                           } catch (err) {
-                             console.error("Share failed:", err);
-                             toast.error("Failed to share");
-                           }
-                     }}
-                     className="mt-2 flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white/70 text-sm font-semibold hover:bg-white/20 transition-colors"
-                   >
-                     <Share2 size={14} />
-                     {lang === 'es' ? 'Compartir perfil' : 'Share profile'}
-                   </button>
-                 )}
               </div>
             </div>
 
-            {/* Campus Access Badge */}
-            {isCampusAccess && (
-              <div className="mb-4 px-3 py-2 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center gap-2">
-                <GraduationCap size={14} className="text-blue-300" />
-                <span className="text-blue-300 text-xs font-bold">
-                  Campus Access — {accessDaysLeft} {lang === 'es' ? 'días restantes' : 'days left'}
-                </span>
-              </div>
-            )}
-
-            {/* Campus Reward Badge */}
-            {isCampusReward && (
-              <div className="mb-4 px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center gap-2">
-                <GraduationCap size={14} className="text-emerald-300" />
-                <span className="text-emerald-300 text-xs font-bold">
-                  🏆 Campus Reward — {accessDaysLeft} {lang === 'es' ? 'días restantes' : 'days left'}
-                </span>
-              </div>
-            )}
-
             {/* Trial Badge */}
-            {isTrialActive && !isCampusAccess && !isCampusReward && (
+            {isTrialActive && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center gap-2">
-                <Clock size={14} className="text-teal-300" />
                 <span className="text-teal-300 text-xs font-bold">
                   Trial — {trialDaysLeft} {lang === 'es' ? 'días restantes' : 'days left'}
-                </span>
-              </div>
-            )}
-
-            {/* Premium Badge (paid subscription) */}
-            {isPremium && accessType === 'premium_active' && (
-              <div className="mb-4 px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center gap-2">
-                <span className="text-purple-300 text-xs font-bold">
-                  👑 {t('premium_active')}
-                </span>
-              </div>
-            )}
-
-            {/* Collaborator Badge */}
-            {(profile?.role === "collaborator" || profile?.premium_source === "collaborator_invite") && (
-              <div className="mb-4 px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center gap-2">
-                <span className="text-purple-300 text-xs font-bold">
-                  👑 {t('premium_active')} ({t('collaborator')})
                 </span>
               </div>
             )}
@@ -423,7 +225,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Personal Info Section */}
+        {/* Personal Info */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
           <h3 className="font-semibold text-white mb-4">{t('personal_info') || "Personal info"}</h3>
           <div className="space-y-2">
@@ -448,11 +250,11 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Goals Section - FREE USERS: READ-ONLY */}
+        {/* Goals Section */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-white">{t('your_goals')}</h3>
-            {(profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
+            {isPremium && (
               <button
                 onClick={() => setShowGoalsEdit(true)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-300 hover:bg-teal-500/30 transition-colors"
@@ -466,105 +268,14 @@ export default function Profile() {
             <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
               <span className="text-white/70 text-sm">{t('main_goal')}</span>
               <span className="font-semibold text-white">
-                {goalLabel(profile?.primary_goal)}
+                {profile?.primary_goal ? t(profile.primary_goal) : t('not_defined')}
               </span>
             </div>
-            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
-              <span className="text-white/70 text-sm">{t('intensity')}</span>
-              <span className="font-semibold text-white">
-                {intensityLabel(profile?.intensity_level)}
-              </span>
-            </div>
-            {profile?.calories_goal && (
-              <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-white/5">
-                <span className="text-white/70 text-sm">{t('daily_goal')}</span>
-                <span className="font-semibold text-white">{profile.calories_goal} kcal</span>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Public Profile Toggle */}
+        {/* Language */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 mr-4">
-              <p className="text-white font-semibold text-sm">
-                {lang === 'es' ? 'Mostrar comidas en Discovery' : 'Show my meals in Discovery feed'}
-              </p>
-              <p className="text-white/50 text-xs mt-0.5">
-                {lang === 'es'
-                  ? 'Tus comidas aparecerán en el feed público'
-                  : 'Your logged meals will appear in the public Discovery feed'}
-              </p>
-            </div>
-            <button
-              onClick={async () => {
-                if (!profile?.id) return;
-                const next = profile.share_meals === 'public' ? 'private' : 'public';
-                await base44.entities.UserProfile.update(profile.id, { share_meals: next });
-                const updated = { ...profile, share_meals: next };
-                setProfile(updated);
-                if (setContextProfile) setContextProfile(updated);
-                toast.success(next === 'public'
-                  ? (lang === 'es' ? 'Tus comidas aparecen en Discovery 🌍' : 'Your meals now appear in the Discovery feed 🌍')
-                  : (lang === 'es' ? 'Tus comidas ahora son privadas' : 'Your meals are now private'));
-              }}
-              className={`relative w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${
-                profile?.share_meals === 'public' ? 'bg-teal-500' : 'bg-white/20'
-              }`}
-            >
-              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
-                profile?.share_meals === 'public' ? 'translate-x-6' : 'translate-x-0.5'
-              }`} />
-            </button>
-          </div>
-        </div>
-
-        {/* Status Section - Editable */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 mb-6">
-          <h3 className="text-white font-bold text-lg mb-4">{t('status')}</h3>
-          <StatusEditor
-            profile={profile}
-            onUpdate={(updated) => {
-              setProfile(updated);
-              if (setContextProfile) setContextProfile(updated);
-            }}
-          />
-        </div>
-
-        {/* AI Goals Assistant */}
-        <button
-          onClick={() => navigate(createPageUrl('GoalsAssistant'))}
-          className="w-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl border border-purple-400/30 rounded-3xl p-5 mb-6 flex items-center justify-between hover:from-purple-500/30 hover:to-pink-500/30 transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Sparkles size={20} className="text-white" />
-            </div>
-            <div className="text-left">
-              <p className="font-semibold text-white flex items-center gap-2">
-                {t('ai_goals_assistant') || 'AI Goals Assistant'}
-                {(profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300">
-                    Premium
-                  </span>
-                )}
-              </p>
-              <p className="text-xs text-purple-200">
-                {t('ai_goals_desc') || 'Get personalized goal recommendations'}
-              </p>
-            </div>
-          </div>
-        </button>
-
-        {/* Language Section */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-              <Globe size={20} className="text-teal-300" />
-            </div>
-            <p className="font-semibold text-white">{t('language')}</p>
-          </div>
           <div className="grid grid-cols-3 gap-2">
             {[
               { code: 'es', flag: '🇪🇸', label: 'Español' },
@@ -576,8 +287,6 @@ export default function Profile() {
                 onClick={async () => {
                   if (lang === code) return;
                   await changeLanguage(code);
-                  const msgs = { en: 'Language updated', es: 'Idioma actualizado', pt: 'Idioma atualizado' };
-                  toast.success(msgs[code] || 'Language updated');
                 }}
                 className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border transition-all ${
                   lang === code
@@ -587,9 +296,6 @@ export default function Profile() {
               >
                 <span className="text-2xl">{flag}</span>
                 <span className="text-xs font-semibold leading-tight text-center">{label}</span>
-                {lang === code && (
-                  <div className="w-1.5 h-1.5 rounded-full bg-teal-400" />
-                )}
               </button>
             ))}
           </div>
@@ -619,18 +325,13 @@ export default function Profile() {
           <LogOut size={18} />
           {t('logout')}
         </button>
-
-        {/* Owner Controls */}
-        {false && profile?.role === 'owner' && (
-          <OwnerFeaturedControl />
-        )}
       </div>
 
-      {/* Photo Picker Popover */}
+      {/* Photo Picker Modal */}
       <PhotoPickerModal
         isOpen={!!photoPreview}
         onClose={() => setPhotoPreview(false)}
-        anchorRef={avatarRef}
+        anchorRef={React.useRef(null)}
         onSelectFile={(file) => {
           const reader = new FileReader();
           reader.onload = (e) => handlePhotoUpload(file, e.target.result);
@@ -639,8 +340,8 @@ export default function Profile() {
         }}
       />
 
-      {/* Goals Edit Modal - PREMIUM ONLY */}
-      {showGoalsEdit && (profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
+      {/* Goals Edit Modal */}
+      {showGoalsEdit && isPremium && (
         <ProfileGoalsEdit
           profile={profile}
           onClose={() => setShowGoalsEdit(false)}
