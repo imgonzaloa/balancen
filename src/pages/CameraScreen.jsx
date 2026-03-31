@@ -52,19 +52,24 @@ export default function CameraScreen() {
   const liveThrottleRef = useRef(null);
   const liveAbortRef = useRef(null);
 
-  // Load scan count for free users
+  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+  const todayScanKey = `balancen_ai_scans_${new Date().toISOString().split("T")[0]}`;
+
+  // Load scan count for free users from localStorage
   useEffect(() => {
-    if (isProfilePhotoMode) return;
-    const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+    if (isProfilePhotoMode || isPremium) return;
+    const stored = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
+    setScansUsedToday(stored);
+  }, [isProfilePhotoMode, isPremium, todayScanKey]);
+
+  const freeScansLeft = isPremium ? null : Math.max(0, FREE_DAILY_LIMIT - (scansUsedToday ?? 0));
+
+  const incrementScanCount = useCallback(() => {
     if (isPremium) return;
-    const today = new Date().toISOString().split("T")[0];
-    base44.entities.MealLog.filter({ date: today })
-      .then(logs => {
-        const aiScans = logs.filter(m => m.photo_url);
-        setScansUsedToday(aiScans.length);
-      })
-      .catch(() => setScansUsedToday(0));
-  }, [isProfilePhotoMode, profile]);
+    const current = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
+    localStorage.setItem(todayScanKey, String(current + 1));
+    setScansUsedToday(current + 1);
+  }, [isPremium, todayScanKey]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -152,6 +157,13 @@ export default function CameraScreen() {
       return;
     }
 
+    // Free user scan limit gate
+    if (!isProfilePhotoMode && !isPremium && freeScansLeft === 0) {
+      toast.error("You've used your 5 free AI scans today. Upgrade to Premium for unlimited.");
+      navigate(createPageUrl("Premium"));
+      return;
+    }
+
     setIsCapturing(true);
     setCaptureError(null);
     setShowFlash(true);
@@ -215,6 +227,7 @@ export default function CameraScreen() {
 
       // Write to context + sessionStorage (meal flow)
       setCapturedFile(file, dataUrl);
+      incrementScanCount();
       console.log("🚀 NAVIGATE_RESULT");
       navigate(createPageUrl("PreviewScreen"), { replace: false });
 
@@ -230,11 +243,18 @@ export default function CameraScreen() {
         toast.error(t("error_capturing"));
       }
     }
-  }, [isCapturing, videoReady, t, setCapturedFile, navigate]);
+  }, [isCapturing, videoReady, t, setCapturedFile, navigate, isPremium, freeScansLeft, isProfilePhotoMode, incrementScanCount]);
 
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
+
+    // Free user scan limit gate for gallery uploads
+    if (!isProfilePhotoMode && !isPremium && freeScansLeft === 0) {
+      toast.error("You've used your 5 free AI scans today. Upgrade to Premium for unlimited.");
+      navigate(createPageUrl("Premium"));
+      return;
+    }
 
     console.log("📁 FILE_SELECTED_FROM_GALLERY", { size: selectedFile.size });
 
@@ -252,6 +272,7 @@ export default function CameraScreen() {
       }
 
       setCapturedFile(selectedFile, dataUrl);
+      incrementScanCount();
       stopCamera();
       console.log("🚀 NAVIGATE_RESULT (gallery)");
       navigate(createPageUrl("PreviewScreen"), { replace: false });
@@ -461,20 +482,24 @@ export default function CameraScreen() {
       )}
 
       {/* Free scan counter badge */}
-      {videoReady && !isProfilePhotoMode && scansUsedToday !== null && !(profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
+      {videoReady && !isProfilePhotoMode && freeScansLeft !== null && (
         <div
-          className="absolute z-[7] pointer-events-none"
-          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 190px)', right: '16px' }}
+          className="absolute z-[7]"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 190px)', left: '50%', transform: 'translateX(-50%)' }}
         >
-          <div className={`px-3 py-1.5 rounded-full border text-xs font-bold backdrop-blur-md ${
-            scansUsedToday >= FREE_DAILY_LIMIT
-              ? 'bg-red-500/30 border-red-400/50 text-red-300'
-              : scansUsedToday >= FREE_DAILY_LIMIT - 1
-              ? 'bg-amber-500/30 border-amber-400/50 text-amber-300'
-              : 'bg-black/50 border-white/20 text-white/70'
-          }`}>
-            {FREE_DAILY_LIMIT - scansUsedToday}/{FREE_DAILY_LIMIT} AI scans left
-          </div>
+          {freeScansLeft === 0 ? (
+            <button
+              onClick={() => navigate(createPageUrl("Premium"))}
+              className="px-4 py-2 rounded-full border bg-amber-500/30 border-amber-400/50 text-amber-200 text-xs font-bold backdrop-blur-md"
+              style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
+            >
+              Daily limit reached — Upgrade for unlimited
+            </button>
+          ) : (
+            <div className="px-3 py-1.5 rounded-full border bg-teal-500/25 border-teal-400/40 text-teal-300 text-xs font-bold backdrop-blur-md pointer-events-none">
+              ✨ {freeScansLeft} AI scans left today
+            </div>
+          )}
         </div>
       )}
 
