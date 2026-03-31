@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import { Sparkles, Zap, Flame, Star } from "lucide-react";
+import { Sparkles, Zap } from "lucide-react";
 
 function AIDemo({ lang }) {
   const lines = [
@@ -145,29 +145,6 @@ export default function Onboarding() {
     { value: "stay_active", emoji: "🏃" },
   ];
 
-  const followModes = [
-    {
-      value: "with_friends",
-      Icon: Flame,
-      iconColor: "text-orange-400",
-      title: lang === 'es' ? "Amigos y comunidad" : "Friends & community",
-      desc: lang === 'es' ? "Ve lo que comen tus amigos y compite en rachas" : "See what your friends eat, compete in streaks",
-    },
-    {
-      value: "with_team",
-      Icon: Star,
-      iconColor: "text-amber-400",
-      title: lang === 'es' ? "Atletas elite" : "Elite athletes",
-      desc: lang === 'es' ? "Sigue a atletas reales y ve su nutrición diaria" : "Follow real athletes and see their daily nutrition",
-    },
-    {
-      value: "both",
-      Icons: [Flame, Star],
-      title: lang === 'es' ? "Ambos" : "Both",
-      desc: lang === 'es' ? "Lo mejor de los dos mundos" : "The best of both worlds",
-    },
-  ];
-
   const progressPct = ((step - 1) / (TOTAL_STEPS - 1)) * 100;
 
   return (
@@ -219,21 +196,20 @@ export default function Onboarding() {
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-black text-white mb-2">
-                  {lang === 'es' ? '¿A quién seguirás?' : 'Who will you follow?'}
-                </h2>
-                <p className="text-white/60">
-                  {lang === 'es' ? 'Elige tu experiencia social' : 'Choose your social experience'}
-                </p>
+                <h2 className="text-2xl font-black text-white mb-2">Who will you follow?</h2>
+                <p className="text-white/60">Your feed will be personalized from day 1</p>
               </div>
               <div className="space-y-3">
-                {followModes.map((mode) => {
-                  const isSelected = formData.follow_mode === mode.value;
+                {[
+                  { emoji: "👥", title: "Friends & community", subtitle: "See what your friends eat and compete on streaks", value: "friends" },
+                  { emoji: "⭐", title: "Elite athletes", subtitle: "Follow real athletes and see their daily nutrition", value: "athletes" },
+                  { emoji: "🏆", title: "Both", subtitle: "The full Balancen experience", value: "both" },
+                ].map((option) => {
+                  const isSelected = (formData.follow_preference || "both") === option.value;
                   return (
-                    <button key={mode.value}
+                    <button key={option.value}
                       onClick={() => {
-                        const socialMode = mode.value === 'with_friends' ? 'with_friends' : 'with_team';
-                        setFormData(p => ({ ...p, follow_mode: mode.value, social_mode: socialMode }));
+                        setFormData(p => ({ ...p, follow_preference: option.value }));
                         setStep(3);
                       }}
                       className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
@@ -242,22 +218,10 @@ export default function Onboarding() {
                           : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                       }`}>
                       <div className="flex items-center gap-3 mb-1">
-                        {mode.Icons ? (
-                          <div className="flex items-center gap-1">
-                            <Flame size={20} className="text-orange-400" />
-                            <Star size={20} className="text-amber-400" />
-                          </div>
-                        ) : (
-                          <mode.Icon size={22} className={mode.iconColor} />
-                        )}
-                        <span className="text-white font-semibold">{mode.title}</span>
-                        {mode.value === 'both' && (
-                          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-teal-500/30 text-teal-300 font-semibold">
-                            {lang === 'es' ? 'Recomendado' : 'Recommended'}
-                          </span>
-                        )}
+                        <span className="text-2xl">{option.emoji}</span>
+                        <span className="text-white font-semibold">{option.title}</span>
                       </div>
-                      <p className="text-white/60 text-sm ml-8">{mode.desc}</p>
+                      <p className="text-white/60 text-sm ml-10">{option.subtitle}</p>
                     </button>
                   );
                 })}
