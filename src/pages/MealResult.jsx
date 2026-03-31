@@ -9,6 +9,7 @@ import { useMeal } from "@/components/MealContext";
 import { useMealsStore } from "@/components/MealsStore";
 import { useAppState } from "@/components/AppStateContext";
 import { createPageUrl } from "@/utils";
+import SharePrompt from "@/components/meal/SharePrompt";
 
 const FREE_DAILY_LIMIT = 5;
 
@@ -274,10 +275,12 @@ export default function MealResult() {
   const { addMeal, formatLocalDateKey } = useMealsStore();
   const { profile } = useAppState();
 
-  const [phase, setPhase] = useState("analyzing"); // analyzing | review | saving | error | manual
+  const [phase, setPhase] = useState("analyzing"); // analyzing | review | saving | error | manual | share
   const [stepIndex, setStepIndex] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
+  const [savedTotals, setSavedTotals] = useState(null);
+  const [savedPhotoUrl, setSavedPhotoUrl] = useState(null);
   const uploadedUrlRef = useRef(null); // ref so save paths always see latest value
   const [foodItems, setFoodItems] = useState([]);
   const [totals, setTotals] = useState({ calories: 0, protein: 0, carbs: 0, fats: 0 });
@@ -551,9 +554,10 @@ export default function MealResult() {
     setSaving(true);
     try {
       await persistMeal({ items: foodItems, totals, photoUrl: uploadedUrl });
-      toast.success(`${t("meal_saved")} • +${totals.calories} kcal`);
+      setSavedTotals(totals);
+      setSavedPhotoUrl(uploadedUrlRef.current || uploadedUrl || imagePreview);
       resetMeal();
-      navigate(createPageUrl("Home"), { replace: true });
+      setPhase("share");
     } catch (err) {
       console.error("❌ SAVE_FAIL:", err);
       toast.error(t('save_failed') || "Failed to save. Please try again.");
@@ -717,6 +721,40 @@ export default function MealResult() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  // ─── SHARE PHASE ───
+  if (phase === "share") {
+    return (
+      <SharePrompt
+        totals={savedTotals}
+        photoUrl={savedPhotoUrl}
+        user={profile}
+        onShare={async () => {
+          try {
+            await base44.entities.Post.create({
+              author_email: profile?.created_by || "",
+              author_name: profile?.display_name || "",
+              author_avatar: profile?.avatar_url || "",
+              content: `Just logged a meal — ${savedTotals?.calories} kcal 🍽️`,
+              post_type: "meal",
+              image_url: savedPhotoUrl || "",
+              meal_data: {
+                calories: savedTotals?.calories || 0,
+                protein: savedTotals?.protein || 0,
+                carbs: savedTotals?.carbs || 0,
+                fats: savedTotals?.fats || 0,
+              },
+            });
+            toast.success("Shared to your feed!");
+          } catch (err) {
+            console.error("Share failed:", err);
+          }
+          navigate(createPageUrl("Home"), { replace: true });
+        }}
+        onSkip={() => navigate(createPageUrl("Home"), { replace: true })}
+      />
     );
   }
 
