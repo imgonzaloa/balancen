@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, Users, CheckCircle, XCircle, Flame, Activity, MessageCircle } from "lucide-react";
+import { UserPlus, Users, CheckCircle, XCircle, Flame, Activity, MessageCircle, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -162,6 +162,42 @@ export default function Friends() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pb-24 pt-8 relative z-10">
+        {/* Invite Card */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-teal-500/20 to-emerald-500/20 border border-teal-400/30 rounded-2xl p-5 mb-4"
+        >
+          <h3 className="text-white font-black text-lg mb-1">Invite friends, eat better together 🍽️</h3>
+          <p className="text-white/60 text-sm mb-3">You both get 7 extra days of Premium.</p>
+          <button
+            onClick={() => {
+              const code = profile?.invite_code || profile?.id?.slice(0, 8);
+              navigator.clipboard?.writeText(code).catch(() => {});
+              toast.success("Copied!");
+            }}
+            className="bg-white/10 rounded-xl px-4 py-2 text-teal-300 font-mono font-bold text-sm w-full flex items-center justify-between mb-2 hover:bg-white/20 transition-colors"
+          >
+            <span>{profile?.invite_code || profile?.id?.slice(0, 8)}</span>
+            <Copy size={16} />
+          </button>
+          <button
+            onClick={() => {
+              const code = profile?.invite_code || profile?.id?.slice(0, 8);
+              const msg = "Join me on Balancen! Use my code " + code + " for a free Premium trial.";
+              if (navigator.share) {
+                navigator.share({ text: msg }).catch(() => {});
+              } else {
+                navigator.clipboard?.writeText(msg).catch(() => {});
+                toast.success("Link copied!");
+              }
+            }}
+            className="bg-teal-500 text-white font-bold rounded-xl px-4 py-3 w-full hover:bg-teal-600 transition-colors"
+          >
+            Share invite link
+          </button>
+        </motion.div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
