@@ -56,9 +56,8 @@ const NavButton = React.memo(function NavButton({ item, isActive, onNavigate, on
     }
     onNavigate(item.name);
     setTimeout(() => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
+      const el = document.querySelector('[data-scroll-container]');
+      if (el) el.scrollTop = 0;
     }, 0);
   }, [isActive, item.name, onNavigate, onScrollTop]);
 
@@ -109,13 +108,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
   // Reset scroll on tab change
   React.useEffect(() => {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-    const main = document.querySelector('main');
-    if (main) main.scrollTop = 0;
-    const divs = document.querySelectorAll('[class*="overflow-y"]');
-    divs.forEach(el => { el.scrollTop = 0; });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
   }, [currentPageName]);
 
   const { navigateToTab } = useTabNavigation();
@@ -136,14 +131,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   // These pages must NOT be gated — they ARE the auth/onboarding/payment flow itself
   const bypassTrialGate = ["Paywall", "Onboarding", "LanguageSelector", "Premium", "ProfileSetup"].includes(currentPageName);
 
-  // Always reset scroll to top on tab/page change
-  React.useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    requestAnimationFrame(() => {
-      container.scrollTop = 0;
-    });
-  }, [currentPageName]);
+
 
   // Language sync: apply language from bootState once hydrated
   // This is the ONLY place language is synced from boot → i18n at startup
@@ -177,7 +165,6 @@ function LayoutInner({ children, currentPageName, bootState }) {
     }, []);
 
   const handleNavigate = React.useCallback((pageName) => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
       const contentEl = document.querySelector('[data-scroll-container]');
       if (contentEl) contentEl.scrollTop = 0;
       navigateToTab(pageName);
