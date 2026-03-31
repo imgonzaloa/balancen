@@ -10,6 +10,8 @@ import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import CameraPermissionPrompt from "@/components/CameraPermissionPrompt";
 
+const FREE_DAILY_LIMIT = 5;
+
 // Module-level stable store so photo survives navigation/re-render
 const _captureStore = { file: null, dataUrl: null };
 
@@ -46,8 +48,23 @@ export default function CameraScreen() {
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
   const [livePreview, setLivePreview] = useState(null); // { calories, protein, carbs, fats }
   const [liveAnalyzing, setLiveAnalyzing] = useState(false);
+  const [scansUsedToday, setScansUsedToday] = useState(null); // null = not yet loaded
   const liveThrottleRef = useRef(null);
   const liveAbortRef = useRef(null);
+
+  // Load scan count for free users
+  useEffect(() => {
+    if (isProfilePhotoMode) return;
+    const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+    if (isPremium) return;
+    const today = new Date().toISOString().split("T")[0];
+    base44.entities.MealLog.filter({ date: today })
+      .then(logs => {
+        const aiScans = logs.filter(m => m.photo_url);
+        setScansUsedToday(aiScans.length);
+      })
+      .catch(() => setScansUsedToday(0));
+  }, [isProfilePhotoMode, profile]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -439,6 +456,24 @@ export default function CameraScreen() {
                   : t("point_camera_at_food")}
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Free scan counter badge */}
+      {videoReady && !isProfilePhotoMode && scansUsedToday !== null && !(profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator') && (
+        <div
+          className="absolute z-[7] pointer-events-none"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 190px)', right: '16px' }}
+        >
+          <div className={`px-3 py-1.5 rounded-full border text-xs font-bold backdrop-blur-md ${
+            scansUsedToday >= FREE_DAILY_LIMIT
+              ? 'bg-red-500/30 border-red-400/50 text-red-300'
+              : scansUsedToday >= FREE_DAILY_LIMIT - 1
+              ? 'bg-amber-500/30 border-amber-400/50 text-amber-300'
+              : 'bg-black/50 border-white/20 text-white/70'
+          }`}>
+            {FREE_DAILY_LIMIT - scansUsedToday}/{FREE_DAILY_LIMIT} AI scans left
           </div>
         </div>
       )}

@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { X, Loader2, AlertCircle, Check, Plus, Minus, ChevronDown, ChevronUp, RefreshCw, Edit3 } from "lucide-react";
+import { X, Loader2, AlertCircle, Check, Plus, Minus, ChevronDown, ChevronUp, RefreshCw, Edit3, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { useMealsStore } from "@/components/MealsStore";
+import { useAppState } from "@/components/AppStateContext";
 import { createPageUrl } from "@/utils";
+
+const FREE_DAILY_LIMIT = 5;
 
 // Progress steps for analysis loader
 const ANALYSIS_STEPS = [
@@ -269,6 +272,7 @@ export default function MealResult() {
   const navigate = useNavigate();
   const { capturedFile, previewUrl, resetMeal } = useMeal();
   const { addMeal, formatLocalDateKey } = useMealsStore();
+  const { profile } = useAppState();
 
   const [phase, setPhase] = useState("analyzing"); // analyzing | review | saving | error | manual
   const [stepIndex, setStepIndex] = useState(0);
@@ -324,6 +328,22 @@ export default function MealResult() {
   const runAnalysis = async () => {
     setPhase("analyzing");
     setStepIndex(0);
+
+    // Check daily AI scan limit for free users
+    const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+    if (!isPremium && profile) {
+      try {
+        const today = new Date().toISOString().split("T")[0];
+        const todayMealLogs = await base44.entities.MealLog.filter({ date: today });
+        const aiScans = todayMealLogs.filter(m => m.photo_url);
+        if (aiScans.length >= FREE_DAILY_LIMIT) {
+          setPhase("limit_reached");
+          return;
+        }
+      } catch (_) {
+        // If check fails, allow analysis to proceed
+      }
+    }
 
     // Use file from context; fall back to a blob reconstructed from stored dataUrl
     let file = capturedFile;
@@ -578,6 +598,55 @@ export default function MealResult() {
   };
 
   // ─── PHASES ───
+
+  if (phase === "limit_reached") {
+    return (
+      <div className="fixed inset-0 z-50 bg-black flex flex-col">
+        {imagePreview && (
+          <img src={imagePreview} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" style={{ filter: "blur(6px)" }} />
+        )}
+        <div className="relative z-10 flex flex-col h-full">
+          <div className="flex items-center justify-between px-5 pb-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+            <button onClick={handleCancel} className="p-2 rounded-xl bg-white/10 text-white">
+              <X size={20} />
+            </button>
+            <h2 className="text-white font-black text-lg">{t('ai_scan')}</h2>
+            <div className="w-9" />
+          </div>
+
+          <div className="flex-1 px-5 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-2 shadow-xl shadow-amber-500/30">
+              <Crown size={40} className="text-white" />
+            </div>
+            <h3 className="text-white font-black text-2xl">Daily limit reached</h3>
+            <p className="text-white/60 text-sm max-w-xs">
+              You've used all {FREE_DAILY_LIMIT} free AI scans for today. Come back tomorrow or upgrade to Premium for unlimited scans.
+            </p>
+          </div>
+
+          <div className="px-5 pt-4 space-y-3 border-t border-white/10" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
+            <button
+              onClick={() => navigate(createPageUrl("Premium"))}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/30"
+            >
+              <Crown size={20} />
+              Upgrade to Premium
+            </button>
+            <button
+              onClick={() => setPhase("manual")}
+              className="w-full py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white font-bold flex items-center justify-center gap-2 active:scale-95"
+            >
+              <Edit3 size={18} />
+              {t('add_manually')}
+            </button>
+            <button onClick={handleCancel} className="w-full py-3 text-white/50 font-semibold text-sm active:opacity-60">
+              {t('discard') || 'Discard'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (phase === "analyzing") {
     return <AnalysisLoader imagePreview={imagePreview} stepIndex={stepIndex} />;
