@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { priceId, selectedPlan, region } = body;
+    const { priceId, selectedPlan } = body;
 
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     console.log('Stripe key prefix:', stripeKey ? stripeKey.substring(0, 7) : 'MISSING');
@@ -27,9 +27,8 @@ Deno.serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
 
-    const finalRegion = region || 'USD_US';
     const priceType = selectedPlan === 'yearly' ? 'YEARLY' : 'MONTHLY';
-    const envKey = `STRIPE_${priceType}_PRICE_ID_${finalRegion}`;
+    const envKey = `STRIPE_${priceType}_PRICE_ID_EUR`;
     const finalPriceId = priceId || Deno.env.get(envKey);
 
     if (!finalPriceId) {
