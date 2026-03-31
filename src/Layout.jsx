@@ -60,7 +60,7 @@ const NavButton = React.memo(function NavButton({ item, isActive, onNavigate, on
   return (
     <button
       onPointerUp={handleNav}
-      className="relative flex flex-col items-center py-2 px-4 transition-transform duration-75 active:scale-90"
+      className="flex-1 flex flex-col items-center justify-center py-2 transition-transform duration-75 active:scale-90"
       style={{
         pointerEvents: 'auto',
         touchAction: 'manipulation',
@@ -72,12 +72,12 @@ const NavButton = React.memo(function NavButton({ item, isActive, onNavigate, on
       }}
     >
       {isActive && (
-        <div className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full" />
+        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 rounded-full" />
       )}
       <div className={`p-2.5 rounded-2xl ${isActive ? "bg-gradient-to-br from-teal-500/20 to-emerald-500/20" : ""}`}>
-        <Icon size={22} className={isActive ? "text-teal-300" : "text-slate-400"} />
+        <Icon size={20} className={isActive ? "text-teal-300" : "text-slate-400"} />
       </div>
-      <span className={`text-[11px] mt-0.5 font-semibold ${isActive ? "text-teal-300" : "text-slate-500"}`}>
+      <span className={`text-[10px] mt-1 font-semibold whitespace-nowrap ${isActive ? "text-teal-300" : "text-slate-500"}`}>
         {item.label}
       </span>
     </button>
@@ -237,7 +237,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
             width: '100%'
           }}
         >
-          <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
+          <div className="w-full flex items-center justify-center py-2 px-0 relative">
             {navItems.map((item) => (
               <NavButton
                 key={item.name}
