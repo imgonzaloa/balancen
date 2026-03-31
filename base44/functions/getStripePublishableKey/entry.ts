@@ -5,8 +5,6 @@ Deno.serve(async (req) => {
   
   try {
     const publishableKey = Deno.env.get('STRIPE_PUBLISHABLE_KEY');
-    const monthlyEUR = Deno.env.get('STRIPE_MONTHLY_PRICE_ID_EUR');
-    const yearlyEUR = Deno.env.get('STRIPE_YEARLY_PRICE_ID_EUR');
     
     return Response.json({
       publishableKey,
@@ -14,8 +12,8 @@ Deno.serve(async (req) => {
       currency: '€',
       prices: { monthly: 6.99, yearly: 49.99 },
       priceIds: {
-        monthly: monthlyEUR,
-        yearly: yearlyEUR
+        monthly: "price_1TH2SnD56iwN3Uici60yeYWD",
+        yearly: "price_1TH2TKD56iwN3UicoDA57a3s"
       }
     });
   } catch (error) {
