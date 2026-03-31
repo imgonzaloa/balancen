@@ -119,10 +119,9 @@ export default function SmartNotificationManager() {
     if (!user?.email) return;
 
     const checkFriendActivity = async () => {
+      try {
       if (Notification.permission !== 'granted') return;
       if (document.hidden) return;
-
-      try {
         const today = new Date().toISOString().split('T')[0];
         let shown = {};
         try { shown = JSON.parse(localStorage.getItem(FRIEND_NOTIF_KEY) || '{}'); } catch { shown = {}; }

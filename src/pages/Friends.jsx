@@ -98,6 +98,7 @@ export default function Friends() {
 
   const sendRequestMutation = useMutation({
     mutationFn: async (email) => {
+      if (!user?.email) throw new Error("User not authenticated");
       const existing = [...sentRequests, ...receivedRequests].find(
         f => (f.user_email === email || f.friend_email === email)
       );
