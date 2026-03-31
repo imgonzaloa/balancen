@@ -4,10 +4,8 @@ Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   
   try {
-    const publishableKey = Deno.env.get('STRIPE_PUBLISHABLE_KEY');
-    
     return Response.json({
-      publishableKey,
+      publishableKey: "pk_live_51TH2EOD56iwN3Uic40aSoP0HcuR6PL4JcUnYeH2dwOUzi2aWDJ2vlK5hEh2qMWd4q7kPbBiQ8FuEVBMYKcNCwYA600DEDsDrsX",
       region: 'EUR',
       currency: '€',
       prices: { monthly: 6.99, yearly: 49.99 },
