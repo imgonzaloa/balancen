@@ -124,7 +124,7 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
         {featured && (
           <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 border border-amber-400/40">
             <Crown size={11} className="text-amber-400" />
-            <span className="text-amber-300 text-xs font-bold">Featured</span>
+            <span className="text-amber-300 text-[10px] font-bold">Athlete</span>
           </div>
         )}
         {post.post_type === 'achievement' && !featured && (

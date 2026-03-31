@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Heart, MessageCircle, Send } from "lucide-react";
+import { Heart, MessageCircle, Send, Crown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatRelativeTime } from "@/lib/locale";
 
-export default function MealCard({ meal, currentUser, currentProfile }) {
+export default function MealCard({ meal, currentUser, currentProfile, featured = false }) {
   const { t, lang } = useTranslation();
   const queryClient = useQueryClient();
   const [showComments, setShowComments] = useState(false);
@@ -45,12 +45,18 @@ export default function MealCard({ meal, currentUser, currentProfile }) {
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold">
           {meal.created_by?.charAt(0).toUpperCase() || "?"}
         </div>
-        <div>
+        <div className="flex-1">
           <p className="text-white font-semibold text-sm">{meal.created_by}</p>
           <p className="text-white/50 text-xs">
             {meal.created_date ? formatRelativeTime(lang, meal.created_date) : ''}
           </p>
         </div>
+        {featured && (
+          <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 border border-amber-400/40">
+            <Crown size={12} className="text-amber-400" />
+            <span className="text-amber-300 text-[10px] font-bold">Athlete</span>
+          </div>
+        )}
       </div>
 
       {/* Image */}

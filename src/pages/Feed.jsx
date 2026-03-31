@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
-import { Plus, Users, ArrowLeft, Compass, UserPlus } from "lucide-react";
+import { Plus, Users, ArrowLeft, Compass, UserPlus, Crown } from "lucide-react";
 import PostCard from "@/components/social/PostCard";
 import CreatePost from "@/components/social/CreatePost";
 import MealCard from "@/components/social/MealCard";
@@ -61,21 +61,26 @@ export default function Feed() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: discoveryData = { posts: [], featuredEmails: new Set() } } = useQuery({
+  const { data: discoveryData = { posts: [], featuredMeals: [], featuredEmails: new Set() } } = useQuery({
     queryKey: ['discovery-feed', user?.email],
     queryFn: async () => {
-      // Fetch recent public posts
-      const allPosts = await base44.entities.Post.filter({}, '-created_date', 50);
-
-      // Fetch featured athlete profiles to tag their posts
+      // Fetch featured profiles
       const featuredProfiles = await base44.entities.UserProfile.filter({ is_featured: true }).catch(() => []);
       const featuredEmails = new Set(featuredProfiles.map(p => p.created_by));
 
-      const publicPosts = allPosts
-        .filter(p => p.is_public === true || featuredEmails.has(p.author_email))
-        .slice(0, 20);
+      // Fetch public posts (limit 20)
+      const allPosts = await base44.entities.Post.filter({}, '-created_date', 20);
+      const publicPosts = allPosts.filter(p => p.is_public === true || featuredEmails.has(p.author_email));
 
-      return { posts: publicPosts, featuredEmails };
+      // Fetch featured meals (limit 10)
+      const featuredMeals = [];
+      for (const email of [...featuredEmails].slice(0, 5)) {
+        const meals = await base44.entities.MealLog.filter({ created_by: email }, '-created_date', 2).catch(() => []);
+        featuredMeals.push(...meals);
+      }
+      featuredMeals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+
+      return { posts: publicPosts, featuredMeals: featuredMeals.slice(0, 10), featuredEmails };
     },
     enabled: !!user?.email,
     staleTime: 2 * 60 * 1000,
@@ -94,8 +99,16 @@ export default function Feed() {
 
   const friendPostIds = new Set(posts.map(p => p.id));
   const discoveryPosts = discoveryData.posts.filter(p => !friendPostIds.has(p.id) && p.author_email !== user?.email);
+  const featuredMeals = discoveryData.featuredMeals || [];
   const featuredEmails = discoveryData.featuredEmails || new Set();
   const hasFriendContent = posts.length > 0 || friendMeals.length > 0;
+  const hasDiscoveryContent = discoveryPosts.length > 0 || featuredMeals.length > 0;
+
+  // Mixed discovery items sorted by date
+  const mixedDiscovery = [
+    ...discoveryPosts.map(p => ({ type: 'post', data: p, date: p.created_date })),
+    ...featuredMeals.map(m => ({ type: 'meal', data: m, date: m.created_date })),
+  ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-24" style={{ minHeight: '100dvh' }}>
@@ -158,46 +171,66 @@ export default function Feed() {
           </div>
         ) : (
           <>
-            {/* Friends feed */}
+            {/* === FRIENDS FEED === */}
             {hasFriendContent && (
               <div className="space-y-4 mb-6">
                 {friendMeals.map(meal => (
                   <MealCard key={meal.id} meal={meal} currentUser={user} currentProfile={profile} />
                 ))}
                 {posts.map(post => (
-                  <PostCard key={post.id} post={post} currentUserEmail={user.email} onUpdate={refetch} />
+                  <PostCard key={post.id} post={post} currentUserEmail={user.email} onUpdate={refetch} featured={featuredEmails.has(post.author_email)} />
                 ))}
               </div>
             )}
 
-            {/* Discovery section */}
-            {discoveryPosts.length > 0 && (
+            {/* === DISCOVERY SECTION === */}
+            {hasDiscoveryContent && (
               <>
-                <div className="flex items-center gap-3 mb-4">
-                  <Compass size={18} className="text-teal-400" />
-                  {hasFriendContent ? (
-                    <h2 className="text-white/70 font-bold text-sm uppercase tracking-wider">Discover</h2>
-                  ) : (
-                    <h2 className="text-white font-bold text-lg">Discover what people are eating</h2>
-                  )}
-                  <div className="flex-1 h-px bg-white/10" />
-                </div>
+                {hasFriendContent ? (
+                  /* Divider with teal dots when friends feed is shown above */
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="flex-1 h-px bg-white/15" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                      <span className="text-white/40 text-xs uppercase tracking-wider font-semibold">Discover</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                    </div>
+                    <div className="flex-1 h-px bg-white/15" />
+                  </div>
+                ) : (
+                  /* No-friends header */
+                  <div className="mb-5">
+                    <h2 className="text-white font-black text-xl mb-1">Discover what people are eating 🌍</h2>
+                    <p className="text-white/50 text-sm">Add friends to see their meals here</p>
+                  </div>
+                )}
+
                 <div className="space-y-4">
-                  {discoveryPosts.map(post => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      currentUserEmail={user.email}
-                      onUpdate={refetch}
-                      featured={featuredEmails.has(post.author_email)}
-                    />
-                  ))}
+                  {mixedDiscovery.map(item =>
+                    item.type === 'post' ? (
+                      <PostCard
+                        key={item.data.id}
+                        post={item.data}
+                        currentUserEmail={user.email}
+                        onUpdate={refetch}
+                        featured={featuredEmails.has(item.data.author_email)}
+                      />
+                    ) : (
+                      <MealCard
+                        key={item.data.id}
+                        meal={item.data}
+                        currentUser={user}
+                        currentProfile={profile}
+                        featured={featuredEmails.has(item.data.created_by)}
+                      />
+                    )
+                  )}
                 </div>
               </>
             )}
 
-            {/* True empty state — no friend content AND no discovery posts */}
-            {!hasFriendContent && discoveryPosts.length === 0 && (
+            {/* === TRUE EMPTY STATE === */}
+            {!hasFriendContent && !hasDiscoveryContent && (
               <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 text-center">
                 <Users size={48} className="text-white/40 mx-auto mb-4" />
                 <h3 className="text-white font-bold mb-2">{t('no_posts_yet') || 'No posts yet'}</h3>
