@@ -28,6 +28,10 @@ export function NavigationManager() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  if ('scrollRestoration' in window.history) {
+    window.history.scrollRestoration = 'manual';
+  }
+
   useEffect(() => {
     const tab = getTabForPath(location.pathname);
     if (tab) {
@@ -79,6 +83,11 @@ export function useTabNavigation() {
       activeTab = tabName;
       navigate(destination, { replace: false, state: { tabSwitch: true } });
     }
+
+    setTimeout(() => {
+      const el = document.querySelector('[data-scroll-container]');
+      if (el) el.scrollTop = 0;
+    }, 50);
   }, [navigate, location.pathname]);
 
   // Track pushes within a tab to update that tab's stack
