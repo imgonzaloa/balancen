@@ -5,10 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import { Sparkles, Zap } from "lucide-react";
+import { Sparkles, Zap, Flame, Star, Users } from "lucide-react";
 
-// Steps: 1=goals, 2=intensity, 3=social, 4=trial activation
-const TOTAL_STEPS = 4;
+// Steps: 1=goals, 2=who to follow, 3=trial activation
+const TOTAL_STEPS = 3;
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -19,8 +19,8 @@ export default function Onboarding() {
   const [formData, setFormData] = useState({
     language: lang || 'es',
     primary_goal: "consistency",
-    intensity_level: "normal",
-    social_mode: "just_me",
+    social_mode: "with_team",
+    follow_mode: "both",
   });
 
   useEffect(() => {
@@ -108,16 +108,27 @@ export default function Onboarding() {
     { value: "stay_active", emoji: "🏃" },
   ];
 
-  const intensities = [
-    { value: "easy" },
-    { value: "normal" },
-    { value: "challenging" },
-  ];
-
-  const socialModes = [
-    { value: "just_me", emoji: "🧘" },
-    { value: "with_friends", emoji: "👥" },
-    { value: "with_team", emoji: "🏆" },
+  const followModes = [
+    {
+      value: "with_friends",
+      Icon: Flame,
+      iconColor: "text-orange-400",
+      title: lang === 'es' ? "Amigos y comunidad" : "Friends & community",
+      desc: lang === 'es' ? "Ve lo que comen tus amigos y compite en rachas" : "See what your friends eat, compete in streaks",
+    },
+    {
+      value: "with_team",
+      Icon: Star,
+      iconColor: "text-amber-400",
+      title: lang === 'es' ? "Atletas elite" : "Elite athletes",
+      desc: lang === 'es' ? "Sigue a atletas reales y ve su nutrición diaria" : "Follow real athletes and see their daily nutrition",
+    },
+    {
+      value: "both",
+      Icons: [Flame, Star],
+      title: lang === 'es' ? "Ambos" : "Both",
+      desc: lang === 'es' ? "Lo mejor de los dos mundos" : "The best of both worlds",
+    },
   ];
 
   const progressPct = ((step - 1) / (TOTAL_STEPS - 1)) * 100;
@@ -165,55 +176,60 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 2: Intensity */}
+          {/* Step 2: Who will you follow? */}
           {step === 2 && (
-            <motion.div key="intensity"
+            <motion.div key="follow"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-black text-white mb-2">{t('choose_pace')}</h2>
-                <p className="text-white/60">{t('how_challenging')}</p>
+                <h2 className="text-2xl font-black text-white mb-2">
+                  {lang === 'es' ? '¿A quién seguirás?' : 'Who will you follow?'}
+                </h2>
+                <p className="text-white/60">
+                  {lang === 'es' ? 'Elige tu experiencia social' : 'Choose your social experience'}
+                </p>
               </div>
               <div className="space-y-3">
-                {intensities.map((intensity) => (
-                  <button key={intensity.value}
-                    onClick={() => { setFormData(p => ({ ...p, intensity_level: intensity.value })); setStep(3); }}
-                    className="w-full p-4 rounded-2xl border-2 border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20 transition-all text-left">
-                    <p className="text-white font-semibold">{t(intensity.value)}</p>
-                    <p className="text-white/60 text-sm">{t(intensity.value + '_desc')}</p>
-                  </button>
-                ))}
+                {followModes.map((mode) => {
+                  const isSelected = formData.follow_mode === mode.value;
+                  return (
+                    <button key={mode.value}
+                      onClick={() => {
+                        const socialMode = mode.value === 'with_friends' ? 'with_friends' : 'with_team';
+                        setFormData(p => ({ ...p, follow_mode: mode.value, social_mode: socialMode }));
+                        setStep(3);
+                      }}
+                      className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
+                        isSelected
+                          ? 'border-teal-400 bg-teal-500/20'
+                          : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
+                      }`}>
+                      <div className="flex items-center gap-3 mb-1">
+                        {mode.Icons ? (
+                          <div className="flex items-center gap-1">
+                            <Flame size={20} className="text-orange-400" />
+                            <Star size={20} className="text-amber-400" />
+                          </div>
+                        ) : (
+                          <mode.Icon size={22} className={mode.iconColor} />
+                        )}
+                        <span className="text-white font-semibold">{mode.title}</span>
+                        {mode.value === 'both' && (
+                          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-teal-500/30 text-teal-300 font-semibold">
+                            {lang === 'es' ? 'Recomendado' : 'Recommended'}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-white/60 text-sm ml-8">{mode.desc}</p>
+                    </button>
+                  );
+                })}
               </div>
             </motion.div>
           )}
 
-          {/* Step 3: Social mode */}
+          {/* Step 3: Trial Activation */}
           {step === 3 && (
-            <motion.div key="social"
-              initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-              className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-black text-white mb-2">{t('how_use_app')}</h2>
-                <p className="text-white/60">{t('can_change_later')}</p>
-              </div>
-              <div className="space-y-3">
-                {socialModes.map((mode) => (
-                  <button key={mode.value}
-                    onClick={() => { setFormData(p => ({ ...p, social_mode: mode.value })); setStep(4); }}
-                    className="w-full p-4 rounded-2xl border-2 border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20 transition-all text-left">
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className="text-2xl">{mode.emoji}</span>
-                      <span className="text-white font-semibold">{t(mode.value)}</span>
-                    </div>
-                    <p className="text-white/60 text-sm ml-11">{t(mode.value + '_desc')}</p>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 4: Trial Activation */}
-          {step === 4 && (
             <motion.div key="trial"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="text-center space-y-8">
@@ -249,15 +265,15 @@ export default function Onboarding() {
               {/* Features */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-left space-y-3">
                 {(lang === 'es' ? [
-                  '✅ Análisis de comidas con IA',
-                  '✅ Grupos y leaderboard',
-                  '✅ Recomendaciones personalizadas',
-                  '✅ Progreso avanzado y estadísticas',
+                  '✅ Análisis de fotos con IA',
+                  '✅ Feed social — ve lo que comen amigos y atletas',
+                  '✅ Rachas diarias y misiones',
+                  '✅ Grupos, retos y leaderboard',
                 ] : [
-                  '✅ AI-powered meal analysis',
-                  '✅ Groups & leaderboard',
-                  '✅ Personalized recommendations',
-                  '✅ Advanced progress & analytics',
+                  '✅ AI meal photo analysis',
+                  '✅ Social feed — see what friends & athletes eat',
+                  '✅ Daily streaks & missions',
+                  '✅ Groups, challenges & leaderboard',
                 ]).map((f, i) => (
                   <p key={i} className="text-white/80 text-sm">{f}</p>
                 ))}
