@@ -348,20 +348,20 @@ export default function Profile() {
 
         {/* Owner Controls */}
         {profile?.role === 'owner' && (
-          <div className="mt-4 pt-4 border-t border-white/10">
-            <h3 className="text-white/40 text-xs uppercase tracking-wider font-semibold">Owner Controls</h3>
+          <div className="border-t border-white/10 mt-6 pt-4">
+            <h3 className="text-white/40 text-xs uppercase tracking-wider mb-3 font-semibold">Owner Controls</h3>
             <input
               type="email"
               value={featuredEmail}
               onChange={(e) => setFeaturedEmail(e.target.value)}
               placeholder="Enter user email..."
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-sm placeholder-white/40 mt-2 focus:outline-none focus:border-teal-500"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-sm placeholder-white/40 focus:outline-none focus:border-teal-500"
             />
             <button
               onClick={async () => {
                 try {
                   const profiles = await base44.entities.UserProfile.filter({ created_by: featuredEmail });
-                  if (profiles[0]) {
+                  if (profiles?.[0]) {
                     await base44.entities.UserProfile.update(profiles[0].id, {
                       is_featured: !profiles[0].is_featured
                     });
@@ -378,6 +378,7 @@ export default function Profile() {
             >
               ⭐ Toggle Featured
             </button>
+            <p className="text-white/30 text-xs mt-2">Featured users appear in the Discovery feed</p>
           </div>
         )}
       </div>

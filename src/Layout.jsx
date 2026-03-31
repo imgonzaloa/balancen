@@ -161,6 +161,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
     }, []);
 
   const handleNavigate = React.useCallback((pageName) => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      const contentEl = document.querySelector('[data-scroll-container]');
+      if (contentEl) contentEl.scrollTop = 0;
       navigateToTab(pageName);
     }, [navigateToTab]);
 
@@ -196,6 +199,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
       {/* Main scroll container - with padding for fixed bottom nav */}
       <main
         ref={scrollContainerRef}
+        data-scroll-container
         style={{
           flex: 1,
           overflowY: 'auto',
