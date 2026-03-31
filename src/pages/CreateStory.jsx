@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
-import { ArrowLeft, Send, Lock } from "lucide-react";
+import { ArrowLeft, Send, Lock, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createPageUrl } from "@/utils";
@@ -27,7 +27,7 @@ export default function CreateStory() {
     mutationFn: async (storyData) => base44.entities.Story.create(storyData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["active-stories"] });
-      toast.success("¡Historia publicada!");
+      toast.success(t('story_published') || "Story published!");
       navigate(createPageUrl('Social'));
     },
   });
@@ -58,7 +58,7 @@ export default function CreateStory() {
         views: [],
       });
     } catch (error) {
-      toast.error("Error al publicar historia");
+      toast.error(t('error_publishing_story') || "Error publishing story");
     } finally {
       setUploading(false);
     }
@@ -70,13 +70,13 @@ export default function CreateStory() {
         <div className="w-20 h-20 rounded-full bg-purple-500/20 flex items-center justify-center mb-6">
           <Lock size={40} className="text-purple-400" />
         </div>
-        <h2 className="text-white text-2xl font-bold mb-2">Función Premium</h2>
-        <p className="text-white/70 text-center mb-8">Las historias están disponibles solo para miembros Premium</p>
+        <h2 className="text-white text-2xl font-bold mb-2">{t('premium_feature') || "Premium Feature"}</h2>
+        <p className="text-white/70 text-center mb-8">{t('stories_premium_only') || "Stories are available only for Premium members"}</p>
         <Button
           onClick={() => navigate(createPageUrl('Premium'))}
           className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold px-8 py-3"
         >
-          Upgrade a Premium
+          {t('upgrade_to_premium') || "Upgrade to Premium"}
         </Button>
       </div>
     );
@@ -91,7 +91,7 @@ export default function CreateStory() {
         >
           <ArrowLeft size={20} className="text-white" />
         </button>
-        <h1 className="text-white font-bold text-lg">Nueva Historia</h1>
+        <h1 className="text-white font-bold text-lg">{t('new_story') || "New Story"}</h1>
         <div className="w-10" />
       </div>
 
@@ -101,11 +101,11 @@ export default function CreateStory() {
             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl border-2 border-dashed border-white/40 flex items-center justify-center group-hover:border-white/60 group-hover:bg-white/30 transition-all">
               <div className="flex flex-col items-center">
                 <Camera size={48} className="text-white/70 group-hover:text-white transition-colors mb-2" />
-                <span className="text-sm text-white/60 group-hover:text-white transition-colors">Tap para foto</span>
+                <span className="text-sm text-white/60 group-hover:text-white transition-colors">{t('tap_for_photo') || "Tap for photo"}</span>
               </div>
             </div>
           </div>
-          <p className="text-white/70 text-center text-sm">Elige de galería o cámara</p>
+          <p className="text-white/70 text-center text-sm">{t('choose_gallery_or_camera') || "Choose from gallery or camera"}</p>
           <input data-story-gallery type="file" accept="image/*" className="hidden" onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
@@ -125,7 +125,8 @@ export default function CreateStory() {
             <Input
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="Añade un texto..."
+              placeholder={t('add_text') || "Add text..."}
+
               className="bg-white/10 border-white/20 text-white placeholder-white/50"
             />
             <div className="flex gap-2">
@@ -137,23 +138,23 @@ export default function CreateStory() {
                   setCaption("");
                 }}
                 className="flex-1"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handlePublish}
-                disabled={uploading}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold"
-              >
-                {uploading ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Send size={18} className="mr-2" />
-                    Publicar
-                  </>
-                )}
-              </Button>
+                >
+                 {t('cancel')}
+                </Button>
+                <Button
+                 onClick={handlePublish}
+                 disabled={uploading}
+                 className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold"
+                >
+                 {uploading ? (
+                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                 ) : (
+                   <>
+                     <Send size={18} className="mr-2" />
+                     {t('publish') || "Publish"}
+                   </>
+                 )}
+                </Button>
             </div>
           </div>
         </div>
