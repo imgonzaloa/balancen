@@ -1,7 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, Lock, Plus, UserPlus, Flame, Activity, MessageSquare, Trophy, Share2, GraduationCap } from "lucide-react";
+import { Users, Plus, UserPlus, Flame, Activity, MessageSquare, Trophy, Share2, GraduationCap } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -299,7 +299,32 @@ export default function Social() {
           </div>
 
           {!isPremium ? (
-            <PremiumLock t={t} navigate={navigate} createPageUrl={createPageUrl} label={t('unlock_social')} />
+            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-6 border border-purple-500/30">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
+                  <Users size={20} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-base">Groups & Leaderboards</h3>
+                  <p className="text-purple-200 text-xs">Train together, compete together.</p>
+                </div>
+              </div>
+              <p className="text-white/60 text-sm mb-4">Create or join groups with your crew.</p>
+              <ul className="space-y-2 mb-5">
+                {["Group nutrition challenges", "Weekly leaderboard", "Shared progress with your team"].map(benefit => (
+                  <li key={benefit} className="flex items-center gap-2 text-white/80 text-sm">
+                    <span className="text-purple-300 font-bold">✦</span>
+                    {benefit}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                onClick={() => navigate(createPageUrl('Premium'))}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-xl"
+              >
+                Unlock with Premium
+              </Button>
+            </div>
           ) : myGroups.length === 0 ? (
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
               <Users size={40} className="text-white/30 mx-auto mb-3" />
@@ -343,27 +368,5 @@ export default function Social() {
       </div>
     </div>
     </PullToRefresh>
-  );
-}
-
-// Small shared component
-function PremiumLock({ t, navigate, createPageUrl, label }) {
-  return (
-    <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 text-center relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-pink-400/10 rounded-full blur-3xl" />
-      <div className="relative z-10">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <Lock size={32} className="text-white" />
-        </div>
-        <h3 className="text-white font-black text-xl mb-2">{t('locked_feature')}</h3>
-        <p className="text-white/90 text-sm mb-6 leading-relaxed">{label}</p>
-        <Button
-          onClick={() => navigate(createPageUrl('Premium'))}
-          className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-8 rounded-2xl shadow-xl"
-        >
-          {t('upgrade_now')}
-        </Button>
-      </div>
-    </div>
   );
 }
