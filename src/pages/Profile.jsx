@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Settings, LogOut, Edit2, Target, User as UserIcon } from "lucide-react";
+import { Camera, Settings, LogOut, Edit2, Target, User as UserIcon, Share2 } from "lucide-react";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
@@ -22,6 +22,7 @@ export default function Profile() {
   const [nameDraft, setNameDraft] = useState("");
   const [nameDraftSet, setNameDraftSet] = useState(false);
   const [savingName, setSavingName] = useState(false);
+  const [featuredEmail, setFeaturedEmail] = useState("");
 
   useEffect(() => {
     if (cachedProfile) {
@@ -225,6 +226,25 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Share Profile Button */}
+        {profile?.display_name && (
+          <button
+            onClick={() => {
+              const msg = `Check out my Balancen profile! 🍽️\n${profile.display_name} — ${profile.current_streak || 0} day streak 🔥\nJoin free!`;
+              if (navigator.share) {
+                navigator.share({ text: msg }).catch(() => {});
+              } else {
+                navigator.clipboard?.writeText(msg).catch(() => {});
+                toast.success("Profile link copied!");
+              }
+            }}
+            className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white/70 text-sm font-semibold flex items-center justify-center gap-2 hover:bg-white/20 transition-colors mb-6"
+          >
+            <Share2 size={16} />
+            Share profile
+          </button>
+        )}
+
         {/* Personal Info */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
           <h3 className="font-semibold text-white mb-4">{t('personal_info') || "Personal info"}</h3>
@@ -325,6 +345,41 @@ export default function Profile() {
           <LogOut size={18} />
           {t('logout')}
         </button>
+
+        {/* Owner Controls */}
+        {profile?.role === 'owner' && (
+          <div className="mt-4 pt-4 border-t border-white/10">
+            <h3 className="text-white/40 text-xs uppercase tracking-wider font-semibold">Owner Controls</h3>
+            <input
+              type="email"
+              value={featuredEmail}
+              onChange={(e) => setFeaturedEmail(e.target.value)}
+              placeholder="Enter user email..."
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-sm placeholder-white/40 mt-2 focus:outline-none focus:border-teal-500"
+            />
+            <button
+              onClick={async () => {
+                try {
+                  const profiles = await base44.entities.UserProfile.filter({ created_by: featuredEmail });
+                  if (profiles[0]) {
+                    await base44.entities.UserProfile.update(profiles[0].id, {
+                      is_featured: !profiles[0].is_featured
+                    });
+                    toast.success(profiles[0].is_featured ? "Removed from Featured" : "Marked as Featured Athlete ⭐");
+                    setFeaturedEmail("");
+                  } else {
+                    toast.error("User not found");
+                  }
+                } catch (_) {
+                  toast.error("Error updating user");
+                }
+              }}
+              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl px-4 py-3 mt-2 hover:from-amber-600 hover:to-orange-600 transition-colors"
+            >
+              ⭐ Toggle Featured
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Photo Picker Modal */}

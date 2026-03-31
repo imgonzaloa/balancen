@@ -58,6 +58,20 @@ export default function Feed() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: discoveryPosts = [] } = useQuery({
+    queryKey: ['discovery-posts'],
+    queryFn: async () => {
+      try {
+        const all = await base44.entities.Post.filter({ is_public: true }, '-created_date', 20);
+        const friendIds = new Set((posts || []).map(p => p.id));
+        return all.filter(p => !friendIds.has(p.id));
+      } catch (_) {
+        return [];
+      }
+    },
+    staleTime: 60000,
+  });
+
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -134,6 +148,32 @@ export default function Feed() {
                   <MealCard key={meal.id} meal={meal} currentUser={user} currentProfile={profile} />
                 ))}
                 {posts.map(post => (
+                  <PostCard key={post.id} post={post} currentUserEmail={user.email} onUpdate={refetch} />
+                ))}
+                {discoveryPosts.length > 0 && (
+                  <>
+                    <div className="flex items-center justify-center gap-3 py-2">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/20" />
+                      <p className="text-white/30 text-xs uppercase">✦ Discover ✦</p>
+                      <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/20" />
+                    </div>
+                    {discoveryPosts.map(post => (
+                      <PostCard key={post.id} post={post} currentUserEmail={user.email} onUpdate={refetch} />
+                    ))}
+                  </>
+                )}
+              </div>
+            ) : posts.length === 0 && discoveryPosts.length > 0 ? (
+              <div className="space-y-4">
+                <div className="text-center mb-6">
+                  <p className="text-white font-black text-xl mb-1">
+                    Discover what people are eating 🌍
+                  </p>
+                  <p className="text-white/50 text-sm mb-4">
+                    Add friends to see their meals here
+                  </p>
+                </div>
+                {discoveryPosts.map(post => (
                   <PostCard key={post.id} post={post} currentUserEmail={user.email} onUpdate={refetch} />
                 ))}
               </div>

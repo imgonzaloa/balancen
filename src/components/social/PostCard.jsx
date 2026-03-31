@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Heart, MessageCircle, Award, Flame, Crown } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -13,6 +13,21 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
   const [commentText, setCommentText] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [authorProfile, setAuthorProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchAuthorProfile = async () => {
+      try {
+        const profiles = await base44.entities.UserProfile.filter({ created_by: post.author_email });
+        if (profiles[0]) {
+          setAuthorProfile(profiles[0]);
+        }
+      } catch (_) {}
+    };
+    if (post.author_email) {
+      fetchAuthorProfile();
+    }
+  }, [post.author_email]);
 
   const handleLike = async () => {
     try {
@@ -118,7 +133,15 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
           )}
         </div>
         <div className="flex-1">
-          <p className="text-white font-semibold text-sm">{post.author_name}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-white font-semibold text-sm">{post.author_name}</p>
+            {authorProfile?.is_featured && (
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30">
+                <Crown size={10} className="text-amber-300" />
+                <span className="text-amber-300 text-[10px] font-bold">Athlete</span>
+              </div>
+            )}
+          </div>
           <p className="text-white/50 text-xs">{timeAgo(post.created_date)}</p>
         </div>
         {featured && (
