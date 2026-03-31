@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
+import { useTranslation } from "@/components/TranslationProvider";
 import { ArrowLeft, Camera, Plus, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ export default function ProgressTracker() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, profile } = useAppState();
+  const { t, lang } = useTranslation();
   const [showAddSnapshot, setShowAddSnapshot] = useState(false);
 
   const [snapshotData, setSnapshotData] = useState({
@@ -39,7 +41,7 @@ export default function ProgressTracker() {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["progress-snapshots"] });
-      toast.success("Progreso guardado");
+      toast.success(t('progress_saved') || "Progress saved!");
       setShowAddSnapshot(false);
       setSnapshotData({
         weight: "",
@@ -55,7 +57,7 @@ export default function ProgressTracker() {
 
   const weightData = snapshots
     .filter(s => s.weight)
-    .map(s => ({ date: new Date(s.date).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }), weight: s.weight }))
+    .map(s => ({ date: new Date(s.date).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'pt' ? 'pt-BR' : 'en-US', { day: "2-digit", month: "short" }), weight: s.weight }))
     .reverse();
 
   const latestSnapshot = snapshots[0];
@@ -76,8 +78,8 @@ export default function ProgressTracker() {
             <ArrowLeft size={20} className="text-white" />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-white">Seguimiento Avanzado</h1>
-            <p className="text-white/60 text-sm">Monitorea tu progreso completo</p>
+            <h1 className="text-2xl font-black text-white">{t('advanced_tracking') || 'Advanced Tracking'}</h1>
+            <p className="text-white/60 text-sm">{t('monitor_progress') || 'Monitor your complete progress'}</p>
           </div>
         </div>
 
@@ -86,7 +88,7 @@ export default function ProgressTracker() {
           <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-white/60 text-xs mb-1">Peso Actual</p>
+                <p className="text-white/60 text-xs mb-1">{t('current_weight') || 'Current Weight'}</p>
                 <div className="flex items-baseline gap-2">
                   <p className="text-white text-3xl font-bold">{latestSnapshot.weight}</p>
                   <span className="text-white/70 text-sm">kg</span>
@@ -100,7 +102,7 @@ export default function ProgressTracker() {
               </div>
               {latestSnapshot.body_fat_percentage && (
                 <div>
-                  <p className="text-white/60 text-xs mb-1">Grasa Corporal</p>
+                  <p className="text-white/60 text-xs mb-1">{t('body_fat') || 'Body Fat'}</p>
                   <div className="flex items-baseline gap-2">
                     <p className="text-white text-3xl font-bold">{latestSnapshot.body_fat_percentage}</p>
                     <span className="text-white/70 text-sm">%</span>
@@ -114,7 +116,7 @@ export default function ProgressTracker() {
         {/* Weight Chart */}
         {weightData.length > 1 && (
           <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
-            <h3 className="text-white font-bold mb-4">Evolución del Peso</h3>
+            <h3 className="text-white font-bold mb-4">{t('weight_evolution') || 'Weight Evolution'}</h3>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={weightData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -132,25 +134,25 @@ export default function ProgressTracker() {
 
         {/* Add Snapshot Button */}
         <Button
-          onClick={() => setShowAddSnapshot(true)}
-          className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-6 mb-6"
-        >
-          <Plus size={20} className="mr-2" />
-          Añadir Medición
-        </Button>
+           onClick={() => setShowAddSnapshot(true)}
+           className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-6 mb-6"
+         >
+           <Plus size={20} className="mr-2" />
+           {t('add_measurement') || 'Add Measurement'}
+         </Button>
 
         {/* History */}
         <div className="space-y-3">
           {snapshots.map((snapshot) => (
             <div key={snapshot.id} className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
               <div className="flex items-start justify-between mb-2">
-                <p className="text-white font-bold">{new Date(snapshot.date).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}</p>
+                <p className="text-white font-bold">{new Date(snapshot.date).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'pt' ? 'pt-BR' : 'en-US', { day: "numeric", month: "long", year: "numeric" })}</p>
                 <span className="text-white/60 text-xs">{snapshot.mood}</span>
               </div>
               <div className="grid grid-cols-3 gap-3 text-sm">
-                {snapshot.weight && <div><span className="text-white/60">Peso:</span> <span className="text-white font-semibold">{snapshot.weight} kg</span></div>}
-                {snapshot.body_fat_percentage && <div><span className="text-white/60">Grasa:</span> <span className="text-white font-semibold">{snapshot.body_fat_percentage}%</span></div>}
-                {snapshot.muscle_mass && <div><span className="text-white/60">Músculo:</span> <span className="text-white font-semibold">{snapshot.muscle_mass} kg</span></div>}
+                {snapshot.weight && <div><span className="text-white/60">{t('weight')}:</span> <span className="text-white font-semibold">{snapshot.weight} kg</span></div>}
+                {snapshot.body_fat_percentage && <div><span className="text-white/60">{t('fat')}:</span> <span className="text-white font-semibold">{snapshot.body_fat_percentage}%</span></div>}
+                {snapshot.muscle_mass && <div><span className="text-white/60">{t('muscle')}:</span> <span className="text-white font-semibold">{snapshot.muscle_mass} kg</span></div>}
               </div>
               {snapshot.notes && <p className="text-white/70 text-xs mt-2">{snapshot.notes}</p>}
             </div>
@@ -162,10 +164,10 @@ export default function ProgressTracker() {
       {showAddSnapshot && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end">
           <div className="bg-slate-900 rounded-t-3xl w-full max-h-[85vh] overflow-y-auto p-6">
-            <h2 className="text-white font-bold text-xl mb-4">Nueva Medición</h2>
+            <h2 className="text-white font-bold text-xl mb-4">{t('new_measurement') || 'New Measurement'}</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-white/70 text-sm mb-1 block">Peso (kg)</label>
+                <label className="text-white/70 text-sm mb-1 block">{t('weight_kg') || 'Weight (kg)'}</label>
                 <Input
                   type="number"
                   step="0.1"
@@ -175,7 +177,7 @@ export default function ProgressTracker() {
                 />
               </div>
               <div>
-                <label className="text-white/70 text-sm mb-1 block">Grasa Corporal (%)</label>
+                <label className="text-white/70 text-sm mb-1 block">{t('body_fat_percent') || 'Body Fat (%)'}</label>
                 <Input
                   type="number"
                   step="0.1"
@@ -185,12 +187,12 @@ export default function ProgressTracker() {
                 />
               </div>
               <div>
-                <label className="text-white/70 text-sm mb-1 block">Notas</label>
+                <label className="text-white/70 text-sm mb-1 block">{t('notes')}</label>
                 <Input
                   value={snapshotData.notes}
                   onChange={(e) => setSnapshotData({ ...snapshotData, notes: e.target.value })}
                   className="bg-white/10 border-white/20 text-white"
-                  placeholder="¿Cómo te sientes hoy?"
+                  placeholder={t('how_feeling_today') || "How are you feeling today?"}
                 />
               </div>
               <div className="flex gap-2 pt-4">
@@ -199,7 +201,7 @@ export default function ProgressTracker() {
                   onClick={() => setShowAddSnapshot(false)}
                   className="flex-1"
                 >
-                  Cancelar
+                  {t('cancel')}
                 </Button>
                 <Button
                   onClick={() => addSnapshotMutation.mutate({
@@ -212,7 +214,7 @@ export default function ProgressTracker() {
                   disabled={!snapshotData.weight && !snapshotData.body_fat_percentage}
                   className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500"
                 >
-                  Guardar
+                  {t('save')}
                 </Button>
               </div>
             </div>
