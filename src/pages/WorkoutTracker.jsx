@@ -9,11 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function WorkoutTracker() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, profile } = useAppState();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const planId = searchParams.get("planId");
 
@@ -21,17 +23,21 @@ export default function WorkoutTracker() {
 
   if (!isPremium) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 flex flex-col items-center justify-center p-6 pb-24">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900/30 to-slate-900 flex flex-col items-center justify-center p-6 pb-24">
         <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6">
           <Lock size={40} className="text-indigo-400" />
         </div>
-        <h2 className="text-white text-2xl font-bold mb-2">Registro de Entrenamientos - Premium</h2>
-        <p className="text-white/70 text-center mb-8">Seguimiento detallado de tus entrenamientos y progresión</p>
+        <h2 className="text-white text-2xl font-bold mb-2 text-center">
+          {t('workout_tracker_premium_title') || 'Workout Tracker — Premium'}
+        </h2>
+        <p className="text-white/70 text-center mb-8 max-w-xs">
+          {t('workout_tracker_premium_desc') || 'Detailed workout tracking and progression logging'}
+        </p>
         <Button
           onClick={() => navigate(createPageUrl('Premium'))}
           className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold px-8 py-3"
         >
-          Desbloquear Premium
+          {t('upgrade_now') || 'Upgrade to Premium'}
         </Button>
       </div>
     );
