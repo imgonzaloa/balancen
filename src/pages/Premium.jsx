@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap, Flame, Target, Shield, Loader2, Camera, Utensils, Dumbbell, BarChart3 } from "lucide-react";
+import { ChevronLeft, Crown, Check, Sparkles, TrendingUp, Heart, Users, Zap, Flame, Target, Shield, Loader2, Camera, Utensils, Dumbbell, BarChart3, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -170,6 +170,27 @@ export default function Premium() {
             ))}
           </motion.div>
         )}
+
+        {/* Always Free Section */}
+        <motion.div
+          className="mb-8 rounded-2xl border border-teal-400/40 bg-teal-500/10 backdrop-blur-sm p-5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <p className="text-teal-300 font-bold text-sm mb-3 flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-teal-400" />
+            Always free, forever
+          </p>
+          <div className="grid grid-cols-2 gap-y-2 gap-x-3">
+            {["Social feed & posts", "Add friends & see their meals", "Streaks & daily missions", "Basic meal logging", "Challenges"].map((item) => (
+              <div key={item} className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-teal-400 flex-shrink-0" />
+                <span className="text-white/70 text-xs">{item}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
 
         {/* Features */}
         <motion.div
