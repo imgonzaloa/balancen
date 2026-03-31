@@ -55,6 +55,11 @@ const NavButton = React.memo(function NavButton({ item, isActive, onNavigate, on
       return;
     }
     onNavigate(item.name);
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
   }, [isActive, item.name, onNavigate, onScrollTop]);
 
   return (
@@ -101,6 +106,17 @@ function LayoutInner({ children, currentPageName, bootState }) {
   React.useEffect(() => {
     console.log('ROOT MOUNT');
   }, []);
+
+  // Reset scroll on tab change
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const main = document.querySelector('main');
+    if (main) main.scrollTop = 0;
+    const divs = document.querySelectorAll('[class*="overflow-y"]');
+    divs.forEach(el => { el.scrollTop = 0; });
+  }, [currentPageName]);
 
   const { navigateToTab } = useTabNavigation();
     const scrollPositions = React.useRef({});
@@ -214,7 +230,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
         }}
       >
         <div
-          key={location.key}
+          key={`${currentPageName}-${location.key}`}
           className={
             location.state?.tabSwitch || location.state?.tabRoot
               ? 'route-tab-switch'
