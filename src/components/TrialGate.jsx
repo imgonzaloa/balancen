@@ -36,6 +36,7 @@ async function safeLogout() {
 export default function TrialGate({ children }) {
   const { user, profile, isInitialized, profileLoading } = useAppState();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const didRedirectRef = React.useRef(false);
 
   // isReady: auth check done AND profile fetch settled (or no user to fetch profile for)
@@ -90,8 +91,6 @@ export default function TrialGate({ children }) {
   if (!user?.email) return null;
 
   // Step 4: Profile load error — safe fallback UI
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { t } = useTranslation();
   if (profileLoadFailed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex flex-col items-center justify-center p-6">
