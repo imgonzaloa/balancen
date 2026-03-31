@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Heart, MessageCircle, Award, Flame } from "lucide-react";
+import { Heart, MessageCircle, Award, Flame, Crown } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 
-export default function PostCard({ post, currentUserEmail, onUpdate }) {
+export default function PostCard({ post, currentUserEmail, onUpdate, featured }) {
   const { t } = useTranslation();
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
@@ -121,7 +121,13 @@ export default function PostCard({ post, currentUserEmail, onUpdate }) {
           <p className="text-white font-semibold text-sm">{post.author_name}</p>
           <p className="text-white/50 text-xs">{timeAgo(post.created_date)}</p>
         </div>
-        {post.post_type === 'achievement' && (
+        {featured && (
+          <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 border border-amber-400/40">
+            <Crown size={11} className="text-amber-400" />
+            <span className="text-amber-300 text-xs font-bold">Featured</span>
+          </div>
+        )}
+        {post.post_type === 'achievement' && !featured && (
           <Award size={20} className="text-amber-400" />
         )}
       </div>
