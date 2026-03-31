@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ProfileGoalsEdit from "@/components/profile/ProfileGoalsEdit";
 import PhotoPickerModal from "@/components/profile/PhotoPickerModal";
+import OwnerFeaturedControl from "@/components/profile/OwnerFeaturedControl";
 import { withTimeout } from "@/components/utils/fetchWithTimeout";
 import ErrorFallback, { LoadingTimeout } from "@/components/ErrorFallback";
 import { debugLogger } from "@/components/DebugOverlay";
@@ -549,6 +550,11 @@ export default function Profile() {
           <LogOut size={18} />
           {t('logout')}
         </button>
+
+        {/* Owner Controls */}
+        {profile?.role === 'owner' && (
+          <OwnerFeaturedControl />
+        )}
       </div>
 
       {/* Photo Picker Popover */}
