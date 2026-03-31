@@ -7,35 +7,41 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { Sparkles, Zap } from "lucide-react";
 
-function AIDemo({ lang }) {
+function AIDemo() {
+  const [cycle, setCycle] = useState(0);
+
+  useEffect(() => {
+    // After last line appears (1.3s delay + 0.4s anim) + 2s wait = ~3.7s total
+    const timer = setTimeout(() => setCycle(c => c + 1), 3700);
+    return () => clearTimeout(timer);
+  }, [cycle]);
+
   const lines = [
-    lang === 'es' ? "Ensalada de pollo a la plancha" : "Grilled chicken salad",
-    lang === 'es' ? "320 kcal · 38g proteína · 12g carbs · 8g grasa" : "320 kcal · 38g protein · 12g carbs · 8g fat",
+    { text: "Grilled chicken salad", className: "text-white font-bold text-sm", delay: 0.3 },
+    { text: "320 kcal · 38g protein", className: "text-teal-300 text-xs font-semibold", delay: 0.8 },
+    { text: "12g carbs · 8g fat", className: "text-white/50 text-xs", delay: 1.3 },
   ];
 
   return (
-    <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3">
-      {/* Label */}
+    <div className="bg-white/10 backdrop-blur border border-white/10 rounded-2xl p-4 space-y-3">
       <div className="flex items-center gap-1.5">
         <Sparkles size={14} className="text-teal-300" />
-        <span className="text-teal-300 text-xs font-semibold uppercase tracking-wide">AI Analysis</span>
+        <span className="text-teal-300 text-xs font-bold uppercase tracking-wider">AI Analysis</span>
       </div>
-
-      {/* Meal photo mockup */}
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center text-3xl flex-shrink-0">
           🥗
         </div>
         <div className="flex-1 space-y-1.5">
-          {lines.map((line, i) => (
+          {lines.map((line) => (
             <motion.p
-              key={i}
-              initial={{ opacity: 0, y: 4 }}
+              key={`${cycle}-${line.delay}`}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + i * 0.7, duration: 0.5 }}
-              className={i === 0 ? "text-white font-semibold text-sm" : "text-white/60 text-xs"}
+              transition={{ delay: line.delay, duration: 0.4, ease: "easeOut" }}
+              className={line.className}
             >
-              {line}
+              {line.text}
             </motion.p>
           ))}
         </div>
@@ -259,7 +265,14 @@ export default function Onboarding() {
               </div>
 
               {/* AI Demo Card */}
-              <AIDemo lang={lang} />
+              <AIDemo />
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-white/40 text-xs uppercase tracking-wider">What you unlock with Premium:</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
 
               {/* Features */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-left space-y-3">
