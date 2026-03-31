@@ -159,7 +159,7 @@ export default function CameraScreen() {
 
     // Free user scan limit gate
     if (!isProfilePhotoMode && !isPremium && freeScansLeft === 0) {
-      toast.error("You've used your 5 free AI scans today. Upgrade to Premium for unlimited.");
+      toast.error(t("ai_scans_limit"));
       navigate(createPageUrl("Premium"));
       return;
     }
@@ -251,7 +251,7 @@ export default function CameraScreen() {
 
     // Free user scan limit gate for gallery uploads
     if (!isProfilePhotoMode && !isPremium && freeScansLeft === 0) {
-      toast.error("You've used your 5 free AI scans today. Upgrade to Premium for unlimited.");
+      toast.error(t("ai_scans_limit"));
       navigate(createPageUrl("Premium"));
       return;
     }
@@ -488,17 +488,17 @@ export default function CameraScreen() {
           style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 190px)', left: '50%', transform: 'translateX(-50%)' }}
         >
           {freeScansLeft === 0 ? (
-            <button
-              onClick={() => navigate(createPageUrl("Premium"))}
-              className="px-4 py-2 rounded-full border bg-amber-500/30 border-amber-400/50 text-amber-200 text-xs font-bold backdrop-blur-md"
-              style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
-            >
-              Daily limit reached — Upgrade for unlimited
-            </button>
+           <button
+             onClick={() => navigate(createPageUrl("Premium"))}
+             className="px-4 py-2 rounded-full border bg-amber-500/30 border-amber-400/50 text-amber-200 text-xs font-bold backdrop-blur-md"
+             style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
+           >
+             {t("daily_limit_reached")}
+           </button>
           ) : (
-            <div className="px-3 py-1.5 rounded-full border bg-teal-500/25 border-teal-400/40 text-teal-300 text-xs font-bold backdrop-blur-md pointer-events-none">
-              ✨ {freeScansLeft} AI scans left today
-            </div>
+           <div className="px-3 py-1.5 rounded-full border bg-teal-500/25 border-teal-400/40 text-teal-300 text-xs font-bold backdrop-blur-md pointer-events-none">
+             ✨ {freeScansLeft} {t("ai_scans_left")}
+           </div>
           )}
         </div>
       )}
