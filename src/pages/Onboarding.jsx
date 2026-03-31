@@ -285,17 +285,12 @@ export default function Onboarding() {
               {/* Copy */}
               <div className="space-y-3">
                 <h1 className="text-3xl font-black text-white leading-tight">
-                  {lang === 'es' ? 'Bienvenido a Balancen' : 'Welcome to Balancen'}
+                  {lang === 'es' ? 'Tu comunidad te espera' : 'Your community is waiting'}
                 </h1>
                 <p className="text-teal-300 text-xl font-semibold">
                   {lang === 'es'
-                    ? 'Tienes 7 días de acceso Premium completo.'
-                    : 'You have 7 days of full Premium access.'}
-                </p>
-                <p className="text-white/60 text-sm leading-relaxed">
-                  {lang === 'es'
-                    ? 'Sin pago hoy. Cancela cuando quieras.'
-                    : 'No payment required today. Cancel anytime.'}
+                    ? '7 días gratis. Sin tarjeta. Sin trampa.'
+                    : '7 days free. No card. No catch.'}
                 </p>
               </div>
 
@@ -326,13 +321,13 @@ export default function Onboarding() {
                 className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-2xl shadow-teal-500/40 active:scale-95 transition-transform disabled:opacity-70">
                 {saving
                   ? (lang === 'es' ? 'Activando…' : 'Activating…')
-                  : (lang === 'es' ? 'Comenzar mi Trial de 7 Días' : 'Start My 7-Day Free Trial')}
+                  : (lang === 'es' ? 'Entrar a Balancen →' : 'Enter Balancen →')}
               </button>
 
               <p className="text-white/30 text-xs">
                 {lang === 'es'
-                  ? 'Después del trial se te pedirá suscripción para continuar.'
-                  : 'After the trial, a subscription is required to continue.'}
+                  ? 'Después del trial: €6.99/mes. Cancela cuando quieras.'
+                  : 'After trial: €6.99/month. Cancel anytime.'}
               </p>
             </motion.div>
           )}
