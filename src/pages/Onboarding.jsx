@@ -277,12 +277,12 @@ export default function Onboarding() {
               {/* Features */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-left space-y-3">
                 {(lang === 'es' ? [
-                  '✅ Análisis de fotos con IA',
-                  '✅ Feed social — ve lo que comen amigos y atletas',
-                  '✅ Rachas diarias y misiones',
+                  '✅ Análisis de comidas con IA',
+                  '✅ Feed social — ve qué comen tus amigos y atletas',
+                  '✅ Streaks y misiones diarias',
                   '✅ Grupos, retos y leaderboard',
                 ] : [
-                  '✅ AI meal photo analysis',
+                  '✅ AI-powered meal analysis',
                   '✅ Social feed — see what friends & athletes eat',
                   '✅ Daily streaks & missions',
                   '✅ Groups, challenges & leaderboard',
