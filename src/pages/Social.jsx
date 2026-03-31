@@ -58,7 +58,7 @@ export default function Social() {
       ]);
       return [...sent, ...received].filter(Boolean);
     },
-    enabled: !!user?.email && isPremium,
+    enabled: !!user?.email,
     retry: false,
     staleTime: 10 * 60 * 1000,
   });
@@ -79,7 +79,7 @@ export default function Social() {
       );
       return results.filter(Boolean);
     },
-    enabled: isPremium && friends.length > 0,
+    enabled: friends.length > 0,
     retry: false,
     staleTime: 10 * 60 * 1000,
   });
@@ -208,81 +208,75 @@ export default function Social() {
 
         {/* Friends section */}
         <div className="space-y-4">
-          {!isPremium ? (
-            <PremiumLock t={t} navigate={navigate} createPageUrl={createPageUrl} label={t('unlock_social')} />
-          ) : (
-            <>
-              <div className="flex items-center justify-between">
-                <h2 className="text-white font-black text-lg flex items-center gap-2">
-                  <Users size={20} />
-                  {t('my_friends')}
-                </h2>
-                <Button
-                  onClick={() => navigate(createPageUrl('Friends'))}
-                  size="sm"
-                  variant="outline"
-                  className="border-white/20 bg-white/10 text-white hover:bg-white/20 rounded-full h-9 px-4"
-                >
-                  <UserPlus size={16} className="mr-1" />
-                  {t('add_friend')}
-                </Button>
-              </div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-white font-black text-lg flex items-center gap-2">
+              <Users size={20} />
+              {t('my_friends')}
+            </h2>
+            <Button
+              onClick={() => navigate(createPageUrl('Friends'))}
+              size="sm"
+              variant="outline"
+              className="border-white/20 bg-white/10 text-white hover:bg-white/20 rounded-full h-9 px-4"
+            >
+              <UserPlus size={16} className="mr-1" />
+              {t('add_friend')}
+            </Button>
+          </div>
 
-              {friendProfiles.length === 0 ? (
-                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
-                  <Users size={40} className="text-white/30 mx-auto mb-3" />
-                  <p className="text-white/80 font-bold mb-1">{t('no_friends_yet')}</p>
-                  <p className="text-white/60 text-sm mb-4">{t('invite_friends_to_join')}</p>
-                  <Button onClick={() => navigate(createPageUrl('Friends'))} className="bg-teal-500 hover:bg-teal-600 text-white rounded-xl">
-                    <UserPlus size={16} className="mr-2" />
-                    {t('add_friend')}
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {friendProfiles.slice(0, 5).map((friend) => (
-                    <div
-                      key={friend.id}
-                      className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="relative flex-shrink-0">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                            {friend.display_name?.charAt(0) || "?"}
-                          </div>
-                          {friend.status_text && (
-                            <div className="absolute -bottom-1 -right-1 bg-purple-500 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-slate-900">✨</div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white font-semibold">{friend.display_name}</p>
-                          {friend.status_text && (
-                            <StatusChip status={{ status_text: friend.status_text, status_updated_at: friend.status_updated_at }} />
-                          )}
-                          <div className="flex items-center gap-3 text-xs mt-2">
-                            <span className="flex items-center gap-1 text-orange-300">
-                              <Flame size={12} />{friend.current_streak || 0}
-                            </span>
-                            <span className="flex items-center gap-1 text-emerald-300">
-                              <Activity size={12} />{friend.total_checkins || 0}
-                            </span>
-                          </div>
-                        </div>
+          {friendProfiles.length === 0 ? (
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
+              <Users size={40} className="text-white/30 mx-auto mb-3" />
+              <p className="text-white/80 font-bold mb-1">{t('no_friends_yet')}</p>
+              <p className="text-white/60 text-sm mb-4">{t('invite_friends_to_join')}</p>
+              <Button onClick={() => navigate(createPageUrl('Friends'))} className="bg-teal-500 hover:bg-teal-600 text-white rounded-xl">
+                <UserPlus size={16} className="mr-2" />
+                {t('add_friend')}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {friendProfiles.slice(0, 5).map((friend) => (
+                <div
+                  key={friend.id}
+                  className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        {friend.display_name?.charAt(0) || "?"}
+                      </div>
+                      {friend.status_text && (
+                        <div className="absolute -bottom-1 -right-1 bg-purple-500 text-white text-[10px] px-1.5 py-0.5 rounded-full border-2 border-slate-900">✨</div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-semibold">{friend.display_name}</p>
+                      {friend.status_text && (
+                        <StatusChip status={{ status_text: friend.status_text, status_updated_at: friend.status_updated_at }} />
+                      )}
+                      <div className="flex items-center gap-3 text-xs mt-2">
+                        <span className="flex items-center gap-1 text-orange-300">
+                          <Flame size={12} />{friend.current_streak || 0}
+                        </span>
+                        <span className="flex items-center gap-1 text-emerald-300">
+                          <Activity size={12} />{friend.total_checkins || 0}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                  {friendProfiles.length > 5 && (
-                    <button
-                      type="button"
-                      onClick={() => navigate(createPageUrl('Friends'))}
-                      className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm font-semibold hover:bg-white/10 transition-colors"
-                    >
-                      {t('view_all')} ({friendProfiles.length})
-                    </button>
-                  )}
+                  </div>
                 </div>
+              ))}
+              {friendProfiles.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => navigate(createPageUrl('Friends'))}
+                  className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm font-semibold hover:bg-white/10 transition-colors"
+                >
+                  {t('view_all')} ({friendProfiles.length})
+                </button>
               )}
-            </>
+            </div>
           )}
         </div>
 
