@@ -92,6 +92,9 @@ const Home = React.memo(() => {
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
       <div className="max-w-2xl mx-auto px-6 pt-4 pb-8 space-y-4">
 
+        {/* Buddy test - always visible */}
+        <Buddy pose="celebrating" size={120} message="Buddy is here! 🎉" />
+
         {/* Trial Day Banner */}
         {showTrialBanner && (
           <TrialBanner trialDay={effectiveTrialDay} trialDaysLeft={trialDaysLeft} lang={lang} navigate={navigate} />
