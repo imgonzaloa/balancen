@@ -12,6 +12,7 @@ import StreakFire from "@/components/ui/StreakFire";
 import GlobalHeader from "@/components/GlobalHeader";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import TrialBanner from "@/components/home/TrialBanner";
+import Buddy from "@/components/buddy/Buddy";
 import PullToRefresh from "@/components/PullToRefresh";
 
 // Memoized Home component for better performance
@@ -186,6 +187,11 @@ const Home = React.memo(() => {
           </div>
         </div>
 
+        {/* Buddy - goal crushed */}
+        {metrics.progress >= 100 && (
+          <Buddy pose="celebrating" size={80} message="Goal crushed! Buddy is proud 🎉" />
+        )}
+
         {/* Primary CTAs */}
          <div className="grid grid-cols-2 gap-3">
            <Button
@@ -265,6 +271,11 @@ const Home = React.memo(() => {
             </div>
           )}
         </div>
+
+        {/* Buddy - disappointed if no meals logged after 6pm */}
+        {todayMeals.length === 0 && new Date().getHours() >= 18 && (
+          <Buddy pose="disappointed" size={80} message="Log a meal before Buddy loses faith..." />
+        )}
 
         {/* Streak & Momentum - UNLOCKED FOR BASE PLAN */}
         <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/15 backdrop-blur-xl rounded-2xl p-5 border border-amber-500/20">

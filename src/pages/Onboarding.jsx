@@ -6,6 +6,7 @@ import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { Sparkles, Zap } from "lucide-react";
+import Buddy from "@/components/buddy/Buddy";
 
 function AIDemo() {
   const [cycle, setCycle] = useState(0);
@@ -240,6 +241,10 @@ export default function Onboarding() {
             <motion.div key="trial"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="text-center space-y-8">
+              {/* Buddy */}
+              <div className="flex justify-center">
+                <Buddy pose="celebrating" size={100} />
+              </div>
               {/* Icon */}
               <div className="flex justify-center">
                 <div className="relative">
