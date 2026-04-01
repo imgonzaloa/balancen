@@ -12,6 +12,7 @@ const POSES = {
 };
 
 export default function Buddy({ pose = 'celebrating', size = 120, message }) {
+  console.log('Buddy component rendered', pose);
   const { col, row } = POSES[pose] || POSES.celebrating;
   const bgSize = size * 2;
   const bgX = -(col * size);

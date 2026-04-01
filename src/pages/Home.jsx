@@ -187,9 +187,16 @@ const Home = React.memo(() => {
           </div>
         </div>
 
-        {/* Buddy - goal crushed */}
+        {/* Buddy */}
+        {todayMeals.length === 0 && (
+          <div className="flex flex-col items-center py-4">
+            <Buddy pose="disappointed" size={100} message="No meals logged yet. Buddy is watching..." />
+          </div>
+        )}
         {metrics.progress >= 100 && (
-          <Buddy pose="celebrating" size={80} message="Goal crushed! Buddy is proud 🎉" />
+          <div className="flex flex-col items-center py-4">
+            <Buddy pose="celebrating" size={100} message="Goal crushed! Buddy is proud 🎉" />
+          </div>
         )}
 
         {/* Primary CTAs */}
@@ -272,10 +279,7 @@ const Home = React.memo(() => {
           )}
         </div>
 
-        {/* Buddy - disappointed if no meals logged */}
-        {todayMeals.length === 0 && (
-          <Buddy pose="disappointed" size={80} message="Log a meal before Buddy loses faith..." />
-        )}
+
 
         {/* Streak & Momentum - UNLOCKED FOR BASE PLAN */}
         <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/15 backdrop-blur-xl rounded-2xl p-5 border border-amber-500/20">
