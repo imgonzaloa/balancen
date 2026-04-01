@@ -26,6 +26,7 @@ export default function Buddy({ pose = 'celebrating', size = 120, message }) {
         backgroundSize: `${bgSize}px ${bgSize * 2}px`,
         backgroundPosition: `${bgX}px ${bgY}px`,
         backgroundRepeat: 'no-repeat',
+        overflow: 'hidden',
       }} />
       {message && (
         <p className="text-white/70 text-sm text-center italic px-4">
