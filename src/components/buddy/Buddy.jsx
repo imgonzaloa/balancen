@@ -16,7 +16,7 @@ export default function Buddy({ pose = 'disappointed', size = 120, message }) {
   const rows = 4;
   const bgWidth = size * cols;
   const bgHeight = size * rows * 1.15;
-  const bgX = -(col * size);
+  const bgX = col === 0 ? 0 : -(col * size) - 2;
   const bgY = -(row * size);
 
   return (
@@ -31,6 +31,8 @@ export default function Buddy({ pose = 'disappointed', size = 120, message }) {
         overflow: 'hidden',
         border: 'none',
         outline: 'none',
+        overflow: 'hidden',
+        borderRadius: '4px',
       }} />
       {message && (
         <p className="text-white/70 text-sm text-center italic px-4">
