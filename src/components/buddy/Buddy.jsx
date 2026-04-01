@@ -16,14 +16,15 @@ export default function Buddy({ pose = 'disappointed', size = 120, message }) {
   const rows = 4;
   const bgWidth = size * cols;
   const bgHeight = size * rows * 1.15;
-  const bgX = col === 0 ? 0 : -(col * size) - 2;
-  const bgY = -(row * size);
+  const bgX = col === 0 ? 4 : -(col * size) - 4;
+  const bgY = -(row * size) + 4;
 
   return (
     <div className="flex flex-col items-center gap-2">
       <div style={{
-        width: size,
-        height: size,
+        width: size - 8,
+        height: size - 8,
+        margin: '4px',
         backgroundImage: 'url(https://balancen.app/wp-content/uploads/2026/04/0d078ce1-2500-4825-a383-7f7db4d372ea.png)',
         backgroundSize: `${bgWidth}px ${bgHeight}px`,
         backgroundPosition: `${bgX}px ${bgY}px`,
