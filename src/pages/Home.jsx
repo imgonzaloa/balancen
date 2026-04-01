@@ -272,8 +272,8 @@ const Home = React.memo(() => {
           )}
         </div>
 
-        {/* Buddy - disappointed if no meals logged after 6pm */}
-        {todayMeals.length === 0 && new Date().getHours() >= 18 && (
+        {/* Buddy - disappointed if no meals logged */}
+        {todayMeals.length === 0 && (
           <Buddy pose="disappointed" size={80} message="Log a meal before Buddy loses faith..." />
         )}
 
