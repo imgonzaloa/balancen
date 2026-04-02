@@ -65,7 +65,7 @@ export default function ProfileGoalsEdit({ profile, onClose, onUpdate }) {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
           {/* Primary Goal */}
           <div>
             <label className="block text-white font-semibold mb-3">
