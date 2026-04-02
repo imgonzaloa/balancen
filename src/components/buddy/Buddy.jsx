@@ -23,7 +23,7 @@ export default function Buddy({ pose = 'disappointed', size = 120, message }) {
     <div className="flex flex-col items-center gap-2">
       <div style={{
         width: size - 8,
-        height: size - 8,
+        height: size * 1.5,
         margin: '4px',
         backgroundImage: 'url(https://balancen.app/wp-content/uploads/2026/04/0d078ce1-2500-4825-a383-7f7db4d372ea.png)',
         backgroundSize: `${bgWidth}px ${bgHeight}px`,
