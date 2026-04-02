@@ -7,19 +7,7 @@ const BUDDY_IMAGES = {
   friendly: "https://balancen.app/wp-content/uploads/2026/04/0d078ce1-2500-4825-a383-7f7db4d372ea.png",
 };
 
-export default function Buddy({ pose = 'disappointed', size = 120, message }) {
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <img
-        src={BUDDY_IMAGES[pose] || BUDDY_IMAGES.disappointed}
-        alt="Buddy"
-        style={{ width: size, height: size, objectFit: 'contain', mixBlendMode: 'screen' }}
-      />
-      {message && (
-        <p className="text-white/70 text-sm text-center italic px-4">
-          {message}
-        </p>
-      )}
-    </div>
-  );
+// Buddy temporarily hidden — re-enable when ready
+export default function Buddy() {
+  return null;
 }
