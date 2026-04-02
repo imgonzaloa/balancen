@@ -17,7 +17,7 @@ export default function Buddy({ pose = 'disappointed', size = 120, message }) {
   const bgWidth = size * cols;
   const bgHeight = size * rows * 1.15;
   const bgX = col === 0 ? 4 : -(col * size) - 4;
-  const bgY = -(row * size) + 4;
+  const bgY = -(row * size);
 
   return (
     <div className="flex flex-col items-center gap-2">
