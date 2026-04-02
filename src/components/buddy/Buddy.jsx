@@ -13,7 +13,7 @@ export default function Buddy({ pose = 'disappointed', size = 120, message }) {
       <img
         src={BUDDY_IMAGES[pose] || BUDDY_IMAGES.disappointed}
         alt="Buddy"
-        style={{ width: size, height: size, objectFit: 'contain' }}
+        style={{ width: size, height: size, objectFit: 'contain', mixBlendMode: 'multiply' }}
       />
       {message && (
         <p className="text-white/70 text-sm text-center italic px-4">
