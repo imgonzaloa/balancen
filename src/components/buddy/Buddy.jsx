@@ -37,7 +37,7 @@ export default function Buddy({ pose = 'disappointed', size = 120, message }) {
         borderRadius: '4px',
       }} />
       {message && (
-        <p className="text-white/70 text-sm text-center italic px-4">
+        <p className="text-white/50 text-xs text-center italic px-4">
           {message}
         </p>
       )}
