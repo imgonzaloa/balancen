@@ -46,7 +46,7 @@ export default function ProfileGoalsEdit({ profile, onClose, onUpdate }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style={{ overflow: 'hidden' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -65,7 +65,7 @@ export default function ProfileGoalsEdit({ profile, onClose, onUpdate }) {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6 overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="p-6 space-y-6 overflow-y-scroll overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Primary Goal */}
           <div>
             <label className="block text-white font-semibold mb-3">

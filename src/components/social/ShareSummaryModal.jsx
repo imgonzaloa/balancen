@@ -93,7 +93,7 @@ export default function ShareSummaryModal({ profile, todayMeals = [], weeklyStat
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 60 }}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-t-3xl sm:rounded-3xl border border-white/20 w-full sm:max-w-md"
+          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-t-3xl sm:rounded-3xl border border-white/20 w-full sm:max-w-md max-h-[90vh] flex flex-col"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-white/10">
@@ -106,7 +106,7 @@ export default function ShareSummaryModal({ profile, todayMeals = [], weeklyStat
             </button>
           </div>
 
-          <div className="p-5 space-y-4 modal-content" style={{ overflowY: 'scroll', WebkitOverflowScrolling: 'touch', maxHeight: '70vh' }}>
+          <div className="p-5 space-y-4 modal-content" style={{ overflowY: 'scroll', WebkitOverflowScrolling: 'touch', flex: 1, minHeight: 0 }}>
             {/* Period Toggle */}
             <div className="flex gap-2 bg-white/5 rounded-2xl p-1">
               {PERIODS.map(p => (
