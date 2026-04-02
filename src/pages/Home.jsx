@@ -187,17 +187,7 @@ const Home = React.memo(() => {
           </div>
         </div>
 
-        {/* Buddy */}
-        {todayMeals.length === 0 && (
-          <div className="flex flex-col items-center py-4">
-            <Buddy pose="disappointed" size={100} message="No meals logged yet. Buddy is watching..." />
-          </div>
-        )}
-        {metrics.progress >= 100 && (
-          <div className="flex flex-col items-center py-4">
-            <Buddy pose="celebrating" size={100} message="Goal crushed! Buddy is proud 🎉" />
-          </div>
-        )}
+        {/* Buddy - temporarily disabled */}
 
         {/* Primary CTAs */}
          <div className="grid grid-cols-2 gap-3">
