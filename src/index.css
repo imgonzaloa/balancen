@@ -80,9 +80,16 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.modal-content {
+  overflow-y: scroll !important;
+  -webkit-overflow-scrolling: touch !important;
+  max-height: 70vh;
 }

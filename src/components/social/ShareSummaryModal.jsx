@@ -106,7 +106,7 @@ export default function ShareSummaryModal({ profile, todayMeals = [], weeklyStat
             </button>
           </div>
 
-          <div className="p-5 space-y-4">
+          <div className="p-5 space-y-4 modal-content" style={{ overflowY: 'scroll', WebkitOverflowScrolling: 'touch', maxHeight: '70vh' }}>
             {/* Period Toggle */}
             <div className="flex gap-2 bg-white/5 rounded-2xl p-1">
               {PERIODS.map(p => (
