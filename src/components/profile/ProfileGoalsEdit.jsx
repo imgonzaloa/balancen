@@ -46,15 +46,15 @@ export default function ProfileGoalsEdit({ profile, onClose, onUpdate }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style={{ overflow: 'hidden' }}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl border border-white/20 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl border border-white/20 max-w-lg w-full flex flex-col max-h-[80vh]"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 p-6 flex items-center justify-between">
+        <div className="sticky top-0 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 p-6 flex items-center justify-between flex-shrink-0">
           <h2 className="text-xl font-bold text-white">{t('edit_goals')}</h2>
           <button
             onClick={onClose}
@@ -65,7 +65,7 @@ export default function ProfileGoalsEdit({ profile, onClose, onUpdate }) {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
+        <div className="p-6 space-y-6 overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Primary Goal */}
           <div>
             <label className="block text-white font-semibold mb-3">
