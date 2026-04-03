@@ -275,7 +275,7 @@ export default function Onboarding() {
       style={{ paddingTop: 'env(safe-area-inset-top, 24px)' }}
     >
       {/* Progress bar — hidden on trial screen */}
-      {step < TOTAL_STEPS && (
+      {step > 1 && step < TOTAL_STEPS && (
         <div className="w-full max-w-md mb-8">
           <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
             <motion.div
