@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import { Sparkles, Zap } from "lucide-react";
+import { Sparkles, Zap, ArrowLeft } from "lucide-react";
 import Buddy from "@/components/buddy/Buddy";
 
 function AIDemo() {
@@ -274,17 +274,25 @@ export default function Onboarding() {
       className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex flex-col items-center justify-center p-6"
       style={{ paddingTop: 'env(safe-area-inset-top, 24px)' }}
     >
-      {/* Progress bar — hidden on trial screen */}
+      {/* Progress bar + back button — hidden on trial screen and language step */}
       {step > 1 && step < TOTAL_STEPS && (
         <div className="w-full max-w-md mb-8">
-          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full"
-              animate={{ width: `${progressPct}%` }}
-              transition={{ duration: 0.4 }}
-            />
+          <div className="flex items-center gap-3 mb-3">
+            <button
+              onClick={() => setStep(step - 1)}
+              className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0"
+            >
+              <ArrowLeft size={18} className="text-white" />
+            </button>
+            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full"
+                animate={{ width: `${progressPct}%` }}
+                transition={{ duration: 0.4 }}
+              />
+            </div>
+            <p className="text-white/30 text-xs">{step}/{TOTAL_STEPS - 1}</p>
           </div>
-          <p className="text-white/30 text-xs mt-2 text-right">{step}/{TOTAL_STEPS - 1}</p>
         </div>
       )}
 
