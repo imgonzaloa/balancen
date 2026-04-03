@@ -313,7 +313,7 @@ export default function Settings() {
                   value={profile?.share_meals || "private"}
                   onValueChange={(value) => handleToggle("share_meals", value)}
                   placeholder={t('privacy')}
-                  label={lang === "es" ? "Privacidad de comidas" : "Meal privacy"}
+                  label={lang === "es" ? "Privacidad de comidas" : lang === "pt" ? "Privacidade das refeições" : "Meal privacy"}
                   triggerClassName="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl"
                   valueClassName="text-white font-semibold"
                 >
@@ -448,7 +448,7 @@ export default function Settings() {
           <div className="flex items-center gap-2 mb-4">
             <Scale size={18} className="text-white/40" />
             <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
-              {lang === 'es' ? 'Legal y Soporte' : 'Legal & Support'}
+              {lang === 'es' ? 'Legal y Soporte' : lang === 'pt' ? 'Legal e Suporte' : 'Legal & Support'}
             </h2>
           </div>
 
@@ -472,7 +472,7 @@ export default function Settings() {
                 <Mail size={18} className="text-teal-300" />
                 <div>
                   <span className="text-white/80 text-sm font-medium block">
-                    {lang === 'es' ? 'Contactar Soporte' : 'Contact Support'}
+                    {lang === 'es' ? 'Contactar Soporte' : lang === 'pt' ? 'Contatar Suporte' : 'Contact Support'}
                   </span>
                   <span className="text-white/40 text-xs">hello@balancen.app</span>
                 </div>
@@ -486,7 +486,7 @@ export default function Settings() {
                 <div className="flex items-center gap-3">
                   <Shield size={18} className="text-teal-300" />
                   <span className="text-white/80 text-sm font-medium">
-                    {lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
+                    {lang === 'es' ? 'Política de Privacidad' : lang === 'pt' ? 'Política de Privacidade' : 'Privacy Policy'}
                   </span>
                 </div>
                 <ExternalLink size={14} className="text-white/30" />
@@ -499,7 +499,7 @@ export default function Settings() {
                 <div className="flex items-center gap-3">
                   <FileText size={18} className="text-teal-300" />
                   <span className="text-white/80 text-sm font-medium">
-                    {lang === 'es' ? 'Términos de Servicio' : 'Terms of Service'}
+                    {lang === 'es' ? 'Términos de Servicio' : lang === 'pt' ? 'Termos de Serviço' : 'Terms of Service'}
                   </span>
                 </div>
                 <ExternalLink size={14} className="text-white/30" />
@@ -586,11 +586,11 @@ export default function Settings() {
                   <Mail size={20} className="text-teal-300" />
                 </div>
                 <h3 className="text-white font-bold text-lg">
-                  {lang === 'es' ? 'Contactar Soporte' : 'Contact Support'}
+                  {lang === 'es' ? 'Contactar Soporte' : lang === 'pt' ? 'Contatar Suporte' : 'Contact Support'}
                 </h3>
               </div>
               <p className="text-white/70 text-sm leading-relaxed mb-6">
-                {lang === 'es' ? 'Escríbenos a ' : 'Email us at '}
+                {lang === 'es' ? 'Escríbenos a ' : lang === 'pt' ? 'Envie um email para ' : 'Email us at '}
                 <span className="text-teal-300 font-medium">hello@balancen.app</span>
               </p>
               <div className="flex gap-3">
@@ -602,13 +602,13 @@ export default function Settings() {
                   }}
                   className="flex-1 bg-teal-500 hover:bg-teal-600 text-white"
                 >
-                  {lang === 'es' ? 'Copiar email' : 'Copy email'}
+                  {lang === 'es' ? 'Copiar email' : lang === 'pt' ? 'Copiar email' : 'Copy email'}
                 </Button>
                 <Button
                   onClick={() => setShowSupportModal(false)}
                   className="flex-1 bg-white/10 hover:bg-white/20 text-white border border-white/20"
                 >
-                  {lang === 'es' ? 'Cerrar' : 'Close'}
+                  {lang === 'es' ? 'Cerrar' : lang === 'pt' ? 'Fechar' : 'Close'}
                 </Button>
               </div>
             </motion.div>
