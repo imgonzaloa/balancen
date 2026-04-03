@@ -115,7 +115,12 @@ export default function Splash() {
           fontFamily: "system-ui, -apple-system, sans-serif",
         }}
       >
-        Stay consistent.
+        {(() => {
+          const lang = localStorage.getItem('balancen_lang') || localStorage.getItem('i18nextLng') || '';
+          if (lang.startsWith('es')) return 'Sé constante.';
+          if (lang.startsWith('pt')) return 'Seja consistente.';
+          return 'Stay consistent.';
+        })()}
       </p>
     </div>
   );
