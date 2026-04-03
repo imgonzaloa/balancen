@@ -9,7 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { dietary_restrictions, preferences, days } = await req.json();
+    const { dietary_restrictions, preferences, days, lang } = await req.json();
+    const langInstruction = lang === 'es' ? 'Respond entirely in Spanish.' : lang === 'pt' ? 'Respond entirely in Portuguese.' : 'Respond in English.';
 
     // Fetch user profile
     const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
@@ -53,7 +54,9 @@ Create a ${days}-day meal plan with:
 - Shopping list organized by category
 - Preparation tips
 
-Make it practical, delicious, and aligned with their goals.`;
+Make it practical, delicious, and aligned with their goals.
+
+${langInstruction}`;
 
     const response = await base44.integrations.Core.InvokeLLM({
       prompt,

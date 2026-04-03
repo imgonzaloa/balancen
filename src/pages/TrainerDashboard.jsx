@@ -14,7 +14,7 @@ export default function TrainerDashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, profile } = useAppState();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
@@ -54,6 +54,7 @@ export default function TrainerDashboard() {
       const response = await base44.functions.invoke('aiWorkoutGenerator', {
         profile: { ...profile, email: user.email },
         ...data,
+        lang,
       });
       return response.data;
     },

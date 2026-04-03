@@ -9,7 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { equipment, fitness_level, goals, duration_minutes } = await req.json();
+    const { equipment, fitness_level, goals, duration_minutes, lang } = await req.json();
+    const langInstruction = lang === 'es' ? 'Respond entirely in Spanish.' : lang === 'pt' ? 'Respond entirely in Portuguese.' : 'Respond in English.';
 
     // Fetch user profile
     const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
@@ -55,7 +56,9 @@ Create a complete workout plan with:
 - Progressive overload recommendations
 - Modifications for different fitness levels
 
-Make it safe, effective, and engaging. Consider their goal: ${profile.primary_goal}.`;
+Make it safe, effective, and engaging. Consider their goal: ${profile.primary_goal}.
+
+${langInstruction}`;
 
     const response = await base44.integrations.Core.InvokeLLM({
       prompt,

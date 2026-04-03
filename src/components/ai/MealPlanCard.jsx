@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function MealPlanCard({ onGenerate }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [generating, setGenerating] = useState(false);
   const [dietary, setDietary] = useState("");
   const [preferences, setPreferences] = useState("");
@@ -18,7 +18,8 @@ export default function MealPlanCard({ onGenerate }) {
       const { data } = await base44.functions.invoke('aiMealPlanner', {
         dietary_restrictions: dietary,
         preferences,
-        days
+        days,
+        lang
       });
 
       if (data.success) {

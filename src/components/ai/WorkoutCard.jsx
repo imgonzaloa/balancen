@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function WorkoutCard({ onGenerate }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [generating, setGenerating] = useState(false);
   const [equipment, setEquipment] = useState("");
   const [level, setLevel] = useState("beginner");
@@ -20,7 +20,8 @@ export default function WorkoutCard({ onGenerate }) {
         equipment,
         fitness_level: level,
         goals,
-        duration_minutes: duration
+        duration_minutes: duration,
+        lang
       });
 
       if (data.success) {

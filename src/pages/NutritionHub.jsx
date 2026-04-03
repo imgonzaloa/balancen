@@ -74,6 +74,7 @@ export default function NutritionHub() {
         profile: { ...profile, email: user.email },
         goal,
         current_meals: todayMeals || [],
+        lang,
       });
       return response.data;
     },

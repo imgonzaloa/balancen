@@ -15,7 +15,7 @@ import WorkoutView from "@/components/ai/WorkoutView";
 export default function GoalsAssistant() {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAppState();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [analyzing, setAnalyzing] = useState(false);
   const [recommendations, setRecommendations] = useState(null);
   const [applying, setApplying] = useState(false);
@@ -26,7 +26,8 @@ export default function GoalsAssistant() {
     setAnalyzing(true);
     try {
       const { data } = await base44.functions.invoke('aiGoalsAssistant', {
-        action: 'analyze'
+        action: 'analyze',
+        lang
       });
 
       if (data.success) {

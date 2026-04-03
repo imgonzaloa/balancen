@@ -9,7 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { action } = await req.json();
+    const { action, lang } = await req.json();
+    const langInstruction = lang === 'es' ? 'Respond entirely in Spanish.' : lang === 'pt' ? 'Respond entirely in Portuguese.' : 'Respond in English.';
 
     // Fetch user profile
     const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
@@ -65,7 +66,9 @@ Based on this data, provide:
 3. Activity recommendations (how many days per week to move)
 4. A personalized motivation message explaining WHY these goals fit their profile
 
-Be encouraging, realistic, and science-based. Consider their goal (${profile.primary_goal}) and intensity preference (${profile.intensity_level}).`;
+Be encouraging, realistic, and science-based. Consider their goal (${profile.primary_goal}) and intensity preference (${profile.intensity_level}).
+
+${langInstruction}`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
