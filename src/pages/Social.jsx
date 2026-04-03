@@ -31,7 +31,7 @@ export default function Social() {
   const todayMeals = React.useMemo(() => getTodayMeals(), [getTodayMeals]);
 
   const { data: myGroups = [] } = useQuery({
-    queryKey: ["myGroups", user?.email, isPremium],
+    queryKey: ["myGroups", user?.email],
     queryFn: async () => {
       const members = await withTimeout(
         base44.entities.GroupMember.filter({ user_email: user?.email }),
@@ -44,7 +44,7 @@ export default function Social() {
       );
       return groups.flat();
     },
-    enabled: !!user?.email && isPremium,
+    enabled: !!user?.email,
     retry: false,
     staleTime: 10 * 60 * 1000,
   });
@@ -287,45 +287,16 @@ export default function Social() {
               <Users size={20} />
               {t('your_groups')}
             </h2>
-            {isPremium && (
-              <Button
-                onClick={() => navigate(createPageUrl('Groups'))}
-                size="sm"
-                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full h-9 px-4"
-              >
-                <Plus size={16} className="mr-1" />{t('create_group_btn')}
-              </Button>
-            )}
+            <Button
+              onClick={() => navigate(createPageUrl('Groups'))}
+              size="sm"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full h-9 px-4"
+            >
+              <Plus size={16} className="mr-1" />{t('create_group_btn')}
+            </Button>
           </div>
 
-          {!isPremium ? (
-            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-6 border border-purple-500/30">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
-                  <Users size={20} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-white font-bold text-base">Groups & Leaderboards</h3>
-                  <p className="text-purple-200 text-xs">Train together, compete together.</p>
-                </div>
-              </div>
-              <p className="text-white/60 text-sm mb-4">Create or join groups with your crew.</p>
-              <ul className="space-y-2 mb-5">
-                {["Group nutrition challenges", "Weekly leaderboard", "Shared progress with your team"].map(benefit => (
-                  <li key={benefit} className="flex items-center gap-2 text-white/80 text-sm">
-                    <span className="text-purple-300 font-bold">✦</span>
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                onClick={() => navigate(createPageUrl('Premium'))}
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-xl"
-              >
-                Unlock with Premium
-              </Button>
-            </div>
-          ) : myGroups.length === 0 ? (
+          {myGroups.length === 0 ? (
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
               <Users size={40} className="text-white/30 mx-auto mb-3" />
               <p className="text-white/80 font-bold mb-1">{t('no_groups_joined')}</p>
