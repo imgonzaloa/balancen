@@ -150,12 +150,12 @@ export default function Settings() {
         >
           <div className="relative z-10 space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
-                  <Bell size={20} className="text-teal-300" />
-                </div>
-                <div>
-                  <Label className="text-white font-semibold">{lang === 'es' ? 'Recordatorios diarios' : 'Daily reminders'}</Label>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
+                <Bell size={20} className="text-teal-300" />
+              </div>
+              <div>
+                <Label className="text-white font-semibold">{lang === 'es' ? 'Recordatorios diarios' : lang === 'pt' ? 'Lembretes diários' : 'Daily reminders'}</Label>
                   <p className="text-xs text-white/60">{t('gentle_reminders')}</p>
                 </div>
               </div>
@@ -168,7 +168,7 @@ export default function Settings() {
             {profile?.daily_reminders_enabled && (
               <div className="pl-13 pt-3 border-t border-white/10">
                 <Label className="text-white/90 text-sm mb-2 block">
-                  {lang === 'es' ? 'Hora' : 'Time'}
+                  {lang === 'es' ? 'Hora' : lang === 'pt' ? 'Horário' : 'Time'}
                 </Label>
                 <input
                   type="time"
@@ -307,7 +307,7 @@ export default function Settings() {
             <div className="pl-13 space-y-3 pt-3 border-t border-white/10">
               <div>
                 <Label className="text-white text-sm mb-2 block">
-                  {lang === "es" ? "Compartir comidas" : "Share meals"}
+                  {lang === "es" ? "Compartir comidas" : lang === "pt" ? "Compartilhar refeições" : "Share meals"}
                 </Label>
                 <MobileSelect
                   value={profile?.share_meals || "private"}
@@ -331,7 +331,7 @@ export default function Settings() {
               
               <div className="flex items-center justify-between">
                 <Label className="text-white/90 text-sm">
-                  {lang === "es" ? "Mostrar macros" : "Show macros"}
+                  {lang === "es" ? "Mostrar macros" : lang === "pt" ? "Mostrar macros" : "Show macros"}
                 </Label>
                 <Switch
                   checked={profile?.share_macros ?? false}
@@ -341,7 +341,7 @@ export default function Settings() {
               
               <div className="flex items-center justify-between">
                 <Label className="text-white/90 text-sm">
-                  {lang === "es" ? "Mostrar calorías" : "Show calories"}
+                  {lang === "es" ? "Mostrar calorías" : lang === "pt" ? "Mostrar calorias" : "Show calories"}
                 </Label>
                 <Switch
                   checked={profile?.share_calories ?? false}
@@ -528,7 +528,7 @@ export default function Settings() {
               <div className="flex items-center gap-3">
                 <Trash2 size={18} className="text-white/40" />
                 <span className="text-white/60 text-sm font-medium">
-                  {lang === 'es' ? 'Eliminar cuenta' : 'Delete Account'}
+                  {lang === 'es' ? 'Eliminar cuenta' : lang === 'pt' ? 'Excluir conta' : 'Delete Account'}
                 </span>
               </div>
               <ChevronLeft size={16} className="text-white/30 rotate-180" />
@@ -560,8 +560,8 @@ export default function Settings() {
               <Button
                 onClick={() => setShowAIDisclaimer(false)}
                 className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20"
-              >
-                {lang === 'es' ? 'Entendido' : 'Got it'}
+                >
+                {lang === 'es' ? 'Entendido' : lang === 'pt' ? 'Entendido' : 'Got it'}
               </Button>
             </motion.div>
           </div>

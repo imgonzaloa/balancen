@@ -202,7 +202,7 @@ export default function Profile() {
             {isTrialActive && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center gap-2">
                 <span className="text-teal-300 text-xs font-bold">
-                  Trial — {trialDaysLeft} {lang === 'es' ? 'días restantes' : 'days left'}
+                  Trial — {trialDaysLeft} {lang === 'es' ? 'días restantes' : lang === 'pt' ? 'dias restantes' : 'days left'}
                 </span>
               </div>
             )}
