@@ -45,11 +45,11 @@ export default function Settings() {
   });
 
   const handleLanguageChange = async (newLang) => {
-    if (newLang !== "en" && newLang !== "es") return;
+    if (newLang !== "en" && newLang !== "es" && newLang !== "pt") return;
     // changeLanguage handles i18n, single localStorage key, and DB sync
     await changeLanguage(newLang);
     queryClient.invalidateQueries(['profile']);
-    toast.success(newLang === 'es' ? 'Idioma actualizado' : 'Language updated');
+    toast.success(newLang === 'es' ? 'Idioma actualizado' : newLang === 'pt' ? 'Idioma atualizado' : 'Language updated');
   };
 
   const handleToggle = (field, value) => {
@@ -200,10 +200,10 @@ export default function Settings() {
               </div>
               <div className="flex-1">
                 <Label className="text-white font-semibold">
-                  {lang === 'es' ? 'Cuerpo y Objetivos' : lang === 'pt' ? 'Corpo e Objetivos' : 'Body & Goals'}
+                   {lang === 'es' ? 'Cuerpo y Objetivos' : lang === 'pt' ? 'Corpo e Objetivos' : 'Body & Goals'}
                 </Label>
                 <p className="text-xs text-white/60">
-                  {lang === 'es' ? 'Personaliza tu plan calórico' : lang === 'pt' ? 'Personalize seu plano calórico' : 'Personalize your calorie plan'}
+                   {lang === 'es' ? 'Personaliza tu plan calórico' : lang === 'pt' ? 'Personalize seu plano calórico' : 'Personalize your calorie plan'}
                 </p>
               </div>
             </div>
@@ -307,7 +307,7 @@ export default function Settings() {
             <div className="pl-13 space-y-3 pt-3 border-t border-white/10">
               <div>
                 <Label className="text-white text-sm mb-2 block">
-                  {lang === "es" ? "Compartir comidas" : lang === "pt" ? "Compartilhar refeições" : "Share meals"}
+                   {lang === "es" ? "Compartir comidas" : lang === "pt" ? "Compartilhar refeições" : "Share meals"}
                 </Label>
                 <MobileSelect
                   value={profile?.share_meals || "private"}
@@ -331,7 +331,7 @@ export default function Settings() {
               
               <div className="flex items-center justify-between">
                 <Label className="text-white/90 text-sm">
-                  {lang === "es" ? "Mostrar macros" : lang === "pt" ? "Mostrar macros" : "Show macros"}
+                   {lang === "es" ? "Mostrar macros" : lang === "pt" ? "Mostrar macros" : "Show macros"}
                 </Label>
                 <Switch
                   checked={profile?.share_macros ?? false}
@@ -341,7 +341,7 @@ export default function Settings() {
               
               <div className="flex items-center justify-between">
                 <Label className="text-white/90 text-sm">
-                  {lang === "es" ? "Mostrar calorías" : lang === "pt" ? "Mostrar calorias" : "Show calories"}
+                   {lang === "es" ? "Mostrar calorías" : lang === "pt" ? "Mostrar calorias" : "Show calories"}
                 </Label>
                 <Switch
                   checked={profile?.share_calories ?? false}
@@ -472,8 +472,8 @@ export default function Settings() {
                 <Mail size={18} className="text-teal-300" />
                 <div>
                   <span className="text-white/80 text-sm font-medium block">
-                    {lang === 'es' ? 'Contactar Soporte' : lang === 'pt' ? 'Contatar Suporte' : 'Contact Support'}
-                  </span>
+                     {lang === 'es' ? 'Contactar Soporte' : lang === 'pt' ? 'Contatar Suporte' : 'Contact Support'}
+                   </span>
                   <span className="text-white/40 text-xs">hello@balancen.app</span>
                 </div>
               </div>
@@ -486,8 +486,8 @@ export default function Settings() {
                 <div className="flex items-center gap-3">
                   <Shield size={18} className="text-teal-300" />
                   <span className="text-white/80 text-sm font-medium">
-                    {lang === 'es' ? 'Política de Privacidad' : lang === 'pt' ? 'Política de Privacidade' : 'Privacy Policy'}
-                  </span>
+                     {lang === 'es' ? 'Política de Privacidad' : lang === 'pt' ? 'Política de Privacidade' : 'Privacy Policy'}
+                   </span>
                 </div>
                 <ExternalLink size={14} className="text-white/30" />
               </div>
@@ -499,8 +499,8 @@ export default function Settings() {
                 <div className="flex items-center gap-3">
                   <FileText size={18} className="text-teal-300" />
                   <span className="text-white/80 text-sm font-medium">
-                    {lang === 'es' ? 'Términos de Servicio' : lang === 'pt' ? 'Termos de Serviço' : 'Terms of Service'}
-                  </span>
+                     {lang === 'es' ? 'Términos de Servicio' : lang === 'pt' ? 'Termos de Serviço' : 'Terms of Service'}
+                   </span>
                 </div>
                 <ExternalLink size={14} className="text-white/30" />
               </div>
@@ -514,7 +514,7 @@ export default function Settings() {
               <div className="flex items-center gap-3">
                 <AlertTriangle size={18} className="text-amber-300" />
                 <span className="text-white/80 text-sm font-medium">
-                  {lang === 'es' ? 'Aviso sobre IA' : 'AI Disclaimer'}
+                   {lang === 'es' ? 'Aviso sobre IA' : lang === 'pt' ? 'Aviso de IA' : 'AI Disclaimer'}
                 </span>
               </div>
               <ChevronLeft size={16} className="text-white/30 rotate-180" />
@@ -528,7 +528,7 @@ export default function Settings() {
               <div className="flex items-center gap-3">
                 <Trash2 size={18} className="text-white/40" />
                 <span className="text-white/60 text-sm font-medium">
-                  {lang === 'es' ? 'Eliminar cuenta' : lang === 'pt' ? 'Excluir conta' : 'Delete Account'}
+                   {lang === 'es' ? 'Eliminar cuenta' : lang === 'pt' ? 'Excluir conta' : 'Delete Account'}
                 </span>
               </div>
               <ChevronLeft size={16} className="text-white/30 rotate-180" />
@@ -549,14 +549,16 @@ export default function Settings() {
                   <AlertTriangle size={20} className="text-amber-300" />
                 </div>
                 <h3 className="text-white font-bold text-lg">
-                  {lang === 'es' ? 'Aviso sobre IA' : 'AI Disclaimer'}
+                   {lang === 'es' ? 'Aviso sobre IA' : lang === 'pt' ? 'Aviso de IA' : 'AI Disclaimer'}
                 </h3>
               </div>
               <p className="text-white/70 text-sm leading-relaxed mb-6">
-                {lang === 'es'
-                  ? 'Balancen proporciona sugerencias generadas por IA sobre fitness y nutrición con fines informativos y de estilo de vida únicamente. Esto no es consejo médico y no reemplaza la consulta con profesionales de la salud calificados.'
-                  : 'Balancen provides AI-generated fitness and nutrition suggestions for informational and lifestyle purposes only. This is not medical advice and does not replace consultation with qualified healthcare professionals.'}
-              </p>
+                 {lang === 'es'
+                   ? 'Balancen proporciona sugerencias generadas por IA sobre fitness y nutrición con fines informativos y de estilo de vida únicamente. Esto no es consejo médico y no reemplaza la consulta con profesionales de la salud calificados.'
+                   : lang === 'pt'
+                   ? 'Balancen fornece sugestões geradas por IA sobre fitness e nutrição apenas para fins informativos e de estilo de vida. Isto não é aconselhamento médico e não substitui a consulta com profissionais de saúde qualificados.'
+                   : 'Balancen provides AI-generated fitness and nutrition suggestions for informational and lifestyle purposes only. This is not medical advice and does not replace consultation with qualified healthcare professionals.'}
+               </p>
               <Button
                 onClick={() => setShowAIDisclaimer(false)}
                 className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20"
@@ -586,7 +588,7 @@ export default function Settings() {
                   <Mail size={20} className="text-teal-300" />
                 </div>
                 <h3 className="text-white font-bold text-lg">
-                  {lang === 'es' ? 'Contactar Soporte' : lang === 'pt' ? 'Contatar Suporte' : 'Contact Support'}
+                   {lang === 'es' ? 'Contactar Soporte' : lang === 'pt' ? 'Contatar Suporte' : 'Contact Support'}
                 </h3>
               </div>
               <p className="text-white/70 text-sm leading-relaxed mb-6">
@@ -597,7 +599,7 @@ export default function Settings() {
                 <Button
                   onClick={() => {
                     navigator.clipboard.writeText('hello@balancen.app');
-                    toast.success(lang === 'es' ? 'Copiado' : 'Copied');
+                    toast.success(lang === 'es' ? 'Copiado' : lang === 'pt' ? 'Copiado' : 'Copied');
                     setShowSupportModal(false);
                   }}
                   className="flex-1 bg-teal-500 hover:bg-teal-600 text-white"
@@ -629,7 +631,7 @@ export default function Settings() {
             <div>
               <p className="text-white font-semibold text-lg">Balancen</p>
               <p className="text-white/40 text-xs mb-1">
-                {lang === 'es' ? 'Versión' : 'Version'} 1.0.0
+                {lang === 'es' ? 'Versión' : lang === 'pt' ? 'Versão' : 'Version'} 1.0.0
               </p>
               <button
                 onClick={() => {
@@ -645,8 +647,10 @@ export default function Settings() {
             </div>
             <p className="text-white/25 text-[10px] mt-1">
               {lang === 'es'
-                ? 'Balancen ofrece sugerencias de fitness, nutrición y bienestar únicamente para fines informativos. No es consejo médico.'
-                : 'Balancen provides fitness, nutrition, and wellness suggestions for informational purposes only. Not medical advice.'}
+                 ? 'Balancen ofrece sugerencias de fitness, nutrición y bienestar únicamente para fines informativos. No es consejo médico.'
+                 : lang === 'pt'
+                 ? 'Balancen oferece sugestões de fitness, nutrição e bem-estar apenas para fins informativos. Não é aconselhamento médico.'
+                 : 'Balancen provides fitness, nutrition, and wellness suggestions for informational purposes only. Not medical advice.'}
             </p>
           </div>
         </motion.div>
