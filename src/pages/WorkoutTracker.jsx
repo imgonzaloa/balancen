@@ -15,7 +15,7 @@ export default function WorkoutTracker() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, profile } = useAppState();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [searchParams] = useSearchParams();
   const planId = searchParams.get("planId");
 
@@ -166,8 +166,8 @@ export default function WorkoutTracker() {
                 <div key={idx} className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
                   <div className="grid grid-cols-2 gap-2 mb-2">
                     <Input
-                      placeholder="Nombre ejercicio"
-                      value={ex.exercise_name}
+                       placeholder={lang === 'es' ? 'Nombre ejercicio' : lang === 'pt' ? 'Nome do exercício' : 'Exercise name'}
+                       value={ex.exercise_name}
                       onChange={(e) => {
                         const newExercises = [...exercises];
                         newExercises[idx].exercise_name = e.target.value;
@@ -239,8 +239,8 @@ export default function WorkoutTracker() {
                   </div>
 
                   <Input
-                    placeholder="Notas"
-                    value={ex.notes}
+                     placeholder={lang === 'es' ? 'Notas' : lang === 'pt' ? 'Notas' : 'Notes'}
+                     value={ex.notes}
                     onChange={(e) => {
                       const newExercises = [...exercises];
                       newExercises[idx].notes = e.target.value;
