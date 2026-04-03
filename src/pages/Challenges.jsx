@@ -160,9 +160,12 @@ export default function Challenges() {
   const navigate = useNavigate();
   const { user, profile } = useAppState();
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [joiningId, setJoiningId] = useState(null);
   const { isEntitled } = useEntitlement(profile);
+
+  const upsellText = { es: '🏆 Únete a Premium para participar en retos', en: '🏆 Join Premium to participate in challenges', pt: '🏆 Entre no Premium para participar nos desafios' }[lang] || '🏆 Join Premium to participate in challenges';
+  const upgradeText = { es: 'Mejorar', en: 'Upgrade', pt: 'Assinar' }[lang] || 'Upgrade';
 
   const { data: myParticipations = [] } = useQuery({
     queryKey: ["myParticipations", user?.email],
@@ -247,12 +250,12 @@ export default function Challenges() {
         {/* Premium upsell banner */}
         {!isEntitled && (
           <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-400/40 rounded-2xl px-4 py-3">
-            <p className="text-amber-200 text-sm font-semibold">🏆 Únete a Premium para participar en retos</p>
+            <p className="text-amber-200 text-sm font-semibold">{upsellText}</p>
             <button
               onClick={() => navigate(createPageUrl("Premium"))}
               className="shrink-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl hover:opacity-90 transition-opacity"
             >
-              Upgrade
+              {upgradeText}
             </button>
           </div>
         )}
