@@ -738,6 +738,9 @@ const resources = {
       meal_moment_title: "What are you eating now? 📸",
       meal_moment_subtitle: "Share it with your team",
       meal_moment_scan: "Scan",
+      invite_description: "You + your friend both get 7 extra Premium days",
+      joined_with_link: "joined with your link",
+      share_failed: "Share failed",
       }
       },
   pt: {
@@ -908,8 +911,14 @@ const resources = {
       meal_moment_subtitle: "Compartilhe com seu time",
       meal_moment_scan: "Scan",
       ai_scans_limit: "Você usou suas 5 análises de IA gratuitas hoje. Atualize para Premium para análises ilimitadas.",
-    }
-  },
+      create_your_profile: "Crie seu perfil",
+      sign_in: "Entrar",
+      sign_in_to_access_profile: "Faça login para acessar seu perfil",
+      invite_description: "Você e seu amigo ganham 7 dias extras de Premium",
+      joined_with_link: "entrou com seu link",
+      share_failed: "Erro ao compartilhar",
+      }
+      },
   es: {
     translation: {
       // Navigation
@@ -1649,6 +1658,12 @@ const resources = {
       meal_moment_title: "¿Qué estás comiendo ahora? 📸",
       meal_moment_subtitle: "Compártelo con tu equipo",
       meal_moment_scan: "Scan",
+      create_your_profile: "Crea tu perfil",
+      sign_in: "Iniciar sesión",
+      sign_in_to_access_profile: "Inicia sesión para ver tu perfil",
+      invite_description: "Tú y tu amigo ganan 7 días extra de Premium",
+      joined_with_link: "se unió con tu link",
+      share_failed: "Error al compartir",
 
       // Meal types and actions
       breakfast: "Desayuno",

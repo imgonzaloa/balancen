@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { ChevronLeft, Trophy, Users, Mail, Settings, Shield, Megaphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useTranslation } from "@/components/TranslationProvider";
 import AdminLeaderboard from "@/components/groups/AdminLeaderboard";
 import MemberLeaderboard from "@/components/groups/MemberLeaderboard";
 import InviteMembersPanel from "@/components/groups/InviteMembersPanel";
@@ -13,6 +14,7 @@ import GroupSettingsPanel from "@/components/groups/GroupSettingsPanel";
 import BroadcastPanel from "@/components/groups/BroadcastPanel";
 
 export default function GroupDashboard() {
+  const { lang } = useTranslation();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("leaderboard");
   const navigate = useNavigate();
@@ -77,18 +79,32 @@ export default function GroupDashboard() {
 
   const isAdmin = myMembership?.role === "admin";
 
-  const adminTabs = [
-    { id: "leaderboard", icon: Trophy, label: "Leaderboard" },
-    { id: "messages", icon: Megaphone, label: "Messages" },
-    { id: "invite", icon: Mail, label: "Invite" },
-    { id: "winners", icon: Shield, label: "Winners" },
-    { id: "settings", icon: Settings, label: "Settings" },
-  ];
-  const memberTabs = [
-    { id: "leaderboard", icon: Trophy, label: "Leaderboard" },
-    { id: "members", icon: Users, label: "Members" },
-    { id: "messages", icon: Megaphone, label: "Messages" },
-  ];
+  const getTabLabel = (id) => {
+    const labels = {
+      leaderboard: "Leaderboard",
+      messages: lang === "es" ? "Mensajes" : lang === "pt" ? "Mensagens" : "Messages",
+      invite: lang === "es" ? "Invitar" : lang === "pt" ? "Convidar" : "Invite",
+      winners: lang === "es" ? "Ganadores" : lang === "pt" ? "Vencedores" : "Winners",
+      settings: lang === "es" ? "Configuración" : lang === "pt" ? "Configurações" : "Settings",
+      members: lang === "es" ? "Miembros" : lang === "pt" ? "Membros" : "Members",
+    };
+    return labels[id] || id;
+  };
+
+  const adminTabs = useMemo(() => [
+    { id: "leaderboard", icon: Trophy, label: getTabLabel("leaderboard") },
+    { id: "messages", icon: Megaphone, label: getTabLabel("messages") },
+    { id: "invite", icon: Mail, label: getTabLabel("invite") },
+    { id: "winners", icon: Shield, label: getTabLabel("winners") },
+    { id: "settings", icon: Settings, label: getTabLabel("settings") },
+  ], [lang]);
+
+  const memberTabs = useMemo(() => [
+    { id: "leaderboard", icon: Trophy, label: getTabLabel("leaderboard") },
+    { id: "members", icon: Users, label: getTabLabel("members") },
+    { id: "messages", icon: Megaphone, label: getTabLabel("messages") },
+  ], [lang]);
+
   const tabs = isAdmin ? adminTabs : memberTabs;
 
   if (groupLoading) {
