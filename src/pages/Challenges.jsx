@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Trophy, Flame, Droplets, Dumbbell, CheckSquare, Target, Plus, Users, Lock, Loader2, ChevronRight } from "lucide-react";
+import { Trophy, Flame, Droplets, Dumbbell, CheckSquare, Target, Plus, Users, Loader2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -225,6 +225,10 @@ export default function Challenges() {
   });
 
   const handleJoin = (preset) => {
+    if (!isEntitled) {
+      navigate(createPageUrl("Premium"));
+      return;
+    }
     setJoiningId(preset.preset_id);
     joinMutation.mutate(preset);
   };
@@ -237,27 +241,22 @@ export default function Challenges() {
 
   const activeChallenges = myParticipations.filter(p => !p.completed);
 
-  if (!isEntitled) {
-    return (
-      <div className="min-h-screen pb-24 pt-6 px-6 flex items-center justify-center">
-        <div className="text-center max-w-sm">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mx-auto mb-4">
-            <Lock size={32} className="text-white" />
-          </div>
-          <h2 className="text-white font-bold text-xl mb-2">{t("premium_feature_title")}</h2>
-          <p className="text-white/60 text-sm mb-6">{t("challenges_premium_desc")}</p>
-          <Button
-            onClick={() => navigate(createPageUrl("Premium"))}
-            className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold"
-          >{t("upgrade_to_premium")}</Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen pb-24" style={{ minHeight: '100dvh' }}>
       <div className="max-w-2xl mx-auto px-4 pt-6 pb-8 space-y-6">
+        {/* Premium upsell banner */}
+        {!isEntitled && (
+          <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-400/40 rounded-2xl px-4 py-3">
+            <p className="text-amber-200 text-sm font-semibold">🏆 Únete a Premium para participar en retos</p>
+            <button
+              onClick={() => navigate(createPageUrl("Premium"))}
+              className="shrink-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl hover:opacity-90 transition-opacity"
+            >
+              Upgrade
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <div>
           <h1 className="text-2xl font-black text-white flex items-center gap-2">
