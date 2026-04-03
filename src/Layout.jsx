@@ -148,7 +148,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   React.useEffect(() => {
     if (!bootState?.isHydrated) return;
     const targetLang = bootState.language;
-    if (targetLang && targetLang !== lang && (targetLang === 'en' || targetLang === 'es')) {
+    if (targetLang && targetLang !== lang && ['en', 'es', 'pt'].includes(targetLang)) {
       changeLanguage(targetLang).catch(() => {});
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
