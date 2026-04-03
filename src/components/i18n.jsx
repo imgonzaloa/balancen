@@ -706,6 +706,8 @@ const resources = {
       feature_ai_recommendations: "Personalized AI recommendations",
       feature_streak_metrics: "Streak & consistency metrics",
       feature_history_export: "Full history export & backup",
+      try_for_free_cta: "Try free — €0.00",
+      try_for_free_fine_print: "Free for 7 days, then €4.99/mo or €49.99/yr. Cancel anytime.",
 
       // Premium hubs and AI features
       progress_saved: "Progress saved!",
@@ -847,6 +849,8 @@ const resources = {
       feature_ai_recommendations: "Recomendações personalizadas de IA",
       feature_streak_metrics: "Sequência e métricas de consistência",
       feature_history_export: "Exportação completa do histórico",
+      try_for_free_cta: "Testar grátis — €0,00",
+      try_for_free_fine_print: "Grátis por 7 dias, depois €4,99/mês ou €49,99/ano. Cancele quando quiser.",
 
       // General
       logout: "Sair",
@@ -1604,6 +1608,8 @@ const resources = {
       feature_ai_recommendations: "Recomendaciones personalizadas de IA",
       feature_streak_metrics: "Racha y métricas de consistencia",
       feature_history_export: "Exportación de historial completo",
+      try_for_free_cta: "Probar gratis — €0.00",
+      try_for_free_fine_print: "Gratis 7 días, luego €4.99/mes o €49.99/año. Cancela cuando quieras.",
 
       // Premium hubs and AI features
       progress_saved: "¡Progreso guardado!",

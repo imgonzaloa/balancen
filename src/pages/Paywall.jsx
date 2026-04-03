@@ -338,13 +338,15 @@ export default function Paywall() {
           >
             {loading ? (
               <><Loader2 size={20} className="animate-spin" /> {t("processing_ellipsis")}</>
+            ) : isTrialExpired ? (
+              <><Crown size={20} /> {t("unlock_premium")}</>
             ) : (
-              <><Sparkles size={20} /> {t("unlock_premium")}</>
+              <><Sparkles size={20} /> {t("try_for_free_cta")}</>
             )}
           </button>
 
           <p className="text-center text-xs text-white/40">
-            {t("cancel_anytime_short")}
+            {t("try_for_free_fine_print")}
           </p>
 
           <button
