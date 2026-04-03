@@ -26,6 +26,10 @@ export default function InviteSystemCard({ profile }) {
   const totalReferrals = referralProgress?.total_successful_referrals || 0;
 
   const copyLink = async () => {
+    if (!profile?.created_by) {
+      toast.error(t('copy_failed') || 'Unable to generate link');
+      return;
+    }
     const inviteCode = `${profile.created_by.split('@')[0]}-${Date.now().toString(36)}`;
     const inviteUrl = `${window.location.origin}/Onboarding?invite=${inviteCode}`;
     
@@ -87,13 +91,14 @@ export default function InviteSystemCard({ profile }) {
         </div>
 
         <div className="flex gap-3">
-          <Button
-            onClick={copyLink}
-            className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-12 rounded-xl shadow-xl shadow-purple-500/30"
-          >
-            {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
-          </Button>
-        </div>
+           <Button
+             onClick={copyLink}
+             disabled={!profile?.created_by}
+             className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-12 rounded-xl shadow-xl shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+           >
+             {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
+           </Button>
+         </div>
       </div>
     </motion.div>
   );
