@@ -735,6 +735,9 @@ const resources = {
       profile_copied: "Profile link copied!",
       invite_copied: "Copied!",
       invite_share_text: "Join me on Balancen! Use my code",
+      meal_moment_title: "What are you eating now? 📸",
+      meal_moment_subtitle: "Share it with your team",
+      meal_moment_scan: "Scan",
       }
       },
   pt: {
@@ -901,6 +904,9 @@ const resources = {
       collaborator: "Colaborador",
       photo_updated: "Foto atualizada",
       upload_failed: "Falha no envio",
+      meal_moment_title: "O que você está comendo agora? 📸",
+      meal_moment_subtitle: "Compartilhe com seu time",
+      meal_moment_scan: "Scan",
     }
   },
   es: {
@@ -1639,6 +1645,9 @@ const resources = {
       profile_copied: "¡Link del perfil copiado!",
       invite_copied: "¡Copiado!",
       invite_share_text: "¡Únete a Balancen! Usa mi código",
+      meal_moment_title: "¿Qué estás comiendo ahora? 📸",
+      meal_moment_subtitle: "Compártelo con tu equipo",
+      meal_moment_scan: "Scan",
       }
       }
       };
