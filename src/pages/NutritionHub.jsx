@@ -79,10 +79,10 @@ export default function NutritionHub() {
       return response.data;
     },
     onSuccess: () => {
-      toast.success("Plan nutricional generado");
+      toast.success(lang === 'es' ? 'Plan nutricional generado' : lang === 'pt' ? 'Plano nutricional gerado' : 'Nutrition plan generated');
       queryClient.invalidateQueries({ queryKey: ["nutrition-plan"] });
     },
-    onError: () => toast.error("Error al generar plan"),
+    onError: () => toast.error(lang === 'es' ? 'Error al generar plan' : lang === 'pt' ? 'Erro ao gerar plano' : 'Error generating plan'),
   });
 
   // Calculate macros distribution
