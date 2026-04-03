@@ -6,8 +6,10 @@ import { ChevronLeft, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import BadgeCard, { badgeConfig } from "@/components/ui/BadgeCard";
+import { useTranslation } from "@/components/TranslationProvider";
 
 export default function Badges() {
+  const { lang } = useTranslation();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function Badges() {
                 >
                   <BadgeCard badgeType={badge.badge_type} earned />
                   <span className="text-xs font-medium text-white text-center">
-                    {badgeConfig[badge.badge_type]?.label}
+                    {typeof badgeConfig[badge.badge_type]?.label === 'object' ? badgeConfig[badge.badge_type]?.label[lang] || badgeConfig[badge.badge_type]?.label.en : badgeConfig[badge.badge_type]?.label}
                   </span>
                 </motion.div>
               ))}
@@ -115,8 +117,8 @@ export default function Badges() {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-white">{config.label}</p>
-                      <p className="text-sm text-white/60">{config.description}</p>
+                      <p className="font-semibold text-white">{typeof config.label === 'object' ? config.label[lang] || config.label.en : config.label}</p>
+                      <p className="text-sm text-white/60">{typeof config.description === 'object' ? config.description[lang] || config.description.en : config.description}</p>
                     </div>
                   </motion.div>
                 );
