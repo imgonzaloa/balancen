@@ -14,7 +14,7 @@ export default function NutritionHub() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, profile, todayMeals } = useAppState();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
@@ -204,10 +204,10 @@ export default function NutritionHub() {
           <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-3xl p-6 border border-amber-500/30 mb-6">
             <h3 className="text-white font-bold text-lg mb-2">{nutritionPlan.plan_name}</h3>
             <p className="text-amber-200 text-sm mb-4">
-              {nutritionPlan.goal === "weight_loss" && "🎯 Objetivo: Bajar de peso"}
-              {nutritionPlan.goal === "muscle_gain" && "💪 Objetivo: Ganancia muscular"}
-              {nutritionPlan.goal === "maintenance" && "⚖️ Objetivo: Mantenimiento"}
-              {nutritionPlan.goal === "performance" && "⚡ Objetivo: Rendimiento"}
+              {nutritionPlan.goal === "weight_loss" && `🎯 ${lang === 'es' ? 'Objetivo: Bajar de peso' : lang === 'pt' ? 'Objetivo: Perder peso' : 'Goal: Lose weight'}`}
+              {nutritionPlan.goal === "muscle_gain" && `💪 ${lang === 'es' ? 'Objetivo: Ganancia muscular' : lang === 'pt' ? 'Objetivo: Ganhar músculo' : 'Goal: Build muscle'}`}
+              {nutritionPlan.goal === "maintenance" && `⚖️ ${lang === 'es' ? 'Objetivo: Mantenimiento' : lang === 'pt' ? 'Objetivo: Manutenção' : 'Goal: Maintenance'}`}
+              {nutritionPlan.goal === "performance" && `⚡ ${lang === 'es' ? 'Objetivo: Rendimiento' : lang === 'pt' ? 'Objetivo: Desempenho' : 'Goal: Performance'}`}
             </p>
             <div className="grid grid-cols-2 gap-3 text-sm mb-4">
               <div>
