@@ -421,7 +421,8 @@ export default function Onboarding() {
               </div>
               <button
                 onClick={() => setStep(5)}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
+                disabled={!formData.height_cm || !formData.weight_kg || !formData.age}
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed">
                 {l.next}
               </button>
             </motion.div>
