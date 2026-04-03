@@ -62,22 +62,16 @@ export default function TrialGate({ children }) {
     // Don't redirect if profile couldn't load — show safe fallback UI instead
     if (profileLoadFailed) return;
 
-    // Step 3: Onboarding not done → must go through onboarding first
+    // Step 3: Onboarding not done → always go to Onboarding (handles language in step 1)
     if (!onboardingComplete) {
-      const hasLanguage = !!(
-        profile?.language ||
-        localStorage.getItem('i18nextLng') ||
-        localStorage.getItem('balancen_lang')
-      );
-      const target = hasLanguage ? 'Onboarding' : 'LanguageSelector';
       didRedirectRef.current = true;
-      navigate(createPageUrl(target), { replace: true });
+      navigate(createPageUrl('Onboarding'), { replace: true });
       return;
     }
 
     // Step 5: All onboarded users can access core routes.
     // Non-entitled users will be gated per-feature, not here.
-  }, [isReady, user?.email, onboardingComplete, profileLoadFailed, navigate, profile?.language]);
+  }, [isReady, user?.email, onboardingComplete, profileLoadFailed, navigate]);
 
   // Reset redirect ref when user/auth state changes (e.g. new login)
   React.useEffect(() => {
