@@ -84,6 +84,15 @@ export default function Onboarding() {
   });
 
   useEffect(() => {
+    // Capture invite code from URL before user registers
+    const params = new URLSearchParams(window.location.search);
+    const invite = params.get('invite');
+    if (invite) {
+      localStorage.setItem('pending_referral', invite);
+    }
+  }, []);
+
+  useEffect(() => {
     const init = async () => {
       const completed = localStorage.getItem('balancen_onboarding_complete') === 'true';
       if (completed) { navigate(createPageUrl('Home'), { replace: true }); return; }

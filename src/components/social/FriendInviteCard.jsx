@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Copy, Share2, MessageCircle, Check } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { useTranslation } from "@/components/TranslationProvider";
 
 const APP_URL = window.location.origin;
 
@@ -13,51 +13,49 @@ function incrementInvitesSent() {
 }
 
 export default function FriendInviteCard({ profile, joinedCount = 0 }) {
+  const { t, lang } = useTranslation();
   const [codeCopied, setCodeCopied] = useState(false);
 
-  // Stable invite code based on user email prefix
-  const inviteCode = profile?.created_by
-    ? profile.created_by.split("@")[0].replace(/[^a-z0-9]/gi, "").slice(0, 10)
+  // Stable invite code based on profile.id
+  const inviteCode = profile?.id
+    ? profile.id.slice(0, 8).toLowerCase()
     : "invite";
-  const inviteUrl = `${APP_URL}/Onboarding?invite=${inviteCode}`;
-  const shareMessage = `Join me on Balancen! Use my code ${inviteCode} for a free Premium trial. ${inviteUrl}`;
-
-  const saveInviteRecord = () => {
-    base44.entities.Invite.create({
-      inviter_email: profile.created_by,
-      inviter_name: profile.display_name,
-      invite_code: inviteCode,
-      status: "invited",
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    }).catch(() => {});
-    incrementInvitesSent();
-  };
+  const inviteUrl = `${APP_URL}/?invite=${inviteCode}`;
+  const shareMessage = `${t('friend_invite_message') || 'Join me on Balancen!'} ${inviteUrl}`;
 
   const handleCopyCode = async () => {
     try {
       await navigator.clipboard.writeText(inviteCode);
       setCodeCopied(true);
       setTimeout(() => setCodeCopied(false), 2000);
-      toast.success("Copied!");
-    } catch { toast.error("Copy failed"); }
+      toast.success(t('copied') || 'Copied!');
+    } catch { 
+      toast.error(t('copy_failed') || 'Copy failed'); 
+    }
   };
 
   const handleShareLink = async () => {
-    saveInviteRecord();
+    incrementInvitesSent();
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Join me on Balancen!", text: shareMessage, url: inviteUrl });
+        await navigator.share({ title: t('join_balancen') || 'Join me on Balancen!', text: shareMessage, url: inviteUrl });
         return;
-      } catch { /* fallthrough */ }
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          // User cancelled share, fallback to copy
+        }
+      }
     }
     try {
-      await navigator.clipboard.writeText(shareMessage);
-      toast.success("Link copied!");
-    } catch { toast.error("Copy failed"); }
+      await navigator.clipboard.writeText(inviteUrl);
+      toast.success(t('link_copied') || 'Link copied!');
+    } catch { 
+      toast.error(t('copy_failed') || 'Copy failed'); 
+    }
   };
 
   const handleWhatsApp = () => {
-    saveInviteRecord();
+    incrementInvitesSent();
     const encoded = encodeURIComponent(shareMessage);
     window.open(`https://wa.me/?text=${encoded}`, "_blank");
   };
@@ -66,9 +64,9 @@ export default function FriendInviteCard({ profile, joinedCount = 0 }) {
     <div className="bg-gradient-to-br from-teal-500/20 to-emerald-500/20 border border-teal-400/30 rounded-2xl p-5 mb-6 space-y-4">
       {/* Header */}
       <div>
-        <h2 className="text-white font-black text-lg">Invite friends, eat better together 🍽️</h2>
+        <h2 className="text-white font-black text-lg">{t('invite_header') || 'Invite friends, eat better together'} 🍽️</h2>
         <p className="text-white/60 text-sm mt-1">
-          Your friends join free. You both get 7 extra days of Premium.
+          {t('invite_benefit') || 'Your friends join free. You both get 7 extra days of Premium.'}
         </p>
       </div>
 
@@ -90,7 +88,7 @@ export default function FriendInviteCard({ profile, joinedCount = 0 }) {
           className="flex-1 flex items-center justify-center gap-2 bg-teal-500 text-white font-bold text-sm py-2.5 rounded-xl active:opacity-80 transition-opacity"
         >
           <Share2 size={15} />
-          Share link
+          {t('share_link') || 'Share link'}
         </button>
         <button
           onClick={handleWhatsApp}
@@ -104,8 +102,8 @@ export default function FriendInviteCard({ profile, joinedCount = 0 }) {
       {/* Friends joined counter */}
       <p className="text-white/50 text-sm text-center">
         {joinedCount > 0
-          ? `${joinedCount} friend${joinedCount > 1 ? "s" : ""} joined with your link`
-          : "Be the first to invite someone!"}
+          ? `${joinedCount} ${lang === 'es' ? (joinedCount > 1 ? 'amigos' : 'amigo') : lang === 'pt' ? (joinedCount > 1 ? 'amigos' : 'amigo') : (joinedCount > 1 ? 'friends' : 'friend')} ${t('joined_with_link') || 'joined with your link'}`
+          : t('be_first_invite') || 'Be the first to invite someone!'}
       </p>
     </div>
   );

@@ -1,38 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Share2, Copy, Check, Gift } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
-import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
 
 export default function InviteSystemCard({ profile }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
-  const { data: referralProgress } = useQuery({
-    queryKey: ["referralProgress", profile?.created_by],
-    queryFn: async () => {
-      const progress = await base44.entities.ReferralProgress.filter({
-        user_email: profile.created_by
-      });
-      return progress[0] || { pending_referrals_count: 0, total_successful_referrals: 0 };
-    },
-    enabled: !!profile?.created_by,
-  });
+  const inviteCode = useMemo(() => {
+    if (!profile?.id) return null;
+    return profile.id.slice(0, 8).toLowerCase();
+  }, [profile?.id]);
 
-  const pendingCount = referralProgress?.pending_referrals_count || 0;
-  const totalReferrals = referralProgress?.total_successful_referrals || 0;
-
-  const copyLink = async () => {
-    if (!profile?.created_by) {
+  const shareLink = async () => {
+    if (!inviteCode) {
       toast.error(t('copy_failed') || 'Unable to generate link');
       return;
     }
-    const inviteCode = `${profile.created_by.split('@')[0]}-${Date.now().toString(36)}`;
-    const inviteUrl = `${window.location.origin}/Onboarding?invite=${inviteCode}`;
+    const inviteUrl = `${window.location.origin}/?invite=${inviteCode}`;
+    const shareMessage = `Join me on Balancen! ${inviteUrl}`;
     
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Join Balancen", text: shareMessage, url: inviteUrl });
+        return;
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          toast.error(t('share_failed') || 'Share failed');
+        }
+      }
+    }
+
     try {
       await navigator.clipboard.writeText(inviteUrl);
       setCopied(true);
@@ -53,52 +53,38 @@ export default function InviteSystemCard({ profile }) {
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-orange-400/10 rounded-full blur-3xl" />
       <div className="relative z-10">
         <div className="flex items-start gap-4 mb-5">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-lg">
-            <Gift size={28} className="text-white" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-white font-bold text-xl mb-1">
-              {t('invite_friends')}
-            </h3>
-            <p className="text-white/80 text-sm leading-relaxed">
-              You + your friend both get 7 extra Premium days
-            </p>
-          </div>
-        </div>
-
-        <div className="mb-5">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-white/90 text-sm font-semibold">
-              {t('progress')}
-            </p>
-            <p className="text-white font-bold text-xl">
-              {pendingCount}/3
-            </p>
-          </div>
-          <div className="h-3 bg-white/10 rounded-full overflow-hidden shadow-inner">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${(pendingCount / 3) * 100}%` }}
-              transition={{ duration: 1.2, ease: "easeOut" }}
-              className="h-full bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 shadow-lg"
-            />
-          </div>
-          {totalReferrals > 0 && (
-            <p className="text-emerald-300 text-xs mt-2 font-semibold">
-              🎉 {totalReferrals} {t('friends_converted')}
-            </p>
-          )}
-        </div>
-
-        <div className="flex gap-3">
-           <Button
-             onClick={copyLink}
-             disabled={!profile?.created_by}
-             className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-12 rounded-xl shadow-xl shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-           >
-             {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
-           </Button>
+           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-lg">
+             <Gift size={28} className="text-white" />
+           </div>
+           <div className="flex-1">
+             <h3 className="text-white font-bold text-xl mb-1">
+               {t('invite_friends')}
+             </h3>
+             <p className="text-white/80 text-sm leading-relaxed">
+               {t('invite_description') || 'You + your friend both get 7 extra Premium days'}
+             </p>
+           </div>
          </div>
+
+         {inviteCode && (
+           <div className="mb-5 p-4 bg-white/10 rounded-2xl border border-white/20">
+             <p className="text-white/70 text-xs mb-2 uppercase tracking-wider">{t('invite_code') || 'Your invite code'}</p>
+             <div className="font-mono text-lg font-bold text-purple-300 mb-3">{inviteCode}</div>
+             <p className="text-white/60 text-xs mb-3">{t('share_invite') || 'Share this link to invite friends'}</p>
+             <div className="p-2 bg-white/5 rounded-lg break-all text-xs text-white/50 mb-4">
+               {window.location.origin}/?invite={inviteCode}
+             </div>
+           </div>
+         )}
+
+         <Button
+           onClick={shareLink}
+           disabled={!inviteCode}
+           className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-12 rounded-xl shadow-xl shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+         >
+           {copied ? <Check size={18} className="text-emerald-400" /> : <Share2 size={18} />}
+           {copied ? (t('copied') || 'Copied!') : (t('share') || 'Share Invite Link')}
+         </Button>
       </div>
     </motion.div>
   );
