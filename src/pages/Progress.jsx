@@ -15,7 +15,7 @@ import PullToRefresh from "@/components/PullToRefresh";
 export default function Progress() {
   // ✅ Use global AppState - no duplicate auth/profile fetch on every tab visit
   const { user, profile, isInitialized, profileLoading } = useAppState();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
@@ -149,7 +149,7 @@ export default function Progress() {
             <p className="text-white/60 text-xs font-semibold uppercase tracking-wide">7-Day Log</p>
             <div className="flex items-center gap-1.5">
               <Flame size={14} className="text-orange-400" />
-              <span className="text-white font-bold text-sm">{profile?.current_streak || 0} day streak</span>
+              <span className="text-white font-bold text-sm">{profile?.current_streak || 0} {lang === 'es' ? 'días de racha' : lang === 'pt' ? 'dias de sequência' : 'day streak'}</span>
             </div>
           </div>
           <div className="flex items-end justify-between gap-2">
