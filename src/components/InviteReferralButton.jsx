@@ -31,13 +31,13 @@ export default function InviteReferralButton({ profile, user }) {
       }).catch(() => {});
 
     } catch (err) {
-      toast.error(lang === 'es' ? 'Error generando link' : 'Error generating link');
+      toast.error(lang === 'es' ? 'Error generando link' : lang === 'pt' ? 'Erro ao gerar link' : 'Error generating link');
     }
   };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(inviteLink);
-    toast.success(lang === 'es' ? 'Link copiado' : 'Link copied');
+    toast.success(lang === 'es' ? 'Link copiado' : lang === 'pt' ? 'Link copiado' : 'Link copied');
   };
 
   const handleShareLink = async () => {
@@ -45,7 +45,7 @@ export default function InviteReferralButton({ profile, user }) {
       try {
         await navigator.share({
           title: 'Balancen',
-          text: lang === 'es' ? 'Únete a Balancen conmigo!' : 'Join Balancen with me!',
+          text: lang === 'es' ? 'Únete a Balancen conmigo!' : lang === 'pt' ? 'Junte-se a mim no Balancen!' : 'Join Balancen with me!',
           url: inviteLink,
         });
       } catch (err) {
@@ -75,10 +75,10 @@ export default function InviteReferralButton({ profile, user }) {
         </div>
         <div>
           <p className="text-white font-semibold text-sm">
-            {lang === 'es' ? 'Invitar Amigos' : 'Invite Friends'}
+            {lang === 'es' ? 'Invitar Amigos' : lang === 'pt' ? 'Convidar Amigos' : 'Invite Friends'}
           </p>
           <p className="text-blue-200 text-xs">
-            {lang === 'es' ? '+1 mes gratis cada 3 amigos' : '+1 free month per 3 friends'}
+            {lang === 'es' ? '+1 mes gratis cada 3 amigos' : lang === 'pt' ? '+1 mês grátis a cada 3 amigos' : '+1 free month per 3 friends'}
           </p>
         </div>
       </motion.button>
@@ -104,7 +104,7 @@ export default function InviteReferralButton({ profile, user }) {
               <div className="bg-slate-900 border border-white/20 rounded-3xl p-6 shadow-2xl">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-white">
-                    {lang === 'es' ? 'Compartir Link' : 'Share Link'}
+                    {lang === 'es' ? 'Compartir Link' : lang === 'pt' ? 'Compartilhar Link' : 'Share Link'}
                   </h3>
                   <button
                     onClick={() => setIsOpen(false)}
@@ -128,14 +128,14 @@ export default function InviteReferralButton({ profile, user }) {
                         className="flex-1 bg-teal-500 hover:bg-teal-600 h-10"
                       >
                         <Copy size={16} className="mr-2" />
-                        {lang === 'es' ? 'Copiar' : 'Copy'}
+                        {lang === 'es' ? 'Copiar' : lang === 'pt' ? 'Copiar' : 'Copy'}
                       </Button>
                       <Button
                         onClick={handleShareLink}
                         className="flex-1 bg-blue-500 hover:bg-blue-600 h-10"
                       >
                         <Share2 size={16} className="mr-2" />
-                        {lang === 'es' ? 'Compartir' : 'Share'}
+                        {lang === 'es' ? 'Compartir' : lang === 'pt' ? 'Compartilhar' : 'Share'}
                       </Button>
                     </div>
                   </>
