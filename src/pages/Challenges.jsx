@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Trophy, Flame, Droplets, Dumbbell, CheckSquare, Target, Plus, Users, Lock, Loader2, ChevronRight } from "lucide-react";
+import { Trophy, Flame, Droplets, Dumbbell, CheckSquare, Target, Plus, Users, Lock, Loader2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -259,20 +259,12 @@ export default function Challenges() {
     <div className="min-h-screen pb-24" style={{ minHeight: '100dvh' }}>
       <div className="max-w-2xl mx-auto px-4 pt-6 pb-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(createPageUrl("Social"))}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
-          >
-            <ArrowLeft size={20} className="text-white" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-black text-white flex items-center gap-2">
-              <Trophy size={24} className="text-amber-400" />
-              {t("challenges_title")}
-            </h1>
-            <p className="text-white/60 text-sm">{t("challenges_subtitle")}</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-black text-white flex items-center gap-2">
+            <Trophy size={24} className="text-amber-400" />
+            {t("challenges_title")}
+          </h1>
+          <p className="text-white/60 text-sm">{t("challenges_subtitle")}</p>
         </div>
 
         {/* Active Challenges */}
