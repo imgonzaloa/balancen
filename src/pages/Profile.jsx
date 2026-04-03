@@ -226,25 +226,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Share Profile Button */}
-        {profile?.display_name && (
-          <button
-            onClick={() => {
-              const msg = `Check out my Balancen profile! 🍽️\n${profile.display_name} — ${profile.current_streak || 0} day streak 🔥\nJoin free!`;
-              if (navigator.share) {
-                navigator.share({ text: msg }).catch(() => {});
-              } else {
-                navigator.clipboard?.writeText(msg).catch(() => {});
-                toast.success("Profile link copied!");
-              }
-            }}
-            className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white/70 text-sm font-semibold flex items-center justify-center gap-2 hover:bg-white/20 transition-colors mb-6"
-          >
-            <Share2 size={16} />
-            Share profile
-          </button>
-        )}
-
         {/* Body Metrics Card */}
         {(profile?.height_cm || profile?.weight_kg) && (
           <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-5 border border-white/20 mb-6">
@@ -285,6 +266,25 @@ export default function Profile() {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Share Profile Button */}
+        {profile?.display_name && (
+          <button
+            onClick={() => {
+              const msg = `Check out my Balancen profile! 🍽️\n${profile.display_name} — ${profile.current_streak || 0} day streak 🔥\nJoin free!`;
+              if (navigator.share) {
+                navigator.share({ text: msg }).catch(() => {});
+              } else {
+                navigator.clipboard?.writeText(msg).catch(() => {});
+                toast.success("Profile link copied!");
+              }
+            }}
+            className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white/70 text-sm font-semibold flex items-center justify-center gap-2 hover:bg-white/20 transition-colors mb-6"
+          >
+            <Share2 size={16} />
+            Share profile
+          </button>
         )}
 
         {/* Personal Info */}
