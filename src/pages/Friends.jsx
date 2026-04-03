@@ -13,7 +13,7 @@ import { createPageUrl } from "@/utils";
 import StatusChip from "@/components/groups/StatusChip";
 
 export default function Friends() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -184,17 +184,22 @@ export default function Friends() {
           <button
             onClick={() => {
               const code = profile?.invite_code || profile?.id?.slice(0, 8);
-              const msg = "Join me on Balancen! Use my code " + code + " for a free Premium trial.";
+              const inviteMessages = {
+                es: `Únete a Balancen! Usa mi código ${code} para un trial Premium gratis. https://balancen.app`,
+                en: `Join me on Balancen! Use my code ${code} for a free Premium trial. https://balancen.app`,
+                pt: `Junte-se a mim no Balancen! Use meu código ${code} para um trial Premium grátis. https://balancen.app`,
+              };
+              const msg = inviteMessages[lang] || inviteMessages.en;
               if (navigator.share) {
                 navigator.share({ text: msg }).catch(() => {});
               } else {
                 navigator.clipboard?.writeText(msg).catch(() => {});
-                toast.success("Link copied!");
+                toast.success(lang === 'es' ? '¡Copiado!' : lang === 'pt' ? 'Copiado!' : 'Copied!');
               }
             }}
             className="bg-teal-500 text-white font-bold rounded-xl px-4 py-3 w-full hover:bg-teal-600 transition-colors"
           >
-            Share invite link
+            {lang === 'es' ? 'Compartir enlace de invitación' : lang === 'pt' ? 'Compartilhar link de convite' : 'Share invite link'}
           </button>
         </motion.div>
 
