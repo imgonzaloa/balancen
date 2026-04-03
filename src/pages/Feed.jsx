@@ -43,15 +43,16 @@ export default function Feed() {
       const friendEmails = friends.map(f => f.friend_user_id);
       if (friendEmails.length === 0) return [];
       
-      const meals = [];
-      for (let i = 0; i < friendEmails.length; i++) {
-        if (i > 0) await new Promise(resolve => setTimeout(resolve, 150));
-        const userProfiles = await base44.entities.UserProfile.filter({ created_by: friendEmails[i] });
-        if (userProfiles[0]?.share_meals === 'friends') {
-          const userMeals = await base44.entities.MealLog.filter({ created_by: friendEmails[i] }, "-created_date", 5);
-          meals.push(...userMeals);
-        }
-      }
+      const profiles = await Promise.all(
+        friendEmails.map(email => base44.entities.UserProfile.filter({ created_by: email }))
+      );
+      const sharingEmails = friendEmails.filter((_, i) => profiles[i][0]?.share_meals === 'friends');
+      if (sharingEmails.length === 0) return [];
+
+      const mealArrays = await Promise.all(
+        sharingEmails.map(email => base44.entities.MealLog.filter({ created_by: email }, "-created_date", 5))
+      );
+      const meals = mealArrays.flat();
       return meals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     },
     enabled: !!user?.email,
