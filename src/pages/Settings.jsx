@@ -240,8 +240,8 @@ export default function Settings() {
                 type="number"
                 inputMode="numeric"
                 placeholder="2000"
-                value={profile?.calories_goal || ""}
-                onChange={(e) => updateMutation.mutate({ calories_goal: parseInt(e.target.value) || null })}
+                defaultValue={profile?.calories_goal || ""}
+                onBlur={(e) => updateMutation.mutate({ calories_goal: parseInt(e.target.value) || null })}
                 className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:border-teal-300 outline-none text-base"
               />
               <p className="text-white/40 text-xs leading-relaxed">
