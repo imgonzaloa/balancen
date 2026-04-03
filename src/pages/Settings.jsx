@@ -232,18 +232,9 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label className="text-white text-sm mb-2 block">{t('daily_calories_limit')}</Label>
-                <input
-                  type="number"
-                  value={profile?.calories_goal || ""}
-                  onChange={(e) => updateMutation.mutate({ calories_goal: parseInt(e.target.value) || null })}
-                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-orange-300 outline-none text-base"
-                  placeholder={lang === "es" ? "Ej.: 2000" : "e.g., 2000"}
-                />
-                <p className="text-xs text-white/50 mt-1">{t('optional_leave_empty')}</p>
-              </div>
+            <div className="flex items-center gap-2 py-2">
+              <span className="text-white/60 text-sm">{t('daily_calories_limit')}:</span>
+              <span className="text-orange-300 font-bold text-sm">{profile?.calories_goal ? `${profile.calories_goal} kcal` : "—"}</span>
             </div>
           </div>
         </motion.div>
