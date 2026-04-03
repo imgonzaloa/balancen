@@ -1,9 +1,19 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { createPageUrl } from "@/utils";
 import { Loader2 } from "lucide-react";
+import { getLocalLanguage } from "@/lib/language";
 
 export default function OnboardingTransition() {
+  const lang = useMemo(() => getLocalLanguage(), []);
+  
+  const messages = {
+    en: { title: 'Setting up your experience...', subtitle: 'Get ready to start your journey' },
+    es: { title: 'Preparando tu experiencia...', subtitle: 'Listo para empezar tu camino' },
+    pt: { title: 'Preparando sua experiência...', subtitle: 'Pronto para começar sua jornada' }
+  };
+  
+  const { title, subtitle } = messages[lang] || messages.en;
   useEffect(() => {
     const timer = setTimeout(() => {
       window.location.href = createPageUrl("Home");
@@ -34,9 +44,9 @@ export default function OnboardingTransition() {
         </motion.div>
 
         <h1 className="text-3xl font-bold text-white mb-2">
-          Setting up your experience...
+          {title}
         </h1>
-        <p className="text-teal-200">Get ready to start your journey</p>
+        <p className="text-teal-200">{subtitle}</p>
       </motion.div>
     </div>
   );
