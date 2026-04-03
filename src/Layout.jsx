@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Home, Users, Award, User } from "lucide-react";
+import { Home, Users, Award, User, Trophy } from "lucide-react";
 import { Toaster } from "sonner";
 import { TranslationProvider, useTranslation } from "@/components/TranslationProvider";
 import { MealProvider } from "@/components/MealContext";
@@ -41,8 +41,8 @@ const queryClient = new QueryClient({
 });
 
 const noNavPages = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector", "Premium", "ProfileSetup", "GroupDashboard"];
-const showBrandPages = ["Home", "Social", "Progress", "Profile"];
-const mainTabs = ["Home", "Social", "Progress", "Profile"];
+const showBrandPages = ["Home", "Social", "Challenges", "Progress", "Profile"];
+const mainTabs = ["Home", "Social", "Challenges", "Progress", "Profile"];
 
 // ── NavButton extracted as its own component to fix React hooks-in-map violation ──
 const NavButton = React.memo(function NavButton({ item, isActive, onNavigate, onScrollTop }) {
@@ -92,6 +92,7 @@ function getNavItems(t) {
   return [
     { name: "Home", icon: Home, label: t("home_tab") },
     { name: "Social", icon: Users, label: t("social_tab") },
+    { name: "Challenges", icon: Trophy, label: t("challenges_tab") },
     { name: "Progress", icon: Award, label: t("progress_tab") },
     { name: "Profile", icon: User, label: t("profile_tab") }
   ];

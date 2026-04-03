@@ -11,6 +11,7 @@ const resources = {
       profile: "Profile",
       home_tab: "Home",
       social_tab: "Social",
+      challenges_tab: "Challenges",
       progress_tab: "Progress",
       profile_tab: "Profile",
       
@@ -745,6 +746,7 @@ const resources = {
       profile: "Perfil",
       home_tab: "Início",
       social_tab: "Social",
+      challenges_tab: "Desafios",
       progress_tab: "Progresso",
       profile_tab: "Perfil",
 
@@ -910,6 +912,7 @@ const resources = {
       profile: "Perfil",
       home_tab: "Inicio",
       social_tab: "Social",
+      challenges_tab: "Retos",
       progress_tab: "Progreso",
       profile_tab: "Perfil",
       
