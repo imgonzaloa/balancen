@@ -101,7 +101,8 @@ export default function MealResultCard({ profile, onSave }) {
       console.log("[MEAL] analyze request", { imageUrl });
 
       const response = await base44.functions.invoke("analyzeMealPhoto", {
-        imageUrl
+        imageUrl,
+        lang
       });
 
       console.log("[MEAL] analyze response status", response.status);
@@ -160,7 +161,8 @@ export default function MealResultCard({ profile, onSave }) {
         setAnalysisError(null);
 
         const response = await base44.functions.invoke("analyzeMealPhoto", {
-          imageUrl: uploadedUrl
+          imageUrl: uploadedUrl,
+          lang
         });
 
         if (response.status !== 200) {
