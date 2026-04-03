@@ -245,6 +245,48 @@ export default function Profile() {
           </button>
         )}
 
+        {/* Body Metrics Card */}
+        {(profile?.height_cm || profile?.weight_kg) && (
+          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-5 border border-white/20 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-white text-sm">
+                {{ es: "Métricas corporales", en: "Body metrics", pt: "Métricas corporais" }[lang] || "Body metrics"}
+              </h3>
+              <button
+                onClick={() => navigate(createPageUrl('Settings'))}
+                className="text-teal-300 text-xs font-semibold hover:text-teal-200 transition-colors"
+              >
+                {{ es: "Editar", en: "Edit", pt: "Editar" }[lang] || "Edit"}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                {
+                  label: { es: "Altura", en: "Height", pt: "Altura" }[lang],
+                  value: profile?.height_cm ? `${profile.height_cm} cm` : "—",
+                },
+                {
+                  label: { es: "Peso", en: "Weight", pt: "Peso" }[lang],
+                  value: profile?.weight_kg ? `${profile.weight_kg} kg` : "—",
+                },
+                {
+                  label: { es: "Edad", en: "Age", pt: "Idade" }[lang],
+                  value: profile?.age ? `${profile.age} ${{ es: "años", en: "yrs", pt: "anos" }[lang]}` : "—",
+                },
+                {
+                  label: { es: "Meta diaria", en: "Daily goal", pt: "Meta diária" }[lang],
+                  value: profile?.calories_goal ? `${profile.calories_goal} kcal` : "—",
+                },
+              ].map(({ label, value }) => (
+                <div key={label} className="bg-white/5 rounded-2xl px-4 py-3 border border-white/10">
+                  <p className="text-white/50 text-[10px] font-semibold uppercase tracking-wide mb-1">{label}</p>
+                  <p className="text-teal-200 font-bold text-base">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Personal Info */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
           <h3 className="font-semibold text-white mb-4">{t('personal_info') || "Personal info"}</h3>
