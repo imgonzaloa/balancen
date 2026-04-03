@@ -232,9 +232,25 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 py-2">
-              <span className="text-white/60 text-sm">{t('daily_calories_limit')}:</span>
-              <span className="text-orange-300 font-bold text-sm">{profile?.calories_goal ? `${profile.calories_goal} kcal` : "—"}</span>
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs block">
+                {t('daily_calories_limit')}
+              </Label>
+              <input
+                type="number"
+                inputMode="numeric"
+                placeholder="2000"
+                defaultValue={profile?.calories_goal || ""}
+                key={profile?.calories_goal}
+                onBlur={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (val > 0) updateMutation.mutate({ calories_goal: val });
+                }}
+                className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:border-teal-300 outline-none text-base"
+              />
+              <p className="text-white/40 text-xs leading-relaxed">
+                {{ es: "Calculado automáticamente según tu perfil. Puedes ajustarlo manualmente.", en: "Auto-calculated from your profile. You can adjust it manually.", pt: "Calculado automaticamente do seu perfil. Você pode ajustá-lo manualmente." }[lang] || "Auto-calculated from your profile. You can adjust it manually."}
+              </p>
             </div>
           </div>
         </motion.div>
