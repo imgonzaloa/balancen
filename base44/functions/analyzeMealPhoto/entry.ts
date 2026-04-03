@@ -10,14 +10,20 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { imageUrl } = body;
+    const { imageUrl, lang } = body;
 
     if (!imageUrl) {
       console.error('[MEAL] Missing imageUrl in request');
       return Response.json({ error: 'Se requiere imageUrl' }, { status: 400 });
     }
 
-    console.log('[MEAL] Analyzing image:', imageUrl);
+    console.log('[MEAL] Analyzing image:', imageUrl, 'lang:', lang);
+
+    const langInstruction = lang === 'en'
+      ? 'Respond in English.'
+      : lang === 'pt'
+      ? 'Responda em português.'
+      : 'Responde en español.';
 
     // Call AI to analyze the meal
     const analysisResult = await base44.integrations.Core.InvokeLLM({
@@ -27,7 +33,7 @@ Deno.serve(async (req) => {
 3. Macronutrientes (proteína, carbohidratos, grasas en gramos)
 4. Notas sobre la comida (tamaño de porción, preparación)
 
-Responde en español. Sé preciso pero realista con las estimaciones.`,
+${langInstruction} Sé preciso pero realista con las estimaciones.`,
       add_context_from_internet: false,
       file_urls: [imageUrl],
       response_json_schema: {
