@@ -74,8 +74,10 @@ export default function BodyGoalsFields({ profile, updateMutation, lang }) {
     calculated: { es: "Calorías calculadas automáticamente al guardar.", en: "Calories will be recalculated automatically on save.", pt: "Calorias serão recalculadas automaticamente ao salvar." }[l],
   };
 
+  const isPending = updateMutation.isPending;
+
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 transition-opacity ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
       {/* Height & Weight */}
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -152,7 +154,15 @@ export default function BodyGoalsFields({ profile, updateMutation, lang }) {
         </div>
       </div>
 
-      <p className="text-white/30 text-xs">{labels.calculated}</p>
+      <div className="flex items-center gap-2">
+        <p className="text-white/30 text-xs">{labels.calculated}</p>
+        {isPending && (
+          <svg className="animate-spin h-3 w-3 text-teal-400 shrink-0" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+        )}
+      </div>
     </div>
   );
 }
