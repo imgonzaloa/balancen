@@ -240,16 +240,12 @@ export default function Settings() {
                 type="number"
                 inputMode="numeric"
                 placeholder="2000"
-                defaultValue={profile?.calories_goal || ""}
-                key={profile?.calories_goal}
-                onBlur={(e) => {
-                  const val = parseInt(e.target.value);
-                  if (val > 0) updateMutation.mutate({ calories_goal: val });
-                }}
+                value={profile?.calories_goal || ""}
+                onChange={(e) => updateMutation.mutate({ calories_goal: parseInt(e.target.value) || null })}
                 className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:border-teal-300 outline-none text-base"
               />
               <p className="text-white/40 text-xs leading-relaxed">
-                {{ es: "Calculado automáticamente según tu perfil. Puedes ajustarlo manualmente.", en: "Auto-calculated from your profile. You can adjust it manually.", pt: "Calculado automaticamente do seu perfil. Você pode ajustá-lo manualmente." }[lang] || "Auto-calculated from your profile. You can adjust it manually."}
+                {{ es: "Calculado automáticamente según tu perfil. Puedes ajustarlo.", en: "Auto-calculated from your profile. You can adjust it.", pt: "Calculado automaticamente. Você pode ajustá-lo." }[lang] || "Auto-calculated from your profile. You can adjust it."}
               </p>
             </div>
           </div>
