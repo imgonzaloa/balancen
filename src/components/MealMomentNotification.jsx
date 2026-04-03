@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Camera } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "@/components/TranslationProvider";
 import { createPageUrl } from "@/utils";
 
@@ -40,8 +40,11 @@ function msSinceMidnight() {
 
 export default function MealMomentNotification() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
+
+  if (pathname.includes('CameraScreen') || pathname.includes('MealResult') || pathname.includes('PreviewScreen')) return null;
 
   useEffect(() => {
     if (isDismissedToday()) return;
