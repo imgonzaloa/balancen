@@ -72,21 +72,38 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Streak calculation
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+    const yesterdayCheckIns = await base44.entities.DailyCheckIn.filter({
+      created_by: user.email,
+      date: yesterdayStr,
+      completed: true
+    });
+
+    const hadYesterdayCheckIn = yesterdayCheckIns.length > 0;
+    const newStreak = hadYesterdayCheckIn ? (profile.current_streak || 0) + 1 : 1;
+    const newLongestStreak = Math.max(newStreak, profile.longest_streak || 0);
+
+    // Build profile update payload
+    const profileUpdate = {
+      current_streak: newStreak,
+      longest_streak: newLongestStreak,
+    };
+
     // Update total fire count
     if (fireAwarded > 0) {
-      const newFireTotal = (profile.fire_total || 0) + fireAwarded;
-      await base44.entities.UserProfile.update(profile.id, {
-        fire_total: newFireTotal
-      });
+      profileUpdate.fire_total = (profile.fire_total || 0) + fireAwarded;
     }
 
     // Auto-set 24h status (meal logged = status update)
     if (body.food_photo_url) {
-      const today_iso = new Date().toISOString();
-      await base44.entities.UserProfile.update(profile.id, {
-        status_updated_at: today_iso
-      });
+      profileUpdate.status_updated_at = new Date().toISOString();
     }
+
+    await base44.entities.UserProfile.update(profile.id, profileUpdate);
 
     return Response.json({
       success: true,
