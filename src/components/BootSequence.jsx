@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { SafeBootManager } from './SafeBootManager';
+import { getLocalLanguage } from '@/lib/language';
 
 /**
  * BootSequence: Single source of truth for app initialization
@@ -54,7 +55,7 @@ export function useBootSequence() {
 
         // Step 2: Load persisted state
         const persistedOnboarding = localStorage.getItem('onboarding_completed') === 'true';
-        const persistedLanguage = localStorage.getItem('app_language') || null;
+        const persistedLanguage = getLocalLanguage() || null;
 
         // Step 3: If authenticated, check profile
         let hasProfile = false;
@@ -115,7 +116,7 @@ export function useBootSequence() {
             isAuthenticated: false,
             hasProfile: false,
             onboardingCompleted: false,
-            language: localStorage.getItem('app_language'),
+            language: getLocalLanguage(),
             safeMode: true,
             error: error.message,
           });
