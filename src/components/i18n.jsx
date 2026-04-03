@@ -907,6 +907,7 @@ const resources = {
       meal_moment_title: "O que você está comendo agora? 📸",
       meal_moment_subtitle: "Compartilhe com seu time",
       meal_moment_scan: "Scan",
+      ai_scans_limit: "Você usou suas 5 análises de IA gratuitas hoje. Atualize para Premium para análises ilimitadas.",
     }
   },
   es: {
