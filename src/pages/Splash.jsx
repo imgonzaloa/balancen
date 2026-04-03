@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import { getLocalLanguage } from "@/lib/language";
 
 const SPLASH_SHOWN_KEY = "balancen_splash_shown";
 
@@ -116,7 +117,7 @@ export default function Splash() {
         }}
       >
         {(() => {
-          const lang = localStorage.getItem('balancen_lang') || localStorage.getItem('i18nextLng') || '';
+          const lang = getLocalLanguage() || '';
           if (lang.startsWith('es')) return 'Sé constante.';
           if (lang.startsWith('pt')) return 'Seja consistente.';
           return 'Stay consistent.';
