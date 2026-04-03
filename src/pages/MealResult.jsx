@@ -269,7 +269,7 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
 }
 
 export default function MealResult() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const { capturedFile, previewUrl, resetMeal } = useMeal();
   const { addMeal, formatLocalDateKey } = useMealsStore();
@@ -747,7 +747,7 @@ export default function MealResult() {
                 fats: savedTotals?.fats || 0,
               },
             });
-            toast.success("Shared to your feed!");
+            toast.success(lang === 'es' ? '¡Compartido en tu feed!' : lang === 'pt' ? 'Compartilhado no seu feed!' : 'Shared to your feed!');
           } catch (err) {
             console.error("Share failed:", err);
           }
