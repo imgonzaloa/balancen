@@ -917,6 +917,7 @@ const resources = {
       invite_description: "Você e seu amigo ganham 7 dias extras de Premium",
       joined_with_link: "entrou com seu link",
       share_failed: "Erro ao compartilhar",
+      keep_it_up: "Continue assim",
       }
       },
   es: {
@@ -1776,6 +1777,7 @@ const resources = {
       invite_message_template: "¡Únete a Balancen! Usa mi código {code} para un trial Premium gratis. https://balancen.app",
       poor: "Malo",
       capture: "Capturar",
+      keep_it_up: "Sigue así",
       }
       }
       };
