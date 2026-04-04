@@ -26,6 +26,7 @@ export default function CameraScreen() {
   const searchParams = new URLSearchParams(location.search);
   const cameraMode = searchParams.get('mode') || localStorage.getItem('CAMERA_MODE') || null;
   const isProfilePhotoMode = cameraMode === 'profilePhoto';
+  const isProgressPhotoMode = cameraMode === 'progressPhoto';
 
   // Where to go back when closing camera
   const rawReturn = searchParams.get('return') || localStorage.getItem('CAMERA_RETURN_ROUTE');
@@ -225,6 +226,15 @@ export default function CameraScreen() {
         return;
       }
 
+      if (isProgressPhotoMode) {
+        console.log("🚀 PROGRESS_PHOTO_CAPTURE");
+        sessionStorage.setItem("progressPhoto_pending", JSON.stringify({ dataUrl }));
+        localStorage.removeItem('CAMERA_MODE');
+        stopCamera();
+        navigate(createPageUrl("ProgressPhotos"), { replace: true });
+        return;
+      }
+
       // Write to context + sessionStorage (meal flow)
       setCapturedFile(file, dataUrl);
       incrementScanCount();
@@ -268,6 +278,14 @@ export default function CameraScreen() {
       if (isProfilePhotoMode) {
         console.log("🚀 PROFILE_PHOTO_SAVE (gallery fallback)");
         await saveProfilePhoto(selectedFile, dataUrl);
+        return;
+      }
+
+      if (isProgressPhotoMode) {
+        sessionStorage.setItem("progressPhoto_pending", JSON.stringify({ dataUrl }));
+        localStorage.removeItem('CAMERA_MODE');
+        stopCamera();
+        navigate(createPageUrl("ProgressPhotos"), { replace: true });
         return;
       }
 

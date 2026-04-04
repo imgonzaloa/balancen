@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Lock, BarChart3, Sparkles, Flame } from "lucide-react";
+import { Lock, BarChart3, Sparkles, Flame, Camera } from "lucide-react";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
 import { base44 } from "@/api/base44Client";
@@ -69,6 +69,13 @@ export default function Progress() {
   }, [weekMeals, last7Days]);
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+
+  const { data: recentPhotos = [] } = useQuery({
+    queryKey: ["bodyPhotosRecent", user?.email],
+    queryFn: () => base44.entities.BodyPhoto.filter({ created_by: user.email }, "-date", 1),
+    enabled: !!user?.email && isPremium,
+    staleTime: 10 * 60 * 1000,
+  });
 
   if (loading) return <ProgressSkeleton />;
 
@@ -161,6 +168,29 @@ export default function Progress() {
             ))}
           </div>
         </div>
+
+        {/* PROGRESS PHOTOS CARD */}
+        <button
+          onClick={() => navigate(createPageUrl("ProgressPhotos"))}
+          className="w-full bg-slate-800/50 backdrop-blur-xl rounded-2xl p-5 border border-white/10 flex items-center gap-4 text-left hover:border-teal-500/40 transition-all"
+        >
+          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-white/5 flex items-center justify-center">
+            {recentPhotos[0]?.photo_url ? (
+              <img src={recentPhotos[0].photo_url} alt="recent" className="w-full h-full object-cover" />
+            ) : (
+              <Camera size={24} className="text-white/30" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-bold text-sm">
+              {lang === 'es' ? 'Fotos de progreso' : lang === 'pt' ? 'Fotos de progresso' : 'Progress Photos'}
+            </p>
+            <p className="text-white/40 text-xs mt-0.5">
+              {lang === 'es' ? 'Visualiza tu transformación' : lang === 'pt' ? 'Visualize sua transformação' : 'Visualize your transformation'}
+            </p>
+          </div>
+          <Camera size={18} className="text-teal-400 flex-shrink-0" />
+        </button>
 
         {/* PREMIUM: Advanced Analytics Dashboard */}
         {isPremium ? (

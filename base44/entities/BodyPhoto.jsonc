@@ -1,0 +1,27 @@
+{
+  "name": "BodyPhoto",
+  "type": "object",
+  "properties": {
+    "photo_url": {
+      "type": "string",
+      "description": "URL of the progress photo"
+    },
+    "weight_kg": {
+      "type": "number",
+      "description": "Body weight in kg at time of photo"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the photo was taken (YYYY-MM-DD)"
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional note"
+    }
+  },
+  "required": [
+    "photo_url",
+    "date"
+  ]
+}

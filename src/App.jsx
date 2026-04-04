@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster"
+import ProgressPhotos from './pages/ProgressPhotos'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
@@ -72,6 +73,11 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      <Route path="/ProgressPhotos" element={
+        <LayoutWrapper currentPageName="ProgressPhotos">
+          <ProgressPhotos />
+        </LayoutWrapper>
+      } />
       <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
