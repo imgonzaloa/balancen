@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown } from "lucide-react";
+import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useMealsStore } from "@/components/MealsStore";
@@ -111,9 +111,19 @@ const Home = React.memo(() => {
                 : getGreeting;
             })()}
           </h1>
-          {profile?.status_message && (
-            <p className="text-white/50 text-sm mt-1 italic">"{profile.status_message}"</p>
-          )}
+          <button
+            onClick={() => handleNavigate('Profile')}
+            className="flex items-center gap-1.5 mt-1 group active:scale-95 transition-transform"
+          >
+            {profile?.status_message ? (
+              <p className="text-white/50 text-sm italic group-hover:text-white/70 transition-colors">"{profile.status_message}"</p>
+            ) : (
+              <p className="text-white/25 text-sm italic group-hover:text-white/40 transition-colors">
+                {lang === 'pt' ? '+ Adicione seu status' : lang === 'en' ? '+ Add your status' : '+ Agrega tu estado'}
+              </p>
+            )}
+            <Pencil size={11} className="text-white/30 group-hover:text-white/50 flex-shrink-0 transition-colors" />
+          </button>
         </div>
 
         {/* Daily Intake - Hero Card */}
