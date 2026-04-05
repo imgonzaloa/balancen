@@ -99,7 +99,7 @@ const Home = React.memo(() => {
     const progress = Math.min((totalCalories / caloriesGoal) * 100, 100);
 
     return { totalCalories, totalProtein, totalCarbs, totalFats, caloriesGoal, progress };
-  }, [storeTotals, profile?.calories_goal]);
+  }, [todayMeals, profile?.calories_goal]);
 
   const todayMissions = useMemo(() => [
     { 
