@@ -18,6 +18,7 @@ Deno.serve(async (req) => {
       date: today
     });
 
+    const isNewCheckIn = !checkIns[0];
     let checkIn = checkIns[0];
     
     // Create or update check-in
@@ -72,26 +73,28 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Streak calculation
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-    const yesterdayCheckIns = await base44.entities.DailyCheckIn.filter({
-      created_by: user.email,
-      date: yesterdayStr,
-      completed: true
-    });
-
-    const hadYesterdayCheckIn = yesterdayCheckIns.length > 0;
-    const newStreak = hadYesterdayCheckIn ? (profile.current_streak || 0) + 1 : 1;
-    const newLongestStreak = Math.max(newStreak, profile.longest_streak || 0);
-
     // Build profile update payload
-    const profileUpdate = {
-      current_streak: newStreak,
-      longest_streak: newLongestStreak,
-    };
+    const profileUpdate = {};
+
+    if (isNewCheckIn) {
+      // Streak calculation — only on first check-in of the day
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+      const yesterdayCheckIns = await base44.entities.DailyCheckIn.filter({
+        created_by: user.email,
+        date: yesterdayStr,
+        completed: true
+      });
+
+      const hadYesterdayCheckIn = yesterdayCheckIns.length > 0;
+      const newStreak = hadYesterdayCheckIn ? (profile.current_streak || 0) + 1 : 1;
+      const newLongestStreak = Math.max(newStreak, profile.longest_streak || 0);
+
+      profileUpdate.current_streak = newStreak;
+      profileUpdate.longest_streak = newLongestStreak;
+    }
 
     // Update total fire count
     if (fireAwarded > 0) {
