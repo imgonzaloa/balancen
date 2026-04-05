@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown, Pencil } from "lucide-react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useMealsStore } from "@/components/MealsStore";
@@ -16,15 +16,43 @@ import PullToRefresh from "@/components/PullToRefresh";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
-  const { user, profile: cachedProfile, isInitialized } = useAppState();
+  const { user, profile: cachedProfile, isInitialized, setProfile: setContextProfile } = useAppState();
   const { getTodayMeals, getTodayTotals, isHydrated } = useMealsStore();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
+  const [editingStatus, setEditingStatus] = useState(false);
+  const [statusDraft, setStatusDraft] = useState(cachedProfile?.status_message || '');
+  const statusInputRef = useRef(null);
 
   useEffect(() => {
     if (cachedProfile) setProfile(cachedProfile);
   }, [cachedProfile]);
+
+  useEffect(() => {
+    setStatusDraft(profile?.status_message || '');
+  }, [profile?.status_message]);
+
+  useEffect(() => {
+    if (editingStatus && statusInputRef.current) {
+      statusInputRef.current.focus();
+    }
+  }, [editingStatus]);
+
+  const handleSaveStatus = async () => {
+    if (!profile?.id) return;
+    const { base44 } = await import('@/api/base44Client');
+    await base44.entities.UserProfile.update(profile.id, { status_message: statusDraft });
+    const updated = { ...profile, status_message: statusDraft };
+    setProfile(updated);
+    setContextProfile(updated);
+    setEditingStatus(false);
+  };
+
+  const handleCancelStatus = () => {
+    setStatusDraft(profile?.status_message || '');
+    setEditingStatus(false);
+  };
 
   // Memoize meals and totals to prevent recalculation
   const todayMeals = useMemo(() => getTodayMeals(), [getTodayMeals]);
@@ -111,19 +139,39 @@ const Home = React.memo(() => {
                 : getGreeting;
             })()}
           </h1>
-          <button
-            onClick={() => handleNavigate('Profile')}
-            className="flex items-center gap-1.5 mt-1 group active:scale-95 transition-transform"
-          >
-            {profile?.status_message ? (
-              <p className="text-white/50 text-sm italic group-hover:text-white/70 transition-colors">"{profile.status_message}"</p>
-            ) : (
-              <p className="text-white/25 text-sm italic group-hover:text-white/40 transition-colors">
-                {lang === 'pt' ? '+ Adicione seu status' : lang === 'en' ? '+ Add your status' : '+ Agrega tu estado'}
-              </p>
-            )}
-            <Pencil size={11} className="text-white/30 group-hover:text-white/50 flex-shrink-0 transition-colors" />
-          </button>
+          {editingStatus ? (
+            <div className="flex items-center gap-2 mt-1">
+              <input
+                ref={statusInputRef}
+                value={statusDraft}
+                onChange={e => setStatusDraft(e.target.value)}
+                maxLength={60}
+                onKeyDown={e => { if (e.key === 'Enter') handleSaveStatus(); if (e.key === 'Escape') handleCancelStatus(); }}
+                className="flex-1 bg-white/10 text-white text-sm italic rounded-lg px-3 py-1.5 border border-white/20 focus:border-teal-400 focus:outline-none placeholder-white/30 min-w-0"
+                placeholder={lang === 'pt' ? 'Adicione seu status...' : lang === 'en' ? 'Add your status...' : 'Agrega tu estado...'}
+              />
+              <button onClick={handleSaveStatus} className="text-teal-400 hover:text-teal-300 active:scale-90 transition-all flex-shrink-0">
+                <Check size={16} strokeWidth={2.5} />
+              </button>
+              <button onClick={handleCancelStatus} className="text-white/40 hover:text-white/70 active:scale-90 transition-all flex-shrink-0">
+                <X size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setEditingStatus(true)}
+              className="flex items-center gap-1.5 mt-1 group active:scale-95 transition-transform"
+            >
+              {profile?.status_message ? (
+                <p className="text-white/50 text-sm italic group-hover:text-white/70 transition-colors">"{profile.status_message}"</p>
+              ) : (
+                <p className="text-white/25 text-sm italic group-hover:text-white/40 transition-colors">
+                  {lang === 'pt' ? '+ Adicione seu status...' : lang === 'en' ? '+ Add your status...' : '+ Agrega tu estado...'}
+                </p>
+              )}
+              <Pencil size={11} className="text-white/30 group-hover:text-white/50 flex-shrink-0 transition-colors" />
+            </button>
+          )}
         </div>
 
         {/* Daily Intake - Hero Card */}
