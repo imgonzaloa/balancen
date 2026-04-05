@@ -521,8 +521,10 @@ export default function MealResult() {
       if (savedLog?.id && savedLog.id !== meal.id) {
         updateMealId?.(meal.id, savedLog.id, dateKey);
       }
-      // Invalidate the DB query so Home re-fetches with the new record
+      // Invalidate queries so Home and Progress re-fetch with the new record
       queryClient.invalidateQueries({ queryKey: ['mealLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['progressMeals'] });
+      queryClient.invalidateQueries({ queryKey: ['progressWeekMeals'] });
       console.log("✅ SAVE_OK - MealLog created", savedLog?.id);
     } catch (err) {
       console.error("❌ SAVE_FAIL - MealLog:", err?.message);
