@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { MealProvider } from '@/components/MealContext';
 import { useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -91,8 +92,10 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <NavigationTracker />
-          <AuthenticatedApp />
+          <MealProvider>
+            <NavigationTracker />
+            <AuthenticatedApp />
+          </MealProvider>
         </Router>
         <Toaster />
       </QueryClientProvider>
