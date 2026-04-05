@@ -68,12 +68,15 @@ const Home = React.memo(() => {
 
   const storeMeals = useMemo(() => getTodayMeals(), [getTodayMeals]);
 
-  // Display-only merge: store meals first, then DB meals not already in the store (by id)
+  // Display-only merge: store meals first, then DB meals not already in the store (by calories + timestamp proximity)
   const todayMeals = useMemo(() => {
     if (!dbMeals?.length) return storeMeals;
-    const storeIds = new Set(storeMeals.map(m => m.id).filter(Boolean));
+    const isDuplicate = (dbMeal) => storeMeals.some(sm =>
+      Math.abs((sm.totals?.calories || 0) - (dbMeal.estimated_calories || 0)) < 1 &&
+      Math.abs(new Date(sm.createdAt) - new Date(dbMeal.created_date || dbMeal.meal_time || 0)) < 60000
+    );
     const dbOnly = dbMeals
-      .filter(m => m.id && !storeIds.has(m.id))
+      .filter(m => !isDuplicate(m))
       .map(m => ({
         id: m.id,
         photoUri: m.photo_url || null,
