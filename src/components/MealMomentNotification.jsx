@@ -44,10 +44,10 @@ export default function MealMomentNotification() {
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
-  if (pathname.includes('CameraScreen') || pathname.includes('MealResult') || pathname.includes('PreviewScreen')) return null;
+  const isCameraPage = pathname.includes('CameraScreen') || pathname.includes('MealResult') || pathname.includes('PreviewScreen');
 
   useEffect(() => {
-    if (isDismissedToday()) return;
+    if (isCameraPage || isDismissedToday()) return;
 
     const scheduledMs = getScheduledTime();
 
@@ -62,7 +62,7 @@ export default function MealMomentNotification() {
     checkAndShow();
     const interval = setInterval(checkAndShow, 30000); // check every 30s
     return () => clearInterval(interval);
-  }, []);
+  }, [isCameraPage]);
 
   const handleDismiss = () => {
     dismissToday();
@@ -74,6 +74,8 @@ export default function MealMomentNotification() {
     setVisible(false);
     navigate(createPageUrl("CameraScreen"));
   };
+
+  if (isCameraPage) return null;
 
   return (
     <AnimatePresence>
