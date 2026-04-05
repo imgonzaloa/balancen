@@ -8,8 +8,7 @@ import { RefreshCw, LogOut, RotateCcw } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 
 function hardReset() {
-  try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
-  window.location.replace('/');
+  window.location.reload();
 }
 
 async function safeLogout() {

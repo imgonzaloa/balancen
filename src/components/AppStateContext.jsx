@@ -79,9 +79,20 @@ export function AppStateProvider({ children }) {
           setProfile(null);
         }
       } catch (err) {
-        // 401, timeout, network error — treat as unauthenticated, never crash
+        // 401, timeout, network error — retry once after 2s before giving up
         logger.error('USER_FETCH_ERROR', err.message);
-        if (isMounted) setProfile(null); // settle profile so TrialGate doesn't stall
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        if (!isMounted) return;
+        try {
+          const retryUser = await withTimeout(base44.auth.me(), 5000, 'AUTH_RETRY_TIMEOUT');
+          if (isMounted && retryUser?.email) {
+            setUser(retryUser);
+          } else if (isMounted) {
+            setProfile(null);
+          }
+        } catch (_) {
+          if (isMounted) setProfile(null);
+        }
       } finally {
         if (isMounted) setIsInitialized(true);
       }
