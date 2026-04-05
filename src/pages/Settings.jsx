@@ -552,13 +552,20 @@ export default function Settings() {
                    {lang === 'es' ? 'Aviso sobre IA' : lang === 'pt' ? 'Aviso de IA' : 'AI Disclaimer'}
                 </h3>
               </div>
-              <p className="text-white/70 text-sm leading-relaxed mb-6">
+              <p className="text-white/70 text-sm leading-relaxed mb-4">
                  {lang === 'es'
                    ? 'Balancen proporciona sugerencias generadas por IA sobre fitness y nutrición con fines informativos y de estilo de vida únicamente. Esto no es consejo médico y no reemplaza la consulta con profesionales de la salud calificados.'
                    : lang === 'pt'
                    ? 'Balancen fornece sugestões geradas por IA sobre fitness e nutrição apenas para fins informativos e de estilo de vida. Isto não é aconselhamento médico e não substitui a consulta com profissionais de saúde qualificados.'
                    : 'Balancen provides AI-generated fitness and nutrition suggestions for informational and lifestyle purposes only. This is not medical advice and does not replace consultation with qualified healthcare professionals.'}
                </p>
+              <p className="text-white/60 text-xs leading-relaxed mb-6 border-t border-white/10 pt-4">
+                {lang === 'es'
+                  ? 'Análisis de comidas impulsado por Anthropic Claude Vision AI.'
+                  : lang === 'pt'
+                  ? 'Análise de refeições alimentada por Anthropic Claude Vision AI.'
+                  : 'Food analysis powered by Anthropic Claude Vision AI.'}
+              </p>
               <Button
                 onClick={() => setShowAIDisclaimer(false)}
                 className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20"
