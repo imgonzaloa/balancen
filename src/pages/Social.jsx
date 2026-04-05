@@ -15,6 +15,7 @@ import GlobalHeader from "@/components/GlobalHeader";
 import ShareSummaryModal from "@/components/social/ShareSummaryModal";
 import { useMealsStore } from "@/components/MealsStore";
 import PullToRefresh from "@/components/PullToRefresh";
+import { useBlockedUsers } from "@/components/hooks/useBlockedUsers";
 
 export default function Social() {
   const { t, lang } = useTranslation();
@@ -24,6 +25,7 @@ export default function Social() {
   // ✅ Use global AppState - eliminates duplicate auth call and lag on every tab visit
   const { user, profile, isInitialized, profileLoading } = useAppState();
 
+  const blockedUsers = useBlockedUsers(user?.email);
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
   const isCampusAdmin = profile?.role === 'campus_admin' || profile?.role === 'owner';
   const [showShareModal, setShowShareModal] = React.useState(false);
@@ -68,7 +70,7 @@ export default function Social() {
     queryFn: async () => {
       const friendIds = friends.map(f =>
         f.created_by === user?.email ? f.friend_user_id : f.created_by
-      );
+      ).filter(id => !blockedUsers.includes(id));
       if (friendIds.length === 0) return [];
       const results = await Promise.all(
         friendIds.slice(0, 10).map(id =>
@@ -79,7 +81,7 @@ export default function Social() {
       );
       return results.filter(Boolean);
     },
-    enabled: friends.length > 0,
+    enabled: friends.length > 0 && blockedUsers.length >= 0,
     retry: false,
     staleTime: 10 * 60 * 1000,
   });

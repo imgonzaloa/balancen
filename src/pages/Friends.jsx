@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { createPageUrl } from "@/utils";
 import StatusChip from "@/components/groups/StatusChip";
+import { useBlockedUsers } from "@/components/hooks/useBlockedUsers";
 
 export default function Friends() {
   const { t, lang } = useTranslation();
@@ -20,6 +21,7 @@ export default function Friends() {
   const [friendEmail, setFriendEmail] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const queryClient = useQueryClient();
+  const blockedUsers = useBlockedUsers(user?.email);
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -48,24 +50,28 @@ export default function Friends() {
   const { data: friendProfiles = [] } = useQuery({
     queryKey: ["friendProfiles", acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email)],
     queryFn: async () => {
-      const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
+      const emails = acceptedFriends
+        .map(f => f.user_email === user?.email ? f.friend_email : f.user_email)
+        .filter(email => !blockedUsers.includes(email));
       if (emails.length === 0) return [];
       const profileResults = await Promise.all(emails.map(email => base44.entities.UserProfile.filter({ created_by: email }).then(r => r[0]).catch(() => null)));
       return profileResults.filter(Boolean);
     },
-    enabled: acceptedFriends.length > 0,
+    enabled: acceptedFriends.length > 0 && blockedUsers.length >= 0,
     staleTime: 10 * 60 * 1000,
   });
 
   const { data: friendMeals = [] } = useQuery({
     queryKey: ["friendMeals", acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email)],
     queryFn: async () => {
-      const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
+      const emails = acceptedFriends
+        .map(f => f.user_email === user?.email ? f.friend_email : f.user_email)
+        .filter(email => !blockedUsers.includes(email));
       if (emails.length === 0) return [];
       const mealResults = await Promise.all(emails.map(email => base44.entities.MealLog.filter({ created_by: email }, '-date', 5).then(r => r.map(meal => ({ ...meal, friend_email: email }))).catch(() => [])));
       return mealResults.flat();
     },
-    enabled: acceptedFriends.length > 0,
+    enabled: acceptedFriends.length > 0 && blockedUsers.length >= 0,
     staleTime: 10 * 60 * 1000,
   });
 

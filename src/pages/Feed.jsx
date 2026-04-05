@@ -9,12 +9,14 @@ import PostCard from "@/components/social/PostCard";
 import CreatePost from "@/components/social/CreatePost";
 import MealCard from "@/components/social/MealCard";
 import { createPageUrl } from "@/utils";
+import { useBlockedUsers } from "@/components/hooks/useBlockedUsers";
 
 export default function Feed() {
   const navigate = useNavigate();
   const { user, profile } = useAppState();
   const { t } = useTranslation();
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const blockedUsers = useBlockedUsers(user?.email);
 
   const { data: posts = [], isLoading, refetch } = useQuery({
     queryKey: ['social-feed', user?.email],
@@ -27,10 +29,11 @@ export default function Feed() {
       const allPosts = await base44.entities.Post.filter({}, '-created_date', 50);
       
       return allPosts.filter(
-        post => post.created_by === user.email || friendEmails.includes(post.author_email)
+        post => (post.created_by === user.email || friendEmails.includes(post.author_email))
+          && !blockedUsers.includes(post.author_email)
       );
     },
-    enabled: !!user?.email,
+    enabled: !!user?.email && blockedUsers.length >= 0,
     staleTime: 60000,
   });
 
@@ -40,7 +43,7 @@ export default function Feed() {
       if (!user?.email) return [];
       
       const friends = await base44.entities.Friend.filter({ created_by: user.email });
-      const friendEmails = friends.map(f => f.friend_user_id);
+      const friendEmails = friends.map(f => f.friend_user_id).filter(email => !blockedUsers.includes(email));
       if (friendEmails.length === 0) return [];
       
       const profiles = await Promise.all(
@@ -55,7 +58,7 @@ export default function Feed() {
       const meals = mealArrays.flat();
       return meals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     },
-    enabled: !!user?.email,
+    enabled: !!user?.email && blockedUsers.length >= 0,
     staleTime: 5 * 60 * 1000,
   });
 
