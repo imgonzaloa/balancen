@@ -65,6 +65,19 @@ export function MealsStoreProvider({ children }) {
     });
   }, []);
 
+  // After DB save, replace the local temp id with the real DB id to prevent duplicates in merge
+  const updateMealId = useCallback((oldId, newId, dateKey) => {
+    setMealsByDate(prev => {
+      const updated = { ...prev };
+      if (updated[dateKey]) {
+        updated[dateKey] = updated[dateKey].map(m =>
+          m.id === oldId ? { ...m, id: newId } : m
+        );
+      }
+      return updated;
+    });
+  }, []);
+
   const removeMeal = useCallback((dateKey, mealId) => {
     setMealsByDate(prev => {
       const updated = { ...prev };
@@ -97,6 +110,7 @@ export function MealsStoreProvider({ children }) {
     isHydrated,
     addMeal,
     removeMeal,
+    updateMealId,
     getTodayMeals,
     getTodayTotals,
     formatLocalDateKey,

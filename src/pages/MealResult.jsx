@@ -8,6 +8,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { useMeal } from "@/components/MealContext";
 import { useMealsStore } from "@/components/MealsStore";
 import { useAppState } from "@/components/AppStateContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import SharePrompt from "@/components/meal/SharePrompt";
 
@@ -272,8 +273,9 @@ export default function MealResult() {
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const { capturedFile, previewUrl, resetMeal } = useMeal();
-  const { addMeal, formatLocalDateKey } = useMealsStore();
+  const { addMeal, updateMealId, formatLocalDateKey } = useMealsStore();
   const { profile } = useAppState();
+  const queryClient = useQueryClient();
 
   const [phase, setPhase] = useState("analyzing"); // analyzing | review | saving | error | manual | share
   const [stepIndex, setStepIndex] = useState(0);
@@ -505,16 +507,23 @@ export default function MealResult() {
     // 2. Backend persist — AWAITED so we know it succeeded
     const meal_time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
     try {
-      await base44.entities.MealLog.create({
+      const savedLog = await base44.entities.MealLog.create({
         date: dateKey,
         meal_time,
+        meal_type: mealType,
         photo_url: resolvedPhotoUrl,
         estimated_calories: saveTotals.calories,
         estimated_protein: saveTotals.protein,
         estimated_carbs: saveTotals.carbs,
         estimated_fats: saveTotals.fats,
       });
-      console.log("✅ SAVE_OK - MealLog created");
+      // Update local store entry's id to match DB id so merge deduplication works
+      if (savedLog?.id && savedLog.id !== meal.id) {
+        updateMealId?.(meal.id, savedLog.id, dateKey);
+      }
+      // Invalidate the DB query so Home re-fetches with the new record
+      queryClient.invalidateQueries({ queryKey: ['mealLogs'] });
+      console.log("✅ SAVE_OK - MealLog created", savedLog?.id);
     } catch (err) {
       console.error("❌ SAVE_FAIL - MealLog:", err?.message);
       // Local store already has the meal — still functional

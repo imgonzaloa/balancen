@@ -13,13 +13,14 @@ import GlobalHeader from "@/components/GlobalHeader";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import TrialBanner from "@/components/home/TrialBanner";
 import PullToRefresh from "@/components/PullToRefresh";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
   const { user, profile: cachedProfile, isInitialized, setProfile: setContextProfile } = useAppState();
   const { getTodayMeals, getTodayTotals, isHydrated } = useMealsStore();
+  const queryClient = useQueryClient();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
