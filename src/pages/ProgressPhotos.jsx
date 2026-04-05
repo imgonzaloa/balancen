@@ -6,7 +6,7 @@ import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
 import { createPageUrl } from "@/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, ChevronLeft, X, Lock, Sparkles, GitCompare, Grid, Upload } from "lucide-react";
+import { Camera, ChevronLeft, X, Lock, Sparkles, GitCompare, Grid, Upload, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -359,6 +359,18 @@ export default function ProgressPhotos() {
               {lightboxPhoto.note && (
                 <p className="text-white/50 text-sm">{lightboxPhoto.note}</p>
               )}
+              <button
+                onClick={async () => {
+                  if (!confirm(lang === 'es' ? '¿Eliminar esta foto?' : lang === 'pt' ? 'Excluir esta foto?' : 'Delete this photo?')) return;
+                  await base44.entities.BodyPhoto.delete(lightboxPhoto.id);
+                  queryClient.invalidateQueries({ queryKey: ['bodyPhotos'] });
+                  setLightboxPhoto(null);
+                }}
+                className="mt-4 flex items-center justify-center gap-2 mx-auto px-5 py-2.5 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 font-semibold text-sm hover:bg-red-500/30 transition-colors"
+              >
+                <Trash2 size={16} />
+                {lang === 'es' ? 'Eliminar' : lang === 'pt' ? 'Excluir' : 'Delete'}
+              </button>
             </div>
           </motion.div>
         )}
