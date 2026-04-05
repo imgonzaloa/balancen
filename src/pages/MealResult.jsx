@@ -339,7 +339,7 @@ export default function MealResult() {
     if (!isPremium && profile) {
       try {
         const today = new Date().toISOString().split("T")[0];
-        const todayMealLogs = await base44.entities.MealLog.filter({ date: today });
+        const todayMealLogs = await base44.entities.MealLog.filter({ date: today, created_by: user?.email });
         const aiScans = todayMealLogs.filter(m => m.photo_url);
         if (aiScans.length >= FREE_DAILY_LIMIT) {
           setPhase("limit_reached");
