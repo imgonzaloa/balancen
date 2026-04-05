@@ -75,21 +75,7 @@ export default function CameraScreen() {
   useEffect(() => {
     mountedRef.current = true;
     console.log("📷 CAMERA_OPEN");
-    // Check if permission was previously granted; if not, show purpose prompt first
-    if (navigator.permissions) {
-      navigator.permissions.query({ name: "camera" }).then((status) => {
-        if (status.state === "granted") {
-          initCamera();
-        } else {
-          setShowPermissionPrompt(true);
-        }
-      }).catch(() => {
-        // permissions API not supported — go straight to camera (will trigger OS prompt naturally)
-        initCamera();
-      });
-    } else {
-      initCamera();
-    }
+    initCamera();
     return () => {
       mountedRef.current = false;
       stopCamera();
@@ -147,11 +133,7 @@ export default function CameraScreen() {
       console.error("Camera error:", err);
       if (!mountedRef.current) return;
       if (err.name === 'NotAllowedError') {
-        setCameraError(
-          lang === 'es' ? 'Permiso de cámara denegado. Habilitalo en la configuración de tu navegador.' :
-          lang === 'pt' ? 'Permissão de câmera negada. Ative nas configurações do navegador.' :
-          'Camera permission denied. Enable it in your browser settings.'
-        );
+        setShowPermissionPrompt(true);
       } else if (err.name === 'NotFoundError') {
         setCameraError(
           lang === 'es' ? 'No se encontró cámara en este dispositivo.' :
