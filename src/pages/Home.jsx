@@ -78,7 +78,7 @@ const Home = React.memo(() => {
   const todayMeals = useMemo(() => {
     if (!dbMeals?.length) return storeMeals;
     const isDuplicate = (dbMeal) => storeMeals.some(sm =>
-      Math.abs((sm.totals?.calories || 0) - (dbMeal.estimated_calories || 0)) < 1 &&
+      Math.abs((sm.totals?.calories || 0) - (dbMeal.estimated_calories || 0)) < 5 &&
       Math.abs(new Date(sm.createdAt) - new Date(dbMeal.created_date || dbMeal.meal_time || 0)) < 60000
     );
     const dbOnly = dbMeals
