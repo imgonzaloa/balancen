@@ -420,25 +420,76 @@ export default function Settings() {
 
 
         {/* Logout Button */}
-        <Button
-          onClick={async () => {
-            try {
-              localStorage.clear();
-              sessionStorage.clear();
-              queryClient.clear();
-              await base44.auth.logout();
-              window.location.href = '/';
-            } catch (error) {
-              console.error('Logout error:', error);
-              window.location.href = '/';
-            }
-          }}
-          className="w-full mt-6 h-12 rounded-2xl bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 text-red-200 font-semibold transition-all"
-        >
-          {t('logout')}
-        </Button>
+         <Button
+           onClick={async () => {
+             try {
+               localStorage.clear();
+               sessionStorage.clear();
+               queryClient.clear();
+               await base44.auth.logout();
+               window.location.href = '/';
+             } catch (error) {
+               console.error('Logout error:', error);
+               window.location.href = '/';
+             }
+           }}
+           className="w-full mt-6 h-12 rounded-2xl bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 text-red-200 font-semibold transition-all"
+         >
+           {t('logout')}
+         </Button>
 
-        {/* Legal & Support Section */}
+         {/* Privacy & Data Section */}
+         <motion.div
+           className="mt-8 mb-4"
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.7 }}
+         >
+           <div className="flex items-center gap-2 mb-4">
+             <Shield size={18} className="text-teal-300" />
+             <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
+               {lang === 'es' ? 'Privacidad y Datos' : lang === 'pt' ? 'Privacidade e Dados' : 'Privacy & Data'}
+             </h2>
+           </div>
+
+           <div className="rounded-3xl overflow-hidden border border-white/10 divide-y divide-white/10 space-y-0">
+             {/* Privacy Policy Link */}
+             <Link to={createPageUrl("PrivacyPolicy")}>
+               <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
+                 <div className="flex items-center gap-3">
+                   <Shield size={18} className="text-teal-300" />
+                   <span className="text-white/80 text-sm font-medium">
+                     {lang === 'es' ? 'Política de Privacidad' : lang === 'pt' ? 'Política de Privacidade' : 'Privacy Policy'}
+                   </span>
+                 </div>
+                 <ExternalLink size={14} className="text-white/30" />
+               </div>
+             </Link>
+
+             {/* Data Processing Info */}
+             <div className="px-5 py-4 bg-white/5">
+               <p className="text-white/60 text-xs leading-relaxed">
+                 <span className="block font-semibold text-white/80 mb-1">
+                   {lang === 'es' ? 'Datos procesados por:' : lang === 'pt' ? 'Dados processados por:' : 'Data processed by:'}
+                 </span>
+                 Base44, Anthropic AI
+               </p>
+             </div>
+
+             {/* Data Deletion Info */}
+             <div className="px-5 py-4 bg-white/5">
+               <p className="text-white/60 text-xs leading-relaxed">
+                 {lang === 'es'
+                   ? 'Puedes eliminar todos tus datos desde la configuración de tu cuenta.'
+                   : lang === 'pt'
+                   ? 'Você pode deletar todos os seus dados nas configurações da sua conta.'
+                   : 'You can delete all your data from your account settings.'}
+               </p>
+             </div>
+           </div>
+         </motion.div>
+
+         {/* Legal & Support Section */}
         <motion.div
           className="mt-8 mb-4"
           initial={{ opacity: 0, y: 20 }}
@@ -479,19 +530,6 @@ export default function Settings() {
               </div>
               <ChevronLeft size={16} className="text-white/30 rotate-180" />
             </button>
-
-            {/* Privacy Policy */}
-            <a href="https://balancen.app/privacy-policy/" target="_blank" rel="noopener noreferrer">
-              <div className="flex items-center justify-between px-5 py-4 bg-white/5 hover:bg-white/10 transition-all">
-                <div className="flex items-center gap-3">
-                  <Shield size={18} className="text-teal-300" />
-                  <span className="text-white/80 text-sm font-medium">
-                     {lang === 'es' ? 'Política de Privacidad' : lang === 'pt' ? 'Política de Privacidade' : 'Privacy Policy'}
-                   </span>
-                </div>
-                <ExternalLink size={14} className="text-white/30" />
-              </div>
-            </a>
 
             {/* Terms of Service */}
             <a href="https://balancen.app/terms-of-service/" target="_blank" rel="noopener noreferrer">
