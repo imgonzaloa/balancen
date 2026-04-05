@@ -16,7 +16,7 @@ const FREE_DAILY_LIMIT = 5;
 const _captureStore = { file: null, dataUrl: null };
 
 export default function CameraScreen() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { setCapturedFile } = useMeal();
@@ -98,7 +98,11 @@ export default function CameraScreen() {
 
   const initCamera = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setCameraError(t('camera_not_supported') || 'Camera not available. Please use the gallery option.');
+      setCameraError(
+        lang === 'es' ? 'Cámara no disponible. Usá la galería.' :
+        lang === 'pt' ? 'Câmera não disponível. Use a galeria.' :
+        'Camera not available. Use the gallery option.'
+      );
       return;
     }
     try {
@@ -143,7 +147,17 @@ export default function CameraScreen() {
       console.error("Camera error:", err);
       if (!mountedRef.current) return;
       if (err.name === 'NotAllowedError') {
-        setCameraError(t('camera_permission_denied') || 'Camera permission denied. Please enable camera access in your browser settings.');
+        setCameraError(
+          lang === 'es' ? 'Permiso de cámara denegado. Habilitalo en la configuración de tu navegador.' :
+          lang === 'pt' ? 'Permissão de câmera negada. Ative nas configurações do navegador.' :
+          'Camera permission denied. Enable it in your browser settings.'
+        );
+      } else if (err.name === 'NotFoundError') {
+        setCameraError(
+          lang === 'es' ? 'No se encontró cámara en este dispositivo.' :
+          lang === 'pt' ? 'Nenhuma câmera encontrada neste dispositivo.' :
+          'No camera found on this device.'
+        );
       } else {
         setCameraError(err.message || t("camera_permission_denied"));
       }
