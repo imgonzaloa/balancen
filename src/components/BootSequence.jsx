@@ -54,7 +54,7 @@ export function useBootSequence() {
         if (!isMounted) return;
 
         // Step 2: Load persisted state
-        const persistedOnboarding = localStorage.getItem('onboarding_completed') === 'true';
+        const persistedOnboarding = localStorage.getItem('balancen_onboarding_complete') === 'true';
         const persistedLanguage = getLocalLanguage() || null;
 
         // Step 3: If authenticated, check profile
