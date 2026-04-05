@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster"
+import { Suspense, lazy } from 'react'
 import ProgressPhotos from './pages/ProgressPhotos'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -54,9 +55,16 @@ const AuthenticatedApp = () => {
   }
 
   // Render the main app
+  const fallback = (
+    <div className="fixed inset-0 flex items-center justify-center bg-slate-900">
+      <div className="w-8 h-8 border-4 border-slate-600 border-t-teal-400 rounded-full animate-spin" />
+    </div>
+  );
+
   return (
     <>
       <ScrollToTop />
+      <Suspense fallback={fallback}>
       <Routes>
         <Route path="/" element={
         <LayoutWrapper currentPageName={mainPageKey}>
@@ -81,6 +89,7 @@ const AuthenticatedApp = () => {
       } />
       <Route path="*" element={<PageNotFound />} />
       </Routes>
+      </Suspense>
     </>
   );
 };
