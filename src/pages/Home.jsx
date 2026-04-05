@@ -13,11 +13,13 @@ import GlobalHeader from "@/components/GlobalHeader";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import TrialBanner from "@/components/home/TrialBanner";
 import PullToRefresh from "@/components/PullToRefresh";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
   const { user, profile: cachedProfile, isInitialized, setProfile: setContextProfile } = useAppState();
-  const { getTodayMeals, getTodayTotals, isHydrated } = useMealsStore();
+  const { getTodayMeals, getTodayTotals, addMeal, isHydrated } = useMealsStore();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(cachedProfile);
@@ -54,8 +56,58 @@ const Home = React.memo(() => {
     setEditingStatus(false);
   };
 
-  // Memoize meals and totals to prevent recalculation
-  const todayMeals = useMemo(() => getTodayMeals(), [getTodayMeals]);
+  // DB sync: fetch today's meals from the database
+  const today = new Date().toISOString().split('T')[0];
+  const { data: dbMeals } = useQuery({
+    queryKey: ['mealLogs', user?.email, today],
+    queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: today }, '-meal_time'),
+    enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Merge DB meals into the local store if DB has items the store is missing
+  const storeMeals = useMemo(() => getTodayMeals(), [getTodayMeals]);
+
+  useEffect(() => {
+    if (!dbMeals?.length) return;
+    const storeIds = new Set(storeMeals.map(m => m.id));
+    const missing = dbMeals.filter(m => m.id && !storeIds.has(m.id));
+    missing.forEach(meal => addMeal({
+      id: meal.id,
+      photoUri: meal.photo_url || null,
+      mealType: meal.meal_type || null,
+      createdAt: meal.created_date || meal.meal_time || null,
+      totals: {
+        calories: meal.estimated_calories || 0,
+        protein: meal.estimated_protein || 0,
+        carbs: meal.estimated_carbs || 0,
+        fats: meal.estimated_fats || 0,
+      },
+      items: [],
+    }));
+  }, [dbMeals, storeMeals, addMeal]);
+
+  // Merged deduped meals: DB takes priority for same id
+  const todayMeals = useMemo(() => {
+    if (!dbMeals?.length) return storeMeals;
+    const dbMap = new Map(dbMeals.map(m => [m.id, m]));
+    const storeOnlyMeals = storeMeals.filter(m => !dbMap.has(m.id));
+    const dbMapped = dbMeals.map(m => ({
+      id: m.id,
+      photoUri: m.photo_url || null,
+      mealType: m.meal_type || null,
+      createdAt: m.created_date || m.meal_time || null,
+      totals: {
+        calories: m.estimated_calories || 0,
+        protein: m.estimated_protein || 0,
+        carbs: m.estimated_carbs || 0,
+        fats: m.estimated_fats || 0,
+      },
+      items: [],
+    }));
+    return [...dbMapped, ...storeOnlyMeals];
+  }, [dbMeals, storeMeals]);
+
   const storeTotals = useMemo(() => getTodayTotals(), [getTodayTotals]);
 
   const metrics = useMemo(() => {
