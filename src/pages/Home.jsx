@@ -15,6 +15,7 @@ import TrialBanner from "@/components/home/TrialBanner";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 
 // Memoized Home component for better performance
 const Home = React.memo(() => {
@@ -44,12 +45,17 @@ const Home = React.memo(() => {
 
   const handleSaveStatus = async () => {
     if (!profile?.id) return;
-    const { base44 } = await import('@/api/base44Client');
-    await base44.entities.UserProfile.update(profile.id, { status_message: statusDraft });
-    const updated = { ...profile, status_message: statusDraft };
-    setProfile(updated);
-    setContextProfile(updated);
-    setEditingStatus(false);
+    try {
+      const { base44 } = await import('@/api/base44Client');
+      await base44.entities.UserProfile.update(profile.id, { status_message: statusDraft });
+      const updated = { ...profile, status_message: statusDraft };
+      setProfile(updated);
+      setContextProfile(updated);
+      setEditingStatus(false);
+    } catch {
+      toast.error(lang === 'es' ? 'Error al guardar estado' : lang === 'pt' ? 'Erro ao salvar status' : 'Error saving status');
+      setEditingStatus(false);
+    }
   };
 
   const handleCancelStatus = () => {
