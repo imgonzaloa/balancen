@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatRelativeTime } from "@/lib/locale";
+import PostModerationMenu from "@/components/social/PostModerationMenu";
 
 export default function MealCard({ meal, currentUser, currentProfile, featured = false }) {
   const { t, lang } = useTranslation();
   const queryClient = useQueryClient();
+  const [blocked, setBlocked] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
 
@@ -38,6 +40,8 @@ export default function MealCard({ meal, currentUser, currentProfile, featured =
     });
   };
 
+  if (blocked) return null;
+
   return (
     <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
       {/* Header */}
@@ -56,6 +60,15 @@ export default function MealCard({ meal, currentUser, currentProfile, featured =
             <Crown size={12} className="text-amber-400" />
             <span className="text-amber-300 text-[10px] font-bold">Athlete</span>
           </div>
+        )}
+        {meal.created_by !== currentUser?.email && (
+          <PostModerationMenu
+            contentId={meal.id}
+            authorEmail={meal.created_by}
+            currentUserEmail={currentUser?.email}
+            lang={lang}
+            onBlocked={() => setBlocked(true)}
+          />
         )}
       </div>
 

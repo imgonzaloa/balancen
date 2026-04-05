@@ -3,9 +3,11 @@ import { Heart, MessageCircle, Award, Flame, Crown } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
+import PostModerationMenu from "@/components/social/PostModerationMenu";
 
 export default function PostCard({ post, currentUserEmail, onUpdate, featured }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+  const [blocked, setBlocked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
   const [showComments, setShowComments] = useState(false);
@@ -121,6 +123,8 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
     return `${days}d`;
   };
 
+  if (blocked) return null;
+
   return (
     <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-5 border border-white/20">
       {/* Header */}
@@ -152,6 +156,15 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
         )}
         {post.post_type === 'achievement' && !featured && (
           <Award size={20} className="text-amber-400" />
+        )}
+        {post.author_email !== currentUserEmail && (
+          <PostModerationMenu
+            contentId={post.id}
+            authorEmail={post.author_email}
+            currentUserEmail={currentUserEmail}
+            lang={lang}
+            onBlocked={() => setBlocked(true)}
+          />
         )}
       </div>
 
