@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-export default function GroupSettingsPanel({ group, user, members, onUpdated }) {
+export default function GroupSettingsPanel({ group, user, members, onUpdated, lang = "es" }) {
   const [allowCode, setAllowCode] = useState(group.allow_join_by_code || false);
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
@@ -16,7 +16,7 @@ export default function GroupSettingsPanel({ group, user, members, onUpdated }) 
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(group.invite_code);
-    toast.success("Code copied!");
+    toast.success(lang === "en" ? "Code copied!" : lang === "pt" ? "Código copiado!" : "¡Código copiado!");
   };
 
   const handleToggleCode = async (val) => {
@@ -32,7 +32,7 @@ export default function GroupSettingsPanel({ group, user, members, onUpdated }) 
     if (!confirm(`Remove ${member.display_name || member.user_email}?`)) return;
     await base44.entities.GroupMember.delete(member.id);
     await base44.entities.Group.update(group.id, { member_count: Math.max(1, (group.member_count || 2) - 1) });
-    toast.success("Member removed");
+    toast.success(lang === "en" ? "Member removed" : lang === "pt" ? "Membro removido" : "Miembro eliminado");
     queryClient.invalidateQueries({ queryKey: ["campusMembers"] });
     queryClient.invalidateQueries({ queryKey: ["campusGroup"] });
   };
@@ -42,7 +42,7 @@ export default function GroupSettingsPanel({ group, user, members, onUpdated }) 
     // Delete members, invites, then group
     for (const m of members) await base44.entities.GroupMember.delete(m.id).catch(() => {});
     await base44.entities.Group.delete(group.id).catch(() => {});
-    toast.success("Group deleted");
+    toast.success(lang === "en" ? "Group deleted" : lang === "pt" ? "Grupo excluído" : "Grupo eliminado");
     navigate(createPageUrl("Groups"));
   };
 

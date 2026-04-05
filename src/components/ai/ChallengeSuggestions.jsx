@@ -6,7 +6,7 @@ import { Zap, Plus, Loader2, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export default function ChallengeSuggestions({ profile, checkIns }) {
+export default function ChallengeSuggestions({ profile, checkIns, t = (k) => k }) {
   const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
 
@@ -80,7 +80,7 @@ Each challenge should have a catchy name, clear goal number, duration, and type 
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["challenges"]);
-      toast.success("Challenge accepted!");
+      toast.success(t("join_challenge_success"));
       setExpanded(false);
     },
   });

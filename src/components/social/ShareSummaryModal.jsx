@@ -32,7 +32,7 @@ function buildSummaryText({ period, profile, todayMeals, weeklyStats }) {
   }
 }
 
-export default function ShareSummaryModal({ profile, todayMeals = [], weeklyStats = {}, onClose }) {
+export default function ShareSummaryModal({ profile, todayMeals = [], weeklyStats = {}, onClose, lang = "es" }) {
   const [period, setPeriod] = useState("today");
   const [sharing, setSharing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -45,9 +45,9 @@ export default function ShareSummaryModal({ profile, todayMeals = [], weeklyStat
       await navigator.clipboard.writeText(summaryText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast.success("Summary copied!");
+      toast.success(lang === "en" ? "Summary copied!" : lang === "pt" ? "Resumo copiado!" : "¡Resumen copiado!");
     } catch {
-      toast.error("Failed to copy.");
+      toast.error(lang === "en" ? "Failed to copy." : lang === "pt" ? "Falha ao copiar." : "Error al copiar.");
     }
   };
 
@@ -58,7 +58,7 @@ export default function ShareSummaryModal({ profile, todayMeals = [], weeklyStat
     }
     try {
       await navigator.share({ text: summaryText });
-      toast.success("Shared!");
+      toast.success(lang === "en" ? "Shared!" : lang === "pt" ? "Compartilhado!" : "¡Compartido!");
     } catch {}
   };
 
@@ -75,9 +75,9 @@ export default function ShareSummaryModal({ profile, todayMeals = [], weeklyStat
         comments_count: 0,
       });
       setPostedToFeed(true);
-      toast.success("Posted to your feed! 🎉");
+      toast.success(lang === "en" ? "Posted to your feed! 🎉" : lang === "pt" ? "Publicado no seu feed! 🎉" : "¡Publicado en tu feed! 🎉");
     } catch {
-      toast.error("Failed to post.");
+      toast.error(lang === "en" ? "Failed to post." : lang === "pt" ? "Falha ao publicar." : "Error al publicar.");
     } finally {
       setSharing(false);
     }

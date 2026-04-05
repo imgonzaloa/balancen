@@ -61,7 +61,7 @@ export default function MealResultCard({ profile, onSave }) {
     if (file.size === 0) {
       console.error("[MEAL] File size is 0");
       setAnalysisError("Archivo inválido - tamaño 0");
-      toast.error("Archivo inválido");
+      toast.error(lang === "en" ? "Invalid file" : lang === "pt" ? "Arquivo inválido" : "Archivo inválido");
       return;
     }
 
