@@ -318,6 +318,22 @@ const Home = React.memo(() => {
             <div className="space-y-2">
               {todayMeals.slice(0, 5).map((meal) => {
                 const photoSrc = meal.photoUri || meal.photo_url || null;
+
+                // Determine meal type label
+                const getMealLabel = () => {
+                  const type = meal.mealType || meal.meal_type;
+                  const rawHour = meal.createdAt || meal.meal_time;
+                  const hour = type ? null : rawHour ? new Date(rawHour).getHours() : null;
+                  const derived = type || (hour !== null ? (hour >= 5 && hour < 11 ? 'breakfast' : hour >= 11 && hour < 16 ? 'lunch' : hour >= 16 && hour < 22 ? 'dinner' : 'snack') : null);
+                  const labels = {
+                    breakfast: { es: 'Desayuno', pt: 'Café da manhã', en: 'Breakfast' },
+                    lunch:     { es: 'Almuerzo',  pt: 'Almoço',        en: 'Lunch' },
+                    dinner:    { es: 'Cena',       pt: 'Jantar',        en: 'Dinner' },
+                    snack:     { es: 'Snack',      pt: 'Lanche',        en: 'Snack' },
+                  };
+                  return labels[derived]?.[lang] || labels[derived]?.en || t('meal');
+                };
+
                 return (
                   <div key={meal.id} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 flex">
                     {photoSrc ? (
@@ -335,7 +351,7 @@ const Home = React.memo(() => {
                     <div className="flex-1 p-3 flex items-center justify-between">
                       <div>
                         <p className="text-white text-sm font-bold">
-                          {meal.mealType ? (meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)) : t('meal')}
+                          {getMealLabel()}
                         </p>
                         <p className="text-white/50 text-xs mt-0.5">
                           {meal.createdAt ? formatTime(lang, meal.createdAt) : ''}
