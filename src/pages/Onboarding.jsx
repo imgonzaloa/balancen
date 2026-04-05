@@ -68,6 +68,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [user, setUser] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [ageError, setAgeError] = useState('');
   const [formData, setFormData] = useState({
     language: lang || 'es',
     primary_goal: "consistency",
@@ -186,6 +187,7 @@ export default function Onboarding() {
       body_title: "Tu cuerpo",
       body_sub: "Para personalizar tu plan calórico",
       height: "Altura (cm)", weight: "Peso (kg)", age: "Edad",
+      age_error: "Balancen es para mayores de 13 años",
       activity_title: "¿Cuán activo/a eres?",
       activity_sub: "Calculamos tus calorías diarias ideales",
       sedentary: "Sedentario", light: "Poco activo", active: "Activo", very_active: "Muy activo (atleta)",
@@ -213,6 +215,7 @@ export default function Onboarding() {
       body_title: "About your body",
       body_sub: "To personalize your calorie plan",
       height: "Height (cm)", weight: "Weight (kg)", age: "Age",
+      age_error: "Balancen is for users 13 and older",
       activity_title: "How active are you?",
       activity_sub: "We calculate your ideal daily calories",
       sedentary: "Sedentary", light: "Lightly active", active: "Active", very_active: "Very active (athlete)",
@@ -240,6 +243,7 @@ export default function Onboarding() {
       body_title: "Sobre seu corpo",
       body_sub: "Para personalizar seu plano calórico",
       height: "Altura (cm)", weight: "Peso (kg)", age: "Idade",
+      age_error: "Balancen é para usuários com 13 anos ou mais",
       activity_title: "Quão ativo/a você é?",
       activity_sub: "Calculamos suas calorias diárias ideais",
       sedentary: "Sedentário", light: "Pouco ativo", active: "Ativo", very_active: "Muito ativo (atleta)",
@@ -432,13 +436,24 @@ export default function Onboarding() {
                   inputMode="numeric"
                   placeholder="25"
                   value={formData.age}
-                  onChange={e => setFormData(p => ({ ...p, age: e.target.value }))}
+                  onChange={e => {
+                    setFormData(p => ({ ...p, age: e.target.value }));
+                    const age = parseInt(e.target.value);
+                    if (age && age < 13) {
+                      setAgeError(l.age_error);
+                    } else {
+                      setAgeError('');
+                    }
+                  }}
                   className="w-full p-4 rounded-2xl bg-white/10 border-2 border-white/20 text-white text-lg font-bold placeholder-white/30 focus:border-teal-400 focus:outline-none"
                 />
+                {ageError && (
+                  <p className="text-red-400 text-sm font-semibold">{ageError}</p>
+                )}
               </div>
               <button
                 onClick={() => setStep(5)}
-                disabled={!formData.height_cm || !formData.weight_kg || !formData.age}
+                disabled={!formData.height_cm || !formData.weight_kg || !formData.age || ageError}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed">
                 {l.next}
               </button>
