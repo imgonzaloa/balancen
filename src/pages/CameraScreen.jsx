@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import CameraPermissionPrompt from "@/components/CameraPermissionPrompt";
+import AIConsentModal, { hasAIConsent } from "@/components/AIConsentModal";
 
 const FREE_DAILY_LIMIT = 5;
 
@@ -39,6 +40,9 @@ export default function CameraScreen() {
   const fileInputRef = useRef(null);
   const mountedRef = useRef(true);
   
+  const [showConsentModal, setShowConsentModal] = useState(
+    !isProfilePhotoMode && !isProgressPhotoMode && !hasAIConsent()
+  );
   const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
   const [cameraError, setCameraError] = useState(null);
   const [videoReady, setVideoReady] = useState(false);
@@ -413,6 +417,19 @@ export default function CameraScreen() {
     stopCamera();
     navigate(returnTo, { replace: true });
   }, [navigate, returnTo, isProfilePhotoMode]);
+
+  // AI Consent modal — shown once before first food scan
+  if (showConsentModal) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-black">
+        <AIConsentModal
+          lang={lang}
+          onAgree={() => setShowConsentModal(false)}
+          onDismiss={() => setShowConsentModal(false)}
+        />
+      </div>
+    );
+  }
 
   // Permission prompt (shown before first camera use)
   if (showPermissionPrompt) {
