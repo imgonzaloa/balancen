@@ -92,7 +92,7 @@ export default function ProgressPhotos() {
       setFormDate(new Date().toISOString().split("T")[0]);
       toast.success(tx("save", lang) + "!");
     },
-    onError: () => toast.error("Error saving photo"),
+    onError: () => toast.error(lang === 'es' ? 'Error al guardar foto' : lang === 'pt' ? 'Erro ao salvar foto' : 'Error saving photo'),
   });
 
   const handleSave = async () => {
