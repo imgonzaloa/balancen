@@ -50,13 +50,8 @@ export default function Friends() {
     queryFn: async () => {
       const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
       if (emails.length === 0) return [];
-      const profiles = [];
-      for (let i = 0; i < emails.length; i++) {
-        if (i > 0) await new Promise(resolve => setTimeout(resolve, 150));
-        const p = await base44.entities.UserProfile.filter({ created_by: emails[i] });
-        profiles.push(p[0] || null);
-      }
-      return profiles.filter(Boolean);
+      const profileResults = await Promise.all(emails.map(email => base44.entities.UserProfile.filter({ created_by: email }).then(r => r[0]).catch(() => null)));
+      return profileResults.filter(Boolean);
     },
     enabled: acceptedFriends.length > 0,
     staleTime: 10 * 60 * 1000,
@@ -67,13 +62,8 @@ export default function Friends() {
     queryFn: async () => {
       const emails = acceptedFriends.map(f => f.user_email === user?.email ? f.friend_email : f.user_email);
       if (emails.length === 0) return [];
-      const meals = [];
-      for (let i = 0; i < emails.length; i++) {
-        if (i > 0) await new Promise(resolve => setTimeout(resolve, 150));
-        const m = await base44.entities.MealLog.filter({ created_by: emails[i] }, "-date", 5);
-        meals.push(...m.map(meal => ({ ...meal, friend_email: emails[i] })));
-      }
-      return meals;
+      const mealResults = await Promise.all(emails.map(email => base44.entities.MealLog.filter({ created_by: email }, '-date', 5).then(r => r.map(meal => ({ ...meal, friend_email: email }))).catch(() => [])));
+      return mealResults.flat();
     },
     enabled: acceptedFriends.length > 0,
     staleTime: 10 * 60 * 1000,
