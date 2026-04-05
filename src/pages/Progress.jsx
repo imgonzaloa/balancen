@@ -29,7 +29,7 @@ export default function Progress() {
     queryKey: ["progressMeals", user?.email, today],
     queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: today }, "-meal_time"),
     enabled: !!user?.email,
-    staleTime: 10 * 60 * 1000,
+    staleTime: 30 * 1000,
     gcTime: 30 * 60 * 1000,
   });
 

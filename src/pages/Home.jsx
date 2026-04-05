@@ -19,7 +19,7 @@ import { base44 } from "@/api/base44Client";
 // Memoized Home component for better performance
 const Home = React.memo(() => {
   const { user, profile: cachedProfile, isInitialized, setProfile: setContextProfile } = useAppState();
-  const { getTodayMeals, getTodayTotals, isHydrated } = useMealsStore();
+  const { getTodayMeals, isHydrated } = useMealsStore();
   const queryClient = useQueryClient();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
@@ -90,13 +90,11 @@ const Home = React.memo(() => {
     return [...storeMeals, ...dbOnly];
   }, [dbMeals, storeMeals]);
 
-  const storeTotals = useMemo(() => getTodayTotals(), [getTodayTotals]);
-
   const metrics = useMemo(() => {
-    const totalCalories = storeTotals.calories;
-    const totalProtein = storeTotals.protein;
-    const totalCarbs = storeTotals.carbs;
-    const totalFats = storeTotals.fats;
+    const totalCalories = todayMeals.reduce((sum, m) => sum + (m.totals?.calories || m.estimated_calories || 0), 0);
+    const totalProtein = todayMeals.reduce((sum, m) => sum + (m.totals?.protein || m.estimated_protein || 0), 0);
+    const totalCarbs = todayMeals.reduce((sum, m) => sum + (m.totals?.carbs || m.estimated_carbs || 0), 0);
+    const totalFats = todayMeals.reduce((sum, m) => sum + (m.totals?.fats || m.estimated_fats || 0), 0);
     const caloriesGoal = profile?.calories_goal || 2000;
     const progress = Math.min((totalCalories / caloriesGoal) * 100, 100);
 
