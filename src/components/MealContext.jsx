@@ -24,7 +24,10 @@ export function MealProvider({ children }) {
       setStatus("captured");
       return;
     }
-    const storedDataUrl = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
+    let storedDataUrl = null;
+    try {
+      storedDataUrl = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
+    } catch (_) {}
     if (storedDataUrl && !file) {
       fetch(storedDataUrl)
         .then(res => res.blob())
@@ -38,8 +41,8 @@ export function MealProvider({ children }) {
           setStatus("captured");
         })
         .catch(() => {
-          sessionStorage.removeItem("balancen_last_capture");
-          localStorage.removeItem("meal_last_capture_dataurl");
+          try { sessionStorage.removeItem("balancen_last_capture"); } catch (_) {}
+          try { localStorage.removeItem("meal_last_capture_dataurl"); } catch (_) {}
         });
     }
   }, []);
@@ -61,14 +64,22 @@ export function MealProvider({ children }) {
     setError(null);
     setResult(null);
     
-    // Store dataUrl in BOTH sessionStorage (priority) and localStorage (fallback)
+    // Store dataUrl in sessionStorage only — localStorage quota on iOS is ~5MB and
+    // a single JPEG dataUrl can be 1–3MB, causing QuotaExceededError which crashes the app.
     if (dataUrl) {
       try {
         sessionStorage.setItem("balancen_last_capture", dataUrl);
-        localStorage.setItem("meal_last_capture_dataurl", dataUrl);
-        console.log("✅ STORAGE_SUCCESS - photo saved to storage");
+        console.log("✅ STORAGE_SUCCESS - photo saved to sessionStorage");
       } catch (err) {
-        console.error("❌ STORAGE_FAILED:", err);
+        console.warn("⚠️ STORAGE_FAILED (sessionStorage):", err.message);
+      }
+      // Only attempt localStorage as fallback if dataUrl is small enough (<500KB)
+      if (dataUrl.length < 500_000) {
+        try {
+          localStorage.setItem("meal_last_capture_dataurl", dataUrl);
+        } catch (_) {}
+      } else {
+        try { localStorage.removeItem("meal_last_capture_dataurl"); } catch (_) {}
       }
     } else {
       console.warn("⚠️ NO_DATAURL_PROVIDED");
