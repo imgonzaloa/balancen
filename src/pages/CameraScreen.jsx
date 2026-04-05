@@ -132,7 +132,7 @@ export default function CameraScreen() {
     } catch (err) {
       console.error("Camera error:", err);
       if (!mountedRef.current) return;
-      if (err.name === 'NotAllowedError') {
+      if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
         setShowPermissionPrompt(true);
       } else if (err.name === 'NotFoundError') {
         setCameraError(
