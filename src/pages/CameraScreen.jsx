@@ -97,6 +97,10 @@ export default function CameraScreen() {
   }, []);
 
   const initCamera = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraError(t('camera_not_supported') || 'Camera not available. Please use the gallery option.');
+      return;
+    }
     try {
       setCameraError(null);
       
@@ -138,7 +142,11 @@ export default function CameraScreen() {
     } catch (err) {
       console.error("Camera error:", err);
       if (!mountedRef.current) return;
-      setCameraError(err.message || t("camera_permission_denied"));
+      if (err.name === 'NotAllowedError') {
+        setCameraError(t('camera_permission_denied') || 'Camera permission denied. Please enable camera access in your browser settings.');
+      } else {
+        setCameraError(err.message || t("camera_permission_denied"));
+      }
     }
   };
 
@@ -415,7 +423,7 @@ export default function CameraScreen() {
     return (
       <CameraPermissionPrompt
         mode="camera"
-        lang={t("lang") === "es" ? "es" : "en"}
+        lang={["es", "pt"].includes(t("lang")) ? t("lang") : "en"}
         onConfirm={() => { setShowPermissionPrompt(false); initCamera(); }}
         onGallery={() => { setShowPermissionPrompt(false); fileInputRef.current?.click(); }}
         onDismiss={handleClose}
