@@ -362,9 +362,13 @@ export default function ProgressPhotos() {
               <button
                 onClick={async () => {
                   if (!confirm(lang === 'es' ? '¿Eliminar esta foto?' : lang === 'pt' ? 'Excluir esta foto?' : 'Delete this photo?')) return;
-                  await base44.entities.BodyPhoto.delete(lightboxPhoto.id);
-                  queryClient.invalidateQueries({ queryKey: ['bodyPhotos'] });
-                  setLightboxPhoto(null);
+                  try {
+                    await base44.entities.BodyPhoto.delete(lightboxPhoto.id);
+                    queryClient.invalidateQueries({ queryKey: ['bodyPhotos'] });
+                    setLightboxPhoto(null);
+                  } catch {
+                    toast.error(lang === 'es' ? 'Error al eliminar foto' : lang === 'pt' ? 'Erro ao excluir foto' : 'Error deleting photo');
+                  }
                 }}
                 className="mt-4 flex items-center justify-center gap-2 mx-auto px-5 py-2.5 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 font-semibold text-sm hover:bg-red-500/30 transition-colors"
               >
