@@ -50,6 +50,7 @@ export default function GoalsAssistant() {
     try {
       await base44.functions.invoke('aiGoalsAssistant', {
         action: 'apply',
+        lang,
         recommended_calories: recommendations.recommended_calories,
         recommended_protein: recommendations.recommended_protein,
         recommended_carbs: recommendations.recommended_carbs,
