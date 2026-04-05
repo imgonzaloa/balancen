@@ -920,6 +920,7 @@ const resources = {
       joined_with_link: "entrou com seu link",
       share_failed: "Erro ao compartilhar",
       keep_it_up: "Continue assim",
+      canvas: "tela",
       }
       },
   es: {
@@ -1781,6 +1782,7 @@ const resources = {
       poor: "Malo",
       capture: "Capturar",
       keep_it_up: "Sigue así",
+      canvas: "lienzo",
       }
       }
       };
