@@ -53,6 +53,8 @@ const copy = {
 };
 
 export default function PostModerationMenu({ contentId, authorEmail, currentUserEmail, lang = "en", onBlocked }) {
+  if (authorEmail === currentUserEmail) return null;
+
   const [open, setOpen] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReason, setSelectedReason] = useState(null);
