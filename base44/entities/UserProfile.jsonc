@@ -45,6 +45,16 @@
       ],
       "description": "Primary focus goal"
     },
+    "obstacle": {
+      "type": "string",
+      "enum": [
+        "time",
+        "cravings",
+        "what_to_eat",
+        "forget"
+      ],
+      "description": "Biggest obstacle to healthy habits"
+    },
     "gender": {
       "type": "string",
       "enum": [
@@ -75,6 +85,17 @@
       ],
       "description": "Physical activity level"
     },
+    "meals_per_day": {
+      "type": "string",
+      "description": "Number of meals per day (2, 3, 4, 4+)"
+    },
+    "dietary_restrictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Dietary restrictions / preferences"
+    },
     "motivation": {
       "type": "string",
       "enum": [
@@ -84,6 +105,14 @@
         "perform_better"
       ],
       "description": "Main motivation"
+    },
+    "target_weight_kg": {
+      "type": "number",
+      "description": "Target weight goal in kg"
+    },
+    "goal_weeks": {
+      "type": "number",
+      "description": "Timeframe in weeks to reach weight goal"
     },
     "social_mode": {
       "type": "string",
@@ -102,6 +131,10 @@
         "challenging"
       ],
       "description": "Preferred pace"
+    },
+    "follow_preference": {
+      "type": "string",
+      "description": "Who the user wants to follow (friends/athletes/both)"
     },
     "current_streak": {
       "type": "number",
