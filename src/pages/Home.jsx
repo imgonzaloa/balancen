@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -74,7 +74,7 @@ const Home = React.memo(() => {
   const { data: dbMeals } = useQuery({
     queryKey: ['mealLogs', user?.email, today],
     queryFn: async () => {
-      const meals = await base44.entities.MealLog.list('-meal_time', 100);
+      const meals = await base44.entities.MealLog.filter({ created_by: user?.email });
       return meals.filter(m => m.date === today) || [];
     },
     enabled: !!user?.email,
