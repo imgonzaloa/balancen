@@ -48,14 +48,18 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
     }
     // Load top comment preview
     if (post.comments_count > 0) {
-      base44.entities.PostComment.filter({ post_id: post.id }, '-created_date', 1)
-        .then(c => { if (c[0]) setTopComment(c[0]); })
+      base44.entities.PostComment.filter({ created_by: post.author_email }, '-created_date', 10)
+        .then(c => {
+          const match = c.find(x => x.post_id === post.id);
+          if (match) setTopComment(match);
+        })
         .catch(() => {});
     }
     // Load up to 3 liker names for the "X and Y liked this" line
     if (post.likes_count > 0) {
-      base44.entities.PostLike.filter({ post_id: post.id }, '-created_date', 3)
-        .then(async (likes) => {
+      base44.entities.PostLike.list('-created_date', 50)
+        .then(async (allLikes) => {
+          const likes = allLikes.filter(l => l.post_id === post.id).slice(0, 3);
           const names = await Promise.all(
             likes.map(async (l) => {
               try {
@@ -69,8 +73,8 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
         .catch(() => {});
     }
     // Check if current user already liked
-    base44.entities.PostLike.filter({ post_id: post.id, created_by: currentUserEmail })
-      .then(likes => { if (likes.length > 0) setIsLiked(true); })
+    base44.entities.PostLike.filter({ created_by: currentUserEmail })
+      .then(likes => { if (likes.some(l => l.post_id === post.id)) setIsLiked(true); })
       .catch(() => {});
   }, [post.id, post.author_email, post.comments_count, post.likes_count, currentUserEmail]);
 
@@ -81,9 +85,11 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
 
     try {
       if (isLiked) {
-        const likes = await base44.entities.PostLike.filter({ post_id: post.id, created_by: currentUserEmail });
+        const likes = await base44.entities.PostLike.filter({ created_by: currentUserEmail });
         if (likes[0]) {
-          await base44.entities.PostLike.delete(likes[0].id);
+          const match = likes.find(l => l.post_id === post.id);
+          if (!match) { setIsLiked(false); return; }
+          await base44.entities.PostLike.delete(match.id);
           const newCount = Math.max(0, likesCount - 1);
           setLikesCount(newCount);
           setIsLiked(false);
@@ -105,7 +111,8 @@ export default function PostCard({ post, currentUserEmail, onUpdate, featured })
   const loadComments = async () => {
     setLoadingComments(true);
     try {
-      const fetched = await base44.entities.PostComment.filter({ post_id: post.id }, '-created_date');
+      const all = await base44.entities.PostComment.list('-created_date', 100);
+      const fetched = all.filter(c => c.post_id === post.id);
       setComments(fetched);
       if (fetched[0]) setTopComment(fetched[0]);
     } catch (err) {

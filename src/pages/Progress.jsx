@@ -38,7 +38,10 @@ export default function Progress() {
 
   const { data: weekMeals = [] } = useQuery({
     queryKey: ["progressWeekMeals", user?.email, last7Days[0]],
-    queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: { $in: last7Days } }, "-date"),
+    queryFn: async () => {
+      const meals = await base44.entities.MealLog.filter({ created_by: user.email }, "-date", 50);
+      return meals.filter(m => last7Days.includes(m.date));
+    },
     enabled: !!user?.email,
     staleTime: 60 * 1000,
     gcTime: 30 * 60 * 1000,

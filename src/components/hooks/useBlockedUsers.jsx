@@ -6,7 +6,7 @@ export function useBlockedUsers(userEmail) {
     queryKey: ["blockedUsers", userEmail],
     queryFn: async () => {
       if (!userEmail) return [];
-      const blocks = await base44.entities.Block.filter({ blocker_email: userEmail });
+      const blocks = await base44.entities.Block.filter({ created_by: userEmail });
       return blocks.map(b => b.blocked_user_email);
     },
     enabled: !!userEmail,

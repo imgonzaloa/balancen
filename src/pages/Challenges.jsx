@@ -170,7 +170,7 @@ export default function Challenges() {
 
   const { data: myParticipations = [] } = useQuery({
     queryKey: ["myParticipations", user?.email],
-    queryFn: () => base44.entities.ChallengeParticipant.filter({ user_email: user.email }),
+    queryFn: () => base44.entities.ChallengeParticipant.filter({ created_by: user.email }),
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
   });
