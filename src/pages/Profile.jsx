@@ -254,7 +254,7 @@ export default function Profile() {
                 },
                 {
                   label: { es: "Edad", en: "Age", pt: "Idade" }[lang],
-                  value: profile?.age ? `${profile.age} ${{ es: "años", en: "yrs", pt: "anos" }[lang]}` : "—",
+                  value: profile?.age ? `${profile.age} ${{ es: "años", en: "yrs", nl: "jaar" }[lang]}` : "—",
                 },
                 {
                   label: { es: "Meta diaria", en: "Daily goal", pt: "Meta diária" }[lang],
@@ -349,7 +349,7 @@ export default function Profile() {
             {[
               { code: 'es', flag: '🇪🇸', label: 'Español' },
               { code: 'en', flag: '🇺🇸', label: 'English' },
-              { code: 'pt', flag: '🇧🇷', label: 'Português' },
+              { code: 'nl', flag: '🇳🇱', label: 'Nederlands' },
             ].map(({ code, flag, label }) => (
               <button
                 key={code}
