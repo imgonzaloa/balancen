@@ -303,6 +303,10 @@
     "daily_reminders_time": {
       "type": "string",
       "default": "09:00"
+    },
+    "referral_source": {
+      "type": "string",
+      "description": "How the user heard about Balancen (tiktok, instagram, google, friend, coach, podcast, email, other)"
     }
   },
   "required": [
