@@ -57,7 +57,7 @@ export default function Social() {
     queryFn: async () => {
       const [sent, received] = await Promise.all([
         withTimeout(base44.entities.Friend.filter({ created_by: user?.email }), 3000).catch(() => []),
-        withTimeout(base44.entities.Friend.filter({ friend_user_id: user?.email }), 3000).catch(() => [])
+        withTimeout(base44.entities.Friend.filter({ created_by: user?.email }), 3000).catch(() => [])
       ]);
       return [...sent, ...received].filter(Boolean);
     },

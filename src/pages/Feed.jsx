@@ -69,7 +69,7 @@ export default function Feed() {
     queryKey: ['discovery-posts'],
     queryFn: async () => {
       try {
-        const all = await base44.entities.Post.filter({ is_public: true }, '-created_date', 20);
+        const all = await base44.entities.Post.filter({}, '-created_date', 20);
         const friendAuthors = new Set((posts || []).map(p => p.created_by || p.author_email).filter(Boolean));
         return all.filter(p => !friendAuthors.has(p.created_by) && !friendAuthors.has(p.author_email));
       } catch (_) {
