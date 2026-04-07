@@ -47,7 +47,7 @@ export default function Progress() {
       return meals.filter(m => last7Days.includes(m.date));
     },
     enabled: !!user?.email,
-    staleTime: 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
 

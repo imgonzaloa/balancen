@@ -27,17 +27,17 @@ import OfflineBanner from "@/components/OfflineBanner";
 import MealMomentNotification from "@/components/MealMomentNotification";
 
 
-// Global React Query client - aggressive caching to prevent rate limits and re-fetches
+// Global React Query client - refresh on mount/reconnect for fresh data during navigation, with minimal retries
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 10 * 60 * 1000,
       gcTime: 30 * 60 * 1000,
       refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      retry: false,
-      retryOnMount: false,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      retry: 1,
+      retryOnMount: true,
     },
   },
 });
