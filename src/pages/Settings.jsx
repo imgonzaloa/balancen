@@ -316,6 +316,7 @@ export default function Settings() {
               label={t('language')}
               triggerClassName="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl"
               valueClassName="text-white font-semibold"
+              lang={lang}
             >
               <SelectItem value="en">🇬🇧 English</SelectItem>
               <SelectItem value="es">🇪🇸 Español</SelectItem>
@@ -349,13 +350,14 @@ export default function Settings() {
                    {lang === "es" ? "Compartir comidas" : lang === "pt" ? "Compartilhar refeições" : "Share meals"}
                 </Label>
                 <MobileSelect
-                  value={profile?.share_meals || "private"}
-                  onValueChange={(value) => handleToggle("share_meals", value)}
-                  placeholder={t('privacy')}
-                  label={lang === "es" ? "Privacidad de comidas" : lang === "pt" ? "Privacidade das refeições" : "Meal privacy"}
-                  triggerClassName="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl"
-                  valueClassName="text-white font-semibold"
-                >
+                   value={profile?.share_meals || "private"}
+                   onValueChange={(value) => handleToggle("share_meals", value)}
+                   placeholder={t('privacy')}
+                   label={lang === "es" ? "Privacidad de comidas" : lang === "pt" ? "Privacidade das refeições" : "Meal privacy"}
+                   triggerClassName="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl"
+                   valueClassName="text-white font-semibold"
+                   lang={lang}
+                 >
                   <SelectItem value="private">
                     🔒 {t('private_mode')}
                   </SelectItem>

@@ -18,6 +18,7 @@ export function MobileSelect({
   triggerClassName,
   contentClassName,
   valueClassName,
+  lang = 'en',
   ...props
 }) {
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -62,11 +63,11 @@ export function MobileSelect({
       </button>
 
       <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className='bg-slate-900 border-t border-white/20'>
+        <DrawerContent className='bg-slate-900 border-t border-white/20 pb-safe'>
           <DrawerHeader>
             <DrawerTitle className='text-white font-bold text-lg'>{label || 'Select option'}</DrawerTitle>
           </DrawerHeader>
-          <div className="flex flex-col gap-2 p-4">
+          <div className="flex flex-col gap-2 p-4 pb-6">
             {React.Children.map(children, (child) => {
               if (!child || child.type !== SelectItem) return child;
               const isSelected = value === child.props.value;
@@ -86,9 +87,9 @@ export function MobileSelect({
             })}
             <Button
               onClick={() => setOpen(false)}
-              className='w-full h-10 text-white/40 text-sm'
+              className='w-full h-10 text-white/40 text-sm mt-2'
             >
-              Cancel
+              {{ es: 'Cancelar', en: 'Cancel', nl: 'Annuleren' }[lang] || 'Cancel'}
             </Button>
           </div>
         </DrawerContent>
