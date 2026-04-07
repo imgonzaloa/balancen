@@ -365,12 +365,12 @@ export default function CameraScreen() {
     }
   }, [videoReady]);
 
-  // Trigger live preview once camera is ready, then throttle every 2000ms
+  // Trigger live preview once camera is ready, then throttle every 8000ms
   // DISABLED in profile photo mode — no food analysis
   useEffect(() => {
     if (!videoReady || isProfilePhotoMode) return;
-    const initial = setTimeout(() => { runLivePreview(); }, 1000);
-    const interval = setInterval(() => { runLivePreview(); }, 2000);
+    const initial = setTimeout(() => { runLivePreview(); }, 3000);
+    const interval = setInterval(() => { runLivePreview(); }, 8000);
     return () => {
       clearTimeout(initial);
       clearInterval(interval);
