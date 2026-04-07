@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, UserPlus, Heart, Trophy, X } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -110,64 +111,69 @@ export default function NotificationCenter({ open, onClose, userEmail, lang = "e
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <>
-          {/* Invisible overlay to close panel on outside click */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99998]"
-            onClick={onClose}
-          />
+    <>
+      {createPortal(
+        <AnimatePresence>
+          {open && (
+            <>
+              {/* Backdrop overlay to close panel on outside click */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[99998]"
+                onClick={onClose}
+              />
 
-          {/* Notification panel */}
-          <motion.div
-            ref={panelRef}
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed top-[64px] right-4 w-80 max-w-[calc(100vw-2rem)] z-[99999] bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl overflow-hidden"
-          >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-            <h3 className="text-white font-black text-sm">{l.title}</h3>
-            <button onClick={onClose} className="text-white/50 hover:text-white transition-colors active:scale-90">
-              <X size={16} />
-            </button>
-          </div>
-
-          {/* List */}
-          <div className="max-h-[420px] overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="py-10 px-4 text-center">
-                <Bell size={32} className="text-white/20 mx-auto mb-3" />
-                <p className="text-white/70 font-semibold text-sm">{l.empty}</p>
-                <p className="text-white/40 text-xs mt-1">{l.emptySubtitle}</p>
-              </div>
-            ) : (
-              notifications.map(n => (
-                <div
-                  key={n.id}
-                  className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 ${!n.read ? "bg-white/5" : ""}`}
-                >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${typeBg[n.type] || "bg-white/10"}`}>
-                    {typeIcon[n.type] || <Bell size={16} className="text-white/50" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white text-xs leading-snug">{getText(n)}</p>
-                    <p className="text-white/40 text-[10px] mt-0.5">{getTimeAgo(n.created_date)}</p>
-                  </div>
-                  {!n.read && <div className="w-2 h-2 rounded-full bg-teal-400 flex-shrink-0 mt-1.5" />}
+              {/* Notification panel */}
+              <motion.div
+                ref={panelRef}
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="fixed top-[64px] right-4 w-80 max-w-[calc(100vw-2rem)] z-[99999] bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl overflow-hidden"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                  <h3 className="text-white font-black text-sm">{l.title}</h3>
+                  <button onClick={onClose} className="text-white/50 hover:text-white transition-colors active:scale-90">
+                    <X size={16} />
+                  </button>
                 </div>
-              ))
-            )}
-          </div>
-          </motion.div>
-        </>
+
+                {/* List */}
+                <div className="max-h-[420px] overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="py-10 px-4 text-center">
+                      <Bell size={32} className="text-white/20 mx-auto mb-3" />
+                      <p className="text-white/70 font-semibold text-sm">{l.empty}</p>
+                      <p className="text-white/40 text-xs mt-1">{l.emptySubtitle}</p>
+                    </div>
+                  ) : (
+                    notifications.map(n => (
+                      <div
+                        key={n.id}
+                        className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 ${!n.read ? "bg-white/5" : ""}`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${typeBg[n.type] || "bg-white/10"}`}>
+                          {typeIcon[n.type] || <Bell size={16} className="text-white/50" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-xs leading-snug">{getText(n)}</p>
+                          <p className="text-white/40 text-[10px] mt-0.5">{getTimeAgo(n.created_date)}</p>
+                        </div>
+                        {!n.read && <div className="w-2 h-2 rounded-full bg-teal-400 flex-shrink-0 mt-1.5" />}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
-    </AnimatePresence>
+    </>
   );
 }
