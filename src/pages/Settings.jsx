@@ -192,7 +192,7 @@ export default function Settings() {
                 <Bell size={20} className="text-teal-300" />
               </div>
               <div>
-                <Label className="text-white font-semibold">{lang === 'es' ? 'Recordatorios diarios' : lang === 'pt' ? 'Lembretes diários' : 'Daily reminders'}</Label>
+                <Label className="text-white font-semibold">{lang === 'es' ? 'Recordatorios diarios' : lang === 'nl' ? 'Dagelijkse herinneringen' : 'Daily reminders'}</Label>
                   <p className="text-xs text-white/60">{t('gentle_reminders')}</p>
                 </div>
               </div>
@@ -205,7 +205,7 @@ export default function Settings() {
             {profile?.daily_reminders_enabled && (
               <div className="pl-13 pt-3 border-t border-white/10">
                 <Label className="text-white/90 text-sm mb-2 block">
-                  {lang === 'es' ? 'Hora' : lang === 'pt' ? 'Horário' : 'Time'}
+                  {lang === 'es' ? 'Hora' : lang === 'nl' ? 'Tijd' : 'Time'}
                 </Label>
                 <input
                   type="time"
@@ -237,10 +237,10 @@ export default function Settings() {
               </div>
               <div className="flex-1">
                 <Label className="text-white font-semibold">
-                   {lang === 'es' ? 'Cuerpo y Objetivos' : lang === 'pt' ? 'Corpo e Objetivos' : 'Body & Goals'}
+                   {lang === 'es' ? 'Cuerpo y Objetivos' : lang === 'nl' ? 'Lichaam & Doelen' : 'Body & Goals'}
                 </Label>
                 <p className="text-xs text-white/60">
-                   {lang === 'es' ? 'Personaliza tu plan calórico' : lang === 'pt' ? 'Personalize seu plano calórico' : 'Personalize your calorie plan'}
+                   {lang === 'es' ? 'Personaliza tu plan calórico' : lang === 'nl' ? 'Personaliseer je calorieplan' : 'Personalize your calorie plan'}
                 </p>
               </div>
             </div>
@@ -282,7 +282,7 @@ export default function Settings() {
                 className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:border-teal-300 outline-none text-base"
               />
               <p className="text-white/40 text-xs leading-relaxed">
-                {{ es: "Calculado automáticamente según tu perfil. Puedes ajustarlo.", en: "Auto-calculated from your profile. You can adjust it.", pt: "Calculado automaticamente. Você pode ajustá-lo." }[lang] || "Auto-calculated from your profile. You can adjust it."}
+                {{ es: "Calculado automáticamente según tu perfil. Puedes ajustarlo.", en: "Auto-calculated from your profile. You can adjust it.", nl: "Automatisch berekend op basis van je profiel. Je kunt het aanpassen." }[lang] || "Auto-calculated from your profile. You can adjust it."}
               </p>
             </div>
           </div>
@@ -346,13 +346,13 @@ export default function Settings() {
             <div className="pl-13 space-y-3 pt-3 border-t border-white/10">
               <div>
                 <Label className="text-white text-sm mb-2 block">
-                   {lang === "es" ? "Compartir comidas" : lang === "pt" ? "Compartilhar refeições" : "Share meals"}
-                </Label>
+                   {lang === "es" ? "Compartir comidas" : lang === "nl" ? "Maaltijden delen" : "Share meals"}
+                 </Label>
                 <MobileSelect
                    value={profile?.share_meals || "private"}
                    onValueChange={(value) => handleToggle("share_meals", value)}
                    placeholder={t('privacy')}
-                   label={lang === "es" ? "Privacidad de comidas" : lang === "pt" ? "Privacidade das refeições" : "Meal privacy"}
+                   label={lang === "es" ? "Privacidad de comidas" : lang === "nl" ? "Maaltijdprivacy" : "Meal privacy"}
                    triggerClassName="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl"
                    valueClassName="text-white font-semibold"
                    lang={lang}
@@ -371,8 +371,8 @@ export default function Settings() {
               
               <div className="flex items-center justify-between">
                 <Label className="text-white/90 text-sm">
-                   {lang === "es" ? "Mostrar macros" : lang === "pt" ? "Mostrar macros" : "Show macros"}
-                </Label>
+                   {lang === "es" ? "Mostrar macros" : lang === "nl" ? "Macros weergeven" : "Show macros"}
+                 </Label>
                 <Switch
                   checked={profile?.share_macros ?? false}
                   onCheckedChange={(checked) => handleToggle("share_macros", checked)}
@@ -381,8 +381,8 @@ export default function Settings() {
               
               <div className="flex items-center justify-between">
                 <Label className="text-white/90 text-sm">
-                   {lang === "es" ? "Mostrar calorías" : lang === "pt" ? "Mostrar calorias" : "Show calories"}
-                </Label>
+                   {lang === "es" ? "Mostrar calorías" : lang === "nl" ? "Calorieën weergeven" : "Show calories"}
+                 </Label>
                 <Switch
                   checked={profile?.share_calories ?? false}
                   onCheckedChange={(checked) => handleToggle("share_calories", checked)}
@@ -542,7 +542,7 @@ export default function Settings() {
            <div className="flex items-center gap-2 mb-4">
              <Shield size={18} className="text-teal-300" />
              <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
-               {lang === 'es' ? 'Privacidad y Datos' : lang === 'pt' ? 'Privacidade e Dados' : 'Privacy & Data'}
+               {lang === 'es' ? 'Privacidad y Datos' : lang === 'nl' ? 'Privacy & Gegevens' : 'Privacy & Data'}
              </h2>
            </div>
 
@@ -553,7 +553,7 @@ export default function Settings() {
                  <div className="flex items-center gap-3">
                    <Shield size={18} className="text-teal-300" />
                    <span className="text-white/80 text-sm font-medium">
-                     {lang === 'es' ? 'Política de Privacidad' : lang === 'pt' ? 'Política de Privacidade' : 'Privacy Policy'}
+                     {lang === 'es' ? 'Política de Privacidad' : lang === 'nl' ? 'Privacybeleid' : 'Privacy Policy'}
                    </span>
                  </div>
                  <ExternalLink size={14} className="text-white/30" />
@@ -564,7 +564,7 @@ export default function Settings() {
              <div className="px-5 py-4 bg-white/5">
                <p className="text-white/60 text-xs leading-relaxed">
                  <span className="block font-semibold text-white/80 mb-1">
-                   {lang === 'es' ? 'Datos procesados por:' : lang === 'pt' ? 'Dados processados por:' : 'Data processed by:'}
+                   {lang === 'es' ? 'Datos procesados por:' : lang === 'nl' ? 'Gegevens verwerkt door:' : 'Data processed by:'}
                  </span>
                  Base44, Anthropic AI
                </p>
@@ -575,8 +575,8 @@ export default function Settings() {
                <p className="text-white/60 text-xs leading-relaxed">
                  {lang === 'es'
                    ? 'Puedes eliminar todos tus datos desde la configuración de tu cuenta.'
-                   : lang === 'pt'
-                   ? 'Você pode deletar todos os seus dados nas configurações da sua conta.'
+                   : lang === 'nl'
+                   ? 'Je kunt al je gegevens verwijderen via je accountinstellingen.'
                    : 'You can delete all your data from your account settings.'}
                </p>
              </div>
@@ -593,7 +593,7 @@ export default function Settings() {
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare size={18} className="text-teal-300" />
             <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
-              {{ es: 'Tu opinión', en: 'Your feedback', pt: 'Sua opinião' }[lang] || 'Your feedback'}
+              {{ es: 'Tu opinión', en: 'Your feedback', nl: 'Je feedback' }[lang] || 'Your feedback'}
             </h2>
           </div>
 
@@ -601,7 +601,7 @@ export default function Settings() {
             {/* Star rating */}
             <div>
               <p className="text-white/60 text-xs font-semibold mb-3">
-                {{ es: '¿Cómo calificarías Balancen?', en: 'How would you rate Balancen?', pt: 'Como você avaliaria o Balancen?' }[lang]}
+                {{ es: '¿Cómo calificarías Balancen?', en: 'How would you rate Balancen?', nl: 'Hoe zou je Balancen beoordelen?' }[lang]}
               </p>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -622,9 +622,9 @@ export default function Settings() {
             {/* Category pills */}
             <div className="flex gap-2 flex-wrap">
               {[
-                { value: 'bug', label: { es: 'Bug', en: 'Bug', pt: 'Bug' } },
-                { value: 'suggestion', label: { es: 'Sugerencia', en: 'Suggestion', pt: 'Sugestão' } },
-                { value: 'praise', label: { es: 'Elogio', en: 'Praise', pt: 'Elogio' } },
+                { value: 'bug', label: { es: 'Bug', en: 'Bug', nl: 'Bug' } },
+                { value: 'suggestion', label: { es: 'Sugerencia', en: 'Suggestion', nl: 'Suggestie' } },
+                { value: 'praise', label: { es: 'Elogio', en: 'Praise', nl: 'Compliment' } },
               ].map((cat) => (
                 <button
                   key={cat.value}
@@ -645,7 +645,7 @@ export default function Settings() {
               <textarea
                 value={feedbackMessage}
                 onChange={(e) => setFeedbackMessage(e.target.value.slice(0, 500))}
-                placeholder={{ es: 'Contanos qué mejorarías o qué te encanta de Balancen...', en: 'Tell us what you\'d improve or love about Balancen...', pt: 'Conte-nos o que melhoraria ou ama no Balancen...' }[lang]}
+                placeholder={{ es: 'Contanos qué mejorarías o qué te encanta de Balancen...', en: 'Tell us what you\'d improve or love about Balancen...', nl: 'Vertel ons wat je zou verbeteren of wat je van Balancen houdt...' }[lang]}
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/30 text-sm focus:border-teal-400 focus:outline-none resize-none"
               />
@@ -666,19 +666,19 @@ export default function Settings() {
                     lang,
                     app_version: "1.0.0",
                   });
-                  toast.success({ es: '¡Gracias por tu feedback!', en: 'Thanks for your feedback!', pt: 'Obrigado pelo seu feedback!' }[lang]);
+                  toast.success({ es: '¡Gracias por tu feedback!', en: 'Thanks for your feedback!', nl: 'Dank je wel voor je feedback!' }[lang]);
                   setFeedbackRating(0);
                   setFeedbackMessage("");
                   setFeedbackCategory("suggestion");
                 } catch (err) {
-                  toast.error(lang === 'es' ? 'Error al enviar' : lang === 'pt' ? 'Erro ao enviar' : 'Error sending feedback');
+                  toast.error(lang === 'es' ? 'Error al enviar' : lang === 'nl' ? 'Fout bij verzenden' : 'Error sending feedback');
                 } finally {
                   setFeedbackSubmitting(false);
                 }
               }}
               className="w-full h-12 rounded-2xl bg-teal-500 hover:bg-teal-600 text-white font-semibold disabled:opacity-40 transition-all"
             >
-              {{ es: 'Enviar feedback', en: 'Send feedback', pt: 'Enviar feedback' }[lang]}
+              {{ es: 'Enviar feedback', en: 'Send feedback', nl: 'Feedback verzenden' }[lang]}
             </Button>
           </div>
         </motion.div>
@@ -693,7 +693,7 @@ export default function Settings() {
           <div className="flex items-center gap-2 mb-4">
             <Scale size={18} className="text-white/40" />
             <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
-              {lang === 'es' ? 'Legal y Soporte' : lang === 'pt' ? 'Legal e Suporte' : 'Legal & Support'}
+              {lang === 'es' ? 'Legal y Soporte' : lang === 'nl' ? 'Juridisch & Ondersteuning' : 'Legal & Support'}
             </h2>
           </div>
 
@@ -717,7 +717,7 @@ export default function Settings() {
                 <Mail size={18} className="text-teal-300" />
                 <div>
                   <span className="text-white/80 text-sm font-medium block">
-                     {lang === 'es' ? 'Contactar Soporte' : lang === 'pt' ? 'Contatar Suporte' : 'Contact Support'}
+                     {lang === 'es' ? 'Contactar Soporte' : lang === 'nl' ? 'Contact opnemen' : 'Contact Support'}
                    </span>
                   <span className="text-white/40 text-xs">hello@balancen.app</span>
                 </div>
@@ -731,7 +731,7 @@ export default function Settings() {
                 <div className="flex items-center gap-3">
                   <FileText size={18} className="text-teal-300" />
                   <span className="text-white/80 text-sm font-medium">
-                     {lang === 'es' ? 'Términos de Servicio' : lang === 'pt' ? 'Termos de Serviço' : 'Terms of Service'}
+                     {lang === 'es' ? 'Términos de Servicio' : lang === 'nl' ? 'Servicevoorwaarden' : 'Terms of Service'}
                    </span>
                 </div>
                 <ExternalLink size={14} className="text-white/30" />
@@ -746,8 +746,8 @@ export default function Settings() {
               <div className="flex items-center gap-3">
                 <AlertTriangle size={18} className="text-amber-300" />
                 <span className="text-white/80 text-sm font-medium">
-                   {lang === 'es' ? 'Aviso sobre IA' : lang === 'pt' ? 'Aviso de IA' : 'AI Disclaimer'}
-                </span>
+                   {lang === 'es' ? 'Aviso sobre IA' : lang === 'nl' ? 'AI-melding' : 'AI Disclaimer'}
+                 </span>
               </div>
               <ChevronLeft size={16} className="text-white/30 rotate-180" />
             </button>
@@ -760,8 +760,8 @@ export default function Settings() {
               <div className="flex items-center gap-3">
                 <Trash2 size={18} className="text-white/40" />
                 <span className="text-white/60 text-sm font-medium">
-                   {lang === 'es' ? 'Eliminar cuenta' : lang === 'pt' ? 'Excluir conta' : 'Delete Account'}
-                </span>
+                   {lang === 'es' ? 'Eliminar cuenta' : lang === 'nl' ? 'Account verwijderen' : 'Delete Account'}
+                 </span>
               </div>
               <ChevronLeft size={16} className="text-white/30 rotate-180" />
             </button>
@@ -781,28 +781,28 @@ export default function Settings() {
                   <AlertTriangle size={20} className="text-amber-300" />
                 </div>
                 <h3 className="text-white font-bold text-lg">
-                   {lang === 'es' ? 'Aviso sobre IA' : lang === 'pt' ? 'Aviso de IA' : 'AI Disclaimer'}
-                </h3>
+                   {lang === 'es' ? 'Aviso sobre IA' : lang === 'nl' ? 'AI-melding' : 'AI Disclaimer'}
+                 </h3>
               </div>
               <p className="text-white/70 text-sm leading-relaxed mb-4">
                  {lang === 'es'
                    ? 'Balancen proporciona sugerencias generadas por IA sobre fitness y nutrición con fines informativos y de estilo de vida únicamente. Esto no es consejo médico y no reemplaza la consulta con profesionales de la salud calificados.'
-                   : lang === 'pt'
-                   ? 'Balancen fornece sugestões geradas por IA sobre fitness e nutrição apenas para fins informativos e de estilo de vida. Isto não é aconselhamento médico e não substitui a consulta com profissionais de saúde qualificados.'
+                   : lang === 'nl'
+                   ? 'Balancen biedt AI-gegenereerde fitness- en voedingssuggesties alleen voor informatieve en lifestyle-doeleinden. Dit is geen medisch advies en vervangt geen raadpleging met gekwalificeerde zorgprofessionals.'
                    : 'Balancen provides AI-generated fitness and nutrition suggestions for informational and lifestyle purposes only. This is not medical advice and does not replace consultation with qualified healthcare professionals.'}
                </p>
               <p className="text-white/60 text-xs leading-relaxed mb-6 border-t border-white/10 pt-4">
                 {lang === 'es'
                   ? 'Análisis de comidas impulsado por Anthropic Claude Vision AI.'
-                  : lang === 'pt'
-                  ? 'Análise de refeições alimentada por Anthropic Claude Vision AI.'
+                  : lang === 'nl'
+                  ? 'Voedingsanalyse mogelijk gemaakt door Anthropic Claude Vision AI.'
                   : 'Food analysis powered by Anthropic Claude Vision AI.'}
               </p>
               <Button
                 onClick={() => setShowAIDisclaimer(false)}
                 className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20"
                 >
-                {lang === 'es' ? 'Entendido' : lang === 'pt' ? 'Entendido' : 'Got it'}
+                {lang === 'es' ? 'Entendido' : lang === 'nl' ? 'Begrepen' : 'Got it'}
               </Button>
             </motion.div>
           </div>
@@ -827,29 +827,29 @@ export default function Settings() {
                   <Mail size={20} className="text-teal-300" />
                 </div>
                 <h3 className="text-white font-bold text-lg">
-                   {lang === 'es' ? 'Contactar Soporte' : lang === 'pt' ? 'Contatar Suporte' : 'Contact Support'}
-                </h3>
+                   {lang === 'es' ? 'Contactar Soporte' : lang === 'nl' ? 'Contact opnemen' : 'Contact Support'}
+                 </h3>
               </div>
               <p className="text-white/70 text-sm leading-relaxed mb-6">
-                {lang === 'es' ? 'Escríbenos a ' : lang === 'pt' ? 'Envie um email para ' : 'Email us at '}
+                {lang === 'es' ? 'Escríbenos a ' : lang === 'nl' ? 'Stuur een e-mail naar ' : 'Email us at '}
                 <span className="text-teal-300 font-medium">hello@balancen.app</span>
               </p>
               <div className="flex gap-3">
                 <Button
                   onClick={() => {
                     navigator.clipboard.writeText('hello@balancen.app');
-                    toast.success(lang === 'es' ? 'Copiado' : lang === 'pt' ? 'Copiado' : 'Copied');
+                    toast.success(lang === 'es' ? 'Copiado' : lang === 'nl' ? 'Gekopieerd' : 'Copied');
                     setShowSupportModal(false);
                   }}
                   className="flex-1 bg-teal-500 hover:bg-teal-600 text-white"
                 >
-                  {lang === 'es' ? 'Copiar email' : lang === 'pt' ? 'Copiar email' : 'Copy email'}
+                  {lang === 'es' ? 'Copiar email' : lang === 'nl' ? 'E-mail kopiëren' : 'Copy email'}
                 </Button>
                 <Button
                   onClick={() => setShowSupportModal(false)}
                   className="flex-1 bg-white/10 hover:bg-white/20 text-white border border-white/20"
                 >
-                  {lang === 'es' ? 'Cerrar' : lang === 'pt' ? 'Fechar' : 'Close'}
+                  {lang === 'es' ? 'Cerrar' : lang === 'nl' ? 'Sluiten' : 'Close'}
                 </Button>
               </div>
             </motion.div>
@@ -870,7 +870,7 @@ export default function Settings() {
             <div>
               <p className="text-white font-semibold text-lg">Balancen</p>
               <p className="text-white/40 text-xs mb-1">
-                {lang === 'es' ? 'Versión' : lang === 'pt' ? 'Versão' : 'Version'} 1.0.0
+                {lang === 'es' ? 'Versión' : lang === 'nl' ? 'Versie' : 'Version'} 1.0.0
               </p>
               <button
                 onClick={() => {
@@ -886,10 +886,10 @@ export default function Settings() {
             </div>
             <p className="text-white/25 text-[10px] mt-1">
               {lang === 'es'
-                 ? 'Balancen ofrece sugerencias de fitness, nutrición y bienestar únicamente para fines informativos. No es consejo médico.'
-                 : lang === 'pt'
-                 ? 'Balancen oferece sugestões de fitness, nutrição e bem-estar apenas para fins informativos. Não é aconselhamento médico.'
-                 : 'Balancen provides fitness, nutrition, and wellness suggestions for informational purposes only. Not medical advice.'}
+                   ? 'Balancen ofrece sugerencias de fitness, nutrición y bienestar únicamente para fines informativos. No es consejo médico.'
+                   : lang === 'nl'
+                   ? 'Balancen biedt fitness-, voedings- en wellnesssuggesties alleen voor informatieve doeleinden. Geen medisch advies.'
+                   : 'Balancen provides fitness, nutrition, and wellness suggestions for informational purposes only. Not medical advice.'}
             </p>
           </div>
         </motion.div>

@@ -200,13 +200,13 @@ export default function CameraScreen() {
       // Premium user monthly limit
       const limitMsg = lang === 'es' 
         ? 'Alcanzaste tu límite de 300 análisis este mes. Upgrade a Power para ilimitado.'
-        : lang === 'pt'
-        ? 'Você atingiu seu limite de 300 análises este mês.'
+        : lang === 'nl'
+        ? 'Je hebt je limiet van 300 analyses deze maand bereikt. Upgrade naar Power voor onbeperkt.'
         : 'You reached your 300 analysis limit this month. Upgrade to Power for unlimited.';
       toast.error(limitMsg);
       navigate(createPageUrl("Premium"));
       return;
-    }
+      }
 
     setIsCapturing(true);
     setCaptureError(null);
