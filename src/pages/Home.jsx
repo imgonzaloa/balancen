@@ -19,6 +19,7 @@ import StreakCelebration from "@/components/home/StreakCelebration";
 import DailyAIInsightCard from "@/components/home/DailyAIInsightCard";
 import DailyMissionsPanel from "@/components/home/DailyMissionsPanel";
 import PullToRefresh from "@/components/PullToRefresh";
+import SmartUpgradeModal from "@/components/SmartUpgradeModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -168,6 +169,9 @@ const Home = React.memo(() => {
   return (
     <PullToRefresh>
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
+      {/* Smart Upgrade Modal */}
+      <SmartUpgradeModal trialDaysLeft={trialDaysLeft} profile={profile} lang={lang} />
+
       <div className="max-w-2xl mx-auto px-6 pt-4 pb-8 space-y-4">
 
         {/* Trial Day Banner */}
