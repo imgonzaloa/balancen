@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Plus } from "lucide-react";
+import { getLocalDateKey } from "@/lib/utils";
 
 function getTodayKey() {
-  return `balancen_water_today_${new Date().toISOString().split("T")[0]}`;
+  return `balancen_water_today_${getLocalDateKey()}`;
 }
 
 function loadWater() {
