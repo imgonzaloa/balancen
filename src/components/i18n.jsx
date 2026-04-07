@@ -709,7 +709,7 @@ const resources = {
       feature_streak_metrics: "Streak & consistency metrics",
       feature_history_export: "Full history export & backup",
       try_for_free_cta: "Try free — €0.00",
-      try_for_free_fine_print: "Free for 5 days, then €4.99/mo or €49.99/yr. Cancel anytime.",
+      try_for_free_fine_print: "Free for 5 days, then €6.99/mo or €49.99/yr. Cancel anytime.",
 
       // Premium hubs and AI features
       progress_saved: "Progress saved!",
@@ -867,7 +867,7 @@ const resources = {
       feature_streak_metrics: "Streak- en consistentiemetrieken",
       feature_history_export: "Volledige geschiedenisexport",
       try_for_free_cta: "Gratis proberen — €0,00",
-      try_for_free_fine_print: "Gratis 5 dagen, daarna €4,99/maand of €49,99/jaar. Annuleer wanneer je wilt.",
+      try_for_free_fine_print: "Gratis 5 dagen, daarna €6,99/maand of €49,99/jaar. Annuleer wanneer je wilt.",
 
       // General
       logout: "Uitloggen",
@@ -1644,7 +1644,7 @@ const resources = {
       feature_streak_metrics: "Racha y métricas de consistencia",
       feature_history_export: "Exportación de historial completo",
       try_for_free_cta: "Probar gratis — €0.00",
-      try_for_free_fine_print: "Gratis 7 días, luego €4.99/mes o €49.99/año. Cancela cuando quieras.",
+      try_for_free_fine_print: "Gratis 5 días, luego €6.99/mes o €49.99/año. Cancela cuando quieras.",
 
       // Premium hubs and AI features
       progress_saved: "¡Progreso guardado!",

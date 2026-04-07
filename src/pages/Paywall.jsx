@@ -320,8 +320,8 @@ export default function Paywall() {
                  </span>
                </div>
                <div className="flex items-baseline gap-2 mt-1">
-                 <span className="text-xl font-black text-amber-300">{pricing.currency}{pricing.prices.power_yearly}</span>
-                 <span className="text-white/50 text-sm">/ {t("year_label")}</span>
+                 <span className="text-xl font-black text-amber-300">{pricing?.currency || '€'}{pricing?.prices?.power_yearly || '89.99'}</span>
+                 <span className="text-white/50 text-sm">/ {lang === 'es' ? 'año' : lang === 'nl' ? 'jaar' : 'year'}</span>
                </div>
              </button>
            </motion.div>
