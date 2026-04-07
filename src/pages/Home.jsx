@@ -15,6 +15,7 @@ import { useEntitlement } from "@/components/hooks/useEntitlement";
 import TrialBanner from "@/components/home/TrialBanner";
 import MacroBreakdownBar from "@/components/home/MacroBreakdownBar";
 import StreakCelebration from "@/components/home/StreakCelebration";
+import DailyAIInsightCard from "@/components/home/DailyAIInsightCard";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -410,6 +411,12 @@ const Home = React.memo(() => {
         </div>
 
 
+
+        {/* Daily AI Insight Card */}
+        <DailyAIInsightCard
+          lang={lang}
+          onViewPlan={() => handleNavigate('GoalsAssistant')}
+        />
 
         {/* Streak celebration overlay */}
         {celebratingStreak && (
