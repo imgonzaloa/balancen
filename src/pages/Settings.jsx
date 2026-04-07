@@ -666,7 +666,7 @@ export default function Settings() {
                     lang,
                     app_version: "1.0.0",
                   });
-                  toast.success({ es: '¡Gracias por tu feedback!', en: 'Thanks for your feedback!', nl: 'Dank je wel voor je feedback!' }[lang]);
+                  toast.success({ es: '¡Gracias por tu feedback!', en: 'Thanks for your feedback!', nl: 'Bedankt voor je feedback!' }[lang]);
                   setFeedbackRating(0);
                   setFeedbackMessage("");
                   setFeedbackCategory("suggestion");
