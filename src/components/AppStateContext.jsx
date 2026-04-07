@@ -57,9 +57,9 @@ export function AppStateProvider({ children }) {
             } catch (_) {}
           }
 
-          // Campus admin allowlist check
+          // Campus admin allowlist check (silently fail if entity doesn't exist)
           try {
-            const allowlist = await base44.entities.CampusAdminAllowlist.list();
+            const allowlist = await base44.entities.CampusAdminAllowlist.list?.() || [];
             const isAdmin = allowlist.some(a => a.email === normalizedEmail && a.status === "active");
             if (isAdmin) {
               const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
