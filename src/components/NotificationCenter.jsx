@@ -112,14 +112,25 @@ export default function NotificationCenter({ open, onClose, userEmail, lang = "e
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
-          ref={panelRef}
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="absolute top-[60px] right-4 w-80 max-w-[calc(100vw-2rem)] z-[9999] bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl overflow-hidden"
-        >
+        <>
+          {/* Invisible overlay to close panel on outside click */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9998]"
+            onClick={onClose}
+          />
+          
+          {/* Notification panel */}
+          <motion.div
+            ref={panelRef}
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="fixed top-[72px] right-4 w-80 max-w-[calc(100vw-2rem)] z-[9999] bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl overflow-hidden"
+          >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
             <h3 className="text-white font-black text-sm">{l.title}</h3>
@@ -154,7 +165,8 @@ export default function NotificationCenter({ open, onClose, userEmail, lang = "e
               ))
             )}
           </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
