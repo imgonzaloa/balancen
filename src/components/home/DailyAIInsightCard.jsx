@@ -8,7 +8,7 @@ const CACHE_PREFIX = "balancen_ai_insight_";
 const labels = {
   es: { title: "Consejo del día", cta: "Ver mi plan completo", loading: "Generando tu consejo de hoy..." },
   en: { title: "Daily insight", cta: "View my full plan", loading: "Generating your daily insight..." },
-  pt: { title: "Dica do dia", cta: "Ver meu plano completo", loading: "Gerando sua dica de hoje..." },
+  nl: { title: "Dagelijks inzicht", cta: "Mijn volledige plan bekijken", loading: "Je dagelijkse inzicht genereren..." },
 };
 
 export default function DailyAIInsightCard({ lang, onViewPlan }) {
