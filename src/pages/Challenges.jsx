@@ -165,8 +165,8 @@ export default function Challenges() {
   const [joiningId, setJoiningId] = useState(null);
   const { isEntitled } = useEntitlement(profile);
 
-  const upsellText = { es: '🏆 Únete a Premium para participar en retos', en: '🏆 Join Premium to participate in challenges', pt: '🏆 Entre no Premium para participar nos desafios' }[lang] || '🏆 Join Premium to participate in challenges';
-  const upgradeText = { es: 'Mejorar', en: 'Upgrade', pt: 'Assinar' }[lang] || 'Upgrade';
+  const upsellText = { es: '🏆 Únete a Premium para participar en retos', en: '🏆 Join Premium to participate in challenges', nl: '🏆 Sluit Premium aan om deel te nemen aan challenges' }[lang] || '🏆 Join Premium to participate in challenges';
+  const upgradeText = { es: 'Mejorar', en: 'Upgrade', nl: 'Abonneren' }[lang] || 'Upgrade';
 
   const { data: myParticipations = [] } = useQuery({
     queryKey: ["myParticipations", user?.email],
@@ -289,8 +289,8 @@ export default function Challenges() {
           ) : (
             <EmptyState
               emoji="🏆"
-              headline={{ es: 'Sin retos activos', en: 'No active challenges', pt: 'Sem desafios ativos' }}
-              subtitle={{ es: 'Unite a un reto abajo para empezar', en: 'Join a challenge below to get started', pt: 'Participe de um desafio abaixo para começar' }}
+              headline={{ es: 'Sin retos activos', en: 'No active challenges', nl: 'Geen actieve uitdagingen' }}
+               subtitle={{ es: 'Unite a un reto abajo para empezar', en: 'Join a challenge below to get started', nl: 'Doe mee aan een uitdaging hieronder om aan de slag te gaan' }}
               lang={lang}
             />
           )}
