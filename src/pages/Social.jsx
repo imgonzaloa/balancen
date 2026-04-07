@@ -244,11 +244,11 @@ export default function Social() {
             </div>
           ) : (
             <div className="space-y-3">
-              {friendProfiles.slice(0, 5).map((friend) => (
-                <div
-                  key={friend.id}
-                  className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
-                >
+               {friendProfiles.slice(0, 5).map((friend, idx) => (
+                 <div
+                   key={friend.id || `friend-${idx}`}
+                   className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
+                 >
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
@@ -315,12 +315,12 @@ export default function Social() {
             </div>
           ) : (
             <div className="space-y-3">
-              {myGroups.map((group) => (
-                <div
-                  key={group.id}
-                  onClick={() => navigate(`${createPageUrl('GroupDetail')}?id=${group.id}`)}
-                  className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-colors cursor-pointer"
-                >
+               {myGroups.map((group, idx) => (
+                 <div
+                   key={group.id || `group-${idx}`}
+                   onClick={() => navigate(`${createPageUrl('GroupDetail')}?id=${group.id}`)}
+                   className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-colors cursor-pointer"
+                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-white font-bold text-lg">{group.name}</h3>
