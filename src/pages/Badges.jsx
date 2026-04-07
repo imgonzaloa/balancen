@@ -17,7 +17,7 @@ export default function Badges() {
     base44.auth.me().then(setUser);
   }, []);
 
-  const { data: badges = [] } = useQuery({
+  const { data: badges = [], isLoading } = useQuery({
     queryKey: ["badges", user?.email],
     queryFn: () => base44.entities.Badge.filter({ user_email: user?.email }),
     enabled: !!user?.email,
@@ -61,8 +61,17 @@ export default function Badges() {
           </div>
         </motion.div>
 
-        {/* Earned Badges */}
-        {badges.length > 0 ? (
+        {/* Loading Skeleton */}
+        {isLoading ? (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-white mb-4">Conseguidos</h2>
+            <div className="grid grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-white/5 rounded-2xl p-3 h-24 animate-pulse" />
+              ))}
+            </div>
+          </div>
+        ) : badges.length > 0 ? (
           <motion.div
             className="mb-8"
             initial={{ opacity: 0, y: 20 }}
@@ -87,14 +96,17 @@ export default function Badges() {
               ))}
             </div>
           </motion.div>
-        ) : (
+        ) : null}
+
+        {/* Empty State */}
+        {!isLoading && badges.length === 0 ? (
           <EmptyState
             emoji="🎖️"
             headline={{ es: 'Todavía no ganaste logros', en: "You haven't earned any badges yet", pt: 'Você ainda não ganhou conquistas' }}
             subtitle={{ es: 'Completá check-ins y rachas para desbloquear medallas', en: 'Complete check-ins and streaks to unlock badges', pt: 'Complete check-ins e sequências para desbloquear medalhas' }}
             lang={lang}
           />
-        )}
+        ) : null}
 
         {/* Locked Badges */}
         <motion.div

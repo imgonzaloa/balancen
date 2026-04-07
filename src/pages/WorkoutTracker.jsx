@@ -121,6 +121,17 @@ export default function WorkoutTracker() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 pb-24">
+      {/* AI Loading Overlay */}
+      {aiLoading && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 bg-slate-900/95 rounded-3xl p-8 border border-white/20">
+            <div className="w-12 h-12 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+            <p className="text-white font-semibold">
+              {lang === 'es' ? 'Generando tu rutina...' : lang === 'nl' ? 'Training genereren...' : 'Generating your workout...'}
+            </p>
+          </div>
+        </div>
+      )}
       <div className="max-w-2xl mx-auto px-4 pt-6">
         <div className="flex items-center gap-3 mb-6">
           <button
