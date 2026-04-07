@@ -28,17 +28,17 @@ const LABELS = {
     perfect: "Perfect day 🔥",
     perfectSub: "You completed all of today's missions!",
   },
-  pt: {
-    title: "Missões de hoje",
+  nl: {
+    title: "Vandaag's missies",
     missions: [
-      "Registre uma refeição",
-      "Fique dentro da sua meta",
-      "Registre 3 refeições",
-      "Compartilhe uma refeição com amigos",
-      "Alcance sua meta de água",
+      "Registreer een maaltijd",
+      "Blijf binnen je caloriedoel",
+      "Registreer 3 maaltijden",
+      "Deel een maaltijd met vrienden",
+      "Bereik je waterdoel",
     ],
-    perfect: "Dia perfeito 🔥",
-    perfectSub: "Você completou todas as missões de hoje!",
+    perfect: "Perfecte dag 🔥",
+    perfectSub: "Je hebt alle missies voltooid!",
   },
 };
 

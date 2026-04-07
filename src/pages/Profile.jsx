@@ -204,7 +204,7 @@ export default function Profile() {
             {isTrialActive && (
               <div className="mb-4 px-3 py-2 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center gap-2">
                 <span className="text-teal-300 text-xs font-bold">
-                  Trial — {trialDaysLeft} {lang === 'es' ? 'días restantes' : lang === 'pt' ? 'dias restantes' : 'days left'}
+                  Trial — {trialDaysLeft} {lang === 'es' ? 'días restantes' : lang === 'nl' ? 'dagen over' : 'days left'}
                 </span>
               </div>
             )}
@@ -233,31 +233,31 @@ export default function Profile() {
           <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-5 border border-white/20 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-white text-sm">
-                {{ es: "Métricas corporales", en: "Body metrics", pt: "Métricas corporais" }[lang] || "Body metrics"}
+                {{ es: "Métricas corporales", en: "Body metrics", nl: "Lichaamsmetrieken" }[lang] || "Body metrics"}
               </h3>
               <button
                 onClick={() => navigate(createPageUrl('Settings'))}
                 className="text-teal-300 text-xs font-semibold hover:text-teal-200 transition-colors"
               >
-                {{ es: "Editar", en: "Edit", pt: "Editar" }[lang] || "Edit"}
+                {{ es: "Editar", en: "Edit", nl: "Bewerken" }[lang] || "Edit"}
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {[
                 {
-                  label: { es: "Altura", en: "Height", pt: "Altura" }[lang],
+                  label: { es: "Altura", en: "Height", nl: "Lengte" }[lang],
                   value: profile?.height_cm ? `${profile.height_cm} cm` : "—",
                 },
                 {
-                  label: { es: "Peso", en: "Weight", pt: "Peso" }[lang],
+                  label: { es: "Peso", en: "Weight", nl: "Gewicht" }[lang],
                   value: profile?.weight_kg ? `${profile.weight_kg} kg` : "—",
                 },
                 {
-                  label: { es: "Edad", en: "Age", pt: "Idade" }[lang],
+                  label: { es: "Edad", en: "Age", nl: "Leeftijd" }[lang],
                   value: profile?.age ? `${profile.age} ${{ es: "años", en: "yrs", nl: "jaar" }[lang]}` : "—",
                 },
                 {
-                  label: { es: "Meta diaria", en: "Daily goal", pt: "Meta diária" }[lang],
+                  label: { es: "Meta diaria", en: "Daily goal", nl: "Dagelijks doel" }[lang],
                   value: profile?.calories_goal ? `${profile.calories_goal} kcal` : "—",
                 },
               ].map(({ label, value }) => (

@@ -175,7 +175,7 @@ export default function Onboarding() {
 
       navigate(createPageUrl("Home"), { replace: true });
     } catch (error) {
-      toast.error(lang === "es" ? "Error al activar el trial" : "Error activating trial");
+      toast.error(lang === "es" ? "Error al activar el trial" : lang === "nl" ? "Fout bij activeren trial" : "Error activating trial");
     } finally {
       setSaving(false);
     }
@@ -357,7 +357,90 @@ export default function Onboarding() {
       founder_para2: "Full transparency: every AI analysis has a real cost. Balancen's price is calculated to be fair — not too expensive for you, not unsustainable for me. I want to build this for the long term.",
       founder_para3: "7 days free, no card needed. If it doesn't change your habit, cancel no drama. — Gonzalo 🙌",
       },
-    pt: {
+      nl: {
+      lang_title: "Kies je taal",
+      goal_title: "Wat is je hoofddoel?",
+      goal_sub: "Selecteer je primaire focus",
+      obstacle_title: "Wat is je grootste obstakel?",
+      obstacle_sub: "We helpen je dit te overwinnen",
+      obstacles: [
+       { value: "time", emoji: "🕐", label: "Gebrek aan tijd" },
+       { value: "cravings", emoji: "🍕", label: "Verlangen naar eten" },
+       { value: "what_to_eat", emoji: "🤷", label: "Ik weet niet wat ik moet eten" },
+       { value: "forget", emoji: "📱", label: "Ik vergeet in te voeren" },
+      ],
+      gender_title: "Wat is je geslacht?",
+      gender_sub: "Om je basismetabolisme te berekenen",
+      male: "Man", female: "Vrouw",
+      body_title: "Over je lichaam",
+      body_sub: "Om je calorieënplan aan te passen",
+      height: "Lengte (cm)", weight: "Gewicht (kg)", age: "Leeftijd",
+      age_error: "Balancen is voor gebruikers van 13 jaar en ouder",
+      activity_title: "Hoe actief ben je?",
+      activity_sub: "We berekenen je ideale dagelijkse calorieën",
+      sedentary: "Zittend", light: "Licht actief", active: "Actief", very_active: "Zeer actief (sporter)",
+      meals_title: "Hoeveel maaltijden eet je per dag?",
+      meals_sub: "Om je registratie in te delen",
+      meals: [
+       { value: "2", label: "2" },
+       { value: "3", label: "3" },
+       { value: "4", label: "4" },
+       { value: "4+", label: "Meer dan 4" },
+      ],
+      diet_title: "Voedselbeperking?",
+      diet_sub: "Je kunt meerdere opties selecteren",
+      diet_continue: "Doorgaan",
+      diet_options: [
+       { value: "none", emoji: "✅", label: "Geen" },
+       { value: "vegetarian", emoji: "🥦", label: "Vegetarisch" },
+       { value: "vegan", emoji: "🌱", label: "Veganistisch" },
+       { value: "gluten_free", emoji: "🌾", label: "Glutenvrij" },
+       { value: "lactose_free", emoji: "🥛", label: "Lactosevrij" },
+       { value: "allergies", emoji: "⚠️", label: "Allergie ën" },
+      ],
+      motivation_title: "Wat motiveert je het meest?",
+      motivation_sub: "We passen je ervaring aan",
+      lose_weight: "Afvallen", build_muscle: "Spiermassa opbouwen",
+      eat_healthier: "Gezonder eten", perform_better: "Beter presteren",
+      weight_goal_title: "Wat is je gewichtsdoel?",
+      weight_goal_sub: "We berekenen je persoonlijk plan",
+      target_weight: "Doelgewicht (kg)",
+      timeframe: "Tijdsbestek",
+      weeks: "weken",
+      deficit_label: "Geschat wekelijks tekort:",
+      follow_title: "Wie ga je volgen?",
+      follow_sub: "Je feed wordt vanaf dag 1 gepersonaliseerd",
+      referral_title: "Hoe hoorde je van Balancen?",
+      referral_sub: "Dit helpt ons te verbeteren",
+      summary_title: "Je Balancen-plan",
+      summary_sub: "Op basis van je persoonlijke profiel",
+      daily_calories: "Dagelijkse calorieën",
+      protein: "Eiwit", carbs: "Koolhydraten", fat: "Vet",
+      goal_date: "Geschat doeldatum",
+      meals_per_day: "Maaltijden per dag",
+      diet_pref: "Voedingsvoorkeur",
+      social_title: "Je bent niet alleen",
+      social_count: "10.000+",
+      social_sub: "mensen met hetzelfde doel zijn al gestart",
+      trial_title: "Je plan is klaar!",
+      trial_sub: "7 dagen gratis. Geen kaart. Geen foefjes.",
+      annual_label: "Jaarplan",
+      annual_price: "€49,99/jaar",
+      annual_monthly: "gelijk aan €4,17/maand",
+      annual_badge: "Beste waarde",
+      monthly_label: "Maandplan",
+      monthly_price: "€6,99/maand",
+      cta: "Mijn plan zien →",
+      restore: "Aankoop herstellen",
+      next: "Doorgaan",
+      entering: "Activeren…",
+      features: ['✅ AI-analyse van maaltijden', '✅ Sociale feed — zie wat vrienden en sporters eten', '✅ Dagelijkse streaks en missies', '✅ Groepen, uitdagingen en ranglijst'],
+      founder_title: "Hallo, ik ben Gonzalo 👋",
+      founder_para1: "Ik heb Balancen gemaakt omdat ik zelf moeite had met voedingsgewoonten als sporter. Bestaande apps waren te complex of te generiek.",
+      founder_para2: "Volledige transparantie: elke AI-analyse kost geld. Balancens prijs is fair berekend — niet te duur voor jou, niet onhoudbaar voor mij.",
+      founder_para3: "7 dagen gratis, geen kaart nodig. Als het je gewoonte niet verandert, kun je annuleren zonder stress. — Gonzalo 🙌",
+      },
+      pt: {
       lang_title: "Escolha seu idioma",
       goal_title: "Qual é o seu objetivo?",
       goal_sub: "Escolha seu foco principal",
@@ -465,7 +548,7 @@ export default function Onboarding() {
   const goalDate = () => {
     const d = new Date();
     d.setDate(d.getDate() + (formData.goal_weeks || 12) * 7);
-    return d.toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'pt' ? 'pt-BR' : 'es-ES', { month: 'short', day: 'numeric', year: 'numeric' });
+    return d.toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'nl' ? 'nl-NL' : 'es-ES', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const macros = () => {
@@ -880,12 +963,12 @@ export default function Onboarding() {
                 {[
                   { emoji: "📱", value: "tiktok", label: "TikTok" },
                   { emoji: "📸", value: "instagram", label: "Instagram" },
-                  { emoji: "🔍", value: "google", label: currentLang === 'es' ? "Google / App Store" : currentLang === 'pt' ? "Google / App Store" : "Google / App Store" },
-                  { emoji: "👥", value: "friend", label: currentLang === 'es' ? "Un amigo" : currentLang === 'pt' ? "Um amigo" : "A friend" },
-                  { emoji: "🏋️", value: "coach", label: currentLang === 'es' ? "Mi entrenador / equipo" : currentLang === 'pt' ? "Meu treinador / equipe" : "My coach / team" },
+                  { emoji: "🔍", value: "google", label: currentLang === 'es' ? "Google / App Store" : currentLang === 'nl' ? "Google / App Store" : "Google / App Store" },
+                  { emoji: "👥", value: "friend", label: currentLang === 'es' ? "Un amigo" : currentLang === 'nl' ? "Een vriend" : "A friend" },
+                  { emoji: "🏋️", value: "coach", label: currentLang === 'es' ? "Mi entrenador / equipo" : currentLang === 'nl' ? "Mijn trainer / team" : "My coach / team" },
                   { emoji: "🎙️", value: "podcast", label: "Podcast" },
-                  { emoji: "📧", value: "email", label: currentLang === 'es' ? "Email o newsletter" : currentLang === 'pt' ? "Email ou newsletter" : "Email or newsletter" },
-                  { emoji: "🌐", value: "other", label: currentLang === 'es' ? "Otro" : currentLang === 'pt' ? "Outro" : "Other" },
+                  { emoji: "📧", value: "email", label: currentLang === 'es' ? "Email o newsletter" : currentLang === 'nl' ? "E-mail of nieuwsbrief" : "Email or newsletter" },
+                  { emoji: "🌐", value: "other", label: currentLang === 'es' ? "Otro" : currentLang === 'nl' ? "Anders" : "Other" },
                 ].map((opt) => (
                   <button key={opt.value}
                     onClick={() => { setFormData(p => ({ ...p, referral_source: opt.value })); setStep(13); }}

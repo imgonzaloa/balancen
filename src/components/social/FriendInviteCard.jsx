@@ -102,7 +102,7 @@ export default function FriendInviteCard({ profile, joinedCount = 0 }) {
       {/* Friends joined counter */}
       <p className="text-white/50 text-sm text-center">
         {joinedCount > 0
-          ? `${joinedCount} ${lang === 'es' ? (joinedCount > 1 ? 'amigos' : 'amigo') : lang === 'pt' ? (joinedCount > 1 ? 'amigos' : 'amigo') : (joinedCount > 1 ? 'friends' : 'friend')} ${t('joined_with_link') || 'joined with your link'}`
+          ? `${joinedCount} ${lang === 'es' ? (joinedCount > 1 ? 'amigos' : 'amigo') : lang === 'nl' ? (joinedCount > 1 ? 'vrienden' : 'vriend') : (joinedCount > 1 ? 'friends' : 'friend')} ${t('joined_with_link') || 'joined with your link'}`
           : t('be_first_invite') || 'Be the first to invite someone!'}
       </p>
     </div>

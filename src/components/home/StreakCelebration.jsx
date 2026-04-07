@@ -28,10 +28,10 @@ const copy = {
     14: { title: "14 days! 🏆", sub: "Two whole weeks!" },
     30: { title: "30 days! 🌟", sub: "A full month. Incredible!" },
   },
-  pt: {
-    7:  { title: "7 dias seguidos! 🔥", sub: "Você é imparável!" },
-    14: { title: "14 dias! 🏆", sub: "Duas semanas de sequência!" },
-    30: { title: "30 dias! 🌟", sub: "Um mês inteiro. Incrível!" },
+  nl: {
+    7:  { title: "7 dagen op rij! 🔥", sub: "Je bent onstopbaar!" },
+    14: { title: "14 dagen! 🏆", sub: "Twee volle weken!" },
+    30: { title: "30 dagen! 🌟", sub: "Een hele maand. Ongelooflijk!" },
   },
 };
 

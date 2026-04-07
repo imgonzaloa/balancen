@@ -69,11 +69,11 @@ export default function MacroBreakdownBar({ protein, carbs, fats, lang, profile 
   const waterGoal = 8;
 
   const label = {
-    protein: lang === "pt" ? "Proteína" : lang === "en" ? "Protein" : "Proteína",
-    carbs: lang === "pt" ? "Carbos" : lang === "en" ? "Carbs" : "Carbos",
-    fats: lang === "pt" ? "Gorduras" : lang === "en" ? "Fats" : "Grasas",
-    water: lang === "pt" ? "Água" : lang === "en" ? "Water" : "Agua",
-    title: lang === "pt" ? "Macros & Hidratação" : lang === "en" ? "Macros & Hydration" : "Macros & Hidratación",
+    protein: lang === "nl" ? "Eiwit" : lang === "en" ? "Protein" : "Proteína",
+    carbs: lang === "nl" ? "Koolhydraten" : lang === "en" ? "Carbs" : "Carbohidratos",
+    fats: lang === "nl" ? "Vetten" : lang === "en" ? "Fats" : "Grasas",
+    water: lang === "nl" ? "Water" : lang === "en" ? "Water" : "Agua",
+    title: lang === "nl" ? "Macro's & Hydratatie" : lang === "en" ? "Macros & Hydration" : "Macros & Hidratación",
   };
 
   return (
