@@ -268,7 +268,10 @@ export default function Onboarding() {
       restore: "Restaurar compra",
       next: "Continuar",
       entering: "Activando…",
-      features: ['✅ Análisis de comidas con IA', '✅ Feed social — ve qué comen tus amigos y atletas', '✅ Streaks y misiones diarias', '✅ Grupos, retos y leaderboard'],
+      features: ['📸 300 análisis de comida con IA por mes', '✅ Feed social — ve qué comen tus amigos y atletas', '✅ Streaks y misiones diarias', '✅ Grupos, retos y leaderboard'],
+      power_label: "Plan Power",
+      power_price: "€12.99/mes",
+      power_monthly: "Análisis ilimitados",
       founder_title: "Hi, I'm Gonzalo 👋",
       founder_para1: "Creé Balancen porque yo mismo luché para mantener hábitos de nutrición siendo deportista. Las apps existentes eran o muy complicadas o demasiado genéricas.",
       founder_para2: "Sé honesto: cada análisis de IA tiene un costo real. El precio de Balancen está calculado para ser justo — ni demasiado caro para vos, ni insostenible para mí. Quiero construir esto a largo plazo.",
@@ -351,7 +354,10 @@ export default function Onboarding() {
       restore: "Restore purchase",
       next: "Continue",
       entering: "Activating…",
-      features: ['✅ AI-powered meal analysis', '✅ Social feed — see what friends & athletes eat', '✅ Daily streaks & missions', '✅ Groups, challenges & leaderboard'],
+      features: ['📸 300 AI meal analyses per month', '✅ Social feed — see what friends & athletes eat', '✅ Daily streaks & missions', '✅ Groups, challenges & leaderboard'],
+      power_label: "Power Plan",
+      power_price: "€12.99/month",
+      power_monthly: "Unlimited analyses",
       founder_title: "Hi, I'm Gonzalo 👋",
       founder_para1: "I built Balancen because I struggled myself to maintain nutrition habits as an athlete. Existing apps were either too complex or too generic.",
       founder_para2: "Full transparency: every AI analysis has a real cost. Balancen's price is calculated to be fair — not too expensive for you, not unsustainable for me. I want to build this for the long term.",
@@ -434,7 +440,10 @@ export default function Onboarding() {
       restore: "Aankoop herstellen",
       next: "Doorgaan",
       entering: "Activeren…",
-      features: ['✅ AI-analyse van maaltijden', '✅ Sociale feed — zie wat vrienden en sporters eten', '✅ Dagelijkse streaks en missies', '✅ Groepen, uitdagingen en ranglijst'],
+      features: ['📸 300 AI-maaltijdanalyses per maand', '✅ Sociale feed — zie wat vrienden en sporters eten', '✅ Dagelijkse streaks en missies', '✅ Groepen, uitdagingen en ranglijst'],
+      power_label: "Power-plan",
+      power_price: "€12.99/maand",
+      power_monthly: "Onbeperkte analyses",
       founder_title: "Hallo, ik ben Gonzalo 👋",
       founder_para1: "Ik heb Balancen gemaakt omdat ik zelf moeite had met voedingsgewoonten als sporter. Bestaande apps waren te complex of te generiek.",
       founder_para2: "Volledige transparantie: elke AI-analyse kost geld. Balancens prijs is fair berekend — niet te duur voor jou, niet onhoudbaar voor mij.",
@@ -1180,28 +1189,54 @@ export default function Onboarding() {
                 </button>
 
                 {/* Monthly — decoy */}
-                <button
-                  onClick={() => setSelectedPlan('monthly')}
-                  className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
-                    selectedPlan === 'monthly' ? 'border-teal-400 bg-teal-500/20' : 'border-white/10 bg-white/3 opacity-70'
-                  }`}>
-                  <div className="flex items-center justify-between">
-                    <div className="text-left">
-                      <p className="text-white font-bold">{l.monthly_label}</p>
+                  <button
+                    onClick={() => setSelectedPlan('monthly')}
+                    className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
+                      selectedPlan === 'monthly' ? 'border-teal-400 bg-teal-500/20' : 'border-white/10 bg-white/3 opacity-70'
+                    }`}>
+                    <div className="flex items-center justify-between">
+                      <div className="text-left">
+                        <p className="text-white font-bold">{l.monthly_label}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white font-bold">{l.monthly_price}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-white font-bold">{l.monthly_price}</p>
-                    </div>
-                  </div>
-                </button>
-              </div>
+                  </button>
+                </div>
 
-              {/* Features */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left space-y-2">
-                {l.features.map((f, i) => (
-                  <p key={i} className="text-white/80 text-sm">{f}</p>
-                ))}
-              </div>
+                {/* Comparison Table */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left space-y-3">
+                  <div className="text-xs font-bold text-white/60 uppercase tracking-wide mb-3">Comparación de planes</div>
+
+                  {/* Row 1: AI Analyses */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-white/80 text-sm flex-1">📸 {currentLang === 'es' ? 'Análisis IA' : currentLang === 'nl' ? 'IA-analyses' : 'AI Analyses'}</span>
+                    <span className="text-white font-bold text-sm">300/mes</span>
+                    <span className="text-teal-300 font-black text-lg">∞</span>
+                  </div>
+
+                  {/* Row 2: Social Feed */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-white/80 text-sm flex-1">📱 {currentLang === 'es' ? 'Feed Social' : currentLang === 'nl' ? 'Sociale feed' : 'Social Feed'}</span>
+                    <span className="text-teal-400">✓</span>
+                    <span className="text-teal-400">✓</span>
+                  </div>
+
+                  {/* Row 3: Groups & Challenges */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-white/80 text-sm flex-1">🏆 {currentLang === 'es' ? 'Grupos y retos' : currentLang === 'nl' ? 'Groepen & retos' : 'Groups & Challenges'}</span>
+                    <span className="text-teal-400">✓</span>
+                    <span className="text-teal-400">✓</span>
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left space-y-2">
+                  {l.features.map((f, i) => (
+                    <p key={i} className="text-white/80 text-sm">{f}</p>
+                  ))}
+                </div>
 
               {/* CTA */}
               <button
@@ -1209,6 +1244,15 @@ export default function Onboarding() {
                 disabled={saving}
                 className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-2xl shadow-teal-500/40 active:scale-95 transition-transform disabled:opacity-70">
                 {saving ? l.entering : l.cta}
+              </button>
+
+              {/* Power Plan Option */}
+              <button
+                onClick={handleActivateTrial}
+                disabled={saving}
+                className="w-full py-3 rounded-2xl border-2 border-amber-400/40 bg-amber-500/10 text-amber-300 font-bold text-sm hover:border-amber-400/60 active:scale-95 transition-all relative">
+                <span className="absolute -top-2 right-3 bg-amber-400 text-slate-900 text-xs font-black px-2 py-0.5 rounded-full">∞</span>
+                {l.power_label} — {l.power_price}
               </button>
 
               <p className="text-white/30 text-xs">{l.trial_sub}</p>
