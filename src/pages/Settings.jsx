@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
-import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity, Star, MessageSquare } from "lucide-react";
+import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity, Star, MessageSquare, BarChart3, Loader2 } from "lucide-react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -24,8 +24,40 @@ export default function Settings() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackCategory, setFeedbackCategory] = useState("suggestion");
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
-  const queryClient = useQueryClient();
-  const { changeLanguage, lang, t } = useTranslation();
+   const queryClient = useQueryClient();
+   const { changeLanguage, lang, t } = useTranslation();
+
+   // Cost analytics for owner only
+   const { data: costAnalytics, isLoading: costLoading } = useQuery({
+     queryKey: ["cost_analytics"],
+     queryFn: async () => {
+       if (profile?.role !== "owner" && user?.email?.toLowerCase() !== "imgonzaloa@gmail.com") {
+         return null;
+       }
+       // Get current month's meal logs to count AI scans
+       const now = new Date();
+       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+       const mealLogs = await base44.entities.MealLog.filter(
+         { date: { $gte: monthStart, $lte: monthEnd } },
+         "-created_date",
+         1000
+       );
+       const aiScans = mealLogs.filter(m => m.photo_url).length;
+
+       // Count premium users
+       const allProfiles = await base44.entities.UserProfile.list("-created_date", 1000);
+       const premiumUsers = allProfiles.filter(p => p.is_premium).length;
+
+       const aiCost = aiScans * 0.003; // €0.003 per scan
+       const revenueMult = premiumUsers * 4.90; // €4.90 net per premium user
+       const margin = revenueMult - aiCost;
+
+       return { aiScans, aiCost, premiumUsers, revenueMult, margin };
+     },
+     enabled: !!profile || !!user,
+   });
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -397,29 +429,83 @@ export default function Settings() {
             </Link>
 
             {/* User Management */}
-            <Link to={createPageUrl("UserManagement")}>
-              <motion.div
-                className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-all"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                      <Users size={20} className="text-purple-300" />
-                    </div>
-                    <div>
-                      <Label className="text-white font-semibold">{t('user_management')}</Label>
-                      <p className="text-xs text-white/60">{t('view_manage_users')}</p>
-                    </div>
-                  </div>
-                  <ChevronLeft size={20} className="text-white rotate-180" />
-                </div>
-              </motion.div>
-            </Link>
-          </>
-        )}
+             <Link to={createPageUrl("UserManagement")}>
+               <motion.div
+                 className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-all"
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.7 }}
+               >
+                 <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                       <Users size={20} className="text-purple-300" />
+                     </div>
+                     <div>
+                       <Label className="text-white font-semibold">{t('user_management')}</Label>
+                       <p className="text-xs text-white/60">{t('view_manage_users')}</p>
+                     </div>
+                   </div>
+                   <ChevronLeft size={20} className="text-white rotate-180" />
+                 </div>
+               </motion.div>
+             </Link>
+
+             {/* Cost Analytics */}
+             <motion.div
+               className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-gradient-to-br from-cyan-500/15 to-blue-500/15 backdrop-blur-xl border border-cyan-500/30"
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ delay: 0.75 }}
+             >
+               <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl" />
+               <div className="relative z-10">
+                 <div className="flex items-center gap-3 mb-4">
+                   <div className="w-10 h-10 rounded-xl bg-cyan-500/30 flex items-center justify-center">
+                     <BarChart3 size={20} className="text-cyan-300" />
+                   </div>
+                   <div>
+                     <Label className="text-white font-semibold">Cost Analytics</Label>
+                     <p className="text-xs text-white/60">AI costs vs. revenue</p>
+                   </div>
+                 </div>
+
+                 {costLoading ? (
+                   <div className="flex items-center justify-center py-6">
+                     <Loader2 size={18} className="text-cyan-300 animate-spin" />
+                   </div>
+                 ) : costAnalytics ? (
+                   <div className="space-y-3">
+                     <div className="grid grid-cols-2 gap-2">
+                       <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                         <p className="text-white/50 text-xs font-bold mb-1">AI Scans (Month)</p>
+                         <p className="text-cyan-300 font-black text-lg">{costAnalytics.aiScans}</p>
+                       </div>
+                       <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                         <p className="text-white/50 text-xs font-bold mb-1">AI Cost</p>
+                         <p className="text-cyan-300 font-black text-lg">€{costAnalytics.aiCost.toFixed(2)}</p>
+                       </div>
+                       <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                         <p className="text-white/50 text-xs font-bold mb-1">Premium Users</p>
+                         <p className="text-emerald-300 font-black text-lg">{costAnalytics.premiumUsers}</p>
+                       </div>
+                       <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                         <p className="text-white/50 text-xs font-bold mb-1">Revenue</p>
+                         <p className="text-emerald-300 font-black text-lg">€{costAnalytics.revenueMult.toFixed(2)}</p>
+                       </div>
+                     </div>
+                     <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-xl p-3 border border-emerald-500/30">
+                       <p className="text-white/60 text-xs font-bold mb-1">Margin</p>
+                       <p className={`font-black text-lg ${costAnalytics.margin >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                         €{costAnalytics.margin.toFixed(2)}
+                       </p>
+                     </div>
+                   </div>
+                 ) : null}
+               </div>
+             </motion.div>
+            </>
+            )}
 
 
 
