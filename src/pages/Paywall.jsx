@@ -27,8 +27,8 @@ export default function Paywall() {
   const [userStats, setUserStats] = useState(null);
 
   const { profile, user: appUser } = useAppState();
-  const { isTrialExpired, trialDaysLeft, isPremium, isEntitled, isCampusAccess, isCampusReward, isAccessExpired, accessDaysLeft, campus_consistency_percent } = useEntitlement(profile);
-  const { t } = useTranslation();
+   const { isTrialExpired, trialDaysLeft, isPremium, isEntitled, isCampusAccess, isCampusReward, isAccessExpired, accessDaysLeft, campus_consistency_percent } = useEntitlement(profile);
+   const { t, lang } = useTranslation();
   const { isNative, purchase, restore } = useIAP(appUser?.email);
 
   const isCampusExpired = isAccessExpired && (profile?.access_type === 'campus_access' || profile?.access_type === 'campus_reward' || profile?.access_type === 'expired');
@@ -36,18 +36,18 @@ export default function Paywall() {
 
   useEffect(() => {
     // Only load Stripe pricing on web
-    if (!isNative) {
-      base44.functions.invoke('getStripePublishableKey', {})
-        .then(res => setPricing(res.data))
-        .catch(() => setPricing({
-          region: 'EUR', currency: '€',
-          prices: { monthly: 6.99, yearly: 49.99 },
-          priceIds: { monthly: null, yearly: null }
-        }));
-    } else {
-      // On native, show fallback prices (RevenueCat will use store prices)
-      setPricing({ region: 'EUR', currency: '€', prices: { monthly: 6.99, yearly: 49.99 }, priceIds: {} });
-    }
+     if (!isNative) {
+       base44.functions.invoke('getStripePublishableKey', {})
+         .then(res => setPricing(res.data))
+         .catch(() => setPricing({
+           region: 'EUR', currency: '€',
+           prices: { monthly: 6.99, yearly: 49.99, power_monthly: 12.99, power_yearly: 89.99 },
+           priceIds: { monthly: null, yearly: null, power_monthly: null, power_yearly: null }
+         }));
+     } else {
+       // On native, show fallback prices (RevenueCat will use store prices)
+       setPricing({ region: 'EUR', currency: '€', prices: { monthly: 6.99, yearly: 49.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
+     }
 
     if (appUser?.email) {
       Promise.all([
@@ -94,18 +94,20 @@ export default function Paywall() {
     }
 
     // ── Web/PWA: Stripe Checkout ──
-    if (!pricing) { toast.error(t("payment_not_configured")); setLoading(false); return; }
-    try {
-      const priceId = pricing.priceIds[selectedPlan];
-      const response = await base44.functions.invoke('createCheckoutSession', { priceId, planType: selectedPlan });
-      if (!response?.data?.url) throw new Error('No checkout URL returned from server');
-      window.location.href = response.data.url;
-    } catch (error) {
-      const msg = error?.response?.data?.error || error?.message || 'Unknown error';
-      setPurchaseError(msg);
-      setLoading(false);
-    }
-  };
+     if (!pricing) { toast.error(t("payment_not_configured")); setLoading(false); return; }
+     try {
+       // Map plan names: yearly, monthly, power → priceIds keys
+       const planKey = selectedPlan.startsWith('power') ? selectedPlan : selectedPlan;
+       const priceId = pricing.priceIds[planKey];
+       const response = await base44.functions.invoke('createCheckoutSession', { priceId, planType: selectedPlan });
+       if (!response?.data?.url) throw new Error('No checkout URL returned from server');
+       window.location.href = response.data.url;
+     } catch (error) {
+       const msg = error?.response?.data?.error || error?.message || 'Unknown error';
+       setPurchaseError(msg);
+       setLoading(false);
+     }
+    };
 
   const handleRestore = async () => {
     if (!isNative) {
@@ -262,45 +264,68 @@ export default function Paywall() {
         )}
 
         {/* Plan selector */}
-        {pricing && (
-          <motion.div className="mb-6" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            {/* Annual — highlighted */}
-            <button
-              onClick={() => setSelectedPlan("yearly")}
-              className={`w-full relative rounded-2xl p-5 mb-3 border-2 transition-all text-left ${
-                selectedPlan === 'yearly'
-                  ? 'bg-gradient-to-r from-teal-500/25 to-emerald-500/25 border-teal-400 shadow-xl'
-                  : 'bg-white/5 border-white/15 hover:border-white/30'
-              }`}
-            >
-              <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">
-                {t("best_value_label")}
-              </div>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
-                <span className="text-white/50 text-sm">/ {t("year_label")}</span>
-              </div>
-              <p className="text-teal-300 text-sm font-semibold">
-                {pricing.currency}{yearlyMonthly} / {t("month_label")} — {t("save_40")}
-              </p>
-            </button>
+         {pricing && (
+           <motion.div className="mb-6" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+             {/* Annual — highlighted */}
+             <button
+               onClick={() => setSelectedPlan("yearly")}
+               className={`w-full relative rounded-2xl p-5 mb-3 border-2 transition-all text-left ${
+                 selectedPlan === 'yearly'
+                   ? 'bg-gradient-to-r from-teal-500/25 to-emerald-500/25 border-teal-400 shadow-xl'
+                   : 'bg-white/5 border-white/15 hover:border-white/30'
+               }`}
+             >
+               <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">
+                 {t("best_value_label")}
+               </div>
+               <div className="flex items-baseline gap-2 mb-1">
+                 <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
+                 <span className="text-white/50 text-sm">/ {t("year_label")}</span>
+               </div>
+               <p className="text-teal-300 text-sm font-semibold">
+                 {pricing.currency}{yearlyMonthly} / {t("month_label")} — {t("save_40")}
+               </p>
+             </button>
 
-            {/* Monthly */}
-            <button
-              onClick={() => setSelectedPlan("monthly")}
-              className={`w-full rounded-2xl p-4 border-2 transition-all text-left ${
-                selectedPlan === 'monthly'
-                  ? 'bg-white/10 border-white/40 shadow-lg'
-                  : 'bg-white/5 border-white/15 hover:border-white/30'
-              }`}
-            >
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-white">{pricing.currency}{pricing.prices.monthly}</span>
-                <span className="text-white/50 text-sm">/ {t("month_label")}</span>
-              </div>
-            </button>
-          </motion.div>
-        )}
+             {/* Monthly */}
+             <button
+               onClick={() => setSelectedPlan("monthly")}
+               className={`w-full rounded-2xl p-4 border-2 transition-all text-left mb-3 ${
+                 selectedPlan === 'monthly'
+                   ? 'bg-white/10 border-white/40 shadow-lg'
+                   : 'bg-white/5 border-white/15 hover:border-white/30'
+               }`}
+             >
+               <div className="flex items-baseline gap-2">
+                 <span className="text-2xl font-black text-white">{pricing.currency}{pricing.prices.monthly}</span>
+                 <span className="text-white/50 text-sm">/ {t("month_label")}</span>
+               </div>
+             </button>
+
+             {/* Power — Unlimited */}
+             <button
+               onClick={() => setSelectedPlan("power_yearly")}
+               className={`w-full relative rounded-2xl p-4 border-2 transition-all text-left ${
+                 selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                   ? 'bg-gradient-to-r from-amber-500/25 to-orange-500/25 border-amber-400 shadow-lg'
+                   : 'bg-white/5 border-white/15 hover:border-white/30'
+               }`}
+             >
+               <div className="absolute top-3 right-3 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">
+                 ∞ scans
+               </div>
+               <div className="flex items-baseline gap-2">
+                 <span className="text-2xl font-black text-white">
+                   {lang === 'es' ? 'Power — Ilimitado' : lang === 'pt' ? 'Power — Ilimitado' : 'Power — Unlimited'}
+                 </span>
+               </div>
+               <div className="flex items-baseline gap-2 mt-1">
+                 <span className="text-xl font-black text-amber-300">{pricing.currency}{pricing.prices.power_yearly}</span>
+                 <span className="text-white/50 text-sm">/ {t("year_label")}</span>
+               </div>
+             </button>
+           </motion.div>
+         )}
 
         {/* Features */}
         <motion.div

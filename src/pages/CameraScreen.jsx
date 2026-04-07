@@ -12,6 +12,7 @@ import CameraPermissionPrompt from "@/components/CameraPermissionPrompt";
 import AIConsentModal, { hasAIConsent } from "@/components/AIConsentModal";
 
 const FREE_DAILY_LIMIT = 5;
+const PREMIUM_MONTHLY_LIMIT = 300;
 
 // Module-level stable store so photo survives navigation/re-render
 const _captureStore = { file: null, dataUrl: null };
@@ -54,27 +55,50 @@ export default function CameraScreen() {
   const [livePreview, setLivePreview] = useState(null); // { calories, protein, carbs, fats }
   const [liveAnalyzing, setLiveAnalyzing] = useState(false);
   const [scansUsedToday, setScansUsedToday] = useState(null); // null = not yet loaded
+  const [scansUsedThisMonth, setScansUsedThisMonth] = useState(null); // null = not yet loaded
   const liveThrottleRef = useRef(null);
   const liveAbortRef = useRef(null);
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
+  const isPowerUser = profile?.plan_type === 'power' || profile?.subscription_plan === 'power';
   const todayScanKey = `balancen_ai_scans_${new Date().toISOString().split("T")[0]}`;
+  const monthScanKey = () => {
+    const now = new Date();
+    return `balancen_ai_scans_${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  };
 
-  // Load scan count for free users from localStorage
+  // Load scan counts from localStorage
   useEffect(() => {
-    if (isProfilePhotoMode || isPremium) return;
-    const stored = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
-    setScansUsedToday(stored);
-  }, [isProfilePhotoMode, isPremium, todayScanKey]);
+    if (isProfilePhotoMode) return;
+    // Daily limit for free users
+    if (!isPremium) {
+      const stored = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
+      setScansUsedToday(stored);
+    }
+    // Monthly limit for Premium users (non-Power)
+    if (isPremium && !isPowerUser) {
+      const stored = parseInt(localStorage.getItem(monthScanKey()) || "0", 10);
+      setScansUsedThisMonth(stored);
+    }
+  }, [isProfilePhotoMode, isPremium, isPowerUser, todayScanKey, monthScanKey]);
 
   const freeScansLeft = isPremium ? null : Math.max(0, FREE_DAILY_LIMIT - (scansUsedToday ?? 0));
+  const premiumScansLeft = isPremium && !isPowerUser ? Math.max(0, PREMIUM_MONTHLY_LIMIT - (scansUsedThisMonth ?? 0)) : null;
 
   const incrementScanCount = useCallback(() => {
-    if (isPremium) return;
-    const current = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
-    localStorage.setItem(todayScanKey, String(current + 1));
-    setScansUsedToday(current + 1);
-  }, [isPremium, todayScanKey]);
+    if (!isPremium) {
+      // Free user: increment daily
+      const current = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
+      localStorage.setItem(todayScanKey, String(current + 1));
+      setScansUsedToday(current + 1);
+    } else if (!isPowerUser) {
+      // Premium (non-Power) user: increment monthly
+      const monthKey = monthScanKey();
+      const current = parseInt(localStorage.getItem(monthKey) || "0", 10);
+      localStorage.setItem(monthKey, String(current + 1));
+      setScansUsedThisMonth(current + 1);
+    }
+  }, [isPremium, isPowerUser, todayScanKey, monthScanKey]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -166,9 +190,22 @@ export default function CameraScreen() {
       return;
     }
 
-    // Free user scan limit gate
-    if (!isProfilePhotoMode && !isPremium && freeScansLeft === 0) {
+    // Skip limits for profile photos and Power users
+    if (isProfilePhotoMode || isPowerUser) {
+      // No limits
+    } else if (!isPremium && freeScansLeft === 0) {
+      // Free user daily limit
       toast.error(t("ai_scans_limit"));
+      navigate(createPageUrl("Premium"));
+      return;
+    } else if (isPremium && premiumScansLeft === 0) {
+      // Premium user monthly limit
+      const limitMsg = lang === 'es' 
+        ? 'Alcanzaste tu límite de 300 análisis este mes. Upgrade a Power para ilimitado.'
+        : lang === 'pt'
+        ? 'Você atingiu seu limite de 300 análises este mês.'
+        : 'You reached your 300 analysis limit this month. Upgrade to Power for unlimited.';
+      toast.error(limitMsg);
       navigate(createPageUrl("Premium"));
       return;
     }
@@ -261,15 +298,28 @@ export default function CameraScreen() {
         toast.error(t("error_capturing"));
       }
     }
-  }, [isCapturing, videoReady, t, setCapturedFile, navigate, isPremium, freeScansLeft, isProfilePhotoMode, incrementScanCount]);
+  }, [isCapturing, videoReady, t, lang, setCapturedFile, navigate, isPremium, isPowerUser, freeScansLeft, premiumScansLeft, isProfilePhotoMode, incrementScanCount]);
 
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Free user scan limit gate for gallery uploads
-    if (!isProfilePhotoMode && !isPremium && freeScansLeft === 0) {
+    // Skip limits for profile photos and Power users
+    if (isProfilePhotoMode || isPowerUser) {
+      // No limits
+    } else if (!isPremium && freeScansLeft === 0) {
+      // Free user daily limit
       toast.error(t("ai_scans_limit"));
+      navigate(createPageUrl("Premium"));
+      return;
+    } else if (isPremium && premiumScansLeft === 0) {
+      // Premium user monthly limit
+      const limitMsg = lang === 'es' 
+        ? 'Alcanzaste tu límite de 300 análisis este mes. Upgrade a Power para ilimitado.'
+        : lang === 'pt'
+        ? 'Você atingiu seu limite de 300 análises este mês.'
+        : 'You reached your 300 analysis limit this month. Upgrade to Power for unlimited.';
+      toast.error(limitMsg);
       navigate(createPageUrl("Premium"));
       return;
     }

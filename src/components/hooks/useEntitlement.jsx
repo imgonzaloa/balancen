@@ -17,25 +17,28 @@ import { base44 } from '@/api/base44Client';
  * Owner / collaborator role → always entitled
  */
 export function useEntitlement(profile) {
-  const result = useMemo(() => {
-    if (!profile) {
-      return {
-        isPremium: false, isTrialActive: false, isEntitled: false,
-        trialDaysLeft: 0, trialDay: 0, trialEndsAt: null, isTrialExpired: false,
-        accessType: null, isCampusAccess: false, isCampusReward: false,
-        accessDaysLeft: 0, accessEndsAt: null, isAccessExpired: false,
-      };
-    }
+   const result = useMemo(() => {
+     if (!profile) {
+       return {
+         isPremium: false, isTrialActive: false, isEntitled: false, isPowerUser: false,
+         trialDaysLeft: 0, trialDay: 0, trialEndsAt: null, isTrialExpired: false,
+         accessType: null, isCampusAccess: false, isCampusReward: false,
+         accessDaysLeft: 0, accessEndsAt: null, isAccessExpired: false,
+       };
+     }
 
-    // Owner / collaborator always entitled
-    if (profile.role === 'owner' || profile.role === 'collaborator') {
-      return {
-        isPremium: true, isTrialActive: false, isEntitled: true,
-        trialDaysLeft: 0, trialDay: 0, trialEndsAt: null, isTrialExpired: false,
-        accessType: null, isCampusAccess: false, isCampusReward: false,
-        accessDaysLeft: 0, accessEndsAt: null, isAccessExpired: false,
-      };
-    }
+     // Check Power tier
+     const isPowerUser = profile?.plan_type === 'power' || profile?.subscription_plan === 'power';
+
+     // Owner / collaborator always entitled
+     if (profile.role === 'owner' || profile.role === 'collaborator') {
+       return {
+         isPremium: true, isTrialActive: false, isEntitled: true, isPowerUser,
+         trialDaysLeft: 0, trialDay: 0, trialEndsAt: null, isTrialExpired: false,
+         accessType: null, isCampusAccess: false, isCampusReward: false,
+         accessDaysLeft: 0, accessEndsAt: null, isAccessExpired: false,
+       };
+     }
 
     const now = new Date();
     const accessType = profile.access_type || null;
@@ -56,15 +59,15 @@ export function useEntitlement(profile) {
         : 0;
 
       const isEntitled = isActiveAccess && (isCampusAccess || isCampusReward || isPremiumActive);
-      const isPremium = isPremiumActive;
+       const isPremium = isPremiumActive;
 
-      return {
-        isPremium, isTrialActive: false, isEntitled,
-        trialDaysLeft: 0, trialDay: 0, trialEndsAt: null, isTrialExpired: false,
-        accessType, isCampusAccess, isCampusReward,
-        accessDaysLeft, accessEndsAt, isAccessExpired,
-      };
-    }
+       return {
+         isPremium, isTrialActive: false, isEntitled, isPowerUser,
+         trialDaysLeft: 0, trialDay: 0, trialEndsAt: null, isTrialExpired: false,
+         accessType, isCampusAccess, isCampusReward,
+         accessDaysLeft, accessEndsAt, isAccessExpired,
+       };
+      }
 
     // ── Legacy trial flow ───────────────────────────────────────────────────
     const subscriptionStatus = profile.subscription_status;
@@ -102,20 +105,22 @@ export function useEntitlement(profile) {
     const isEntitled = isPremium || isTrialActive;
 
     return {
-      isPremium, isTrialActive, isEntitled,
+      isPremium, isTrialActive, isEntitled, isPowerUser,
       trialDaysLeft, trialDay, trialEndsAt, isTrialExpired,
       accessType: null, isCampusAccess: false, isCampusReward: false,
       accessDaysLeft: 0, accessEndsAt: null, isAccessExpired: false,
     };
-  }, [
-    profile?.is_premium,
-    profile?.role,
-    profile?.trial_start_date,
-    profile?.trial_end_date,
-    profile?.subscription_status,
-    profile?.access_type,
-    profile?.access_end_date,
-  ]);
+    }, [
+     profile?.is_premium,
+     profile?.role,
+     profile?.trial_start_date,
+     profile?.trial_end_date,
+     profile?.subscription_status,
+     profile?.access_type,
+     profile?.access_end_date,
+     profile?.plan_type,
+     profile?.subscription_plan,
+    ]);
 
   // Side-effect: mark legacy trial as expired when time runs out
   useEffect(() => {
