@@ -368,7 +368,7 @@ export default function ProgressPhotos() {
                     queryClient.invalidateQueries({ queryKey: ['bodyPhotos'] });
                     setLightboxPhoto(null);
                   } catch {
-                    toast.error(lang === 'es' ? 'Error al eliminar foto' : lang === 'nl' ? 'Fout bij verwijderen van foto' : 'Error deleting photo');
+                    toast.error(lang === 'es' ? 'Error al eliminar foto' : lang === 'nl' ? 'Fout bij verwijderen foto' : 'Error deleting photo');
                   }
                 }}
                 className="mt-4 flex items-center justify-center gap-2 mx-auto px-5 py-2.5 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 font-semibold text-sm hover:bg-red-500/30 transition-colors"
