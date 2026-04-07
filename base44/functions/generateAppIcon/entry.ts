@@ -1,7 +1,9 @@
-import { base44 } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
+    const base44 = createClientFromRequest(req);
+
     // Generate the app icon (B on deep black)
     const iconPrompt = `
 Create a professional app launcher icon with:
@@ -15,7 +17,7 @@ Create a professional app launcher icon with:
 - Must look strong and professional on iPhone home screen
 `;
 
-    const response = await base44.integrations.Core.GenerateImage({
+    const response = await base44.asServiceRole.integrations.Core.GenerateImage({
       prompt: iconPrompt
     });
 
