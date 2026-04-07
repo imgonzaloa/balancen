@@ -15,10 +15,8 @@ Deno.serve(async (req) => {
     const today = local.toISOString().split("T")[0];
     
     // Get today's check-in
-    const checkIns = await base44.entities.DailyCheckIn.filter({
-      created_by: user.email,
-      date: today
-    });
+    const allCheckIns = await base44.entities.DailyCheckIn.filter({ created_by: user.email }, '-date', 5);
+    const checkIns = allCheckIns.filter(c => c.date === today);
 
     const isNewCheckIn = !checkIns[0];
     let checkIn = checkIns[0];
@@ -84,11 +82,8 @@ Deno.serve(async (req) => {
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = new Date(Date.now() - offsetMs - 86400000).toISOString().split("T")[0];
 
-      const yesterdayCheckIns = await base44.entities.DailyCheckIn.filter({
-        created_by: user.email,
-        date: yesterdayStr,
-        completed: true
-      });
+      const recentCheckIns = await base44.entities.DailyCheckIn.filter({ created_by: user.email }, '-date', 3);
+      const yesterdayCheckIns = recentCheckIns.filter(c => c.date === yesterdayStr && c.completed);
 
       const hadYesterdayCheckIn = yesterdayCheckIns.length > 0;
       const newStreak = hadYesterdayCheckIn ? (profile.current_streak || 0) + 1 : 1;
