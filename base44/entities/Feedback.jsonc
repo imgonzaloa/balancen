@@ -1,0 +1,41 @@
+{
+  "name": "Feedback",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user submitting feedback"
+    },
+    "rating": {
+      "type": "number",
+      "description": "Star rating from 1 to 5"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "bug",
+        "suggestion",
+        "praise"
+      ],
+      "description": "Feedback category"
+    },
+    "message": {
+      "type": "string",
+      "description": "Written feedback message"
+    },
+    "lang": {
+      "type": "string",
+      "description": "User's language at time of submission"
+    },
+    "app_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "App version"
+    }
+  },
+  "required": [
+    "user_email",
+    "rating",
+    "category"
+  ]
+}

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
-import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity } from "lucide-react";
+import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity, Star, MessageSquare } from "lucide-react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -20,6 +20,10 @@ export default function Settings() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAIDisclaimer, setShowAIDisclaimer] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackCategory, setFeedbackCategory] = useState("suggestion");
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const queryClient = useQueryClient();
   const { changeLanguage, lang, t } = useTranslation();
 
@@ -488,6 +492,106 @@ export default function Settings() {
              </div>
            </div>
          </motion.div>
+
+        {/* Feedback Section */}
+        <motion.div
+          className="mt-8 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.72 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <MessageSquare size={18} className="text-teal-300" />
+            <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
+              {{ es: 'Tu opinión', en: 'Your feedback', pt: 'Sua opinião' }[lang] || 'Your feedback'}
+            </h2>
+          </div>
+
+          <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl p-5 space-y-4">
+            {/* Star rating */}
+            <div>
+              <p className="text-white/60 text-xs font-semibold mb-3">
+                {{ es: '¿Cómo calificarías Balancen?', en: 'How would you rate Balancen?', pt: 'Como você avaliaria o Balancen?' }[lang]}
+              </p>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setFeedbackRating(star)}
+                    className="transition-transform active:scale-90"
+                  >
+                    <Star
+                      size={32}
+                      className={star <= feedbackRating ? "text-amber-400 fill-amber-400" : "text-white/20"}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Category pills */}
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { value: 'bug', label: { es: 'Bug', en: 'Bug', pt: 'Bug' } },
+                { value: 'suggestion', label: { es: 'Sugerencia', en: 'Suggestion', pt: 'Sugestão' } },
+                { value: 'praise', label: { es: 'Elogio', en: 'Praise', pt: 'Elogio' } },
+              ].map((cat) => (
+                <button
+                  key={cat.value}
+                  onClick={() => setFeedbackCategory(cat.value)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+                    feedbackCategory === cat.value
+                      ? 'bg-teal-500 border-teal-400 text-white'
+                      : 'bg-white/5 border-white/20 text-white/60 hover:bg-white/10'
+                  }`}
+                >
+                  {cat.label[lang] || cat.label.en}
+                </button>
+              ))}
+            </div>
+
+            {/* Textarea */}
+            <div>
+              <textarea
+                value={feedbackMessage}
+                onChange={(e) => setFeedbackMessage(e.target.value.slice(0, 500))}
+                placeholder={{ es: 'Contanos qué mejorarías o qué te encanta de Balancen...', en: 'Tell us what you\'d improve or love about Balancen...', pt: 'Conte-nos o que melhoraria ou ama no Balancen...' }[lang]}
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/30 text-sm focus:border-teal-400 focus:outline-none resize-none"
+              />
+              <p className="text-white/30 text-xs text-right mt-1">{feedbackMessage.length}/500</p>
+            </div>
+
+            {/* Submit button */}
+            <Button
+              disabled={feedbackRating === 0 && feedbackMessage.trim() === "" || feedbackSubmitting}
+              onClick={async () => {
+                setFeedbackSubmitting(true);
+                try {
+                  await base44.entities.Feedback.create({
+                    user_email: user?.email || "",
+                    rating: feedbackRating,
+                    category: feedbackCategory,
+                    message: feedbackMessage.trim(),
+                    lang,
+                    app_version: "1.0.0",
+                  });
+                  toast.success({ es: '¡Gracias por tu feedback!', en: 'Thanks for your feedback!', pt: 'Obrigado pelo seu feedback!' }[lang]);
+                  setFeedbackRating(0);
+                  setFeedbackMessage("");
+                  setFeedbackCategory("suggestion");
+                } catch (err) {
+                  toast.error(lang === 'es' ? 'Error al enviar' : lang === 'pt' ? 'Erro ao enviar' : 'Error sending feedback');
+                } finally {
+                  setFeedbackSubmitting(false);
+                }
+              }}
+              className="w-full h-12 rounded-2xl bg-teal-500 hover:bg-teal-600 text-white font-semibold disabled:opacity-40 transition-all"
+            >
+              {{ es: 'Enviar feedback', en: 'Send feedback', pt: 'Enviar feedback' }[lang]}
+            </Button>
+          </div>
+        </motion.div>
 
          {/* Legal & Support Section */}
         <motion.div
