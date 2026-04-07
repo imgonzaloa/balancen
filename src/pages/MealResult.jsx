@@ -15,6 +15,66 @@ import SharePrompt from "@/components/meal/SharePrompt";
 import { addToQueue } from "@/lib/offlineQueue";
 
 const FREE_DAILY_LIMIT = 5;
+const MEAL_CACHE_KEY = 'balancen_meal_cache';
+const CACHE_MAX_ENTRIES = 20;
+const CACHE_TIME_WINDOW = 10 * 60 * 1000; // 10 minutes
+const FILE_SIZE_TOLERANCE = 0.05; // 5%
+
+// Generate cache key from file size and timestamp (rounded to nearest 10 min)
+const generateCacheKey = (fileSize) => {
+  const now = Date.now();
+  const roundedTime = Math.round(now / (10 * 60 * 1000)) * (10 * 60 * 1000);
+  return `${fileSize}_${roundedTime}`;
+};
+
+// Load cache from localStorage
+const loadCache = () => {
+  try {
+    const cached = localStorage.getItem(MEAL_CACHE_KEY);
+    return cached ? JSON.parse(cached) : [];
+  } catch (_) {
+    return [];
+  }
+};
+
+// Save cache to localStorage
+const saveCache = (entries) => {
+  try {
+    localStorage.setItem(MEAL_CACHE_KEY, JSON.stringify(entries.slice(0, CACHE_MAX_ENTRIES)));
+  } catch (_) {}
+};
+
+// Check if file size is within tolerance
+const isFileSizeMatch = (size1, size2) => {
+  const diff = Math.abs(size1 - size2);
+  const tolerance = size1 * FILE_SIZE_TOLERANCE;
+  return diff <= tolerance;
+};
+
+// Find cached result for similar meal
+const findCachedResult = (fileSize) => {
+  const cache = loadCache();
+  const now = Date.now();
+  
+  for (const entry of cache) {
+    const timeDiff = now - entry.timestamp;
+    if (timeDiff > CACHE_TIME_WINDOW) continue;
+    if (!isFileSizeMatch(fileSize, entry.fileSize)) continue;
+    return entry.result;
+  }
+  return null;
+};
+
+// Add result to cache
+const addToCache = (fileSize, result) => {
+  const cache = loadCache();
+  cache.unshift({
+    fileSize,
+    timestamp: Date.now(),
+    result
+  });
+  saveCache(cache);
+};
 
 // Progress steps for analysis loader
 const ANALYSIS_STEPS = [
@@ -291,8 +351,9 @@ export default function MealResult() {
   const [confidence, setConfidence] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const [saving, setSaving] = useState(false);
-  const hasRun = useRef(false);
-  const mountedRef = useRef(true);
+   const [fromCache, setFromCache] = useState(false);
+   const hasRun = useRef(false);
+   const mountedRef = useRef(true);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -385,7 +446,9 @@ export default function MealResult() {
       await advanceStep(1); // reading_photo
       await advanceStep(2); // identifying_foods
 
-      const analysis = await base44.integrations.Core.InvokeLLM({
+      // Check cache before calling AI
+      const cachedResult = findCachedResult(file.size);
+      const analysis = cachedResult || await base44.integrations.Core.InvokeLLM({
         prompt: `You are a professional nutritionist. Analyze this food photo precisely. Return a JSON with: items (array of each food with name, calories, protein, carbs, fats as numbers, portion as descriptive string), total_calories, total_protein, total_carbs, total_fats (all numbers), health_score (0-100), confidence (0-100 integer). Be accurate and realistic. If you cannot detect any food, set confidence to 0 and items to empty array.`,
         file_urls: [file_url],
         response_json_schema: {
@@ -413,9 +476,16 @@ export default function MealResult() {
             confidence: { type: "number" }
           }
         }
-      });
+        });
 
-      await advanceStep(3); // calculating_nutrition
+        // Save to cache if not from cache
+        if (!cachedResult) {
+        addToCache(file.size, analysis);
+        } else {
+        setFromCache(true);
+        }
+
+        await advanceStep(3); // calculating_nutrition
       await advanceStep(4); // finalizing
 
       const conf = Math.round(analysis.confidence ?? 0);
@@ -446,7 +516,7 @@ export default function MealResult() {
       });
       setConfidence(conf);
       setPhase("review");
-      console.log("✅ ANALYZE_OK", { items: items.length, calories: analysis.total_calories, confidence: conf });
+      console.log("✅ ANALYZE_OK", { items: items.length, calories: analysis.total_calories, confidence: conf, fromCache: cachedResult ? true : false });
 
       if (navigator.vibrate) navigator.vibrate(40);
     } catch (err) {
@@ -807,11 +877,18 @@ export default function MealResult() {
           <X size={20} />
         </button>
         <div className="text-center">
-          <h2 className="text-white font-black text-base">{t("review_meal")}</h2>
-          <p className={`text-xs font-bold ${confidenceColor}`}>
-            {confidence}% {t("confidence")}
-          </p>
-        </div>
+           <h2 className="text-white font-black text-base">{t("review_meal")}</h2>
+           <div className="flex items-center justify-center gap-2">
+             <p className={`text-xs font-bold ${confidenceColor}`}>
+               {confidence}% {t("confidence")}
+             </p>
+             {fromCache && (
+               <span className="text-xs font-semibold text-teal-300 bg-teal-500/20 px-2 py-0.5 rounded-full">
+                 {lang === 'es' ? 'Desde caché' : lang === 'pt' ? 'Do cache' : 'From cache'}
+               </span>
+             )}
+           </div>
+         </div>
         <div className="w-9" />
       </div>
 
