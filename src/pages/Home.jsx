@@ -59,7 +59,7 @@ const Home = React.memo(() => {
       setContextProfile(updated);
       setEditingStatus(false);
     } catch {
-      toast.error(lang === 'es' ? 'Error al guardar estado' : lang === 'pt' ? 'Erro ao salvar status' : 'Error saving status');
+      toast.error(lang === 'es' ? 'Error al guardar estado' : lang === 'nl' ? 'Fout bij opslaan status' : 'Error saving status');
       setEditingStatus(false);
     }
   };
