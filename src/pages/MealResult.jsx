@@ -852,6 +852,8 @@ export default function MealResult() {
                 fats: savedTotals?.fats || 0,
               },
             });
+            // Mark that user shared a meal today
+            localStorage.setItem('balancen_shared_today_' + getLocalDateKey(), '1');
             toast.success(lang === 'es' ? '¡Compartido en tu feed!' : lang === 'nl' ? 'Gedeeld in je feed!' : 'Shared to your feed!');
           } catch (err) {
             console.error("Share failed:", err);

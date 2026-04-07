@@ -50,6 +50,14 @@ function getTodayWaterKey() {
   return `balancen_water_today_${y}-${m}-${day}`;
 }
 
+function getTodaySharedKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `balancen_shared_today_${y}-${m}-${day}`;
+}
+
 function CheckIcon({ done }) {
   return (
     <motion.div
@@ -106,6 +114,15 @@ export default function DailyMissionsPanel({ lang = "es", mealCount, caloriesPro
     return () => clearInterval(id);
   }, []);
 
+  // Check if user shared a meal today
+  const hasSharedToday = () => {
+    try {
+      return localStorage.getItem(getTodaySharedKey()) === '1';
+    } catch {
+      return false;
+    }
+  };
+
   // Check if user has a post from today
   const { data: todayPosts = [] } = useQuery({
     queryKey: ["todayPosts", userEmail, today],
@@ -125,7 +142,7 @@ export default function DailyMissionsPanel({ lang = "es", mealCount, caloriesPro
     { label: l.missions[0], done: mealCount >= 1, nav: "CameraScreen" },
     { label: l.missions[1], done: caloriesProgress >= 80 && caloriesProgress <= 120, nav: "Progress" },
     { label: l.missions[2], done: mealCount >= 3, nav: "CameraScreen" },
-    { label: l.missions[3], done: todayPosts.length >= 1, nav: "Social" },
+    { label: l.missions[3], done: hasSharedToday(), nav: "Social" },
     { label: l.missions[4], done: waterGlasses >= 8, nav: null },
   ];
 
