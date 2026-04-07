@@ -46,7 +46,7 @@ export function AppStateProvider({ children }) {
           const normalizedEmail = currentUser.email.toLowerCase().trim();
           if (normalizedEmail === "imgonzaloa@gmail.com") {
             try {
-              const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email }, '-created_date', 10);
+              const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
               if (profiles[0] && profiles[0].role !== "owner") {
                 await base44.entities.UserProfile.update(profiles[0].id, {
                   role: "owner",
@@ -62,7 +62,7 @@ export function AppStateProvider({ children }) {
             const allowlist = await base44.entities.CampusAdminAllowlist.list();
             const isAdmin = allowlist.some(a => a.email === normalizedEmail && a.status === "active");
             if (isAdmin) {
-              const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email }, '-created_date', 10);
+              const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
               const userProfile = profiles[0];
               if (userProfile && userProfile.role !== "owner" && userProfile.role !== "campus_admin") {
                 await base44.entities.UserProfile.update(userProfile.id, {
@@ -110,7 +110,7 @@ export function AppStateProvider({ children }) {
     const fetchProfile = async () => {
        try {
          const profiles = await withTimeout(
-           base44.entities.UserProfile.filter({ created_by: user.email }, '-created_date', 10),
+           base44.entities.UserProfile.filter({ created_by: user.email }),
            4000,
            'PROFILE_TIMEOUT'
          );
@@ -137,7 +137,7 @@ export function AppStateProvider({ children }) {
   const refreshProfile = useCallback(async () => {
      if (!user?.email) return;
      try {
-       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email }, '-created_date', 10);
+       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
        const p = profiles[0] || null;
        setProfile(p);
        const photo = p?.profile_photo || p?.avatar_url;
@@ -153,7 +153,7 @@ export function AppStateProvider({ children }) {
   const refreshFriends = useCallback(async () => {
      if (!user?.email) return;
      try {
-       const friendsList = await base44.entities.Friend.filter({ created_by: user.email }, '-created_date', 100);
+       const friendsList = await base44.entities.Friend.filter({ created_by: user.email });
        setFriends(friendsList);
      } catch (err) {
        console.error('[AppState] refreshFriends error:', err.message);
