@@ -103,7 +103,6 @@ export default function CameraScreen() {
 
   useEffect(() => {
     mountedRef.current = true;
-    console.log("📷 CAMERA_OPEN");
     initCamera();
     return () => {
       mountedRef.current = false;
@@ -156,7 +155,6 @@ export default function CameraScreen() {
         }
 
         setVideoReady(true);
-        console.log("📷 CAMERA_READY", { w: videoRef.current.videoWidth, h: videoRef.current.videoHeight });
       }
     } catch (err) {
       console.error("Camera error:", err);
@@ -186,8 +184,7 @@ export default function CameraScreen() {
   const capturePhoto = useCallback(async () => {
     if (isCapturing) return;
     if (!videoRef.current || !videoReady || videoRef.current.videoWidth === 0) {
-      console.error("❌ CAMERA_NOT_READY");
-      toast.error(t("camera_not_ready"));
+       toast.error(t("camera_not_ready"));
       return;
     }
 
@@ -236,7 +233,6 @@ export default function CameraScreen() {
       );
 
       if (!blob || blob.size === 0) {
-        console.warn("⚠️ PHOTO_CAPTURE_RETRY - using dataURL fallback");
         const dataUrlFallback = canvas.toDataURL("image/jpeg", 0.82);
         const res = await fetch(dataUrlFallback);
         blob = await res.blob();
@@ -249,8 +245,6 @@ export default function CameraScreen() {
 
       // Create a stable blob URL for <img> preview — won't disappear on re-render
       blobUrl = URL.createObjectURL(blob);
-
-      console.log("✅ CAPTURE_OK", { size: file.size, dims: `${canvas.width}x${canvas.height}` });
 
       // Show preview BEFORE stopping camera — prevents any blank flash
       if (mountedRef.current) setCapturedPreview(blobUrl);
@@ -267,13 +261,11 @@ export default function CameraScreen() {
       if (!mountedRef.current) return;
 
       if (isProfilePhotoMode) {
-        console.log("🚀 PROFILE_PHOTO_SAVE");
         await saveProfilePhoto(file, dataUrl);
         return;
       }
 
       if (isProgressPhotoMode) {
-        console.log("🚀 PROGRESS_PHOTO_CAPTURE");
         sessionStorage.setItem("progressPhoto_pending", JSON.stringify({ dataUrl }));
         localStorage.removeItem('CAMERA_MODE');
         stopCamera();
@@ -284,11 +276,9 @@ export default function CameraScreen() {
       // Write to context + sessionStorage (meal flow)
       setCapturedFile(file, dataUrl);
       incrementScanCount();
-      console.log("🚀 NAVIGATE_RESULT");
       navigate(createPageUrl("PreviewScreen"), { replace: false });
 
     } catch (err) {
-      console.error("❌ CAPTURE_ERROR:", err);
       if (mountedRef.current) {
         // If we at least have the blob URL, keep showing it with an error
         if (!blobUrl) {
@@ -323,11 +313,9 @@ export default function CameraScreen() {
       toast.error(limitMsg);
       navigate(createPageUrl("Premium"));
       return;
-    }
+      }
 
-    console.log("📁 FILE_SELECTED_FROM_GALLERY", { size: selectedFile.size });
-
-    const reader = new FileReader();
+      const reader = new FileReader();
     reader.onload = async (event) => {
       const dataUrl = event.target.result;
       if (mountedRef.current) setCapturedPreview(dataUrl);
@@ -335,7 +323,6 @@ export default function CameraScreen() {
       _captureStore.dataUrl = dataUrl;
 
       if (isProfilePhotoMode) {
-        console.log("🚀 PROFILE_PHOTO_SAVE (gallery fallback)");
         await saveProfilePhoto(selectedFile, dataUrl);
         return;
       }
@@ -351,7 +338,6 @@ export default function CameraScreen() {
       setCapturedFile(selectedFile, dataUrl);
       incrementScanCount();
       stopCamera();
-      console.log("🚀 NAVIGATE_RESULT (gallery)");
       navigate(createPageUrl("PreviewScreen"), { replace: false });
     };
     reader.onerror = () => toast.error(t("error_capturing"));
@@ -450,7 +436,6 @@ export default function CameraScreen() {
         toast.success(t('photo_updated') || 'Profile photo updated');
       }
     } catch (err) {
-      console.error('Profile photo save failed:', err);
       toast.error(t('upload_failed') || 'Upload failed');
     } finally {
       localStorage.removeItem('CAMERA_MODE');

@@ -105,9 +105,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   const { t, lang, changeLanguage } = useTranslation();
 
   // STABILITY: confirm root layout mounts only once
-  React.useEffect(() => {
-    console.log('ROOT MOUNT');
-  }, []);
+
 
   // Offline sync: process queue when connection is restored
   React.useEffect(() => {
@@ -157,10 +155,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
 
   const location = useLocation();
 
-  // Log every route change
-  React.useEffect(() => {
-    console.log('ROUTE CHANGE', location.pathname);
-  }, [location.pathname]);
+
 
   const navItems = React.useMemo(() => getNavItems(t), [t]);
   const hideNav = noNavPages.includes(currentPageName);
