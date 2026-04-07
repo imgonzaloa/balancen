@@ -166,8 +166,8 @@ export default function Social() {
               <Trophy size={20} className="text-white" />
             </div>
             <div className="text-left flex-1">
-              <h3 className="text-white font-bold">{lang === 'es' ? 'Retos' : lang === 'pt' ? 'Desafios' : 'Challenges'}</h3>
-              <p className="text-amber-200 text-xs">{lang === 'es' ? 'Únete a retos grupales o individuales' : lang === 'pt' ? 'Entre em desafios em grupo ou individuais' : 'Join group or solo challenges'}</p>
+              <h3 className="text-white font-bold">{lang === 'es' ? 'Retos' : lang === 'nl' ? 'Uitdagingen' : 'Challenges'}</h3>
+                <p className="text-amber-200 text-xs">{lang === 'es' ? 'Únete a retos grupales o individuales' : lang === 'nl' ? 'Doe mee aan groeps- of individuele uitdagingen' : 'Join group or solo challenges'}</p>
             </div>
             <Plus size={20} className="text-amber-300" />
           </button>
@@ -182,8 +182,8 @@ export default function Social() {
                 <Share2 size={20} className="text-white" />
               </div>
               <div className="text-left flex-1">
-                <h3 className="text-white font-bold">{lang === 'es' ? 'Compartir Resumen' : lang === 'pt' ? 'Compartilhar Resumo' : 'Share Summary'}</h3>
-                <p className="text-purple-200 text-xs">{lang === 'es' ? 'Comparte tus stats de hoy o de la semana' : lang === 'pt' ? 'Compartilhe suas stats de hoje ou da semana' : "Share today's or weekly stats"}</p>
+                <h3 className="text-white font-bold">{lang === 'es' ? 'Compartir Resumen' : lang === 'nl' ? 'Samenvatting Delen' : 'Share Summary'}</h3>
+                <p className="text-purple-200 text-xs">{lang === 'es' ? 'Comparte tus stats de hoy o de la semana' : lang === 'nl' ? 'Deel je stats van vandaag of van deze week' : "Share today's or weekly stats"}</p>
               </div>
             </button>
           )}
