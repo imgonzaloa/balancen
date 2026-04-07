@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import GlobalHeader from "@/components/GlobalHeader";
 import PullToRefresh from "@/components/PullToRefresh";
 import EmptyState from "@/components/ui/EmptyState";
+import { getLocalDateKey } from "@/lib/utils";
 
 export default function Progress() {
   // ✅ Use global AppState - no duplicate auth/profile fetch on every tab visit
@@ -21,11 +22,11 @@ export default function Progress() {
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateKey();
   const last7Days = useMemo(() => Array.from({ length: 7 }).map((_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    return d.toISOString().split("T")[0];
+    return getLocalDateKey(d);
   }), []);
 
   const { data: todayMeals = [] } = useQuery({

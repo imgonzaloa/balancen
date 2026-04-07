@@ -8,6 +8,7 @@ import { createPageUrl } from "@/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, ChevronLeft, X, Lock, Sparkles, GitCompare, Grid, Upload, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getLocalDateKey } from "@/lib/utils";
 import { toast } from "sonner";
 
 const T = {
@@ -48,7 +49,7 @@ export default function ProgressPhotos() {
   const [pendingFile, setPendingFile] = useState(null); // { file, dataUrl }
   const [formWeight, setFormWeight] = useState("");
   const [formNote, setFormNote] = useState("");
-  const [formDate, setFormDate] = useState(new Date().toISOString().split("T")[0]);
+  const [formDate, setFormDate] = useState(getLocalDateKey());
   const [saving, setSaving] = useState(false);
 
   // View state
@@ -89,7 +90,7 @@ export default function ProgressPhotos() {
       setPendingFile(null);
       setFormWeight("");
       setFormNote("");
-      setFormDate(new Date().toISOString().split("T")[0]);
+      setFormDate(getLocalDateKey());
       toast.success(tx("save", lang) + "!");
     },
     onError: () => toast.error(lang === 'es' ? 'Error al guardar foto' : lang === 'pt' ? 'Erro ao salvar foto' : 'Error saving photo'),

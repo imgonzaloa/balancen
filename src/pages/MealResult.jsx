@@ -10,6 +10,7 @@ import { useMealsStore } from "@/components/MealsStore";
 import { useAppState } from "@/components/AppStateContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
+import { getLocalDateKey } from "@/lib/utils";
 import SharePrompt from "@/components/meal/SharePrompt";
 
 const FREE_DAILY_LIMIT = 5;
@@ -274,7 +275,7 @@ export default function MealResult() {
   const navigate = useNavigate();
   const { capturedFile, previewUrl, resetMeal } = useMeal();
   const { addMeal, updateMealId, formatLocalDateKey } = useMealsStore();
-  const { profile } = useAppState();
+  const { profile, user } = useAppState();
   const queryClient = useQueryClient();
 
   const [phase, setPhase] = useState("analyzing"); // analyzing | review | saving | error | manual | share
@@ -338,7 +339,7 @@ export default function MealResult() {
     const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
     if (!isPremium && profile) {
       try {
-        const today = new Date().toISOString().split("T")[0];
+        const today = getLocalDateKey();
         const todayMealLogs = await base44.entities.MealLog.filter({ date: today, created_by: user?.email });
         const aiScans = todayMealLogs.filter(m => m.photo_url);
         if (aiScans.length >= FREE_DAILY_LIMIT) {

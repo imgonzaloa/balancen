@@ -10,7 +10,9 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const today = new Date().toISOString().split("T")[0];
+    const offsetMs = new Date().getTimezoneOffset() * 60000;
+    const local = new Date(Date.now() - offsetMs);
+    const today = local.toISOString().split("T")[0];
     
     // Get today's check-in
     const checkIns = await base44.entities.DailyCheckIn.filter({
@@ -80,7 +82,7 @@ Deno.serve(async (req) => {
       // Streak calculation — only on first check-in of the day
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
+      const yesterdayStr = new Date(Date.now() - offsetMs - 86400000).toISOString().split("T")[0];
 
       const yesterdayCheckIns = await base44.entities.DailyCheckIn.filter({
         created_by: user.email,

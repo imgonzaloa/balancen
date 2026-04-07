@@ -8,6 +8,7 @@ import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { formatDateLong, formatTime, formatNumber } from "@/lib/locale";
+import { getLocalDateKey } from "@/lib/utils";
 import { HomeSkeleton } from "@/components/ui/ScreenSkeleton";
 import StreakFire from "@/components/ui/StreakFire";
 import GlobalHeader from "@/components/GlobalHeader";
@@ -69,7 +70,7 @@ const Home = React.memo(() => {
   };
 
   // DB sync: fetch today's meals from the database
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateKey();
   const { data: dbMeals } = useQuery({
     queryKey: ['mealLogs', user?.email, today],
     queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: today }, '-meal_time'),
