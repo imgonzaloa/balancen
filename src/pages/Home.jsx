@@ -16,6 +16,7 @@ import TrialBanner from "@/components/home/TrialBanner";
 import MacroBreakdownBar from "@/components/home/MacroBreakdownBar";
 import StreakCelebration from "@/components/home/StreakCelebration";
 import DailyAIInsightCard from "@/components/home/DailyAIInsightCard";
+import DailyMissionsPanel from "@/components/home/DailyMissionsPanel";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -114,28 +115,7 @@ const Home = React.memo(() => {
     return { totalCalories, totalProtein, totalCarbs, totalFats, caloriesGoal, progress };
   }, [todayMeals, profile?.calories_goal]);
 
-  const todayMissions = useMemo(() => [
-    { 
-      id: 1, 
-      label: t('meal_logged'), 
-      completed: todayMeals.length >= 1, 
-    },
-    { 
-      id: 2, 
-      label: t('stay_within_goal'), 
-      completed: metrics.progress >= 80 && metrics.progress <= 120, 
-    },
-    { 
-      id: 3, 
-      label: t('log_three_meals'), 
-      completed: todayMeals.length >= 3, 
-    }
-  ], [todayMeals.length, metrics.progress, t]);
 
-  const completedCount = useMemo(() => 
-    todayMissions.filter(m => m.completed).length,
-    [todayMissions]
-  );
 
   const { isPremium, trialDaysLeft, trialDay, isTrialActive } = useEntitlement(profile);
 
@@ -427,13 +407,12 @@ const Home = React.memo(() => {
           />
         )}
 
-        {/* Streak & Momentum - UNLOCKED FOR BASE PLAN */}
+        {/* Streak & Momentum */}
         <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/15 backdrop-blur-xl rounded-2xl p-5 border border-amber-500/20">
           <h3 className="text-amber-300/90 text-xs font-bold uppercase tracking-wider mb-3">
             {t('streak_momentum')}
           </h3>
-          <div className="flex items-center gap-4 mb-4">
-            {/* Pulsing flame when streak > 0 */}
+          <div className="flex items-center gap-4">
             {(profile?.current_streak || 0) > 0 ? (
               <motion.div
                 animate={{ scale: [1, 1.08, 1] }}
@@ -451,7 +430,6 @@ const Home = React.memo(() => {
               <p className="text-white text-xl font-black">
                 {profile?.longest_streak || 0}
               </p>
-              {/* Milestone badges */}
               {(profile?.current_streak || 0) > 0 && (
                 <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                   {[
@@ -481,45 +459,16 @@ const Home = React.memo(() => {
               )}
             </div>
           </div>
-          
-          {/* Today's Missions - compact */}
-          <div className="pt-3 border-t border-amber-500/20">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-white/80 text-xs font-bold uppercase tracking-wide">
-                {t('todays_missions')}
-              </p>
-              <span className="text-amber-300 text-xs font-black">
-                {completedCount}/3
-              </span>
-            </div>
-            <div className="space-y-1.5">
-              {todayMissions.map((mission) => (
-                <button
-                  key={mission.id}
-                  onClick={() => {
-                    if (mission.id === 1 || mission.id === 3) {
-                      handleNavigate('CameraScreen');
-                    } else if (mission.id === 2) {
-                      handleNavigate('Progress');
-                    }
-                  }}
-                  className="flex items-center gap-2 w-full py-1 px-2 -mx-2 rounded-lg hover:bg-white/5 transition-colors active:scale-95 cursor-pointer"
-                >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                    mission.completed
-                      ? 'bg-teal-500 border-teal-400'
-                      : 'border-white/30'
-                  }`}>
-                    {mission.completed && <span className="text-white text-[10px] font-bold">✓</span>}
-                  </div>
-                  <span className={`text-xs ${mission.completed ? 'text-white/90 font-semibold' : 'text-white/50'}`}>
-                    {mission.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
+
+        {/* Daily Missions (5 missions) */}
+        <DailyMissionsPanel
+          lang={lang}
+          mealCount={todayMeals.length}
+          caloriesProgress={metrics.progress}
+          userEmail={user?.email}
+          onNavigate={handleNavigate}
+        />
 
         {/* Manual Add Meal - FREE USERS OPTION */}
         {!isPremium && (
