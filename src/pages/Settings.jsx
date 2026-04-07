@@ -48,13 +48,13 @@ export default function Settings() {
           return null;
         }
         try {
-          // Get meal logs for this month
+          // Get meal logs count for this month (no data payload)
           const now = new Date();
           const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
           const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
-          const mealLogs = await base44.entities.MealLog.filter({ date: { $gte: monthStart, $lte: monthEnd } });
-          const aiScans = mealLogs.filter(m => m.photo_url).length;
+          const mealLogs = await base44.entities.MealLog.filter({ date: { $gte: monthStart, $lte: monthEnd }, photo_url: { $exists: true } });
+          const aiScans = mealLogs.length;
 
           // Count premium users
           const allProfiles = await base44.entities.UserProfile.list("-created_date", 1000);
