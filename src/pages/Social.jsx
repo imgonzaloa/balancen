@@ -55,11 +55,12 @@ export default function Social() {
   const { data: friends = [] } = useQuery({
     queryKey: ["friends", user?.email],
     queryFn: async () => {
-      const [sent, received] = await Promise.all([
-        withTimeout(base44.entities.Friend.filter({ created_by: user?.email }), 3000).catch(() => []),
-        withTimeout(base44.entities.Friend.filter({ created_by: user?.email }), 3000).catch(() => [])
-      ]);
-      return [...sent, ...received].filter(Boolean);
+      try {
+        const friends = await withTimeout(base44.entities.Friend.filter({ created_by: user?.email }), 3000);
+        return friends || [];
+      } catch {
+        return [];
+      }
     },
     enabled: !!user?.email,
     retry: false,
@@ -244,10 +245,10 @@ export default function Social() {
           ) : (
             <div className="space-y-3">
                 {friendProfiles.slice(0, 5).map((friend, idx) => (
-                  <div
-                    key={`friend-${friend.id || idx}`}
-                   className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
-                 >
+                   <div
+                     key={`friend-${friend.created_by || idx}`}
+                    className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
+                  >
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
