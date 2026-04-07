@@ -43,7 +43,11 @@ const LABELS = {
 };
 
 function getTodayWaterKey() {
-  return `balancen_water_today_${new Date().toISOString().split("T")[0]}`;
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `balancen_water_today_${y}-${m}-${day}`;
 }
 
 function CheckIcon({ done }) {
