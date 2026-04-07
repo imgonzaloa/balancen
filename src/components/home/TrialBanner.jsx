@@ -9,7 +9,7 @@ import { createPageUrl } from "@/utils";
  */
 export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate }) {
   const isEs = lang === 'es';
-  const isPt = lang === 'pt';
+  const isNl = lang === 'nl';
 
   // Message variants by urgency
   const getMessage = () => {
@@ -19,10 +19,10 @@ export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate })
         icon: <AlertTriangle size={18} className="text-red-300 flex-shrink-0" />,
         bg: "from-red-500/20 to-orange-500/20",
         border: "border-red-400/50",
-        title: isEs ? "⚠️ Último día de tu Trial" : isPt ? "⚠️ Último dia do seu Trial" : "⚠️ Last day of your Trial",
-        sub: isEs ? "Tu acceso termina hoy. Suscríbete para no perder nada." : isPt ? "Seu acesso termina hoje. Assine para não perder nada." : "Your access ends today. Subscribe to keep everything.",
+        title: isEs ? "⚠️ Último día de tu Trial" : isNl ? "⚠️ Laatste dag van je Trial" : "⚠️ Last day of your Trial",
+        sub: isEs ? "Tu acceso termina hoy. Suscríbete para no perder nada." : isNl ? "Je toegang eindigt vandaag. Abonneer je om niets te missen." : "Your access ends today. Subscribe to keep everything.",
         btnColor: "bg-red-500 hover:bg-red-400",
-        btnText: isEs ? "Suscribirse" : isPt ? "Assinar" : "Subscribe Now",
+        btnText: isEs ? "Suscribirse" : isNl ? "Nu abonneren" : "Subscribe Now",
       };
     }
     if (trialDaysLeft === 2) {
@@ -31,10 +31,10 @@ export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate })
         icon: <Clock size={18} className="text-orange-300 flex-shrink-0" />,
         bg: "from-orange-500/20 to-amber-500/20",
         border: "border-orange-400/50",
-        title: isEs ? "⏰ Tu Trial termina mañana" : isPt ? "⏰ Trial termina amanhã" : "⏰ Your Trial ends tomorrow",
-        sub: isEs ? "Activa Premium para continuar sin interrupciones." : isPt ? "Ative o Premium para continuar sem interrupções." : "Activate Premium to continue uninterrupted.",
+        title: isEs ? "⏰ Tu Trial termina mañana" : isNl ? "⏰ Je Trial eindigt morgen" : "⏰ Your Trial ends tomorrow",
+        sub: isEs ? "Activa Premium para continuar sin interrupciones." : isNl ? "Activeer Premium voor ononderbroken gebruik." : "Activate Premium to continue uninterrupted.",
         btnColor: "bg-orange-500 hover:bg-orange-400",
-        btnText: isEs ? "Ver planes" : isPt ? "Ver planos" : "View Plans",
+        btnText: isEs ? "Ver planes" : isNl ? "Abonnementen bekijken" : "View Plans",
       };
     }
     if (trialDay >= 4 && trialDaysLeft <= 4) {
@@ -43,10 +43,10 @@ export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate })
         icon: <Sparkles size={18} className="text-amber-300 flex-shrink-0" />,
         bg: "from-amber-500/20 to-yellow-500/20",
         border: "border-amber-400/50",
-        title: isEs ? `✨ Día ${trialDay} de tu Trial de 7 días` : isPt ? `✨ Dia ${trialDay} do seu Trial de 7 dias` : `✨ Day ${trialDay} of your 7-Day Trial`,
-        sub: isEs ? "Ya llevas la mitad. ¿Te está gustando?" : isPt ? "Você já passou da metade. Está gostando?" : "You're halfway through. Enjoying it?",
+        title: isEs ? `✨ Día ${trialDay} de tu Trial de 7 días` : isNl ? `✨ Dag ${trialDay} van je 7-daagse Trial` : `✨ Day ${trialDay} of your 7-Day Trial`,
+        sub: isEs ? "Ya llevas la mitad. ¿Te está gustando?" : isNl ? "Je bent halverwege. Bevalt het je?" : "You're halfway through. Enjoying it?",
         btnColor: "bg-amber-500 hover:bg-amber-400",
-        btnText: isEs ? "Ver Premium" : isPt ? "Ver Premium" : "Go Premium",
+        btnText: isEs ? "Ver Premium" : isNl ? "Premium bekijken" : "Go Premium",
       };
     }
     // Default — days 1-3
@@ -54,10 +54,10 @@ export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate })
       icon: <Zap size={18} className="text-teal-300 flex-shrink-0" />,
       bg: "from-teal-500/20 to-emerald-500/20",
       border: "border-teal-400/50",
-      title: isEs ? `🚀 Día ${trialDay} de 7 — Trial Premium` : isPt ? `🚀 Dia ${trialDay} de 7 — Trial Premium` : `🚀 Day ${trialDay} of 7 — Premium Trial`,
-      sub: isEs ? "Acceso completo sin coste. ¡Disfrútalo!" : isPt ? "Acesso completo sem custo. Aproveite!" : "Full access, no charge. Enjoy it!",
+      title: isEs ? `🚀 Día ${trialDay} de 7 — Trial Premium` : isNl ? `🚀 Dag ${trialDay} van 7 — Premium Trial` : `🚀 Day ${trialDay} of 7 — Premium Trial`,
+      sub: isEs ? "Acceso completo sin coste. ¡Disfrútalo!" : isNl ? "Volledige toegang zonder kosten. Geniet ervan!" : "Full access, no charge. Enjoy it!",
       btnColor: "bg-teal-600 hover:bg-teal-500",
-      btnText: isEs ? "Ver planes" : isPt ? "Ver planos" : "View Plans",
+      btnText: isEs ? "Ver planes" : isNl ? "Abonnementen bekijken" : "View Plans",
     };
   };
 

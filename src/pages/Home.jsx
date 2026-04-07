@@ -199,7 +199,7 @@ const Home = React.memo(() => {
                 maxLength={60}
                 onKeyDown={e => { if (e.key === 'Enter') handleSaveStatus(); if (e.key === 'Escape') handleCancelStatus(); }}
                 className="flex-1 bg-white/10 text-white text-sm italic rounded-lg px-3 py-1.5 border border-white/20 focus:border-teal-400 focus:outline-none placeholder-white/30 min-w-0"
-                placeholder={lang === 'pt' ? 'Adicione seu status...' : lang === 'en' ? 'Add your status...' : 'Agrega tu estado...'}
+                placeholder={lang === 'nl' ? 'Voeg je status toe...' : lang === 'en' ? 'Add your status...' : 'Agrega tu estado...'}
               />
               <button onClick={handleSaveStatus} className="text-teal-400 hover:text-teal-300 active:scale-90 transition-all flex-shrink-0">
                 <Check size={16} strokeWidth={2.5} />
@@ -217,7 +217,7 @@ const Home = React.memo(() => {
                 <p className="text-white/50 text-sm italic group-hover:text-white/70 transition-colors">"{profile.status_message}"</p>
               ) : (
                 <p className="text-white/25 text-sm italic group-hover:text-white/40 transition-colors">
-                  {lang === 'pt' ? '+ Adicione seu status...' : lang === 'en' ? '+ Add your status...' : '+ Agrega tu estado...'}
+                  {lang === 'nl' ? '+ Voeg je status toe...' : lang === 'en' ? '+ Add your status...' : '+ Agrega tu estado...'}
                 </p>
               )}
               <Pencil size={11} className="text-white/30 group-hover:text-white/50 flex-shrink-0 transition-colors" />
@@ -318,7 +318,7 @@ const Home = React.memo(() => {
             className="h-16 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 hover:shadow-xl hover:shadow-purple-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           >
             <Dumbbell size={20} strokeWidth={2.5} />
-            {lang === 'es' ? 'Entreno' : lang === 'pt' ? 'Treino' : 'Workout'}
+            {lang === 'es' ? 'Entreno' : lang === 'nl' ? 'Training' : 'Workout'}
           </Button>
         </div>
 
@@ -349,10 +349,10 @@ const Home = React.memo(() => {
                   const hour = type ? null : rawHour ? new Date(rawHour).getHours() : null;
                   const derived = type || (hour !== null ? (hour >= 5 && hour < 11 ? 'breakfast' : hour >= 11 && hour < 16 ? 'lunch' : hour >= 16 && hour < 22 ? 'dinner' : 'snack') : null);
                   const labels = {
-                    breakfast: { es: 'Desayuno', pt: 'Café da manhã', en: 'Breakfast' },
-                    lunch:     { es: 'Almuerzo',  pt: 'Almoço',        en: 'Lunch' },
-                    dinner:    { es: 'Cena',       pt: 'Jantar',        en: 'Dinner' },
-                    snack:     { es: 'Snack',      pt: 'Lanche',        en: 'Snack' },
+                    breakfast: { es: 'Desayuno', nl: 'Ontbijt', en: 'Breakfast' },
+                    lunch:     { es: 'Almuerzo',  nl: 'Lunch',        en: 'Lunch' },
+                    dinner:    { es: 'Cena',       nl: 'Diner',        en: 'Dinner' },
+                    snack:     { es: 'Snack',      nl: 'Snack',        en: 'Snack' },
                   };
                   return labels[derived]?.[lang] || labels[derived]?.en || t('meal');
                 };
@@ -440,9 +440,9 @@ const Home = React.memo(() => {
               {(profile?.current_streak || 0) > 0 && (
                 <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                   {[
-                    { days: 7,  emoji: "🥉", label: { es: "7 días", en: "7 days", pt: "7 dias" } },
-                    { days: 14, emoji: "🥈", label: { es: "14 días", en: "14 days", pt: "14 dias" } },
-                    { days: 30, emoji: "🥇", label: { es: "30 días", en: "30 days", pt: "30 dias" } },
+                    { days: 7,  emoji: "🥉", label: { es: "7 días", en: "7 days", nl: "7 dagen op rij" } },
+                    { days: 14, emoji: "🥈", label: { es: "14 días", en: "14 days", nl: "14 dagen op rij" } },
+                    { days: 30, emoji: "🥇", label: { es: "30 días", en: "30 days", nl: "30 dagen op rij" } },
                   ].map((m) => {
                     const reached = (profile?.current_streak || 0) >= m.days;
                     return (

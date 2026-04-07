@@ -57,7 +57,7 @@ export default function ProgressTracker() {
 
   const weightData = snapshots
     .filter(s => s.weight)
-    .map(s => ({ date: new Date(s.date).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'pt' ? 'pt-BR' : 'en-US', { day: "2-digit", month: "short" }), weight: s.weight }))
+    .map(s => ({ date: new Date(s.date).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'nl' ? 'nl-NL' : 'en-US', { day: "2-digit", month: "short" }), weight: s.weight }))
     .reverse();
 
   const latestSnapshot = snapshots[0];
@@ -146,7 +146,7 @@ export default function ProgressTracker() {
           {snapshots.map((snapshot) => (
             <div key={snapshot.id} className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
               <div className="flex items-start justify-between mb-2">
-                <p className="text-white font-bold">{new Date(snapshot.date).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'pt' ? 'pt-BR' : 'en-US', { day: "numeric", month: "long", year: "numeric" })}</p>
+                <p className="text-white font-bold">{new Date(snapshot.date).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'nl' ? 'nl-NL' : 'en-US', { day: "numeric", month: "long", year: "numeric" })}</p>
                 <span className="text-white/60 text-xs">{snapshot.mood}</span>
               </div>
               <div className="grid grid-cols-3 gap-3 text-sm">

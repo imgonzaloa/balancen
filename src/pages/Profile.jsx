@@ -274,11 +274,11 @@ export default function Profile() {
         {profile?.display_name && (
           <button
             onClick={() => {
-              const streakText = lang === 'es' ? 'días de racha' : lang === 'pt' ? 'dias de sequência' : 'day streak';
+              const streakText = lang === 'es' ? 'días de racha' : lang === 'nl' ? 'dagen streak' : 'day streak';
               const msg = lang === 'es' 
                 ? `¡Mirá mi perfil en Balancen! 🍽️\n${profile.display_name} — ${profile.current_streak || 0} ${streakText} 🔥\n¡Únete gratis! https://balancen.app`
-                : lang === 'pt'
-                ? `Veja meu perfil no Balancen! 🍽️\n${profile.display_name} — ${profile.current_streak || 0} ${streakText} 🔥\nEntre grátis! https://balancen.app`
+                : lang === 'nl'
+                ? `Bekijk mijn Balancen-profiel! 🍽️\n${profile.display_name} — ${profile.current_streak || 0} ${streakText} 🔥\nGratis deelnemen! https://balancen.app`
                 : `Check out my Balancen profile! 🍽️\n${profile.display_name} — ${profile.current_streak || 0} ${streakText} 🔥\nJoin free! https://balancen.app`;
               if (navigator.share) {
                 navigator.share({ text: msg }).catch(() => {});
@@ -290,7 +290,7 @@ export default function Profile() {
             className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white/70 text-sm font-semibold flex items-center justify-center gap-2 hover:bg-white/20 transition-colors mb-6"
           >
             <Share2 size={16} />
-            {lang === 'es' ? 'Compartir perfil' : lang === 'pt' ? 'Compartilhar perfil' : 'Share profile'}
+            {lang === 'es' ? 'Compartir perfil' : lang === 'nl' ? 'Profiel delen' : 'Share profile'}
           </button>
         )}
 
