@@ -25,7 +25,6 @@ import TrialGate from "@/components/TrialGate";
 import BuildBadge from "@/components/BuildBadge";
 import OfflineBanner from "@/components/OfflineBanner";
 import MealMomentNotification from "@/components/MealMomentNotification";
-import { processQueue } from "@/lib/offlineQueue";
 
 
 // Global React Query client - aggressive caching to prevent rate limits and re-fetches
@@ -115,13 +114,13 @@ function LayoutInner({ children, currentPageName, bootState }) {
     const handleOnline = async () => {
       const syncMsg = lang === 'es'
         ? 'Conexión recuperada. Sincronizando...'
-        : lang === 'pt'
-        ? 'Conexão restaurada. Sincronizando...'
+        : lang === 'nl'
+        ? 'Verbinding hersteld. Synchroniseren...'
         : 'Connection restored. Syncing...';
       const doneMsg = lang === 'es'
         ? 'Todo sincronizado ✓'
-        : lang === 'pt'
-        ? 'Tudo sincronizado ✓'
+        : lang === 'nl'
+        ? 'Alles gesynchroniseerd ✓'
         : 'All synced ✓';
 
       const { processQueue } = await import('@/lib/offlineQueue');
@@ -176,7 +175,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
   React.useEffect(() => {
     if (!bootState?.isHydrated) return;
     const targetLang = bootState.language;
-    if (targetLang && targetLang !== lang && ['en', 'es', 'pt'].includes(targetLang)) {
+    if (targetLang && targetLang !== lang && ['en', 'es', 'nl'].includes(targetLang)) {
       changeLanguage(targetLang).catch(() => {});
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

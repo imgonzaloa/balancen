@@ -62,8 +62,8 @@ export function AppStateProvider({ children }) {
             const allowlist = await base44.entities.CampusAdminAllowlist.list();
             const isAdmin = allowlist.some(a => a.email === normalizedEmail && a.status === "active");
             if (isAdmin) {
-              const profiles = await base44.entities.UserProfile.list();
-              const userProfile = profiles.find(p => p.created_by === currentUser.email);
+              const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
+              const userProfile = profiles[0];
               if (userProfile && userProfile.role !== "owner" && userProfile.role !== "campus_admin") {
                 await base44.entities.UserProfile.update(userProfile.id, {
                   role: "campus_admin",
@@ -108,26 +108,26 @@ export function AppStateProvider({ children }) {
     let isMounted = true;
 
     const fetchProfile = async () => {
-      try {
-        const profiles = await withTimeout(
-          base44.entities.UserProfile.list(),
-          4000,
-          'PROFILE_TIMEOUT'
-        );
-        if (isMounted) {
-          const p = profiles.find(pr => pr.created_by === user.email) || null;
-          setProfile(p);
-          const photo = p?.profile_photo || p?.avatar_url;
-          if (photo) {
-            localStorage.setItem(AVATAR_CACHE_KEY(user.email), photo);
-            localStorage.setItem(PHOTO_CACHE_KEY(user.email), photo);
-          }
-        }
-      } catch (err) {
-        console.error('[AppState] Profile fetch error:', err.message);
-        if (isMounted) setProfile(prev => prev?.id ? prev : null);
-      }
-    };
+       try {
+         const profiles = await withTimeout(
+           base44.entities.UserProfile.filter({ created_by: user.email }),
+           4000,
+           'PROFILE_TIMEOUT'
+         );
+         if (isMounted) {
+           const p = profiles[0] || null;
+           setProfile(p);
+           const photo = p?.profile_photo || p?.avatar_url;
+           if (photo) {
+             localStorage.setItem(AVATAR_CACHE_KEY(user.email), photo);
+             localStorage.setItem(PHOTO_CACHE_KEY(user.email), photo);
+           }
+         }
+       } catch (err) {
+         console.error('[AppState] Profile fetch error:', err.message);
+         if (isMounted) setProfile(prev => prev?.id ? prev : null);
+       }
+     };
 
     fetchProfile();
     return () => { isMounted = false; };
@@ -135,30 +135,30 @@ export function AppStateProvider({ children }) {
   }, [user?.email]); // ← only run when email changes, never re-run on profile updates
 
   const refreshProfile = useCallback(async () => {
-    if (!user?.email) return;
-    try {
-      const profiles = await base44.entities.UserProfile.list();
-      const p = profiles.find(pr => pr.created_by === user.email) || null;
-      setProfile(p);
-      const photo = p?.profile_photo || p?.avatar_url;
-      if (photo) {
-        localStorage.setItem(AVATAR_CACHE_KEY(user.email), photo);
-        localStorage.setItem(PHOTO_CACHE_KEY(user.email), photo);
-      }
-    } catch (err) {
-      console.error('[AppState] refreshProfile error:', err.message);
-    }
-  }, [user?.email]);
+     if (!user?.email) return;
+     try {
+       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+       const p = profiles[0] || null;
+       setProfile(p);
+       const photo = p?.profile_photo || p?.avatar_url;
+       if (photo) {
+         localStorage.setItem(AVATAR_CACHE_KEY(user.email), photo);
+         localStorage.setItem(PHOTO_CACHE_KEY(user.email), photo);
+       }
+     } catch (err) {
+       console.error('[AppState] refreshProfile error:', err.message);
+     }
+   }, [user?.email]);
 
   const refreshFriends = useCallback(async () => {
-    if (!user?.email) return;
-    try {
-      const friendsList = await base44.entities.Friend.list();
-      setFriends(friendsList.filter(f => f.created_by === user.email));
-    } catch (err) {
-      console.error('[AppState] refreshFriends error:', err.message);
-    }
-  }, [user?.email]);
+     if (!user?.email) return;
+     try {
+       const friendsList = await base44.entities.Friend.filter({ created_by: user.email });
+       setFriends(friendsList);
+     } catch (err) {
+       console.error('[AppState] refreshFriends error:', err.message);
+     }
+   }, [user?.email]);
 
   const refreshTodayMeals = useCallback(async () => {
     if (!user?.email) return;
