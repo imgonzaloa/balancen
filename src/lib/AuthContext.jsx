@@ -100,12 +100,16 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
       
-      // If user auth fails, it might be an expired token
+      // If user auth fails, it might be an expired token or network issue
       if (error.status === 401 || error.status === 403) {
         setAuthError({
           type: 'auth_required',
           message: 'Authentication required'
         });
+      } else {
+        // Network or other error - don't show error, just mark as not authenticated
+        // This allows the app to continue loading
+        setAuthError(null);
       }
     }
   };
