@@ -1,0 +1,57 @@
+{
+  "name": "UsageSnapshot",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the snapshot (YYYY-MM-DD)"
+    },
+    "total_users": {
+      "type": "number",
+      "description": "Total registered users"
+    },
+    "premium_users": {
+      "type": "number",
+      "description": "Count of premium subscribers"
+    },
+    "power_users": {
+      "type": "number",
+      "description": "Users with 10+ scans in the past 7 days"
+    },
+    "total_scans_today": {
+      "type": "number",
+      "description": "Total meal scans/photos logged today"
+    },
+    "avg_scans_per_user": {
+      "type": "number",
+      "description": "Average scans per user today"
+    },
+    "estimated_daily_cost_eur": {
+      "type": "number",
+      "description": "Daily AI cost (scans \u00d7 \u20ac0.003)"
+    },
+    "estimated_monthly_cost_eur": {
+      "type": "number",
+      "description": "Projected monthly cost if today's rate continues"
+    },
+    "threshold_status": {
+      "type": "string",
+      "enum": [
+        "safe",
+        "warning",
+        "critical"
+      ],
+      "description": "safe (<\u20ac500), warning (\u20ac500-\u20ac800), critical (>\u20ac800 projected)"
+    }
+  },
+  "required": [
+    "date",
+    "total_users",
+    "premium_users",
+    "power_users",
+    "total_scans_today",
+    "avg_scans_per_user",
+    "estimated_daily_cost_eur"
+  ]
+}
