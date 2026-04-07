@@ -59,9 +59,9 @@ function calcCalories({ gender, weight_kg, height_cm, age, activity_level }) {
 const TOTAL_STEPS = 16;
 
 const TESTIMONIALS = [
-  { name: "Carlos M.", flag: "🇲🇽", quote: { es: "¡Bajé 4 kg en 6 semanas sin pasar hambre!", en: "Lost 4 kg in 6 weeks without feeling hungry!", pt: "Perdi 4 kg em 6 semanas sem passar fome!" } },
-  { name: "Sarah K.", flag: "🇺🇸", quote: { es: "Nunca había encontrado una app tan fácil de usar.", en: "I've never found an app this easy to stick with.", pt: "Nunca encontrei um app tão fácil de usar." } },
-  { name: "Luísa P.", flag: "🇧🇷", quote: { es: "Finalmente entiendo qué como cada día.", en: "I finally understand what I eat every day.", pt: "Finalmente entendo o que como todos os dias." } },
+  { name: "Carlos M.", flag: "🇲🇽", quote: { es: "¡Bajé 4 kg en 6 semanas sin pasar hambre!", en: "Lost 4 kg in 6 weeks without feeling hungry!", nl: "In 6 weken 4 kg afgevallen zonder honger!" } },
+  { name: "Sarah K.", flag: "🇺🇸", quote: { es: "Nunca había encontrado una app tan fácil de usar.", en: "I've never found an app this easy to stick with.", nl: "Ik heb nog nooit een app gevonden die zo gemakkelijk te gebruiken is." } },
+  { name: "Emma V.", flag: "🇳🇱", quote: { es: "Finalmente entiendo qué como cada día.", en: "I finally understand what I eat every day.", nl: "Ik begrijp eindelijk wat ik elke dag eet." } },
 ];
 
 export default function Onboarding() {
@@ -517,9 +517,9 @@ export default function Onboarding() {
               </div>
               <div className="space-y-3">
                 {[
-                  { flag: "🇪🇸", label: "Español", value: "es" },
-                  { flag: "🇬🇧", label: "English", value: "en" },
-                  { flag: "🇧🇷", label: "Português", value: "pt" },
+                   { flag: "🇪🇸", label: "Español", value: "es" },
+                   { flag: "🇬🇧", label: "English", value: "en" },
+                   { flag: "🇳🇱", label: "Nederlands", value: "nl" },
                 ].map((opt) => (
                   <button
                     key={opt.value}
@@ -794,7 +794,7 @@ export default function Onboarding() {
               {formData.weight_kg && (
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
                   <p className="text-white/60 text-sm">
-                    {currentLang === 'es' ? 'Peso actual:' : currentLang === 'pt' ? 'Peso atual:' : 'Current weight:'}{' '}
+                      {currentLang === 'es' ? 'Peso actual:' : currentLang === 'nl' ? 'Huidig gewicht:' : 'Current weight:'}{' '}
                     <span className="text-white font-bold">{formData.weight_kg} kg</span>
                   </p>
                 </div>
@@ -847,9 +847,9 @@ export default function Onboarding() {
               </div>
               <div className="space-y-3">
                 {[
-                  { emoji: "👥", title: currentLang === 'es' ? "Amigos y comunidad" : currentLang === 'pt' ? "Amigos e comunidade" : "Friends & community", subtitle: currentLang === 'es' ? "Ve qué comen tus amigos y compite en streaks" : currentLang === 'pt' ? "Veja o que seus amigos comem e compita em streaks" : "See what your friends eat and compete on streaks", value: "friends" },
-                  { emoji: "⭐", title: currentLang === 'es' ? "Atletas de élite" : currentLang === 'pt' ? "Atletas de elite" : "Elite athletes", subtitle: currentLang === 'es' ? "Sigue atletas reales y ve su nutrición diaria" : currentLang === 'pt' ? "Siga atletas reais e veja sua nutrição diária" : "Follow real athletes and see their daily nutrition", value: "athletes" },
-                  { emoji: "🏆", title: currentLang === 'es' ? "Ambos" : currentLang === 'pt' ? "Ambos" : "Both", subtitle: currentLang === 'es' ? "La experiencia completa de Balancen" : currentLang === 'pt' ? "A experiência completa do Balancen" : "The full Balancen experience", value: "both" },
+                  { emoji: "👥", title: currentLang === 'es' ? "Amigos y comunidad" : currentLang === 'nl' ? "Vrienden en community" : "Friends & community", subtitle: currentLang === 'es' ? "Ve qué comen tus amigos y compite en streaks" : currentLang === 'nl' ? "Zie wat je vrienden eten en competeer in streaks" : "See what your friends eat and compete on streaks", value: "friends" },
+                  { emoji: "⭐", title: currentLang === 'es' ? "Atletas de élite" : currentLang === 'nl' ? "Elite-atleten" : "Elite athletes", subtitle: currentLang === 'es' ? "Sigue atletas reales y ve su nutrición diaria" : currentLang === 'nl' ? "Volg echte atleten en zie hun dagelijkse voeding" : "Follow real athletes and see their daily nutrition", value: "athletes" },
+                  { emoji: "🏆", title: currentLang === 'es' ? "Ambos" : currentLang === 'nl' ? "Beide" : "Both", subtitle: currentLang === 'es' ? "La experiencia completa de Balancen" : currentLang === 'nl' ? "De volledige Balancen-ervaring" : "The full Balancen experience", value: "both" },
                 ].map((option) => (
                   <button key={option.value}
                     onClick={() => { setFormData(p => ({ ...p, follow_preference: option.value })); setStep(12); }}

@@ -16,7 +16,7 @@ export function useTranslation() {
    * Components must always call this instead of writing to localStorage directly.
    */
   const changeLanguage = async (newLang) => {
-    if (!["en", "es", "pt"].includes(newLang)) return;
+    if (!["en", "es", "nl"].includes(newLang)) return;
     // 1. Apply to i18n runtime
     await i18n.changeLanguage(newLang);
     // 2. Persist to single local key (clears legacy keys)

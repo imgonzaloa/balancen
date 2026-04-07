@@ -19,15 +19,15 @@ export default function CameraPermissionPrompt({ mode = "camera", onConfirm, onG
           </div>
           <h3 className="text-white font-bold text-lg">
             {isCam
-              ? (lang === "es" ? "Acceso a la cámara" : lang === "pt" ? "Acesso à câmera" : "Camera Access")
-              : (lang === "es" ? "Acceso a fotos" : lang === "pt" ? "Acesso à galeria" : "Photo Library Access")}
+              ? (lang === "es" ? "Acceso a la cámara" : lang === "nl" ? "Cameratoegang" : "Camera Access")
+              : (lang === "es" ? "Acceso a fotos" : lang === "nl" ? "Fototoegang" : "Photo Library Access")}
           </h3>
         </div>
 
         <p className="text-white/70 text-sm leading-relaxed mb-6">
           {isCam
-            ? (lang === "es" ? "Usamos la cámara para escanear y registrar tus comidas." : lang === "pt" ? "Usamos a câmera para escanear e registrar suas refeições." : "Used to scan and log meals.")
-            : (lang === "es" ? "Usamos tu biblioteca de fotos para seleccionar fotos de comidas." : lang === "pt" ? "Usamos sua galeria para selecionar fotos de refeições." : "Used to select meal photos.")}
+            ? (lang === "es" ? "Usamos la cámara para escanear y registrar tus comidas." : lang === "nl" ? "We gebruiken de camera om voedsel te scannen en in te loggen." : "Used to scan and log meals.")
+            : (lang === "es" ? "Usamos tu biblioteca de fotos para seleccionar fotos de comidas." : lang === "nl" ? "We gebruiken je galerij om voedingsfoto's te selecteren." : "Used to select meal photos.")}
         </p>
 
         <div className="flex flex-col gap-2">
@@ -36,22 +36,22 @@ export default function CameraPermissionPrompt({ mode = "camera", onConfirm, onG
             className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-semibold transition-colors"
           >
             {isCam
-              ? (lang === "es" ? "Permitir cámara" : lang === "pt" ? "Permitir câmera" : "Allow Camera")
-              : (lang === "es" ? "Permitir fotos" : lang === "pt" ? "Permitir fotos" : "Allow Photos")}
+              ? (lang === "es" ? "Permitir cámara" : lang === "nl" ? "Camera toestaan" : "Allow Camera")
+              : (lang === "es" ? "Permitir fotos" : lang === "nl" ? "Foto's toestaan" : "Allow Photos")}
           </button>
           {isCam && onGallery && (
             <button
               onClick={onGallery}
               className="w-full py-3 rounded-xl bg-white/10 border border-white/20 text-white/80 font-semibold"
             >
-              {lang === "es" ? "Usar galería en su lugar" : lang === "pt" ? "Usar galeria em vez disso" : "Use Gallery Instead"}
+              {lang === "es" ? "Usar galería en su lugar" : lang === "nl" ? "Galerij gebruiken" : "Use Gallery Instead"}
             </button>
           )}
           <button
             onClick={onDismiss}
             className="w-full py-3 rounded-xl text-white/50 text-sm"
           >
-            {lang === "es" ? "Cancelar" : lang === "pt" ? "Cancelar" : "Cancel"}
+            {lang === "es" ? "Cancelar" : lang === "nl" ? "Annuleren" : "Cancel"}
           </button>
         </div>
       </div>

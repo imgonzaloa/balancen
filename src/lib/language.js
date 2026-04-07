@@ -8,7 +8,7 @@
  */
 
 const LS_KEY = "balancen_language";
-const VALID = ["en", "es", "pt"];
+const VALID = ["en", "es", "nl"];
 
 /** Read the local fallback language (pre-auth). */
 export function getLocalLanguage() {

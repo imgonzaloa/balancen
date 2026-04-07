@@ -30,7 +30,7 @@
       "enum": [
         "en",
         "es",
-        "pt"
+        "nl"
       ],
       "default": "es",
       "description": "Preferred language"

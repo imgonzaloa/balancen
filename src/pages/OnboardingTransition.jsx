@@ -10,7 +10,7 @@ export default function OnboardingTransition() {
   const messages = {
     en: { title: 'Setting up your experience...', subtitle: 'Get ready to start your journey' },
     es: { title: 'Preparando tu experiencia...', subtitle: 'Listo para empezar tu camino' },
-    pt: { title: 'Preparando sua experiência...', subtitle: 'Pronto para começar sua jornada' }
+    nl: { title: 'Je ervaring instellen...', subtitle: 'Klaar om je reis te beginnen' }
   };
   
   const { title, subtitle } = messages[lang] || messages.en;
