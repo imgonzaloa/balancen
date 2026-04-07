@@ -47,11 +47,11 @@ export default function StoriesBar({ currentUser, currentProfile }) {
 
   return (
     <>
-      <div className="flex gap-3 overflow-x-auto pb-2 px-4 scrollbar-hide">
+      <div className="flex gap-3 overflow-x-auto py-3 px-4 scrollbar-hide">
         {/* Your Story */}
         <button
           onClick={() => navigate(createPageUrl('CreateStory'))}
-          className="flex-shrink-0 flex flex-col items-center gap-2"
+          className="flex-shrink-0 flex flex-col items-center gap-2 overflow-visible"
         >
           <div className={`relative w-16 h-16 rounded-full ${hasMyStories ? 'ring-2 ring-purple-500' : 'ring-2 ring-white/30'} ring-offset-2 ring-offset-slate-900`}>
             {currentProfile?.avatar_url ? (
@@ -77,7 +77,7 @@ export default function StoriesBar({ currentUser, currentProfile }) {
             <button
               key={email}
               onClick={() => setViewingStories({ email, stories })}
-              className="flex-shrink-0 flex flex-col items-center gap-2"
+              className="flex-shrink-0 flex flex-col items-center gap-2 overflow-visible"
             >
               <div className={`relative w-16 h-16 rounded-full ${hasUnviewed ? 'ring-2 ring-gradient-to-r from-purple-500 to-pink-500' : 'ring-2 ring-white/30'} ring-offset-2 ring-offset-slate-900`}>
                 {latestStory.user_avatar ? (

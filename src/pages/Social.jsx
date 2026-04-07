@@ -133,7 +133,7 @@ export default function Social() {
         </div>
 
         {/* Stories Bar */}
-        <div className="-mx-6">
+        <div className="-mx-6 overflow-visible">
           <StoriesBar currentUser={user} currentProfile={profile} />
         </div>
 
