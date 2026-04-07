@@ -1,4 +1,5 @@
 import React from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, Users, Award, User, Trophy } from "lucide-react";
@@ -227,19 +228,18 @@ function LayoutInner({ children, currentPageName, bootState }) {
           paddingBottom: hideNav ? 0 : 'calc(72px + env(safe-area-inset-bottom, 0))'
         }}
       >
-        <div
-          key={`${currentPageName}-${location.key}`}
-          className={
-            location.state?.tabSwitch || location.state?.tabRoot
-              ? 'route-tab-switch'
-              : location.state?.back
-              ? 'route-enter-back'
-              : 'route-enter'
-          }
-          style={{ minHeight: '100%' }}
-        >
-          {bypassTrialGate ? children : <TrialGate>{children}</TrialGate>}
-        </div>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={`${currentPageName}-${location.key}`}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            style={{ minHeight: '100%' }}
+          >
+            {bypassTrialGate ? children : <TrialGate>{children}</TrialGate>}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Fixed Tab bar - pinned to viewport */}
