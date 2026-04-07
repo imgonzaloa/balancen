@@ -114,7 +114,7 @@ export default function CameraScreen() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setCameraError(
         lang === 'es' ? 'Cámara no disponible. Usá la galería.' :
-        lang === 'pt' ? 'Câmera não disponível. Use a galeria.' :
+        lang === 'nl' ? 'Camera niet beschikbaar. Gebruik de galerij.' :
         'Camera not available. Use the gallery option.'
       );
       return;
@@ -165,7 +165,7 @@ export default function CameraScreen() {
       } else if (err.name === 'NotFoundError') {
         setCameraError(
           lang === 'es' ? 'No se encontró cámara en este dispositivo.' :
-          lang === 'pt' ? 'Nenhuma câmera encontrada neste dispositivo.' :
+          lang === 'nl' ? 'Geen camera gevonden op dit apparaat.' :
           'No camera found on this device.'
         );
       } else {

@@ -167,7 +167,7 @@ export default function Progress() {
             <p className="text-white/60 text-xs font-semibold uppercase tracking-wide">7-Day Log</p>
             <div className="flex items-center gap-1.5">
               <Flame size={14} className="text-orange-400" />
-              <span className="text-white font-bold text-sm">{profile?.current_streak || 0} {lang === 'es' ? 'días de racha' : lang === 'pt' ? 'dias de sequência' : 'day streak'}</span>
+              <span className="text-white font-bold text-sm">{profile?.current_streak || 0} {lang === 'es' ? 'días de racha' : lang === 'nl' ? 'dagen reeks' : 'day streak'}</span>
             </div>
           </div>
           <div className="flex items-end justify-between gap-2">
@@ -194,10 +194,10 @@ export default function Progress() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white font-bold text-sm">
-              {lang === 'es' ? 'Fotos de progreso' : lang === 'pt' ? 'Fotos de progresso' : 'Progress Photos'}
+              {lang === 'es' ? 'Fotos de progreso' : lang === 'nl' ? 'Voortgangsfoto\'s' : 'Progress Photos'}
             </p>
             <p className="text-white/40 text-xs mt-0.5">
-              {lang === 'es' ? 'Visualiza tu transformación' : lang === 'pt' ? 'Visualize sua transformação' : 'Visualize your transformation'}
+              {lang === 'es' ? 'Visualiza tu transformación' : lang === 'nl' ? 'Visualiseer je transformatie' : 'Visualize your transformation'}
             </p>
           </div>
           <Camera size={18} className="text-teal-400 flex-shrink-0" />

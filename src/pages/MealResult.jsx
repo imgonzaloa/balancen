@@ -852,7 +852,7 @@ export default function MealResult() {
                 fats: savedTotals?.fats || 0,
               },
             });
-            toast.success(lang === 'es' ? '¡Compartido en tu feed!' : lang === 'pt' ? 'Compartilhado no seu feed!' : 'Shared to your feed!');
+            toast.success(lang === 'es' ? '¡Compartido en tu feed!' : lang === 'nl' ? 'Gedeeld in je feed!' : 'Shared to your feed!');
           } catch (err) {
             console.error("Share failed:", err);
           }
@@ -884,7 +884,7 @@ export default function MealResult() {
              </p>
              {fromCache && (
                <span className="text-xs font-semibold text-teal-300 bg-teal-500/20 px-2 py-0.5 rounded-full">
-                 {lang === 'es' ? 'Desde caché' : lang === 'pt' ? 'Do cache' : 'From cache'}
+                 {lang === 'es' ? 'Desde caché' : lang === 'nl' ? 'Uit cache' : 'From cache'}
                </span>
              )}
            </div>

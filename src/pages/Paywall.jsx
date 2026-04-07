@@ -316,7 +316,7 @@ export default function Paywall() {
                </div>
                <div className="flex items-baseline gap-2">
                  <span className="text-2xl font-black text-white">
-                   {lang === 'es' ? 'Power — Ilimitado' : lang === 'pt' ? 'Power — Ilimitado' : 'Power — Unlimited'}
+                   {lang === 'es' ? 'Power — Ilimitado' : lang === 'nl' ? 'Power — Onbeperkt' : 'Power — Unlimited'}
                  </span>
                </div>
                <div className="flex items-baseline gap-2 mt-1">

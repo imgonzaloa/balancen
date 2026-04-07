@@ -92,11 +92,11 @@ export default function WorkoutTracker() {
       });
     },
     onSuccess: () => {
-      toast.success("¡Entrenamiento registrado!");
-      queryClient.invalidateQueries({ queryKey: ["workout-sessions"] });
-      navigate(createPageUrl('TrainerDashboard'));
-    },
-    onError: () => toast.error("Error al guardar"),
+       toast.success(lang === 'es' ? '¡Entrenamiento registrado!' : lang === 'nl' ? 'Training geregistreerd!' : 'Workout logged!');
+       queryClient.invalidateQueries({ queryKey: ["workout-sessions"] });
+       navigate(createPageUrl('TrainerDashboard'));
+     },
+     onError: () => toast.error(lang === 'es' ? 'Error al guardar' : lang === 'nl' ? 'Fout bij opslaan' : 'Error saving'),
   });
 
   const handleAddExercise = () => {
@@ -112,7 +112,7 @@ export default function WorkoutTracker() {
 
   const handleSubmit = () => {
     if (exercises.some(ex => !ex.exercise_name)) {
-      toast.error("Completa el nombre de todos los ejercicios");
+      toast.error(lang === 'es' ? 'Completa el nombre de todos los ejercicios' : lang === 'nl' ? 'Vul alle oefenamen in' : 'Complete all exercise names');
       return;
     }
     createSessionMutation.mutate({});

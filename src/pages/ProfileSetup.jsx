@@ -56,13 +56,13 @@ export default function ProfileSetup() {
         console.error('Upload error:', err);
       }
     } catch (err) {
-      toast.error(lang === 'es' ? 'Error procesando imagen' : lang === 'pt' ? 'Erro ao processar imagem' : 'Error processing image');
+      toast.error(lang === 'es' ? 'Error procesando imagen' : lang === 'nl' ? 'Fout bij verwerking van afbeelding' : 'Error processing image');
     }
   };
 
   const handleComplete = async () => {
     if (!displayName.trim()) {
-      toast.error(lang === 'es' ? 'Ingresa tu nombre' : lang === 'pt' ? 'Digite seu nome' : 'Enter your name');
+      toast.error(lang === 'es' ? 'Ingresa tu nombre' : lang === 'nl' ? 'Voer je naam in' : 'Enter your name');
       return;
     }
 
@@ -80,7 +80,7 @@ export default function ProfileSetup() {
       await base44.entities.UserProfile.update(profile.id, updateData);
       navigate(createPageUrl('Home'));
     } catch (error) {
-      toast.error(lang === 'es' ? 'Error guardando perfil' : lang === 'pt' ? 'Erro ao salvar perfil' : 'Error saving profile');
+      toast.error(lang === 'es' ? 'Error guardando perfil' : lang === 'nl' ? 'Fout bij opslaan van profiel' : 'Error saving profile');
     } finally {
       setIsLoading(false);
     }
@@ -98,10 +98,10 @@ export default function ProfileSetup() {
             <span className="text-4xl font-black text-white">B</span>
           </div>
           <h1 className="text-3xl font-black text-white mb-2">
-            {lang === 'es' ? 'Tu Perfil' : lang === 'pt' ? 'Seu Perfil' : 'Your Profile'}
+           {lang === 'es' ? 'Tu Perfil' : lang === 'nl' ? 'Je Profiel' : 'Your Profile'}
           </h1>
           <p className="text-white/60">
-            {lang === 'es' ? 'Casi listo' : lang === 'pt' ? 'Quase pronto' : 'Almost done'}
+           {lang === 'es' ? 'Casi listo' : lang === 'nl' ? 'Bijna klaar' : 'Almost done'}
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export default function ProfileSetup() {
             )}
           </button>
           <p className="text-white/60 text-sm">
-            {lang === 'es' ? 'Agrega una foto' : lang === 'pt' ? 'Adicione uma foto' : 'Add a photo'}
+           {lang === 'es' ? 'Agrega una foto' : lang === 'nl' ? 'Voeg een foto toe' : 'Add a photo'}
           </p>
         </motion.div>
 
@@ -134,12 +134,12 @@ export default function ProfileSetup() {
           className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6"
         >
           <label className="text-white font-semibold mb-3 block text-sm">
-            {lang === 'es' ? 'Tu nombre' : lang === 'pt' ? 'Seu nome' : 'Your name'}
-          </label>
+            {lang === 'es' ? 'Tu nombre' : lang === 'nl' ? 'Je naam' : 'Your name'}
+           </label>
           <Input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            placeholder={lang === 'es' ? 'Tu nombre' : lang === 'pt' ? 'Seu nome' : 'Your name'}
+            placeholder={lang === 'es' ? 'Tu nombre' : lang === 'nl' ? 'Je naam' : 'Your name'}
             className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-12 text-lg"
           />
         </motion.div>
@@ -159,7 +159,7 @@ export default function ProfileSetup() {
               <span>Loading...</span>
             ) : (
               <>
-                {lang === 'es' ? 'Ir a Home' : lang === 'pt' ? 'Ir ao Início' : 'Go to Home'} <ChevronRight className="ml-2" />
+                {lang === 'es' ? 'Ir a Home' : lang === 'nl' ? 'Ga naar Home' : 'Go to Home'} <ChevronRight className="ml-2" />
               </>
             )}
           </Button>

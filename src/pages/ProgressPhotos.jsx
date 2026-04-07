@@ -12,7 +12,7 @@ import { getLocalDateKey } from "@/lib/utils";
 import { toast } from "sonner";
 
 const T = {
-  title:        { en: "Progress Photos", es: "Fotos de progreso", pt: "Fotos de progresso" },
+  title:        { en: "Progress Photos", es: "Fotos de progreso", nl: "Voortgangsfoto's" },
   add:          { en: "Add photo", es: "Agregar foto", pt: "Adicionar foto" },
   compare:      { en: "Compare", es: "Comparar", pt: "Comparar" },
   gallery:      { en: "Gallery", es: "Galería", pt: "Galeria" },
@@ -20,7 +20,7 @@ const T = {
   note:         { en: "Note", es: "Nota", pt: "Nota" },
   save:         { en: "Save", es: "Guardar", pt: "Salvar" },
   cancel:       { en: "Cancel", es: "Cancelar", pt: "Cancelar" },
-  premium:      { en: "Premium only", es: "Solo Premium", pt: "Somente Premium" },
+  premium:      { en: "Premium only", es: "Solo Premium", nl: "Alleen Premium" },
   select_two:   { en: "Select two photos to compare", es: "Selecciona dos fotos para comparar", pt: "Selecione duas fotos para comparar" },
   weight_diff:  { en: "Weight difference", es: "Diferencia de peso", pt: "Diferença de peso" },
   days_between: { en: "Days between", es: "Días entre fotos", pt: "Dias entre fotos" },
@@ -93,7 +93,7 @@ export default function ProgressPhotos() {
       setFormDate(getLocalDateKey());
       toast.success(tx("save", lang) + "!");
     },
-    onError: () => toast.error(lang === 'es' ? 'Error al guardar foto' : lang === 'pt' ? 'Erro ao salvar foto' : 'Error saving photo'),
+    onError: () => toast.error(lang === 'es' ? 'Error al guardar foto' : lang === 'nl' ? 'Fout bij opslaan van foto' : 'Error saving photo'),
   });
 
   const handleSave = async () => {
@@ -362,19 +362,19 @@ export default function ProgressPhotos() {
               )}
               <button
                 onClick={async () => {
-                  if (!confirm(lang === 'es' ? '¿Eliminar esta foto?' : lang === 'pt' ? 'Excluir esta foto?' : 'Delete this photo?')) return;
+                  if (!confirm(lang === 'es' ? '¿Eliminar esta foto?' : lang === 'nl' ? 'Deze foto verwijderen?' : 'Delete this photo?')) return;
                   try {
                     await base44.entities.BodyPhoto.delete(lightboxPhoto.id);
                     queryClient.invalidateQueries({ queryKey: ['bodyPhotos'] });
                     setLightboxPhoto(null);
                   } catch {
-                    toast.error(lang === 'es' ? 'Error al eliminar foto' : lang === 'pt' ? 'Erro ao excluir foto' : 'Error deleting photo');
+                    toast.error(lang === 'es' ? 'Error al eliminar foto' : lang === 'nl' ? 'Fout bij verwijderen van foto' : 'Error deleting photo');
                   }
                 }}
                 className="mt-4 flex items-center justify-center gap-2 mx-auto px-5 py-2.5 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 font-semibold text-sm hover:bg-red-500/30 transition-colors"
               >
                 <Trash2 size={16} />
-                {lang === 'es' ? 'Eliminar' : lang === 'pt' ? 'Excluir' : 'Delete'}
+                {lang === 'es' ? 'Eliminar' : lang === 'nl' ? 'Verwijderen' : 'Delete'}
               </button>
             </div>
           </motion.div>

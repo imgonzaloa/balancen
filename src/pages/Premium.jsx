@@ -71,7 +71,7 @@ export default function Premium() {
       }
       try {
         await base44.functions.invoke('grantRevenueCatPremium', { planType: selectedPlan });
-        toast.success(lang === 'es' ? '¡Premium activado!' : lang === 'pt' ? 'Premium ativado!' : 'Premium activated!');
+        toast.success(lang === 'es' ? '¡Premium activado!' : lang === 'nl' ? 'Premium geactiveerd!' : 'Premium activated!');
         window.location.href = createPageUrl('Home');
       } catch (err) {
         toast.error(err?.message || 'Verification failed');

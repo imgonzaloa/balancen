@@ -181,21 +181,21 @@ export default function Friends() {
             onClick={() => {
               const code = profile?.invite_code || profile?.id?.slice(0, 8);
               const inviteMessages = {
-                es: `Únete a Balancen! Usa mi código ${code} para un trial Premium gratis. https://balancen.app`,
-                en: `Join me on Balancen! Use my code ${code} for a free Premium trial. https://balancen.app`,
-                pt: `Junte-se a mim no Balancen! Use meu código ${code} para um trial Premium grátis. https://balancen.app`,
+               es: `Únete a Balancen! Usa mi código ${code} para un trial Premium gratis. https://balancen.app`,
+               en: `Join me on Balancen! Use my code ${code} for a free Premium trial. https://balancen.app`,
+               nl: `Sluit je aan bij Balancen! Gebruik mijn code ${code} voor een gratis Premium trial. https://balancen.app`,
               };
               const msg = inviteMessages[lang] || inviteMessages.en;
               if (navigator.share) {
                 navigator.share({ text: msg }).catch(() => {});
               } else {
                 navigator.clipboard?.writeText(msg).catch(() => {});
-                toast.success(lang === 'es' ? '¡Copiado!' : lang === 'pt' ? 'Copiado!' : 'Copied!');
+                toast.success(lang === 'es' ? '¡Copiado!' : lang === 'nl' ? 'Gekopieerd!' : 'Copied!');
               }
             }}
             className="bg-teal-500 text-white font-bold rounded-xl px-4 py-3 w-full hover:bg-teal-600 transition-colors"
           >
-            {lang === 'es' ? 'Compartir enlace de invitación' : lang === 'pt' ? 'Compartilhar link de convite' : 'Share invite link'}
+            {lang === 'es' ? 'Compartir enlace de invitación' : lang === 'nl' ? 'Uitnodigingslink delen' : 'Share invite link'}
           </button>
         </motion.div>
 
