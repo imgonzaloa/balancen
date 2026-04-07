@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Share2, Copy, Check, Gift } from "lucide-react";
+import { Share2, Copy, Check, Gift, MessageCircle } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 export default function InviteSystemCard({ profile }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const inviteCode = useMemo(() => {
@@ -14,17 +14,38 @@ export default function InviteSystemCard({ profile }) {
     return profile.id.slice(0, 8).toLowerCase();
   }, [profile?.id]);
 
+  const inviteUrl = inviteCode ? `${window.location.origin}/?invite=${inviteCode}` : '';
+
+  const shareMessage = useMemo(() => {
+    if (!inviteCode) return '';
+    const messages = {
+      es: `¡Únete a mí en Balancen! Usa mi código ${inviteCode} para 5 días Premium gratis. ${inviteUrl}`,
+      en: `Join me on Balancen! Use my code ${inviteCode} for 5 free Premium days. ${inviteUrl}`,
+      nl: `Doe mee met Balancen! Gebruik mijn code ${inviteCode} voor 5 gratis Premium dagen. ${inviteUrl}`,
+    };
+    return messages[lang] || messages.en;
+  }, [inviteCode, lang, inviteUrl]);
+
+  const copyInviteCode = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success(t('copied') || 'Copied!');
+    } catch (error) {
+      toast.error(t('copy_failed') || 'Copy failed');
+    }
+  };
+
   const shareLink = async () => {
-    if (!inviteCode) {
+    if (!inviteCode || !shareMessage) {
       toast.error(t('copy_failed') || 'Unable to generate link');
       return;
     }
-    const inviteUrl = `${window.location.origin}/?invite=${inviteCode}`;
-    const shareMessage = `Join me on Balancen! ${inviteUrl}`;
     
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Join Balancen", text: shareMessage, url: inviteUrl });
+        await navigator.share({ title: "Join Balancen", text: shareMessage });
         return;
       } catch (error) {
         if (error.name !== 'AbortError') {
@@ -34,13 +55,22 @@ export default function InviteSystemCard({ profile }) {
     }
 
     try {
-      await navigator.clipboard.writeText(inviteUrl);
+      await navigator.clipboard.writeText(shareMessage);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast.success(t('link_copied'));
     } catch (error) {
       toast.error(t('copy_failed'));
     }
+  };
+
+  const shareWhatsApp = () => {
+    if (!shareMessage) {
+      toast.error(t('copy_failed') || 'Unable to generate link');
+      return;
+    }
+    const encoded = encodeURIComponent(shareMessage);
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
   };
 
   return (
@@ -61,7 +91,7 @@ export default function InviteSystemCard({ profile }) {
                {t('invite_friends')}
              </h3>
              <p className="text-white/80 text-sm leading-relaxed">
-               {t('invite_description') || 'You + your friend both get 7 extra Premium days'}
+               {t('invite_description') || 'You + your friend both get 5 extra Premium days'}
              </p>
            </div>
          </div>
@@ -69,22 +99,36 @@ export default function InviteSystemCard({ profile }) {
          {inviteCode && (
            <div className="mb-5 p-4 bg-white/10 rounded-2xl border border-white/20">
              <p className="text-white/70 text-xs mb-2 uppercase tracking-wider">{t('invite_code') || 'Your invite code'}</p>
-             <div className="font-mono text-lg font-bold text-purple-300 mb-3">{inviteCode}</div>
-             <p className="text-white/60 text-xs mb-3">{t('share_invite') || 'Share this link to invite friends'}</p>
-             <div className="p-2 bg-white/5 rounded-lg break-all text-xs text-white/50 mb-4">
-               {window.location.origin}/?invite={inviteCode}
-             </div>
+             <button
+               onClick={copyInviteCode}
+               className="font-mono text-lg font-bold text-purple-300 mb-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-2 active:scale-95"
+             >
+               {inviteCode}
+               {copied && <Check size={16} className="text-emerald-400" />}
+             </button>
+             <p className="text-white/60 text-xs">{t('share_invite') || 'Share this link to invite friends'}</p>
            </div>
          )}
 
-         <Button
-           onClick={shareLink}
-           disabled={!inviteCode}
-           className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-12 rounded-xl shadow-xl shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-         >
-           {copied ? <Check size={18} className="text-emerald-400" /> : <Share2 size={18} />}
-           {copied ? (t('copied') || 'Copied!') : (t('share') || 'Share Invite Link')}
-         </Button>
+         <div className="space-y-3">
+           <Button
+             onClick={shareLink}
+             disabled={!inviteCode}
+             className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold h-12 rounded-xl shadow-xl shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+           >
+             <Share2 size={18} />
+             {t('share') || 'Share Invite Link'}
+           </Button>
+
+           <Button
+             onClick={shareWhatsApp}
+             disabled={!inviteCode}
+             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 rounded-xl shadow-xl shadow-emerald-600/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+           >
+             <MessageCircle size={18} />
+             {lang === 'es' ? 'Compartir por WhatsApp' : lang === 'nl' ? 'Delen op WhatsApp' : 'Share on WhatsApp'}
+           </Button>
+         </div>
       </div>
     </motion.div>
   );
