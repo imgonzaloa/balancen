@@ -109,10 +109,16 @@ export default function DailyMissionsPanel({ lang = "es", mealCount, caloriesPro
   // Check if user has a post from today
   const { data: todayPosts = [] } = useQuery({
     queryKey: ["todayPosts", userEmail, today],
-    queryFn: () => base44.entities.Post.filter({ created_by: userEmail }),
+    queryFn: async () => {
+      try {
+        const posts = await base44.entities.Post.filter({ created_by: userEmail }, '-created_date', 50);
+        return posts.filter(p => p.created_date?.startsWith(today)) || [];
+      } catch {
+        return [];
+      }
+    },
     enabled: !!userEmail,
     staleTime: 60000,
-    select: (posts) => posts.filter(p => p.created_date?.startsWith(today)),
   });
 
   const missions = [
