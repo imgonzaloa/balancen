@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { getLocalDateKey } from "@/lib/utils";
 
 const LABELS = {
   es: {
@@ -43,11 +44,7 @@ const LABELS = {
 };
 
 function getTodayWaterKey() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `balancen_water_today_${y}-${m}-${day}`;
+  return `balancen_water_today_${getLocalDateKey()}`;
 }
 
 function getTodaySharedKey() {
