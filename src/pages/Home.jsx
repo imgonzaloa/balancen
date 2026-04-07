@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { motion } from "framer-motion";
 import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
@@ -13,6 +14,7 @@ import GlobalHeader from "@/components/GlobalHeader";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import TrialBanner from "@/components/home/TrialBanner";
 import MacroBreakdownBar from "@/components/home/MacroBreakdownBar";
+import StreakCelebration from "@/components/home/StreakCelebration";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -135,6 +137,23 @@ const Home = React.memo(() => {
   );
 
   const { isPremium, trialDaysLeft, trialDay, isTrialActive } = useEntitlement(profile);
+
+  // Streak milestone celebration
+  const MILESTONES = [7, 14, 30];
+  const [celebratingStreak, setCelebratingStreak] = useState(null);
+
+  useEffect(() => {
+    const streak = profile?.current_streak || 0;
+    if (!streak) return;
+    const milestone = MILESTONES.find(m => streak === m);
+    if (!milestone) return;
+    const key = `balancen_streak_celebrated_${milestone}`;
+    if (!localStorage.getItem(key)) {
+      localStorage.setItem(key, new Date().toISOString().split('T')[0]);
+      setCelebratingStreak(milestone);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.current_streak]);
 
   const getGreeting = useMemo(() => {
     const hour = new Date().getHours();
@@ -392,20 +411,67 @@ const Home = React.memo(() => {
 
 
 
+        {/* Streak celebration overlay */}
+        {celebratingStreak && (
+          <StreakCelebration
+            streak={celebratingStreak}
+            lang={lang}
+            onDone={() => setCelebratingStreak(null)}
+          />
+        )}
+
         {/* Streak & Momentum - UNLOCKED FOR BASE PLAN */}
         <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/15 backdrop-blur-xl rounded-2xl p-5 border border-amber-500/20">
           <h3 className="text-amber-300/90 text-xs font-bold uppercase tracking-wider mb-3">
             {t('streak_momentum')}
           </h3>
           <div className="flex items-center gap-4 mb-4">
-            <StreakFire streak={profile?.current_streak || 0} size="large" />
-            <div>
+            {/* Pulsing flame when streak > 0 */}
+            {(profile?.current_streak || 0) > 0 ? (
+              <motion.div
+                animate={{ scale: [1, 1.08, 1] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              >
+                <StreakFire streak={profile.current_streak} size="large" />
+              </motion.div>
+            ) : (
+              <StreakFire streak={0} size="large" />
+            )}
+            <div className="flex-1">
               <p className="text-white/60 text-xs uppercase tracking-wide font-semibold">
                 {t('best_streak')}
               </p>
               <p className="text-white text-xl font-black">
                 {profile?.longest_streak || 0}
               </p>
+              {/* Milestone badges */}
+              {(profile?.current_streak || 0) > 0 && (
+                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                  {[
+                    { days: 7,  emoji: "🥉", label: { es: "7 días", en: "7 days", pt: "7 dias" } },
+                    { days: 14, emoji: "🥈", label: { es: "14 días", en: "14 days", pt: "14 dias" } },
+                    { days: 30, emoji: "🥇", label: { es: "30 días", en: "30 days", pt: "30 dias" } },
+                  ].map((m) => {
+                    const reached = (profile?.current_streak || 0) >= m.days;
+                    return (
+                      <motion.span
+                        key={m.days}
+                        title={m.label[lang] || m.label.en}
+                        initial={false}
+                        animate={reached ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                        transition={reached ? { duration: 0.5 } : {}}
+                        className={`text-xs px-2 py-0.5 rounded-full font-bold border ${
+                          reached
+                            ? "bg-amber-400/20 border-amber-400/50 text-amber-300"
+                            : "bg-white/5 border-white/10 text-white/25"
+                        }`}
+                      >
+                        {m.emoji} {m.label[lang] || m.label.en}
+                      </motion.span>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
           
