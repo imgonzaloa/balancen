@@ -118,10 +118,10 @@ export default function NotificationCenter({ open, onClose, userEmail, lang = "e
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9998]"
+            className="fixed inset-0 z-[99998]"
             onClick={onClose}
           />
-          
+
           {/* Notification panel */}
           <motion.div
             ref={panelRef}
@@ -129,7 +129,7 @@ export default function NotificationCenter({ open, onClose, userEmail, lang = "e
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed top-[72px] right-4 w-80 max-w-[calc(100vw-2rem)] z-[9999] bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed top-[64px] right-4 w-80 max-w-[calc(100vw-2rem)] z-[99999] bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl overflow-hidden"
           >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
