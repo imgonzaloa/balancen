@@ -4,12 +4,13 @@ import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Plus, Check, Lock } from "lucide-react";
+import { ArrowLeft, Plus, Check, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function WorkoutTracker() {
   const navigate = useNavigate();
@@ -19,30 +20,6 @@ export default function WorkoutTracker() {
   const [searchParams] = useSearchParams();
   const planId = searchParams.get("planId");
 
-  const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
-
-  if (!isPremium) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900/30 to-slate-900 flex flex-col items-center justify-center p-6 pb-24">
-        <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6">
-          <Lock size={40} className="text-indigo-400" />
-        </div>
-        <h2 className="text-white text-2xl font-bold mb-2 text-center">
-          {t('workout_tracker_premium_title') || 'Workout Tracker — Premium'}
-        </h2>
-        <p className="text-white/70 text-center mb-8 max-w-xs">
-          {t('workout_tracker_premium_desc') || 'Detailed workout tracking and progression logging'}
-        </p>
-        <Button
-          onClick={() => navigate(createPageUrl('Premium'))}
-          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold px-8 py-3"
-        >
-          {t('upgrade_now') || 'Upgrade to Premium'}
-        </Button>
-      </div>
-    );
-  }
-
   const [exercises, setExercises] = useState([
     { exercise_name: "", sets: 1, weights: [""], reps: [""], rpe: 5, notes: "" },
   ]);
@@ -50,6 +27,43 @@ export default function WorkoutTracker() {
   const [intensity, setIntensity] = useState("moderate");
   const [energy, setEnergy] = useState(7);
   const [mood, setMood] = useState("");
+  const [aiWorkout, setAiWorkout] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiExpanded, setAiExpanded] = useState(true);
+
+  const handleGenerateWorkout = async () => {
+    setAiLoading(true);
+    setAiWorkout(null);
+    try {
+      const res = await base44.functions.invoke("aiWorkoutGenerator", {
+        equipment: "bodyweight",
+        fitness_level: profile?.activity_level || "active",
+        goals: profile?.primary_goal || "consistency",
+        duration_minutes: 45,
+        lang,
+      });
+      setAiWorkout(res.data);
+      setAiExpanded(true);
+    } catch {
+      toast.error(lang === "es" ? "Error al generar rutina" : lang === "pt" ? "Erro ao gerar treino" : "Error generating workout");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleLoadAiWorkout = () => {
+    if (!aiWorkout?.exercises?.length) return;
+    const mapped = aiWorkout.exercises.map(ex => ({
+      exercise_name: ex.name || ex.exercise_name || "",
+      sets: ex.sets || 3,
+      weights: Array(ex.sets || 3).fill(""),
+      reps: Array(ex.sets || 3).fill(String(ex.reps || ex.reps_per_set || 10)),
+      rpe: 7,
+      notes: ex.notes || "",
+    }));
+    setExercises(mapped);
+    toast.success(lang === "es" ? "¡Rutina cargada!" : lang === "pt" ? "Treino carregado!" : "Workout loaded!");
+  };
 
   const createSessionMutation = useMutation({
     mutationFn: async (sessionData) => {
@@ -115,6 +129,78 @@ export default function WorkoutTracker() {
             <ArrowLeft size={20} className="text-white" />
           </button>
           <h1 className="text-2xl font-black text-white">Registrar Entrenamiento</h1>
+        </div>
+
+        {/* AI Workout Generator */}
+        <div className="mb-4">
+          <Button
+            onClick={handleGenerateWorkout}
+            disabled={aiLoading}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500 hover:opacity-90 text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30"
+          >
+            {aiLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                {lang === "es" ? "Generando rutina..." : lang === "pt" ? "Gerando treino..." : "Generating workout..."}
+              </>
+            ) : (
+              <>
+                <Sparkles size={20} />
+                {lang === "es" ? "Generar entreno con IA" : lang === "pt" ? "Gerar treino com IA" : "Generate AI workout"}
+              </>
+            )}
+          </Button>
+
+          <AnimatePresence>
+            {aiWorkout && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="mt-3 bg-white/10 backdrop-blur-xl rounded-2xl border border-purple-400/30 overflow-hidden"
+              >
+                {/* Header */}
+                <button
+                  onClick={() => setAiExpanded(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 active:bg-white/5"
+                >
+                  <div className="text-left">
+                    <p className="text-purple-300 font-bold text-sm">{aiWorkout.workout_name || aiWorkout.name || "AI Workout"}</p>
+                    {aiWorkout.description && (
+                      <p className="text-white/50 text-xs mt-0.5">{aiWorkout.description}</p>
+                    )}
+                  </div>
+                  {aiExpanded ? <ChevronUp size={16} className="text-white/40" /> : <ChevronDown size={16} className="text-white/40" />}
+                </button>
+
+                {aiExpanded && (
+                  <div className="px-4 pb-4 space-y-2 border-t border-white/10">
+                    {aiWorkout.exercises?.map((ex, i) => (
+                      <div key={i} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+                        <div className="w-6 h-6 rounded-full bg-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-purple-300 text-[10px] font-black">{i + 1}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-semibold text-sm">{ex.name || ex.exercise_name}</p>
+                          <p className="text-purple-300/80 text-xs mt-0.5">
+                            {ex.sets} × {ex.reps || ex.reps_per_set} reps
+                            {ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
+                          </p>
+                          {ex.notes && <p className="text-white/40 text-xs mt-0.5">{ex.notes}</p>}
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      onClick={handleLoadAiWorkout}
+                      className="w-full mt-2 bg-purple-500/30 hover:bg-purple-500/50 border border-purple-400/30 text-purple-200 font-bold text-sm"
+                    >
+                      {lang === "es" ? "Cargar esta rutina ↓" : lang === "pt" ? "Carregar este treino ↓" : "Load this workout ↓"}
+                    </Button>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="space-y-4">

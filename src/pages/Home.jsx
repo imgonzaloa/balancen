@@ -296,7 +296,7 @@ const Home = React.memo(() => {
         />
 
         {/* Primary CTAs */}
-        <div className={`grid gap-3 ${isPremium || isTrialActive ? 'grid-cols-2' : 'grid-cols-1'}`}>
+        <div className="grid grid-cols-2 gap-3">
           <Button
             onClick={() => handleNavigate('CameraScreen')}
             className="h-16 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 hover:shadow-xl hover:shadow-teal-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
@@ -304,15 +304,13 @@ const Home = React.memo(() => {
             <Camera size={20} strokeWidth={2.5} />
             {t('log_meal_button')}
           </Button>
-          {(isPremium || isTrialActive) && (
-            <Button
-              onClick={() => handleNavigate('WorkoutTracker')}
-              className="h-16 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 hover:shadow-xl hover:shadow-purple-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Dumbbell size={20} strokeWidth={2.5} />
-              {lang === 'es' ? 'Registrar entreno' : lang === 'pt' ? 'Registrar treino' : 'Log Workout'}
-            </Button>
-          )}
+          <Button
+            onClick={() => handleNavigate('WorkoutTracker')}
+            className="h-16 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 hover:shadow-xl hover:shadow-purple-500/40 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Dumbbell size={20} strokeWidth={2.5} />
+            {lang === 'es' ? 'Entreno' : lang === 'pt' ? 'Treino' : 'Workout'}
+          </Button>
         </div>
 
         {/* Recent Meals */}
