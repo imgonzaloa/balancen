@@ -266,9 +266,9 @@ export default function Onboarding() {
       entering: "Activando…",
       features: ['✅ Análisis de comidas con IA', '✅ Feed social — ve qué comen tus amigos y atletas', '✅ Streaks y misiones diarias', '✅ Grupos, retos y leaderboard'],
       founder_title: "Hi, I'm Gonzalo 👋",
-      founder_para1: "Soy el creador de Balancen. Quería ser transparente sobre por qué la app tiene un costo.",
-      founder_para2: "Cada análisis de comida con IA tiene un costo real. El costo promedio por usuario activo es de €4-6 por mes. El precio de Balancen está pensado para ser sostenible sin perder calidad.",
-      founder_para3: "Espero que te ayude a entender el valor. Me encantaría tenerte como usuario :)",
+      founder_para1: "Creé Balancen porque yo mismo luché para mantener hábitos de nutrición siendo deportista. Las apps existentes eran o muy complicadas o demasiado genéricas.",
+      founder_para2: "Sé honesto: cada análisis de IA tiene un costo real. El precio de Balancen está calculado para ser justo — ni demasiado caro para vos, ni insostenible para mí. Quiero construir esto a largo plazo.",
+      founder_para3: "7 días gratis, sin tarjeta. Si no te cambia el hábito, cancelás sin drama. — Gonzalo 🙌",
       },
     en: {
       lang_title: "Choose your language",
@@ -347,9 +347,9 @@ export default function Onboarding() {
       entering: "Activating…",
       features: ['✅ AI-powered meal analysis', '✅ Social feed — see what friends & athletes eat', '✅ Daily streaks & missions', '✅ Groups, challenges & leaderboard'],
       founder_title: "Hi, I'm Gonzalo 👋",
-      founder_para1: "I'm the creator of Balancen. I wanted to be transparent about why the app is priced the way it is.",
-      founder_para2: "Every AI food analysis has a real cost. The average cost per active user is €4-6 per month. Balancen is priced to be sustainable without compromising quality.",
-      founder_para3: "I hope this helps you understand the value. I'd love to have you as a user :)",
+      founder_para1: "I built Balancen because I struggled myself to maintain nutrition habits as an athlete. Existing apps were either too complex or too generic.",
+      founder_para2: "Full transparency: every AI analysis has a real cost. Balancen's price is calculated to be fair — not too expensive for you, not unsustainable for me. I want to build this for the long term.",
+      founder_para3: "7 days free, no card needed. If it doesn't change your habit, cancel no drama. — Gonzalo 🙌",
       },
     pt: {
       lang_title: "Escolha seu idioma",
@@ -428,9 +428,9 @@ export default function Onboarding() {
       entering: "Ativando…",
       features: ['✅ Análise de refeições com IA', '✅ Feed social — veja o que amigos e atletas comem', '✅ Streaks e missões diárias', '✅ Grupos, desafios e leaderboard'],
       founder_title: "Hi, I'm Gonzalo 👋",
-      founder_para1: "Sou o criador do Balancen. Queria ser transparente sobre por que o app tem um custo.",
-      founder_para2: "Cada análise de comida com IA tem um custo real. O custo médio por usuário ativo é de €4-6 por mês. O preço do Balancen foi pensado para ser sustentável sem perder qualidade.",
-      founder_para3: "Espero que isso ajude você a entender o valor. Adoraria ter você como usuário :)",
+      founder_para1: "Criei o Balancen porque eu mesmo lutei para manter hábitos de nutrição como atleta. Os apps existentes eram ou muito complexos ou muito genéricos.",
+      founder_para2: "Com transparência: cada análise de IA tem um custo real. O preço do Balancen é calculado para ser justo — não muito caro para você, nem insustentável para mim.",
+      founder_para3: "7 dias grátis, sem cartão. Se não mudar seu hábito, cancele sem drama. — Gonzalo 🙌",
       },
   };
 
