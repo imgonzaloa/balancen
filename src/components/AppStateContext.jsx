@@ -165,11 +165,8 @@ export function AppStateProvider({ children }) {
     if (!user?.email) return;
     try {
       const today = new Date().toISOString().split("T")[0];
-      const meals = await base44.entities.MealLog.filter(
-        { created_by: user.email, date: today },
-        "-meal_time"
-      );
-      setTodayMeals(meals);
+      const meals = await base44.entities.MealLog.filter({ created_by: user.email }, "-meal_time", 50);
+      setTodayMeals(meals.filter(m => m.date === today));
     } catch (err) {
       setTodayMeals([]);
     }
