@@ -12,6 +12,7 @@ import StreakFire from "@/components/ui/StreakFire";
 import GlobalHeader from "@/components/GlobalHeader";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import TrialBanner from "@/components/home/TrialBanner";
+import MacroBreakdownBar from "@/components/home/MacroBreakdownBar";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -285,7 +286,14 @@ const Home = React.memo(() => {
           </div>
         </div>
 
-        {/* Buddy - temporarily disabled */}
+        {/* Macro Breakdown Bar */}
+        <MacroBreakdownBar
+          protein={metrics.totalProtein}
+          carbs={metrics.totalCarbs}
+          fats={metrics.totalFats}
+          lang={lang}
+          profile={profile}
+        />
 
         {/* Primary CTAs */}
         <div className={`grid gap-3 ${isPremium || isTrialActive ? 'grid-cols-2' : 'grid-cols-1'}`}>
