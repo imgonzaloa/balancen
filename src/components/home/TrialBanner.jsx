@@ -4,8 +4,8 @@ import { createPageUrl } from "@/utils";
 
 /**
  * Trial banner shown on Home screen.
- * trialDay: current day of trial (1–7)
- * trialDaysLeft: days remaining (7–1)
+ * trialDay: current day of trial (1–5)
+ * trialDaysLeft: days remaining (5–1)
  */
 export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate }) {
   const isEs = lang === 'es';
@@ -37,24 +37,24 @@ export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate })
         btnText: isEs ? "Ver planes" : isNl ? "Abonnementen bekijken" : "View Plans",
       };
     }
-    if (trialDay >= 4 && trialDaysLeft <= 4) {
-      // Day 4 — halfway
-      return {
-        icon: <Sparkles size={18} className="text-amber-300 flex-shrink-0" />,
-        bg: "from-amber-500/20 to-yellow-500/20",
-        border: "border-amber-400/50",
-        title: isEs ? `✨ Día ${trialDay} de tu Trial de 7 días` : isNl ? `✨ Dag ${trialDay} van je 7-daagse Trial` : `✨ Day ${trialDay} of your 7-Day Trial`,
-        sub: isEs ? "Ya llevas la mitad. ¿Te está gustando?" : isNl ? "Je bent halverwege. Bevalt het je?" : "You're halfway through. Enjoying it?",
-        btnColor: "bg-amber-500 hover:bg-amber-400",
-        btnText: isEs ? "Ver Premium" : isNl ? "Premium bekijken" : "Go Premium",
-      };
-    }
-    // Default — days 1-3
+    if (trialDay >= 3 && trialDaysLeft <= 3) {
+       // Day 3 — halfway
+       return {
+         icon: <Sparkles size={18} className="text-amber-300 flex-shrink-0" />,
+         bg: "from-amber-500/20 to-yellow-500/20",
+         border: "border-amber-400/50",
+         title: isEs ? `✨ Día ${trialDay} de tu Trial de 5 días` : isNl ? `✨ Dag ${trialDay} van je 5-daagse Trial` : `✨ Day ${trialDay} of your 5-Day Trial`,
+         sub: isEs ? "Ya llevas la mitad. ¿Te está gustando?" : isNl ? "Je bent halverwege. Bevalt het je?" : "You're halfway through. Enjoying it?",
+         btnColor: "bg-amber-500 hover:bg-amber-400",
+         btnText: isEs ? "Ver Premium" : isNl ? "Premium bekijken" : "Go Premium",
+       };
+     }
+    // Default — days 1-2
     return {
       icon: <Zap size={18} className="text-teal-300 flex-shrink-0" />,
       bg: "from-teal-500/20 to-emerald-500/20",
       border: "border-teal-400/50",
-      title: isEs ? `🚀 Día ${trialDay} de 7 — Trial Premium` : isNl ? `🚀 Dag ${trialDay} van 7 — Premium Trial` : `🚀 Day ${trialDay} of 7 — Premium Trial`,
+      title: isEs ? `🚀 Día ${trialDay} de 5 — Trial Premium` : isNl ? `🚀 Dag ${trialDay} van 5 — Premium Trial` : `🚀 Day ${trialDay} of 5 — Premium Trial`,
       sub: isEs ? "Acceso completo sin coste. ¡Disfrútalo!" : isNl ? "Volledige toegang zonder kosten. Geniet ervan!" : "Full access, no charge. Enjoy it!",
       btnColor: "bg-teal-600 hover:bg-teal-500",
       btnText: isEs ? "Ver planes" : isNl ? "Abonnementen bekijken" : "View Plans",

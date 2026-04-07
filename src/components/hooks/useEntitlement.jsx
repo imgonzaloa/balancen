@@ -11,8 +11,8 @@ import { base44 } from '@/api/base44Client';
  *  access_type = "expired"         → expired, gate to subscription screen
  *
  * Legacy trial flow (no access_type):
- *  subscription_status = "trial"          → active 7-day trial
- *  subscription_status = "expired_trial"  → trial over
+  *  subscription_status = "trial"          → active 5-day trial
+  *  subscription_status = "expired_trial"  → trial over
  *
  * Owner / collaborator role → always entitled
  */
@@ -82,14 +82,14 @@ export function useEntitlement(profile) {
       const trialStart = new Date(profile.trial_start_date);
       trialEndsAt = profile.trial_end_date
         ? new Date(profile.trial_end_date)
-        : new Date(trialStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+        : new Date(trialStart.getTime() + 5 * 24 * 60 * 60 * 1000);
 
       if (subscriptionStatus === 'trial' && now < trialEndsAt) {
         isTrialActive = true;
         const msLeft = trialEndsAt.getTime() - now.getTime();
         trialDaysLeft = Math.max(1, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
         const msElapsed = now.getTime() - trialStart.getTime();
-        trialDay = Math.min(7, Math.max(1, Math.ceil(msElapsed / (24 * 60 * 60 * 1000))));
+        trialDay = Math.min(5, Math.max(1, Math.ceil(msElapsed / (24 * 60 * 60 * 1000))));
       } else if (
         subscriptionStatus === 'expired_trial' ||
         (subscriptionStatus === 'trial' && now >= trialEndsAt)
