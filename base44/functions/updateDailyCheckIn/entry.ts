@@ -108,11 +108,46 @@ Deno.serve(async (req) => {
 
     await base44.entities.UserProfile.update(profile.id, profileUpdate);
 
+    // ── Badge awarding ──────────────────────────────────────────────
+    const finalStreak = profileUpdate.current_streak ?? profile.current_streak ?? 0;
+    const totalCheckIns = (profile.total_checkins || 0) + (isNewCheckIn ? 1 : 0);
+
+    // Which badges to potentially award
+    const badgesToCheck = [];
+    if (finalStreak >= 3)  badgesToCheck.push('streak_3');
+    if (finalStreak >= 7)  badgesToCheck.push('streak_7');
+    if (finalStreak >= 14) badgesToCheck.push('streak_14');
+    if (finalStreak >= 30) badgesToCheck.push('streak_30');
+    if (totalCheckIns >= 1) badgesToCheck.push('first_checkin');
+    if (body.food_photo_url) badgesToCheck.push('first_photo');
+
+    const newBadges = [];
+    if (badgesToCheck.length > 0) {
+      // Fetch existing badges for this user in one call
+      const existingBadges = await base44.asServiceRole.entities.Badge.filter({ user_email: user.email });
+      const existingTypes = new Set(existingBadges.map(b => b.badge_type));
+
+      const today2 = new Date().toISOString().split("T")[0];
+      for (const badge_type of badgesToCheck) {
+        if (!existingTypes.has(badge_type)) {
+          await base44.asServiceRole.entities.Badge.create({
+            badge_id: `${user.email}_${badge_type}`,
+            user_email: user.email,
+            badge_type,
+            earned_date: today2
+          });
+          newBadges.push(badge_type);
+        }
+      }
+    }
+    // ────────────────────────────────────────────────────────────────
+
     return Response.json({
       success: true,
       checkIn,
       fireAwarded,
-      fireBreakdown
+      fireBreakdown,
+      newBadges
     });
   } catch (error) {
     console.error('Error updating check-in:', error);
