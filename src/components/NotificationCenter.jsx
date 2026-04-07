@@ -4,9 +4,9 @@ import { Bell, UserPlus, Heart, Trophy, X } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { formatDistanceToNow } from "date-fns";
-import { es, enUS, ptBR } from "date-fns/locale";
+import { es, enUS, nl } from "date-fns/locale";
 
-const localeMap = { es, en: enUS, pt: ptBR };
+const localeMap = { es, en: enUS, nl };
 
 const labels = {
   es: {
@@ -25,13 +25,13 @@ const labels = {
     meal_reaction: (name) => `${name} reacted to your meal`,
     challenge_join: (name) => `${name} joined your challenge`,
   },
-  pt: {
-    title: "Notificações",
-    empty: "Sem notificações",
-    emptySubtitle: "Quando alguém interagir com você, você verá aqui.",
-    follow: (name) => `${name} começou a te seguir`,
-    meal_reaction: (name) => `${name} reagiu à sua refeição`,
-    challenge_join: (name) => `${name} entrou no seu desafio`,
+  nl: {
+    title: "Meldingen",
+    empty: "Geen meldingen",
+    emptySubtitle: "Wanneer iemand met je interageert, zie je dat hier.",
+    follow: (name) => `${name} volgt je nu`,
+    meal_reaction: (name) => `${name} reageerde op je maaltijd`,
+    challenge_join: (name) => `${name} deed mee aan je uitdaging`,
   },
 };
 
@@ -51,10 +51,7 @@ const typeBg = {
 export function useUnreadNotificationCount(userEmail) {
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications", userEmail],
-    queryFn: async () => {
-      const all = await base44.entities.Notification.list("-created_date", 50);
-      return all.filter(n => n.user_email === userEmail);
-    },
+    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail }, "-created_date", 50),
     enabled: !!userEmail,
     staleTime: 30000,
     refetchInterval: 60000,
@@ -69,10 +66,7 @@ export default function NotificationCenter({ open, onClose, userEmail, lang = "e
 
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications", userEmail],
-    queryFn: async () => {
-      const all = await base44.entities.Notification.list("-created_date", 50);
-      return all.filter(n => n.user_email === userEmail);
-    },
+    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail }, "-created_date", 50),
     enabled: !!userEmail,
     staleTime: 30000,
     refetchInterval: 60000,

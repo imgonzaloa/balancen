@@ -193,9 +193,9 @@ export default function Feed() {
             ) : (
               <EmptyState
                 emoji="🍽️"
-                headline={{ es: 'Tu feed está vacío', en: 'Your feed is empty', pt: 'Seu feed está vazio' }}
-                subtitle={{ es: 'Seguí a amigos o atletas para ver sus comidas', en: 'Follow friends or athletes to see their meals', pt: 'Siga amigos ou atletas para ver suas refeições' }}
-                buttonLabel={{ es: 'Buscar amigos', en: 'Find friends', pt: 'Buscar amigos' }}
+                headline={{ es: 'Tu feed está vacío', en: 'Your feed is empty', nl: 'Je feed is leeg' }}
+                subtitle={{ es: 'Seguí a amigos o atletas para ver sus comidas', en: 'Follow friends or athletes to see their meals', nl: 'Volg vrienden of atleten om hun maaltijden te zien' }}
+                buttonLabel={{ es: 'Buscar amigos', en: 'Find friends', nl: 'Vrienden zoeken' }}
                 buttonPage="Friends"
                 lang={profile?.language || 'es'}
               />

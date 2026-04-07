@@ -45,7 +45,7 @@ export default function WorkoutTracker() {
       setAiWorkout(res.data);
       setAiExpanded(true);
     } catch {
-      toast.error(lang === "es" ? "Error al generar rutina" : lang === "pt" ? "Erro ao gerar treino" : "Error generating workout");
+      toast.error(lang === "es" ? "Error al generar rutina" : lang === "nl" ? "Fout bij genereren training" : "Error generating workout");
     } finally {
       setAiLoading(false);
     }
@@ -62,7 +62,7 @@ export default function WorkoutTracker() {
       notes: ex.notes || "",
     }));
     setExercises(mapped);
-    toast.success(lang === "es" ? "¡Rutina cargada!" : lang === "pt" ? "Treino carregado!" : "Workout loaded!");
+    toast.success(lang === "es" ? "¡Rutina cargada!" : lang === "nl" ? "Training geladen!" : "Workout loaded!");
   };
 
   const createSessionMutation = useMutation({
@@ -141,12 +141,12 @@ export default function WorkoutTracker() {
             {aiLoading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                {lang === "es" ? "Generando rutina..." : lang === "pt" ? "Gerando treino..." : "Generating workout..."}
+                {lang === "es" ? "Generando rutina..." : lang === "nl" ? "Training genereren..." : "Generating workout..."}
               </>
             ) : (
               <>
                 <Sparkles size={20} />
-                {lang === "es" ? "Generar entreno con IA" : lang === "pt" ? "Gerar treino com IA" : "Generate AI workout"}
+                {lang === "es" ? "Generar entreno con IA" : lang === "nl" ? "AI training genereren" : "Generate AI workout"}
               </>
             )}
           </Button>
@@ -194,7 +194,7 @@ export default function WorkoutTracker() {
                       onClick={handleLoadAiWorkout}
                       className="w-full mt-2 bg-purple-500/30 hover:bg-purple-500/50 border border-purple-400/30 text-purple-200 font-bold text-sm"
                     >
-                      {lang === "es" ? "Cargar esta rutina ↓" : lang === "pt" ? "Carregar este treino ↓" : "Load this workout ↓"}
+                      {lang === "es" ? "Cargar esta rutina ↓" : lang === "nl" ? "Deze training laden ↓" : "Load this workout ↓"}
                     </Button>
                   </div>
                 )}
@@ -252,7 +252,7 @@ export default function WorkoutTracker() {
                 <div key={idx} className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
                   <div className="grid grid-cols-2 gap-2 mb-2">
                     <Input
-                       placeholder={lang === 'es' ? 'Nombre ejercicio' : lang === 'pt' ? 'Nome do exercício' : 'Exercise name'}
+                       placeholder={lang === 'es' ? 'Nombre ejercicio' : lang === 'nl' ? 'Oefenaam' : 'Exercise name'}
                        value={ex.exercise_name}
                       onChange={(e) => {
                         const newExercises = [...exercises];
@@ -325,7 +325,7 @@ export default function WorkoutTracker() {
                   </div>
 
                   <Input
-                     placeholder={lang === 'es' ? 'Notas' : lang === 'pt' ? 'Notas' : 'Notes'}
+                     placeholder={lang === 'es' ? 'Notas' : lang === 'nl' ? 'Notities' : 'Notes'}
                      value={ex.notes}
                     onChange={(e) => {
                       const newExercises = [...exercises];
