@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Camera, Settings, LogOut, Edit2, Target, User as UserIcon, Share2 } from "lucide-react";
+import PullToRefresh from "@/components/PullToRefresh";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
@@ -148,6 +149,7 @@ export default function Profile() {
   }
 
   return (
+    <PullToRefresh>
     <div className="relative" style={{ minHeight: '100%', paddingBottom: '8px' }}>
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-teal-500 rounded-full blur-3xl" />
@@ -456,5 +458,6 @@ export default function Profile() {
         />
       )}
     </div>
+    </PullToRefresh>
   );
 }

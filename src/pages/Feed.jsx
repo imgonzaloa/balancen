@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import PullToRefresh from "@/components/PullToRefresh";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -88,6 +89,7 @@ export default function Feed() {
   const hasFriendContent = posts.length > 0 || friendMeals.length > 0;
 
   return (
+    <PullToRefresh>
     <div className="min-h-screen relative overflow-hidden pb-24" style={{ minHeight: '100dvh' }}>
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-20 right-0 w-96 h-96 bg-teal-500 rounded-full blur-3xl" />
@@ -215,5 +217,6 @@ export default function Feed() {
         />
       )}
     </div>
+    </PullToRefresh>
   );
 }
