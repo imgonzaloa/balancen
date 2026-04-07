@@ -74,7 +74,7 @@ const Home = React.memo(() => {
   const { data: dbMeals } = useQuery({
     queryKey: ['mealLogs', user?.email, today],
     queryFn: async () => {
-      const meals = await base44.entities.MealLog.filter({ created_by: user.email }, '-meal_time', 50);
+      const meals = await base44.entities.MealLog.list('-meal_time', 100);
       return meals.filter(m => m.date === today) || [];
     },
     enabled: !!user?.email,
