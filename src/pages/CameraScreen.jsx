@@ -11,8 +11,10 @@ import { useAppState } from "@/components/AppStateContext";
 import CameraPermissionPrompt from "@/components/CameraPermissionPrompt";
 import { getLocalDateKey } from "@/lib/utils";
 import AIConsentModal, { hasAIConsent } from "@/components/AIConsentModal";
+import { useEntitlement } from "@/components/hooks/useEntitlement";
 
 const FREE_DAILY_LIMIT = 5;
+const TRIAL_DAILY_LIMIT = 10;
 const PREMIUM_MONTHLY_LIMIT = 300;
 
 // Module-level stable store so photo survives navigation/re-render
@@ -24,6 +26,7 @@ export default function CameraScreen() {
   const location = useLocation();
   const { setCapturedFile } = useMeal();
   const { user, profile, setProfile: setContextProfile } = useAppState();
+  const { isTrialActive, isPaidSubscriber } = useEntitlement();
 
   // Detect profilePhoto mode from query params or localStorage
   const searchParams = new URLSearchParams(location.search);
@@ -76,30 +79,37 @@ export default function CameraScreen() {
       const stored = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
       setScansUsedToday(stored);
     }
-    // Monthly limit for Premium users (non-Power)
-    if (isPremium && !isPowerUser) {
+    // Trial daily limit (if trial is active and user is not a paid subscriber)
+    else if (isTrialActive && !isPaidSubscriber) {
+      const stored = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
+      setScansUsedToday(stored);
+    }
+    // Monthly limit for Premium users (non-Power, not on trial)
+    else if (isPremium && !isPowerUser && !isTrialActive) {
       const stored = parseInt(localStorage.getItem(monthScanKey()) || "0", 10);
       setScansUsedThisMonth(stored);
     }
-  }, [isProfilePhotoMode, isPremium, isPowerUser, todayScanKey, monthScanKey]);
+  }, [isProfilePhotoMode, isPremium, isPowerUser, todayScanKey, monthScanKey, isTrialActive, isPaidSubscriber]);
 
-  const freeScansLeft = isPremium ? null : Math.max(0, FREE_DAILY_LIMIT - (scansUsedToday ?? 0));
-  const premiumScansLeft = isPremium && !isPowerUser ? Math.max(0, PREMIUM_MONTHLY_LIMIT - (scansUsedThisMonth ?? 0)) : null;
+  const isTrialUser = isTrialActive && !isPaidSubscriber;
+  const freeScansLeft = !isPremium ? Math.max(0, FREE_DAILY_LIMIT - (scansUsedToday ?? 0)) : null;
+  const trialScansLeft = isTrialUser ? Math.max(0, TRIAL_DAILY_LIMIT - (scansUsedToday ?? 0)) : null;
+  const premiumScansLeft = isPremium && !isPowerUser && !isTrialActive ? Math.max(0, PREMIUM_MONTHLY_LIMIT - (scansUsedThisMonth ?? 0)) : null;
 
   const incrementScanCount = useCallback(() => {
-    if (!isPremium) {
-      // Free user: increment daily
+    if (!isPremium || isTrialUser) {
+      // Free or trial user: increment daily
       const current = parseInt(localStorage.getItem(todayScanKey) || "0", 10);
       localStorage.setItem(todayScanKey, String(current + 1));
       setScansUsedToday(current + 1);
     } else if (!isPowerUser) {
-      // Premium (non-Power) user: increment monthly
+      // Premium (non-Power, non-trial) user: increment monthly
       const monthKey = monthScanKey();
       const current = parseInt(localStorage.getItem(monthKey) || "0", 10);
       localStorage.setItem(monthKey, String(current + 1));
       setScansUsedThisMonth(current + 1);
     }
-  }, [isPremium, isPowerUser, todayScanKey, monthScanKey]);
+  }, [isPremium, isPowerUser, isTrialUser, todayScanKey, monthScanKey]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -289,7 +299,7 @@ export default function CameraScreen() {
         toast.error(t("error_capturing"));
       }
     }
-  }, [isCapturing, videoReady, t, lang, setCapturedFile, navigate, isPremium, isPowerUser, freeScansLeft, premiumScansLeft, isProfilePhotoMode, incrementScanCount]);
+  }, [isCapturing, videoReady, t, lang, setCapturedFile, navigate, isPremium, isPowerUser, freeScansLeft, trialScansLeft, premiumScansLeft, isProfilePhotoMode, incrementScanCount, isTrialUser]);
 
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files?.[0];
@@ -303,7 +313,17 @@ export default function CameraScreen() {
       toast.error(t("ai_scans_limit"));
       navigate(createPageUrl("Premium"));
       return;
-    } else if (isPremium && premiumScansLeft === 0) {
+    } else if (isTrialUser && trialScansLeft === 0) {
+      // Trial user daily limit
+      const limitMsg = lang === 'es' 
+        ? 'Alcanzaste tu límite diario de prueba (10 análisis). Suscribirse a Premium para más.'
+        : lang === 'nl'
+        ? 'Je hebt je dagelijkse proefperiode limiet bereikt (10 analyses). Abonneer je op Premium voor meer.'
+        : 'You reached your daily trial limit (10 analyses). Subscribe to Premium for more.';
+      toast.error(limitMsg);
+      navigate(createPageUrl("Premium"));
+      return;
+    } else if (isPremium && !isTrialUser && premiumScansLeft === 0) {
       // Premium user monthly limit
       const limitMsg = lang === 'es' 
         ? 'Alcanzaste tu límite de 300 análisis este mes. Upgrade a Power para ilimitado.'
@@ -557,12 +577,12 @@ export default function CameraScreen() {
       )}
 
       {/* Free scan counter badge */}
-      {videoReady && !isProfilePhotoMode && freeScansLeft !== null && (
+      {videoReady && !isProfilePhotoMode && (freeScansLeft !== null || trialScansLeft !== null) && (
         <div
           className="absolute z-[7]"
           style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 190px)', left: '50%', transform: 'translateX(-50%)' }}
         >
-          {freeScansLeft === 0 ? (
+          {(freeScansLeft === 0 || trialScansLeft === 0) ? (
            <button
              onClick={() => navigate(createPageUrl("Premium"))}
              className="px-4 py-2 rounded-full border bg-amber-500/30 border-amber-400/50 text-amber-200 text-xs font-bold backdrop-blur-md"
@@ -572,7 +592,7 @@ export default function CameraScreen() {
            </button>
           ) : (
            <div className="px-3 py-1.5 rounded-full border bg-teal-500/25 border-teal-400/40 text-teal-300 text-xs font-bold backdrop-blur-md pointer-events-none">
-             ✨ {freeScansLeft} {t("ai_scans_left")}
+             ✨ {freeScansLeft !== null ? freeScansLeft : trialScansLeft} {t("ai_scans_left")}
            </div>
           )}
         </div>
