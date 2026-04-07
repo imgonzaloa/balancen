@@ -59,14 +59,13 @@ export function AppStateProvider({ children }) {
 
           // Campus admin allowlist check
           try {
-            const allowlist = await base44.entities.CampusAdminAllowlist.filter({
-              email: normalizedEmail,
-              status: "active",
-            });
-            if (allowlist.length > 0) {
-              const profiles = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
-              if (profiles[0] && profiles[0].role !== "owner" && profiles[0].role !== "campus_admin") {
-                await base44.entities.UserProfile.update(profiles[0].id, {
+            const allowlist = await base44.entities.CampusAdminAllowlist.list();
+            const isAdmin = allowlist.some(a => a.email === normalizedEmail && a.status === "active");
+            if (isAdmin) {
+              const profiles = await base44.entities.UserProfile.list();
+              const userProfile = profiles.find(p => p.created_by === currentUser.email);
+              if (userProfile && userProfile.role !== "owner" && userProfile.role !== "campus_admin") {
+                await base44.entities.UserProfile.update(userProfile.id, {
                   role: "campus_admin",
                   is_premium: true,
                   premium_source: "collaborator_invite",
@@ -111,12 +110,12 @@ export function AppStateProvider({ children }) {
     const fetchProfile = async () => {
       try {
         const profiles = await withTimeout(
-          base44.entities.UserProfile.filter({ created_by: user.email }),
+          base44.entities.UserProfile.list(),
           4000,
           'PROFILE_TIMEOUT'
         );
         if (isMounted) {
-          const p = profiles[0] || null;
+          const p = profiles.find(pr => pr.created_by === user.email) || null;
           setProfile(p);
           const photo = p?.profile_photo || p?.avatar_url;
           if (photo) {
@@ -138,8 +137,8 @@ export function AppStateProvider({ children }) {
   const refreshProfile = useCallback(async () => {
     if (!user?.email) return;
     try {
-      const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-      const p = profiles[0] || null;
+      const profiles = await base44.entities.UserProfile.list();
+      const p = profiles.find(pr => pr.created_by === user.email) || null;
       setProfile(p);
       const photo = p?.profile_photo || p?.avatar_url;
       if (photo) {
@@ -154,8 +153,8 @@ export function AppStateProvider({ children }) {
   const refreshFriends = useCallback(async () => {
     if (!user?.email) return;
     try {
-      const friendsList = await base44.entities.Friend.filter({ created_by: user.email });
-      setFriends(friendsList);
+      const friendsList = await base44.entities.Friend.list();
+      setFriends(friendsList.filter(f => f.created_by === user.email));
     } catch (err) {
       console.error('[AppState] refreshFriends error:', err.message);
     }
@@ -165,8 +164,8 @@ export function AppStateProvider({ children }) {
     if (!user?.email) return;
     try {
       const today = new Date().toISOString().split("T")[0];
-      const meals = await base44.entities.MealLog.filter({ created_by: user.email }, "-meal_time", 50);
-      setTodayMeals(meals.filter(m => m.date === today));
+      const meals = await base44.entities.MealLog.list("-meal_time", 100);
+      setTodayMeals(meals.filter(m => m.date === today && m.created_by === user.email));
     } catch (err) {
       setTodayMeals([]);
     }
