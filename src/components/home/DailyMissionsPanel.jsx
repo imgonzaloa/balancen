@@ -111,7 +111,7 @@ export default function DailyMissionsPanel({ lang = "es", mealCount, caloriesPro
     queryKey: ["todayPosts", userEmail, today],
     queryFn: async () => {
       try {
-        const posts = await base44.entities.Post.filter({ created_by: userEmail }, '-created_date', 50);
+        const posts = await base44.entities.Post.list('-created_date', 50);
         return posts.filter(p => p.created_date?.startsWith(today)) || [];
       } catch {
         return [];
