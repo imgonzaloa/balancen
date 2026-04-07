@@ -34,27 +34,29 @@ export default function Settings() {
        if (profile?.role !== "owner" && user?.email?.toLowerCase() !== "imgonzaloa@gmail.com") {
          return null;
        }
-       // Get current month's meal logs to count AI scans
-       const now = new Date();
-       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+       try {
+         // Get all meal logs and filter by date
+         const allMeals = await base44.entities.MealLog.list("-created_date", 1000);
+         const now = new Date();
+         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+         const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
-       const mealLogs = await base44.entities.MealLog.filter(
-         { date: { $gte: monthStart, $lte: monthEnd } },
-         "-created_date",
-         1000
-       );
-       const aiScans = mealLogs.filter(m => m.photo_url).length;
+         const mealLogs = allMeals.filter(m => m.date >= monthStart && m.date <= monthEnd);
+         const aiScans = mealLogs.filter(m => m.photo_url).length;
 
-       // Count premium users
-       const allProfiles = await base44.entities.UserProfile.list("-created_date", 1000);
-       const premiumUsers = allProfiles.filter(p => p.is_premium).length;
+         // Count premium users
+         const allProfiles = await base44.entities.UserProfile.list("-created_date", 1000);
+         const premiumUsers = allProfiles.filter(p => p.is_premium).length;
 
-       const aiCost = aiScans * 0.003; // €0.003 per scan
-       const revenueMult = premiumUsers * 4.90; // €4.90 net per premium user
-       const margin = revenueMult - aiCost;
+         const aiCost = aiScans * 0.003; // €0.003 per scan
+         const revenueMult = premiumUsers * 4.90; // €4.90 net per premium user
+         const margin = revenueMult - aiCost;
 
-       return { aiScans, aiCost, premiumUsers, revenueMult, margin };
+         return { aiScans, aiCost, premiumUsers, revenueMult, margin };
+       } catch (err) {
+         console.error('Cost analytics error:', err);
+         return null;
+       }
      },
      enabled: !!profile || !!user,
    });
