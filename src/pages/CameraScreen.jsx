@@ -184,8 +184,8 @@ export default function CameraScreen() {
     try {
       const video = videoRef.current;
       const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 1280;
-      canvas.height = video.videoHeight || 720;
+      canvas.width = Math.min(video.videoWidth, 800);
+      canvas.height = Math.round(canvas.width * (video.videoHeight / video.videoWidth));
 
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Canvas context failed");
@@ -194,12 +194,12 @@ export default function CameraScreen() {
 
       // toBlob with dataURL fallback
       let blob = await new Promise((resolve) =>
-        canvas.toBlob(b => resolve(b), "image/jpeg", 0.88)
+        canvas.toBlob(b => resolve(b), "image/jpeg", 0.82)
       );
 
       if (!blob || blob.size === 0) {
         console.warn("⚠️ PHOTO_CAPTURE_RETRY - using dataURL fallback");
-        const dataUrlFallback = canvas.toDataURL("image/jpeg", 0.88);
+        const dataUrlFallback = canvas.toDataURL("image/jpeg", 0.82);
         const res = await fetch(dataUrlFallback);
         blob = await res.blob();
       }
@@ -207,7 +207,7 @@ export default function CameraScreen() {
       if (!blob || blob.size === 0) throw new Error("Failed to capture photo");
 
       const file = new File([blob], "meal.jpg", { type: "image/jpeg" });
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
 
       // Create a stable blob URL for <img> preview — won't disappear on re-render
       blobUrl = URL.createObjectURL(blob);
