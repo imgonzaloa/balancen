@@ -66,7 +66,7 @@ export default function FriendInviteCard({ profile, joinedCount = 0 }) {
       <div>
         <h2 className="text-white font-black text-lg">{t('invite_header') || 'Invite friends, eat better together'} 🍽️</h2>
         <p className="text-white/60 text-sm mt-1">
-          {t('invite_benefit') || 'Your friends join free. You both get 7 extra days of Premium.'}
+          {t('invite_benefit') || 'Your friends join free. You both get 5 extra days of Premium.'}
         </p>
       </div>
 

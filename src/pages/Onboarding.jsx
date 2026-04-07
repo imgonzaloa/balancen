@@ -429,7 +429,7 @@ export default function Onboarding() {
       social_count: "10.000+",
       social_sub: "mensen met hetzelfde doel zijn al gestart",
       trial_title: "Je plan is klaar!",
-      trial_sub: "7 dagen gratis. Geen kaart. Geen foefjes.",
+      trial_sub: "5 dagen gratis. Geen kaart. Geen foefjes.",
       annual_label: "Jaarplan",
       annual_price: "€49,99/jaar",
       annual_monthly: "gelijk aan €4,17/maand",

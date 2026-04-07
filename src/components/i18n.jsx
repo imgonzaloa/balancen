@@ -709,7 +709,7 @@ const resources = {
       feature_streak_metrics: "Streak & consistency metrics",
       feature_history_export: "Full history export & backup",
       try_for_free_cta: "Try free — €0.00",
-      try_for_free_fine_print: "Free for 7 days, then €4.99/mo or €49.99/yr. Cancel anytime.",
+      try_for_free_fine_print: "Free for 5 days, then €4.99/mo or €49.99/yr. Cancel anytime.",
 
       // Premium hubs and AI features
       progress_saved: "Progress saved!",
@@ -746,7 +746,7 @@ const resources = {
       meal_moment_title: "What are you eating now? 📸",
       meal_moment_subtitle: "Share it with your team",
       meal_moment_scan: "Scan",
-      invite_description: "You + your friend both get 7 extra Premium days",
+      invite_description: "You + your friend both get 5 extra Premium days",
       joined_with_link: "joined with your link",
       share_failed: "Share failed",
       }
@@ -867,7 +867,7 @@ const resources = {
       feature_streak_metrics: "Streak- en consistentiemetrieken",
       feature_history_export: "Volledige geschiedenisexport",
       try_for_free_cta: "Gratis proberen — €0,00",
-      try_for_free_fine_print: "Gratis 7 dagen, daarna €4,99/maand of €49,99/jaar. Annuleer wanneer je wilt.",
+      try_for_free_fine_print: "Gratis 5 dagen, daarna €4,99/maand of €49,99/jaar. Annuleer wanneer je wilt.",
 
       // General
       logout: "Uitloggen",
@@ -920,7 +920,7 @@ const resources = {
       meal_moment_subtitle: "Deel het met je team",
       meal_moment_scan: "Scan",
       ai_scans_limit: "Je hebt vandaag je 5 gratis AI-scans gebruikt. Upgrade naar Premium voor onbeperkt.",
-      invite_description: "Jij en je vriend krijgen beide 7 extra Premium-dagen",
+      invite_description: "Jij en je vriend krijgen beide 5 extra Premium-dagen",
       joined_with_link: "mededaan met je link",
       share_failed: "Delen mislukt",
       search_foods: "Zoek voedsel",
@@ -1684,7 +1684,7 @@ const resources = {
       create_your_profile: "Crea tu perfil",
       sign_in: "Iniciar sesión",
       sign_in_to_access_profile: "Inicia sesión para ver tu perfil",
-      invite_description: "Tú y tu amigo ganan 7 días extra de Premium",
+      invite_description: "Tú y tu amigo ganan 5 días extra de Premium",
       joined_with_link: "se unió con tu link",
       share_failed: "Error al compartir",
 
