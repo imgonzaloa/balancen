@@ -1,0 +1,42 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who receives the notification"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "follow",
+        "meal_reaction",
+        "challenge_join"
+      ],
+      "description": "Notification type"
+    },
+    "actor_email": {
+      "type": "string",
+      "description": "Email of the user who triggered the notification"
+    },
+    "actor_name": {
+      "type": "string",
+      "description": "Display name of the actor"
+    },
+    "content_id": {
+      "type": "string",
+      "description": "ID of the related content (meal, challenge, etc.)"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the notification has been read"
+    }
+  },
+  "required": [
+    "user_email",
+    "type",
+    "actor_email",
+    "actor_name"
+  ]
+}
