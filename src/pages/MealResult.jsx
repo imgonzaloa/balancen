@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { getLocalDateKey } from "@/lib/utils";
 import SharePrompt from "@/components/meal/SharePrompt";
+import { addToQueue } from "@/lib/offlineQueue";
 
 const FREE_DAILY_LIMIT = 5;
 
@@ -529,7 +530,20 @@ export default function MealResult() {
       console.log("✅ SAVE_OK - MealLog created", savedLog?.id);
     } catch (err) {
       console.error("❌ SAVE_FAIL - MealLog:", err?.message);
-      // Local store already has the meal — still functional
+      // Local store already has the meal — queue for sync when back online
+      addToQueue({
+        type: "meal_save",
+        payload: {
+          date: dateKey,
+          meal_time,
+          meal_type: mealType,
+          photo_url: resolvedPhotoUrl,
+          estimated_calories: saveTotals.calories,
+          estimated_protein: saveTotals.protein,
+          estimated_carbs: saveTotals.carbs,
+          estimated_fats: saveTotals.fats,
+        },
+      });
     }
 
     // 3. Verify local store actually has the meal (flush is debounced 100ms — force-read state)
@@ -553,7 +567,16 @@ export default function MealResult() {
       food_photo_url: resolvedPhotoUrl,
       estimated_calories: saveTotals.calories,
       meal_photo_fire_awarded: false,
-    }).catch(() => {});
+    }).catch(() => {
+      addToQueue({
+        type: "checkin",
+        payload: {
+          food_photo_url: resolvedPhotoUrl,
+          estimated_calories: saveTotals.calories,
+          meal_photo_fire_awarded: false,
+        },
+      });
+    });
 
     return meal;
   };

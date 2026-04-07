@@ -25,6 +25,7 @@ import TrialGate from "@/components/TrialGate";
 import BuildBadge from "@/components/BuildBadge";
 import OfflineBanner from "@/components/OfflineBanner";
 import MealMomentNotification from "@/components/MealMomentNotification";
+import { processQueue } from "@/lib/offlineQueue";
 
 
 // Global React Query client - aggressive caching to prevent rate limits and re-fetches
@@ -108,6 +109,32 @@ function LayoutInner({ children, currentPageName, bootState }) {
   React.useEffect(() => {
     console.log('ROOT MOUNT');
   }, []);
+
+  // Offline sync: process queue when connection is restored
+  React.useEffect(() => {
+    const handleOnline = async () => {
+      const syncMsg = lang === 'es'
+        ? 'Conexión recuperada. Sincronizando...'
+        : lang === 'pt'
+        ? 'Conexão restaurada. Sincronizando...'
+        : 'Connection restored. Syncing...';
+      const doneMsg = lang === 'es'
+        ? 'Todo sincronizado ✓'
+        : lang === 'pt'
+        ? 'Tudo sincronizado ✓'
+        : 'All synced ✓';
+
+      const { processQueue } = await import('@/lib/offlineQueue');
+      const { processed } = await processQueue();
+      if (processed > 0) {
+        const { toast } = await import('sonner');
+        toast.info(syncMsg);
+        setTimeout(() => toast.success(doneMsg), 1200);
+      }
+    };
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [lang]);
 
   // Reset scroll on tab change with multiple attempts for reliability
   React.useEffect(() => {
