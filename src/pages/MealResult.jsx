@@ -376,10 +376,7 @@ export default function MealResult() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Log key events for debug panel
-  useEffect(() => {
-    console.log("🔬 ANALYZE_START");
-  }, []);
+
 
   // Run analysis once
   useEffect(() => {
@@ -516,7 +513,6 @@ export default function MealResult() {
       });
       setConfidence(conf);
       setPhase("review");
-      console.log("✅ ANALYZE_OK", { items: items.length, calories: analysis.total_calories, confidence: conf, fromCache: cachedResult ? true : false });
 
       if (navigator.vibrate) navigator.vibrate(40);
     } catch (err) {
@@ -571,8 +567,6 @@ export default function MealResult() {
       confidence,
     };
 
-    console.log("💾 SAVE_START", { calories: saveTotals.calories, dateKey });
-
     // 1. Optimistic local save — updates Home/Progress immediately
     addMeal(meal);
 
@@ -597,8 +591,7 @@ export default function MealResult() {
       queryClient.invalidateQueries({ queryKey: ['mealLogs'] });
       queryClient.invalidateQueries({ queryKey: ['progressMeals'] });
       queryClient.invalidateQueries({ queryKey: ['progressWeekMeals'] });
-      console.log("✅ SAVE_OK - MealLog created", savedLog?.id);
-    } catch (err) {
+      } catch (err) {
       console.error("❌ SAVE_FAIL - MealLog:", err?.message);
       // Local store already has the meal — queue for sync when back online
       addToQueue({
@@ -617,20 +610,8 @@ export default function MealResult() {
     }
 
     // 3. Verify local store actually has the meal (flush is debounced 100ms — force-read state)
-    // We rely on addMeal() being synchronous in React state, so just log after a tick
-    await new Promise(r => setTimeout(r, 150));
-    try {
-      const storedRaw = localStorage.getItem("balancen.mealsByDate");
-      const parsed = JSON.parse(storedRaw || "{}");
-      const todayMeals = parsed[dateKey] || [];
-      const verifyOk = todayMeals.some(m => m.id === meal.id);
-      console.log(verifyOk ? "✅ SAVE_VERIFY_OK" : "⚠️ SAVE_VERIFY_FAIL", {
-        todayMealsCount: todayMeals.length,
-        TODAY_TOTALS_AFTER_SAVE: todayMeals.reduce((a, m) => a + (m.totals?.calories || 0), 0)
-      });
-    } catch (_) {
-      console.warn("⚠️ SAVE_VERIFY_FAIL - could not read localStorage");
-    }
+     // We rely on addMeal() being synchronous in React state, so just log after a tick
+     await new Promise(r => setTimeout(r, 150));
 
     // Fire-and-forget daily check-in update
     base44.functions.invoke('updateDailyCheckIn', {

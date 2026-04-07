@@ -22,8 +22,6 @@ export default function PreviewScreen() {
 
   const resolvedPreview = previewUrl || storedFallback;
 
-  console.log("📷 PREVIEW_SCREEN_MOUNT", { hasPreview: !!previewUrl, hasFile: !!capturedFile, hasFallback: !!storedFallback });
-
   // Only redirect if truly nothing — not during async restore
   React.useEffect(() => {
     if (!resolvedPreview) {
@@ -35,14 +33,12 @@ export default function PreviewScreen() {
   if (!resolvedPreview) return null;
 
   const handleRetake = () => {
-    console.log("🔄 RETAKE_PHOTO");
     resetMeal();
     // Go back to camera, passing the same origin forward
     navigate(createPageUrl("CameraScreen"), { replace: true, state: { from: returnTo } });
   };
 
   const handleUsePhoto = () => {
-    console.log("✅ USE_PHOTO_CONFIRMED - navigating to analysis");
     navigate(createPageUrl("MealResult"), { replace: true, state: { from: returnTo } });
   };
 

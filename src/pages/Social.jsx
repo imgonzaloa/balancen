@@ -89,7 +89,6 @@ export default function Social() {
 
   // ✅ Refetch without reloading the page
   const handleRefetch = React.useCallback(() => {
-    console.log('[SOCIAL] Refetching data');
     queryClient.invalidateQueries({ queryKey: ["myGroups"] });
     queryClient.invalidateQueries({ queryKey: ["friends"] });
     queryClient.invalidateQueries({ queryKey: ["friendProfiles"] });
