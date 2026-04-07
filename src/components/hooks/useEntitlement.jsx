@@ -140,7 +140,7 @@ export function useEntitlement(profile) {
         // Calculate consistency for the campus group period
         let consistencyPercent = 0;
         if (profile.campus_group_id) {
-          const groups = await base44.entities.Group.filter({ id: profile.campus_group_id }).catch(() => []);
+          const groups = await base44.entities.Group.list().then(g => g.filter(x => x.id === profile.campus_group_id)).catch(() => []);
           const group = groups[0];
           if (group?.start_date && group?.end_date) {
             const start = new Date(group.start_date);
