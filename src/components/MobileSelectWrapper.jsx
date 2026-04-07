@@ -62,13 +62,14 @@ export function MobileSelect({
       </button>
 
       <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent>
+        <DrawerContent className='bg-slate-900 border-t border-white/20'>
           <DrawerHeader>
-            <DrawerTitle>{label || 'Select option'}</DrawerTitle>
+            <DrawerTitle className='text-white font-bold text-lg'>{label || 'Select option'}</DrawerTitle>
           </DrawerHeader>
           <div className="flex flex-col gap-2 p-4">
             {React.Children.map(children, (child) => {
               if (!child || child.type !== SelectItem) return child;
+              const isSelected = value === child.props.value;
               
               return (
                 <Button
@@ -77,13 +78,18 @@ export function MobileSelect({
                     onValueChange(child.props.value);
                     setOpen(false);
                   }}
-                  variant={value === child.props.value ? 'default' : 'outline'}
-                  className="justify-start h-10"
+                  className={isSelected ? 'w-full justify-start h-12 bg-teal-500 text-white font-bold rounded-xl' : 'w-full justify-start h-12 bg-white/10 text-white border border-white/20 rounded-xl hover:bg-white/20'}
                 >
                   {child.props.children}
                 </Button>
               );
             })}
+            <Button
+              onClick={() => setOpen(false)}
+              className='w-full justify-start h-12 bg-white/10 text-white border border-white/20 rounded-xl hover:bg-white/20 mt-2'
+            >
+              {label ? `Cancel ${label}` : 'Cancel'}
+            </Button>
           </div>
         </DrawerContent>
       </Drawer>

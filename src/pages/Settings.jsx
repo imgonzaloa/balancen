@@ -83,11 +83,11 @@ export default function Settings() {
   });
 
   const handleLanguageChange = async (newLang) => {
-    if (newLang !== "en" && newLang !== "es" && newLang !== "pt") return;
+    if (newLang !== "en" && newLang !== "es" && newLang !== "nl") return;
     // changeLanguage handles i18n, single localStorage key, and DB sync
     await changeLanguage(newLang);
     queryClient.invalidateQueries(['profile']);
-    toast.success(newLang === 'es' ? 'Idioma actualizado' : newLang === 'pt' ? 'Idioma atualizado' : 'Language updated');
+    toast.success(newLang === 'es' ? 'Idioma actualizado' : newLang === 'nl' ? 'Taal bijgewerkt' : 'Language updated');
   };
 
   const handleToggle = (field, value) => {
@@ -319,6 +319,7 @@ export default function Settings() {
             >
               <SelectItem value="en">🇬🇧 English</SelectItem>
               <SelectItem value="es">🇪🇸 Español</SelectItem>
+              <SelectItem value="nl">🇳🇱 Nederlands</SelectItem>
             </MobileSelect>
           </div>
         </motion.div>
