@@ -51,7 +51,7 @@ const typeBg = {
 export function useUnreadNotificationCount(userEmail) {
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications", userEmail],
-    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail }, "-created_date", 30),
+    queryFn: () => base44.entities.Notification.filter({ created_by: userEmail }, "-created_date", 30),
     enabled: !!userEmail,
     staleTime: 30000,
     refetchInterval: 60000,
@@ -66,7 +66,7 @@ export default function NotificationCenter({ open, onClose, userEmail, lang = "e
 
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications", userEmail],
-    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail }, "-created_date", 30),
+    queryFn: () => base44.entities.Notification.filter({ created_by: userEmail }, "-created_date", 30),
     enabled: !!userEmail,
     staleTime: 30000,
     refetchInterval: 60000,
