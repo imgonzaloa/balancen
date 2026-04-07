@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import { base44 } from "@/api/base44Client";
 import { useAppState } from "@/components/AppStateContext";
 import CameraPermissionPrompt from "@/components/CameraPermissionPrompt";
+import { getLocalDateKey } from "@/lib/utils";
 import AIConsentModal, { hasAIConsent } from "@/components/AIConsentModal";
 
 const FREE_DAILY_LIMIT = 5;
@@ -61,7 +62,7 @@ export default function CameraScreen() {
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
   const isPowerUser = profile?.plan_type === 'power' || profile?.subscription_plan === 'power';
-  const todayScanKey = `balancen_ai_scans_${new Date().toISOString().split("T")[0]}`;
+  const todayScanKey = `balancen_ai_scans_${getLocalDateKey()}`;
   const monthScanKey = () => {
     const now = new Date();
     return `balancen_ai_scans_${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;

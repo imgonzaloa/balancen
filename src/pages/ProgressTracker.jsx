@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
+import { getLocalDateKey } from "@/lib/utils";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function ProgressTracker() {
@@ -37,7 +38,7 @@ export default function ProgressTracker() {
   const addSnapshotMutation = useMutation({
     mutationFn: (data) => base44.entities.ProgressSnapshot.create({
       ...data,
-      date: new Date().toISOString().split("T")[0],
+      date: getLocalDateKey(),
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["progress-snapshots"] });

@@ -139,7 +139,7 @@ const Home = React.memo(() => {
     if (!milestone) return;
     const key = `balancen_streak_celebrated_${milestone}`;
     if (!localStorage.getItem(key)) {
-      localStorage.setItem(key, new Date().toISOString().split('T')[0]);
+      localStorage.setItem(key, getLocalDateKey());
       setCelebratingStreak(milestone);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

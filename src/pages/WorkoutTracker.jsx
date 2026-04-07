@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { getLocalDateKey } from "@/lib/utils";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -75,7 +76,7 @@ export default function WorkoutTracker() {
 
       return base44.entities.WorkoutSession.create({
         workout_plan_id: planId,
-        date: new Date().toISOString().split("T")[0],
+        date: getLocalDateKey(),
         duration_minutes: parseInt(duration) || 0,
         exercises_completed: exercises.map(ex => ({
           exercise_name: ex.exercise_name,
