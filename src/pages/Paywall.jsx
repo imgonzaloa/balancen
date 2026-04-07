@@ -25,6 +25,7 @@ export default function Paywall() {
   const [purchaseError, setPurchaseError] = useState(null);
   const [pricing, setPricing] = useState(null);
   const [userStats, setUserStats] = useState(null);
+  const [powerBilling, setPowerBilling] = useState("yearly");
 
   const { profile, user: appUser } = useAppState();
    const { isTrialExpired, trialDaysLeft, isPremium, isEntitled, isCampusAccess, isCampusReward, isAccessExpired, accessDaysLeft, campus_consistency_percent } = useEntitlement(profile);
@@ -303,27 +304,65 @@ export default function Paywall() {
              </button>
 
              {/* Power — Unlimited */}
-             <button
-               onClick={() => setSelectedPlan("power_yearly")}
-               className={`w-full relative rounded-2xl p-4 border-2 transition-all text-left ${
+             <div className={`w-full relative rounded-2xl p-4 border-2 transition-all ${
                  selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
                    ? 'bg-gradient-to-r from-amber-500/25 to-orange-500/25 border-amber-400 shadow-lg'
-                   : 'bg-white/5 border-white/15 hover:border-white/30'
-               }`}
-             >
+                   : 'bg-white/5 border-white/15'
+               }`}>
                <div className="absolute top-3 right-3 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">
                  ∞ scans
                </div>
-               <div className="flex items-baseline gap-2">
+               <div className="flex items-baseline gap-2 mb-3">
                  <span className="text-2xl font-black text-white">
                    {lang === 'es' ? 'Power — Ilimitado' : lang === 'nl' ? 'Power — Onbeperkt' : 'Power — Unlimited'}
                  </span>
                </div>
-               <div className="flex items-baseline gap-2 mt-1">
-                 <span className="text-xl font-black text-amber-300">{pricing?.currency || '€'}{pricing?.prices?.power_yearly || '89.99'}</span>
-                 <span className="text-white/50 text-sm">/ {lang === 'es' ? 'año' : lang === 'nl' ? 'jaar' : 'year'}</span>
+
+               {/* Monthly/Yearly Toggle */}
+               <div className="flex gap-2 mb-3">
+                 <button
+                   onClick={() => {
+                     setPowerBilling("monthly");
+                     setSelectedPlan("power_monthly");
+                   }}
+                   className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
+                     powerBilling === "monthly"
+                       ? 'bg-amber-500 text-white'
+                       : 'bg-white/10 text-white/60 hover:bg-white/20'
+                   }`}
+                 >
+                   {lang === 'es' ? 'Mensual' : lang === 'nl' ? 'Maandelijks' : 'Monthly'}
+                 </button>
+                 <button
+                   onClick={() => {
+                     setPowerBilling("yearly");
+                     setSelectedPlan("power_yearly");
+                   }}
+                   className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
+                     powerBilling === "yearly"
+                       ? 'bg-amber-500 text-white'
+                       : 'bg-white/10 text-white/60 hover:bg-white/20'
+                   }`}
+                 >
+                   {lang === 'es' ? 'Anual' : lang === 'nl' ? 'Jaarlijks' : 'Yearly'}
+                 </button>
                </div>
-             </button>
+
+               {/* Price */}
+               <div className="flex items-baseline gap-2 mb-2">
+                 <span className="text-xl font-black text-amber-300">
+                   {pricing?.currency || '€'}{powerBilling === 'yearly' ? (pricing?.prices?.power_yearly || '89.99') : (pricing?.prices?.power_monthly || '12.99')}
+                 </span>
+                 <span className="text-white/50 text-sm">/ {powerBilling === 'yearly' ? (lang === 'es' ? 'año' : lang === 'nl' ? 'jaar' : 'year') : (lang === 'es' ? 'mes' : lang === 'nl' ? 'maand' : 'month')}</span>
+               </div>
+
+               {/* Savings note when yearly */}
+               {powerBilling === 'yearly' && (
+                 <p className="text-amber-300 text-xs">
+                   {lang === 'es' ? 'Ahorrá €65/año' : lang === 'nl' ? 'Bespaar €65/jaar' : 'Save €65/year'}
+                 </p>
+               )}
+             </div>
            </motion.div>
          )}
 
