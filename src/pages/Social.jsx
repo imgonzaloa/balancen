@@ -243,9 +243,9 @@ export default function Social() {
             </div>
           ) : (
             <div className="space-y-3">
-               {friendProfiles.slice(0, 5).map((friend, idx) => (
-                 <div
-                   key={friend.id || `friend-${idx}`}
+                {friendProfiles.slice(0, 5).map((friend, idx) => (
+                  <div
+                    key={`friend-${friend.id || idx}`}
                    className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
                  >
                   <div className="flex items-start gap-3">
@@ -314,9 +314,9 @@ export default function Social() {
             </div>
           ) : (
             <div className="space-y-3">
-               {myGroups.map((group, idx) => (
-                 <div
-                   key={group.id || `group-${idx}`}
+                {myGroups.map((group, idx) => (
+                  <div
+                    key={`group-${group.id || idx}`}
                    onClick={() => navigate(`${createPageUrl('GroupDetail')}?id=${group.id}`)}
                    className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 backdrop-blur-xl rounded-2xl p-5 border border-purple-500/30 hover:border-purple-500/50 transition-colors cursor-pointer"
                  >
