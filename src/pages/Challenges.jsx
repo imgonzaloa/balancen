@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import { useTranslation } from "@/components/TranslationProvider";
 import EmptyState from "@/components/ui/EmptyState";
+import PullToRefresh from "@/components/PullToRefresh";
 
 const PRESET_CHALLENGES_CONFIG = [
   {
@@ -168,14 +169,14 @@ export default function Challenges() {
   const upsellText = { es: '🏆 Únete a Premium para participar en retos', en: '🏆 Join Premium to participate in challenges', nl: '🏆 Sluit Premium aan om deel te nemen aan challenges' }[lang] || '🏆 Join Premium to participate in challenges';
   const upgradeText = { es: 'Mejorar', en: 'Upgrade', nl: 'Abonneren' }[lang] || 'Upgrade';
 
-  const { data: myParticipations = [] } = useQuery({
+  const { data: myParticipations = [], isLoading: isLoadingParticipations } = useQuery({
     queryKey: ["myParticipations", user?.email],
     queryFn: () => base44.entities.ChallengeParticipant.filter({ created_by: user.email }),
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: myChallenges = [] } = useQuery({
+  const { data: myChallenges = [], isLoading: isLoadingChallenges } = useQuery({
     queryKey: ["myChallenges", myParticipations.map(p => p.challenge_id)],
     queryFn: async () => {
       if (myParticipations.length === 0) return [];
@@ -245,7 +246,13 @@ export default function Challenges() {
 
   const activeChallenges = myParticipations.filter(p => !p.completed);
 
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["myParticipations"] });
+    queryClient.invalidateQueries({ queryKey: ["myChallenges"] });
+  };
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="min-h-screen pb-24" style={{ minHeight: '100dvh' }}>
       <div className="max-w-2xl mx-auto px-4 pt-6 pb-8 space-y-6">
         {/* Premium upsell banner */}
@@ -276,7 +283,13 @@ export default function Challenges() {
             <Flame size={18} className="text-orange-400" />
             {t("my_active_challenges")}
           </h2>
-          {activeChallenges.length > 0 ? (
+          {isLoadingParticipations || isLoadingChallenges ? (
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-24 rounded-2xl bg-white/5 animate-pulse" />
+              ))}
+            </div>
+          ) : activeChallenges.length > 0 ? (
             <div className="space-y-3">
               {activeChallenges.map(p => (
                 <ActiveChallengeCard
@@ -290,7 +303,7 @@ export default function Challenges() {
             <EmptyState
               emoji="🏆"
               headline={{ es: 'Sin retos activos', en: 'No active challenges', nl: 'Geen actieve uitdagingen' }}
-               subtitle={{ es: 'Unite a un reto abajo para empezar', en: 'Join a challenge below to get started', nl: 'Doe mee aan een uitdaging hieronder om aan de slag te gaan' }}
+               subtitle={{ es: 'Unite a un reto abajo para empezar', en: 'Join a challenge below to get started', nl: 'Doe mee aan una uitdaging hieronder om aan de slag te gaan' }}
               lang={lang}
             />
           )}
@@ -333,5 +346,6 @@ export default function Challenges() {
         </button>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
