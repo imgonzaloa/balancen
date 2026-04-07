@@ -32,24 +32,24 @@ export default function WorkoutTracker() {
   const [aiExpanded, setAiExpanded] = useState(true);
 
   const handleGenerateWorkout = async () => {
-    setAiLoading(true);
-    setAiWorkout(null);
-    try {
-      const res = await base44.functions.invoke("aiWorkoutGenerator", {
-        equipment: "bodyweight",
-        fitness_level: profile?.activity_level || "active",
-        goals: profile?.primary_goal || "consistency",
-        duration_minutes: 45,
-        lang,
-      });
-      setAiWorkout(res.data);
-      setAiExpanded(true);
-    } catch {
-      toast.error(lang === "es" ? "Error al generar rutina" : lang === "nl" ? "Fout bij genereren training" : "Error generating workout");
-    } finally {
-      setAiLoading(false);
-    }
-  };
+     setAiLoading(true);
+     setAiWorkout(null);
+     try {
+       const res = await base44.functions.invoke("aiWorkoutGenerator", {
+         equipment: "bodyweight",
+         fitness_level: profile?.activity_level || "active",
+         goals: profile?.primary_goal || "consistency",
+         duration_minutes: 45,
+         lang: ["en", "es", "nl"].includes(lang) ? lang : "en",
+       });
+       setAiWorkout(res.data);
+       setAiExpanded(true);
+     } catch {
+       toast.error(lang === "es" ? "Error al generar rutina" : lang === "nl" ? "Fout bij genereren training" : "Error generating workout");
+     } finally {
+       setAiLoading(false);
+     }
+   };
 
   const handleLoadAiWorkout = () => {
     if (!aiWorkout?.exercises?.length) return;
