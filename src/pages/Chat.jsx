@@ -84,7 +84,7 @@ export default function Chat() {
     queryKey: ["messages", user?.email, friendEmail],
     queryFn: async () => {
       const [sent, received] = await Promise.all([
-        base44.entities.Message.filter({ created_by: user.email, receiver_email: friendEmail }),
+        base44.entities.Message.filter({ sender_email: user.email, receiver_email: friendEmail }),
         base44.entities.Message.filter({ sender_email: friendEmail, receiver_email: user.email }),
       ]);
       received.forEach((msg) => {
