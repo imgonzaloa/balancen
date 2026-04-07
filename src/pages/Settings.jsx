@@ -24,42 +24,8 @@ export default function Settings() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackCategory, setFeedbackCategory] = useState("suggestion");
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
-   const queryClient = useQueryClient();
-   const { changeLanguage, lang, t } = useTranslation();
-
-   // Cost analytics for owner only
-   const { data: costAnalytics, isLoading: costLoading } = useQuery({
-     queryKey: ["cost_analytics"],
-     queryFn: async () => {
-       if (profile?.role !== "owner" && user?.email?.toLowerCase() !== "imgonzaloa@gmail.com") {
-         return null;
-       }
-       try {
-         // Get all meal logs and filter by date
-         const allMeals = await base44.entities.MealLog.list("-created_date", 1000);
-         const now = new Date();
-         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-         const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-
-         const mealLogs = allMeals.filter(m => m.date >= monthStart && m.date <= monthEnd);
-         const aiScans = mealLogs.filter(m => m.photo_url).length;
-
-         // Count premium users
-         const allProfiles = await base44.entities.UserProfile.list("-created_date", 1000);
-         const premiumUsers = allProfiles.filter(p => p.is_premium).length;
-
-         const aiCost = aiScans * 0.003; // €0.003 per scan
-         const revenueMult = premiumUsers * 4.90; // €4.90 net per premium user
-         const margin = revenueMult - aiCost;
-
-         return { aiScans, aiCost, premiumUsers, revenueMult, margin };
-       } catch (err) {
-         console.error('Cost analytics error:', err);
-         return null;
-       }
-     },
-     enabled: !!profile || !!user,
-   });
+    const queryClient = useQueryClient();
+    const { changeLanguage, lang, t } = useTranslation();
 
   useEffect(() => {
     base44.auth.me().then(setUser);
@@ -73,6 +39,40 @@ export default function Settings() {
     },
     enabled: !!user?.email,
   });
+
+    // Cost analytics for owner only
+    const { data: costAnalytics, isLoading: costLoading } = useQuery({
+      queryKey: ["cost_analytics", profile?.role],
+      queryFn: async () => {
+        if (profile?.role !== "owner" && user?.email?.toLowerCase() !== "imgonzaloa@gmail.com") {
+          return null;
+        }
+        try {
+          // Get all meal logs and filter by date
+          const allMeals = await base44.entities.MealLog.list("-created_date", 1000);
+          const now = new Date();
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+          const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+          const mealLogs = allMeals.filter(m => m.date >= monthStart && m.date <= monthEnd);
+          const aiScans = mealLogs.filter(m => m.photo_url).length;
+
+          // Count premium users
+          const allProfiles = await base44.entities.UserProfile.list("-created_date", 1000);
+          const premiumUsers = allProfiles.filter(p => p.is_premium).length;
+
+          const aiCost = aiScans * 0.003; // €0.003 per scan
+          const revenueMult = premiumUsers * 4.90; // €4.90 net per premium user
+          const margin = revenueMult - aiCost;
+
+          return { aiScans, aiCost, premiumUsers, revenueMult, margin };
+        } catch (err) {
+          console.error('Cost analytics error:', err);
+          return null;
+        }
+      },
+      enabled: !!profile?.role,
+    });
 
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
