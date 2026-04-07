@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 import { useTranslation } from "@/components/TranslationProvider";
+import EmptyState from "@/components/ui/EmptyState";
 
 const PRESET_CHALLENGES_CONFIG = [
   {
@@ -270,12 +271,12 @@ export default function Challenges() {
         </div>
 
         {/* Active Challenges */}
-        {activeChallenges.length > 0 && (
-          <div>
-            <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
-              <Flame size={18} className="text-orange-400" />
-              {t("my_active_challenges")} ({activeChallenges.length})
-            </h2>
+        <div>
+          <h2 className="text-white font-bold text-base mb-3 flex items-center gap-2">
+            <Flame size={18} className="text-orange-400" />
+            {t("my_active_challenges")}
+          </h2>
+          {activeChallenges.length > 0 ? (
             <div className="space-y-3">
               {activeChallenges.map(p => (
                 <ActiveChallengeCard
@@ -285,8 +286,15 @@ export default function Challenges() {
                 />
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <EmptyState
+              emoji="🏆"
+              headline={{ es: 'Sin retos activos', en: 'No active challenges', pt: 'Sem desafios ativos' }}
+              subtitle={{ es: 'Unite a un reto abajo para empezar', en: 'Join a challenge below to get started', pt: 'Participe de um desafio abaixo para começar' }}
+              lang={lang}
+            />
+          )}
+        </div>
 
         {/* Featured Challenges */}
         <div>

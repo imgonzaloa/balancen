@@ -13,6 +13,7 @@ import WeeklyConsistencyCard from "@/components/progress/WeeklyConsistencyCard";
 import { useQuery } from "@tanstack/react-query";
 import GlobalHeader from "@/components/GlobalHeader";
 import PullToRefresh from "@/components/PullToRefresh";
+import EmptyState from "@/components/ui/EmptyState";
 
 export default function Progress() {
   // ✅ Use global AppState - no duplicate auth/profile fetch on every tab visit
@@ -85,23 +86,14 @@ export default function Progress() {
   if (!user?.email || !profile) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6">
-        <div className="max-w-md text-center">
-          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
-            <BarChart3 size={40} className="text-white/30" />
-          </div>
-          <h2 className="text-white text-2xl font-bold mb-3">
-            {t('no_data_yet')}
-          </h2>
-          <p className="text-white/60 mb-8">
-            {t('log_a_meal_to_start_tracking')}
-          </p>
-          <Button
-            onClick={() => navigate(createPageUrl('Home'))}
-            className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold"
-          >
-            {t('go_to_home')}
-          </Button>
-        </div>
+        <EmptyState
+          emoji="📊"
+          headline={{ es: 'Sin datos aún', en: 'No data yet', pt: 'Sem dados ainda' }}
+          subtitle={{ es: 'Registrá una comida para empezar a ver tu progreso', en: 'Log a meal to start tracking your progress', pt: 'Registre uma refeição para começar a acompanhar seu progresso' }}
+          buttonLabel={{ es: 'Ir al inicio', en: 'Go to Home', pt: 'Ir ao início' }}
+          buttonPage="Home"
+          lang={lang}
+        />
       </div>
     );
   }

@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import BadgeCard, { badgeConfig } from "@/components/ui/BadgeCard";
 import { useTranslation } from "@/components/TranslationProvider";
+import EmptyState from "@/components/ui/EmptyState";
 
 export default function Badges() {
   const { lang } = useTranslation();
@@ -61,7 +62,7 @@ export default function Badges() {
         </motion.div>
 
         {/* Earned Badges */}
-        {badges.length > 0 && (
+        {badges.length > 0 ? (
           <motion.div
             className="mb-8"
             initial={{ opacity: 0, y: 20 }}
@@ -86,6 +87,13 @@ export default function Badges() {
               ))}
             </div>
           </motion.div>
+        ) : (
+          <EmptyState
+            emoji="🎖️"
+            headline={{ es: 'Todavía no ganaste logros', en: "You haven't earned any badges yet", pt: 'Você ainda não ganhou conquistas' }}
+            subtitle={{ es: 'Completá check-ins y rachas para desbloquear medallas', en: 'Complete check-ins and streaks to unlock badges', pt: 'Complete check-ins e sequências para desbloquear medalhas' }}
+            lang={lang}
+          />
         )}
 
         {/* Locked Badges */}

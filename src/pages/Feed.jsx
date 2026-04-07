@@ -12,6 +12,7 @@ import MealCard from "@/components/social/MealCard";
 import { createPageUrl } from "@/utils";
 import { useBlockedUsers } from "@/components/hooks/useBlockedUsers";
 import StoriesBar from "@/components/stories/StoriesBar";
+import EmptyState from "@/components/ui/EmptyState";
 
 export default function Feed() {
   const navigate = useNavigate();
@@ -190,19 +191,14 @@ export default function Feed() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 text-center">
-                <Users size={48} className="text-white/40 mx-auto mb-4" />
-                <h3 className="text-white font-bold mb-2">{t('no_posts_yet') || 'No posts yet'}</h3>
-                <p className="text-white/60 text-sm mb-4">
-                  {t('be_first_to_share') || 'Be the first to share your progress!'}
-                </p>
-                <button
-                  onClick={() => setShowCreatePost(true)}
-                  className="px-6 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 rounded-xl text-white font-semibold"
-                >
-                  {t('create_post') || 'Create Post'}
-                </button>
-              </div>
+              <EmptyState
+                emoji="🍽️"
+                headline={{ es: 'Tu feed está vacío', en: 'Your feed is empty', pt: 'Seu feed está vazio' }}
+                subtitle={{ es: 'Seguí a amigos o atletas para ver sus comidas', en: 'Follow friends or athletes to see their meals', pt: 'Siga amigos ou atletas para ver suas refeições' }}
+                buttonLabel={{ es: 'Buscar amigos', en: 'Find friends', pt: 'Buscar amigos' }}
+                buttonPage="Friends"
+                lang={profile?.language || 'es'}
+              />
             )}
           </>
         )}
