@@ -48,13 +48,12 @@ export default function Settings() {
           return null;
         }
         try {
-          // Get all meal logs and filter by date
-          const allMeals = await base44.entities.MealLog.list("-created_date", 1000);
+          // Get meal logs for this month
           const now = new Date();
           const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
           const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
-          const mealLogs = allMeals.filter(m => m.date >= monthStart && m.date <= monthEnd);
+          const mealLogs = await base44.entities.MealLog.filter({ date: { $gte: monthStart, $lte: monthEnd } });
           const aiScans = mealLogs.filter(m => m.photo_url).length;
 
           // Count premium users
@@ -660,7 +659,7 @@ export default function Settings() {
                 setFeedbackSubmitting(true);
                 try {
                   await base44.entities.Feedback.create({
-                    user_email: user?.email || "",
+                    user_email: user?.email,
                     rating: feedbackRating,
                     category: feedbackCategory,
                     message: feedbackMessage.trim(),
