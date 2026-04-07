@@ -78,7 +78,7 @@ export function MobileSelect({
                     onValueChange(child.props.value);
                     setOpen(false);
                   }}
-                  className={isSelected ? 'w-full justify-start h-12 bg-teal-500 text-white font-bold rounded-xl' : 'w-full justify-start h-12 bg-white/10 text-white border border-white/20 rounded-xl hover:bg-white/20'}
+                  className={isSelected ? 'w-full justify-start h-12 bg-teal-500 text-white font-bold rounded-xl' : 'w-full justify-start h-12 bg-white/10 text-white border border-white/20 rounded-xl'}
                 >
                   {child.props.children}
                 </Button>
@@ -86,9 +86,9 @@ export function MobileSelect({
             })}
             <Button
               onClick={() => setOpen(false)}
-              className='w-full justify-start h-12 bg-white/10 text-white border border-white/20 rounded-xl hover:bg-white/20 mt-2'
+              className='w-full h-10 text-white/40 text-sm'
             >
-              {label ? `Cancel ${label}` : 'Cancel'}
+              Cancel
             </Button>
           </div>
         </DrawerContent>
