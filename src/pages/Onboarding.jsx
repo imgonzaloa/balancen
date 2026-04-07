@@ -56,7 +56,7 @@ function calcCalories({ gender, weight_kg, height_cm, age, activity_level }) {
   return Math.round(bmr * (multipliers[activity_level] || 1.375));
 }
 
-const TOTAL_STEPS = 15;
+const TOTAL_STEPS = 16;
 
 const TESTIMONIALS = [
   { name: "Carlos M.", flag: "🇲🇽", quote: { es: "¡Bajé 4 kg en 6 semanas sin pasar hambre!", en: "Lost 4 kg in 6 weeks without feeling hungry!", pt: "Perdi 4 kg em 6 semanas sem passar fome!" } },
@@ -90,6 +90,7 @@ export default function Onboarding() {
     social_mode: "with_team",
     follow_mode: "both",
     follow_preference: "both",
+    referral_source: null,
   });
 
   useEffect(() => {
@@ -147,6 +148,7 @@ export default function Onboarding() {
         trial_end_date: trialEndDate.toISOString(),
         subscription_status: "trial",
         is_premium: true,
+        referral_source: formData.referral_source,
       };
 
       if (existingProfile?.length > 0) {
@@ -242,6 +244,8 @@ export default function Onboarding() {
       deficit_label: "Déficit semanal estimado:",
       follow_title: "¿A quién seguirás?",
       follow_sub: "Tu feed se personaliza desde el día 1",
+      referral_title: "¿Cómo conociste Balancen?",
+      referral_sub: "Nos ayuda a mejorar",
       summary_title: "Tu plan Balancen",
       summary_sub: "Basado en tu perfil personalizado",
       daily_calories: "Calorías diarias",
@@ -323,6 +327,8 @@ export default function Onboarding() {
       deficit_label: "Estimated weekly deficit:",
       follow_title: "Who will you follow?",
       follow_sub: "Your feed will be personalized from day 1",
+      referral_title: "How did you hear about Balancen?",
+      referral_sub: "Helps us improve",
       summary_title: "Your Balancen Plan",
       summary_sub: "Based on your personalized profile",
       daily_calories: "Daily calories",
@@ -404,6 +410,8 @@ export default function Onboarding() {
       deficit_label: "Déficit semanal estimado:",
       follow_title: "Quem você vai seguir?",
       follow_sub: "Seu feed será personalizado desde o dia 1",
+      referral_title: "Como você conheceu o Balancen?",
+      referral_sub: "Nos ajuda a melhorar",
       summary_title: "Seu plano Balancen",
       summary_sub: "Baseado no seu perfil personalizado",
       daily_calories: "Calorias diárias",
@@ -859,8 +867,41 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 12: Personalized summary (NEW) */}
+          {/* Step 12: Referral source (NEW) */}
           {step === 12 && (
+            <motion.div key="referral"
+              initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
+              className="space-y-6">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-black text-white mb-2">{l.referral_title}</h2>
+                <p className="text-white/60">{l.referral_sub}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { emoji: "📱", value: "tiktok", label: "TikTok" },
+                  { emoji: "📸", value: "instagram", label: "Instagram" },
+                  { emoji: "🔍", value: "google", label: currentLang === 'es' ? "Google / App Store" : currentLang === 'pt' ? "Google / App Store" : "Google / App Store" },
+                  { emoji: "👥", value: "friend", label: currentLang === 'es' ? "Un amigo" : currentLang === 'pt' ? "Um amigo" : "A friend" },
+                  { emoji: "🏋️", value: "coach", label: currentLang === 'es' ? "Mi entrenador / equipo" : currentLang === 'pt' ? "Meu treinador / equipe" : "My coach / team" },
+                  { emoji: "🎙️", value: "podcast", label: "Podcast" },
+                  { emoji: "📧", value: "email", label: currentLang === 'es' ? "Email o newsletter" : currentLang === 'pt' ? "Email ou newsletter" : "Email or newsletter" },
+                  { emoji: "🌐", value: "other", label: currentLang === 'es' ? "Otro" : currentLang === 'pt' ? "Outro" : "Other" },
+                ].map((opt) => (
+                  <button key={opt.value}
+                    onClick={() => { setFormData(p => ({ ...p, referral_source: opt.value })); setStep(13); }}
+                    className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
+                      formData.referral_source === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
+                    }`}>
+                    <span className="text-3xl">{opt.emoji}</span>
+                    <span className="text-white font-semibold text-xs text-center">{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 13: Personalized summary (NEW) */}
+          {step === 13 && (
             <motion.div key="summary"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -931,15 +972,15 @@ export default function Onboarding() {
                 )}
               </div>
               <button
-                onClick={() => setStep(13)}
+                onClick={() => setStep(14)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
             </motion.div>
           )}
 
-          {/* Step 13: Social proof (NEW) */}
-          {step === 13 && (
+          {/* Step 14: Social proof (NEW) */}
+          {step === 14 && (
             <motion.div key="social"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="space-y-8 text-center">
@@ -972,15 +1013,15 @@ export default function Onboarding() {
                 ))}
               </div>
               <button
-                onClick={() => setStep(14)}
+                onClick={() => setStep(15)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
               </motion.div>
               )}
 
-              {/* Step 14: Founder message */}
-              {step === 14 && (
+              {/* Step 15: Founder message */}
+              {step === 15 && (
               <motion.div key="founder"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1011,15 +1052,15 @@ export default function Onboarding() {
 
               {/* Continue button */}
               <button
-                onClick={() => setStep(15)}
+                onClick={() => setStep(16)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
               </motion.div>
               )}
 
-              {/* Step 15: Paywall */}
-              {step === 15 && (
+              {/* Step 16: Paywall */}
+              {step === 16 && (
             <motion.div key="paywall"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="space-y-6 text-center">
