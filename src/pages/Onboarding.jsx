@@ -56,7 +56,7 @@ function calcCalories({ gender, weight_kg, height_cm, age, activity_level }) {
   return Math.round(bmr * (multipliers[activity_level] || 1.375));
 }
 
-const TOTAL_STEPS = 14;
+const TOTAL_STEPS = 15;
 
 const TESTIMONIALS = [
   { name: "Carlos M.", flag: "🇲🇽", quote: { es: "¡Bajé 4 kg en 6 semanas sin pasar hambre!", en: "Lost 4 kg in 6 weeks without feeling hungry!", pt: "Perdi 4 kg em 6 semanas sem passar fome!" } },
@@ -265,7 +265,11 @@ export default function Onboarding() {
       next: "Continuar",
       entering: "Activando…",
       features: ['✅ Análisis de comidas con IA', '✅ Feed social — ve qué comen tus amigos y atletas', '✅ Streaks y misiones diarias', '✅ Grupos, retos y leaderboard'],
-    },
+      founder_title: "Hi, I'm Gonzalo 👋",
+      founder_para1: "Soy el creador de Balancen. Quería ser transparente sobre por qué la app tiene un costo.",
+      founder_para2: "Cada análisis de comida con IA tiene un costo real. El costo promedio por usuario activo es de €4-6 por mes. El precio de Balancen está pensado para ser sostenible sin perder calidad.",
+      founder_para3: "Espero que te ayude a entender el valor. Me encantaría tenerte como usuario :)",
+      },
     en: {
       lang_title: "Choose your language",
       goal_title: "What's your primary goal?",
@@ -342,7 +346,11 @@ export default function Onboarding() {
       next: "Continue",
       entering: "Activating…",
       features: ['✅ AI-powered meal analysis', '✅ Social feed — see what friends & athletes eat', '✅ Daily streaks & missions', '✅ Groups, challenges & leaderboard'],
-    },
+      founder_title: "Hi, I'm Gonzalo 👋",
+      founder_para1: "I'm the creator of Balancen. I wanted to be transparent about why the app is priced the way it is.",
+      founder_para2: "Every AI food analysis has a real cost. The average cost per active user is €4-6 per month. Balancen is priced to be sustainable without compromising quality.",
+      founder_para3: "I hope this helps you understand the value. I'd love to have you as a user :)",
+      },
     pt: {
       lang_title: "Escolha seu idioma",
       goal_title: "Qual é o seu objetivo?",
@@ -419,7 +427,11 @@ export default function Onboarding() {
       next: "Continuar",
       entering: "Ativando…",
       features: ['✅ Análise de refeições com IA', '✅ Feed social — veja o que amigos e atletas comem', '✅ Streaks e missões diárias', '✅ Grupos, desafios e leaderboard'],
-    },
+      founder_title: "Hi, I'm Gonzalo 👋",
+      founder_para1: "Sou o criador do Balancen. Queria ser transparente sobre por que o app tem um custo.",
+      founder_para2: "Cada análise de comida com IA tem um custo real. O custo médio por usuário ativo é de €4-6 por mês. O preço do Balancen foi pensado para ser sustentável sem perder qualidade.",
+      founder_para3: "Espero que isso ajude você a entender o valor. Adoraria ter você como usuário :)",
+      },
   };
 
   const currentLang = formData.language || lang || 'es';
@@ -462,7 +474,7 @@ export default function Onboarding() {
       className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex flex-col items-center justify-center p-6"
       style={{ paddingTop: 'env(safe-area-inset-top, 24px)' }}
     >
-      {/* Progress bar — hidden on language, social proof, and paywall */}
+      {/* Progress bar — hidden on language, social proof, founder, and paywall */}
       {step > 1 && step < 13 && (
         <div className="w-full max-w-md mb-8">
           <div className="flex items-center gap-3 mb-3">
@@ -964,11 +976,50 @@ export default function Onboarding() {
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
-            </motion.div>
-          )}
+              </motion.div>
+              )}
 
-          {/* Step 14: Paywall (NEW) */}
-          {step === 14 && (
+              {/* Step 14: Founder message */}
+              {step === 14 && (
+              <motion.div key="founder"
+              initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
+              className="space-y-6">
+              {/* Avatar circle with initials */}
+              <div className="flex justify-center mb-6">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center">
+                  <span className="text-white font-black text-5xl">G</span>
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className="text-center">
+                <h2 className="text-2xl font-black text-white">{l.founder_title}</h2>
+              </div>
+
+              {/* Paragraphs */}
+              <div className="space-y-4 text-center">
+                <p className="text-white/80 text-sm leading-relaxed">
+                  {l.founder_para1}
+                </p>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  {l.founder_para2}
+                </p>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  {l.founder_para3}
+                </p>
+              </div>
+
+              {/* Continue button */}
+              <button
+                onClick={() => setStep(15)}
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
+                {l.next}
+              </button>
+              </motion.div>
+              )}
+
+              {/* Step 15: Paywall */}
+              {step === 15 && (
             <motion.div key="paywall"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="space-y-6 text-center">
