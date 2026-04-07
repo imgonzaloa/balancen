@@ -16,6 +16,7 @@ import ShareSummaryModal from "@/components/social/ShareSummaryModal";
 import { useMealsStore } from "@/components/MealsStore";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useBlockedUsers } from "@/components/hooks/useBlockedUsers";
+import StoriesBar from "@/components/stories/StoriesBar";
 
 export default function Social() {
   const { t, lang } = useTranslation();
@@ -129,6 +130,11 @@ export default function Social() {
         <div>
           <h1 className="text-3xl font-black text-white mb-1">{t('social')}</h1>
           <p className="text-white/70 text-sm">{t('connect_compete_share')}</p>
+        </div>
+
+        {/* Stories Bar */}
+        <div className="-mx-6">
+          <StoriesBar currentUser={user} currentProfile={profile} />
         </div>
 
         {/* Invite Friends Card */}

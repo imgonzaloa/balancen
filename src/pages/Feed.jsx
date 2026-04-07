@@ -10,6 +10,7 @@ import CreatePost from "@/components/social/CreatePost";
 import MealCard from "@/components/social/MealCard";
 import { createPageUrl } from "@/utils";
 import { useBlockedUsers } from "@/components/hooks/useBlockedUsers";
+import StoriesBar from "@/components/stories/StoriesBar";
 
 export default function Feed() {
   const navigate = useNavigate();
@@ -136,6 +137,11 @@ export default function Feed() {
           </span>
           <Plus size={20} className="text-teal-400" />
         </button>
+
+        {/* Stories Bar */}
+        <div className="-mx-4 mb-2">
+          <StoriesBar currentUser={user} currentProfile={profile} />
+        </div>
 
         {/* Feed Content */}
         {isLoading ? (
