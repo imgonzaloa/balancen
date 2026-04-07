@@ -72,7 +72,7 @@ const Home = React.memo(() => {
   const today = new Date().toISOString().split('T')[0];
   const { data: dbMeals } = useQuery({
     queryKey: ['mealLogs', user?.email, today],
-    queryFn: () => base44.entities.MealLog.filter({ created_by: user.email, date: today }, '-meal_time'),
+    queryFn: () => base44.entities.MealLog.filter({ date: today }, '-meal_time'),
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
   });
