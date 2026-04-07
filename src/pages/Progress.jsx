@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import AdvancedAnalytics from "@/components/progress/AdvancedAnalytics";
+import WeeklyCalorieChart from "@/components/progress/WeeklyCalorieChart";
 import { useQuery } from "@tanstack/react-query";
 import GlobalHeader from "@/components/GlobalHeader";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -149,6 +150,13 @@ export default function Progress() {
             </div>
           </div>
         </div>
+
+        {/* 7-DAY CALORIE BAR CHART */}
+        <WeeklyCalorieChart
+          weekMeals={weekMeals}
+          caloriesGoal={calculations.caloriesGoal}
+          lang={lang}
+        />
 
         {/* 7-DAY STREAK CHART */}
         <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-5 border border-white/10">
