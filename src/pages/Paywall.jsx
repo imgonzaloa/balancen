@@ -287,20 +287,18 @@ export default function Paywall() {
                  {t("best_value_label")}
                </div>
                <div className="flex items-baseline gap-2 mb-1">
-                 {trialDaysLeft !== null && trialDaysLeft <= 1 ? (
-                   <>
-                     <span className="text-white/40 text-lg line-through">{pricing.currency}39.99</span>
-                     <span className="text-3xl font-black text-amber-300">{pricing.currency}{discountYearly}</span>
-                     <span className="bg-amber-500 text-white text-xs font-black px-2 py-0.5 rounded-full">-20%</span>
-                   </>
-                 ) : (
-                   <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
-                 )}
+                 <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
                  <span className="text-white/50 text-sm">/ {t("year_label")}</span>
                </div>
-               <p className="text-teal-300 text-sm font-semibold">
-                 {pricing.currency}{yearlyMonthly} / {t("month_label")} — {lang === 'es' ? `Ahorrá un ${savingsPct}%` : lang === 'nl' ? `Bespaar ${savingsPct}%` : `Save ${savingsPct}%`}
-               </p>
+               {trialDaysLeft !== null && trialDaysLeft <= 1 ? (
+                 <p className="text-amber-400 text-sm font-bold">
+                   {lang === 'es' ? '¡Última oportunidad! El trial termina hoy' : lang === 'nl' ? 'Laatste kans! Proefperiode eindigt vandaag' : 'Last chance! Trial ends today'}
+                 </p>
+               ) : (
+                 <p className="text-teal-300 text-sm font-semibold">
+                   {pricing.currency}{yearlyMonthly} / {t("month_label")} — {lang === 'es' ? `Ahorrá un ${savingsPct}%` : lang === 'nl' ? `Bespaar ${savingsPct}%` : `Save ${savingsPct}%`}
+                 </p>
+               )}
              </button>
 
              {/* Monthly */}
