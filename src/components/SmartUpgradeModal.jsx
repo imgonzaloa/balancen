@@ -79,8 +79,9 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
     // Fetch meal count
     const fetchMealCount = async () => {
       try {
-        if (!profile?.created_by) return;
-        const meals = await base44.entities.MealLog.filter({ created_by: profile.created_by });
+        const user = await base44.auth.me();
+        if (!user?.email) return;
+        const meals = await base44.entities.MealLog.filter({ created_by: user.email });
         setMealCount(meals.length);
       } catch (_) {
         setMealCount(0);
