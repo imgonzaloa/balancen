@@ -372,20 +372,36 @@ if (typeof document !== 'undefined' && !document.getElementById('overlay-root'))
 
 export default function Layout({ children, currentPageName }) {
   return (
-    <GlobalErrorBoundary>
-      <VersionGate>
-        <ErrorBoundary screen="Layout">
-          <BootGate>
-            {({ bootState }) => (
-              <AppProviders bootState={bootState}>
-                <LayoutInner currentPageName={currentPageName} bootState={bootState}>
-                  {children}
-                </LayoutInner>
-              </AppProviders>
-            )}
-          </BootGate>
-        </ErrorBoundary>
-      </VersionGate>
-    </GlobalErrorBoundary>
+    <div style={{
+      width: '100%',
+      minHeight: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%)',
+    }}>
+      <div style={{
+        maxWidth: '430px',
+        width: '100%',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
+        <GlobalErrorBoundary>
+          <VersionGate>
+            <ErrorBoundary screen="Layout">
+              <BootGate>
+                {({ bootState }) => (
+                  <AppProviders bootState={bootState}>
+                    <LayoutInner currentPageName={currentPageName} bootState={bootState}>
+                      {children}
+                    </LayoutInner>
+                  </AppProviders>
+                )}
+              </BootGate>
+            </ErrorBoundary>
+          </VersionGate>
+        </GlobalErrorBoundary>
+      </div>
+    </div>
   );
 }

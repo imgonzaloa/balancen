@@ -292,22 +292,25 @@ export default function BootGate({ children }) {
         setBootState(resolvedState);
         tryHideSplash();
         setBootError(false);
+        setRetryCount(0);
       } catch (error) {
         console.error('[BootGate] Fatal boot error:', error);
         clearTimeout(minTimer);
         setBootError(true);
-        // Auto-retry after 3 seconds
-        setTimeout(() => {
-          setBootError(false);
-          setRetryCount(c => c + 1);
-          resolveBoot();
-        }, 3000);
+        // Auto-retry after 3 seconds, max 3 attempts
+        if (retryCount < 2) {
+          setTimeout(() => {
+            setBootError(false);
+            setRetryCount(c => c + 1);
+            resolveBoot();
+          }, 3000);
+        }
       }
     };
 
     resolveBoot();
     return () => clearTimeout(minTimer);
-  }, []);
+  }, [retryCount]);
 
   // Show error fallback if boot fails
   if (bootError) {
