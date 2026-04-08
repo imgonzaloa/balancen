@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { X, Loader2, AlertCircle, Check, Plus, Minus, ChevronDown, ChevronUp, RefreshCw, Edit3, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -334,28 +334,46 @@ function ManualEntryForm({ imagePreview, onSave, onCancel }) {
 export default function MealResult() {
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { capturedFile, previewUrl, resetMeal } = useMeal();
   const { addMeal, updateMealId, formatLocalDateKey } = useMealsStore();
   const { profile, user } = useAppState();
   const queryClient = useQueryClient();
 
-  const [phase, setPhase] = useState("analyzing"); // analyzing | review | saving | error | manual | share
+  // Detect barcode pre-fill from CameraScreen navigation
+  const barcodeData = location.state?.barcodeData || null;
+
+  const [phase, setPhase] = useState(() => barcodeData ? "review" : "analyzing");
   const [stepIndex, setStepIndex] = useState(0);
   const [retryCount, setRetryCount] = useState(0);
   const [suspiciousMacros, setSuspiciousMacros] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(barcodeData?.imageUrl || null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [savedTotals, setSavedTotals] = useState(null);
   const [savedPhotoUrl, setSavedPhotoUrl] = useState(null);
   const uploadedUrlRef = useRef(null); // ref so save paths always see latest value
-  const [foodItems, setFoodItems] = useState([]);
-  const [totals, setTotals] = useState({ calories: 0, protein: 0, carbs: 0, fats: 0 });
-  const [confidence, setConfidence] = useState(0);
+  const [foodItems, setFoodItems] = useState(() => barcodeData ? [{
+    id: crypto.randomUUID(),
+    name: barcodeData.productName,
+    calories: barcodeData.nutrition.calories,
+    protein: barcodeData.nutrition.protein,
+    carbs: barcodeData.nutrition.carbs,
+    fats: barcodeData.nutrition.fats,
+    portion: barcodeData.nutrition.serving || "1 serving",
+  }] : []);
+  const [totals, setTotals] = useState(() => barcodeData ? {
+    calories: barcodeData.nutrition.calories,
+    protein: barcodeData.nutrition.protein,
+    carbs: barcodeData.nutrition.carbs,
+    fats: barcodeData.nutrition.fats,
+  } : { calories: 0, protein: 0, carbs: 0, fats: 0 });
+  const [confidence, setConfidence] = useState(barcodeData ? 100 : 0);
+  const [isBarcodeResult] = useState(!!barcodeData);
   const [errorMsg, setErrorMsg] = useState("");
   const [saving, setSaving] = useState(false);
-   const [fromCache, setFromCache] = useState(false);
-   const hasRun = useRef(false);
-   const mountedRef = useRef(true);
+  const [fromCache, setFromCache] = useState(false);
+  const hasRun = useRef(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -367,21 +385,20 @@ export default function MealResult() {
 
   // Set preview from context or stored URL — IMMEDIATELY on mount so we never show blank
   useEffect(() => {
+    if (barcodeData) return; // barcode flow — skip photo setup
     const stored = sessionStorage.getItem("balancen_last_capture") || localStorage.getItem("meal_last_capture_dataurl");
     const resolvedPreview = previewUrl || stored;
     if (resolvedPreview) {
       setImagePreview(resolvedPreview);
     } else if (!capturedFile) {
-      // Only redirect if there is truly nothing
       navigate(createPageUrl("Home"));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-
-  // Run analysis once
+  // Run analysis once — skip if barcode data was pre-filled
   useEffect(() => {
+    if (barcodeData) return;
     if (hasRun.current) return;
     hasRun.current = true;
     runAnalysis();
@@ -900,9 +917,15 @@ export default function MealResult() {
         <div className="text-center">
            <h2 className="text-white font-black text-base">{t("review_meal")}</h2>
            <div className="flex items-center justify-center gap-2">
-             <p className={`text-xs font-bold ${confidenceColor}`}>
-               {confidence}% {t("confidence")}
-             </p>
+             {isBarcodeResult ? (
+               <span className="text-xs font-semibold text-teal-300 bg-teal-500/20 px-2 py-0.5 rounded-full">
+                 🔍 {lang === 'es' ? 'Código de barras' : lang === 'nl' ? 'Streepjescode' : 'Barcode'}
+               </span>
+             ) : (
+               <p className={`text-xs font-bold ${confidenceColor}`}>
+                 {confidence}% {t("confidence")}
+               </p>
+             )}
              {fromCache && (
                <span className="text-xs font-semibold text-teal-300 bg-teal-500/20 px-2 py-0.5 rounded-full">
                  {lang === 'es' ? 'Desde caché' : lang === 'nl' ? 'Uit cache' : 'From cache'}
@@ -957,12 +980,23 @@ export default function MealResult() {
             </div>
           </div>
 
-          {/* Confidence badge */}
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${confidenceBadge.bg}`}>
-            <span className={`text-xs font-semibold ${confidenceBadge.text}`}>
-              {confidenceBadge.label[lang] || confidenceBadge.label.en}
-            </span>
-          </div>
+          {/* Confidence badge — only for AI analysis */}
+          {!isBarcodeResult && (
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${confidenceBadge.bg}`}>
+              <span className={`text-xs font-semibold ${confidenceBadge.text}`}>
+                {confidenceBadge.label[lang] || confidenceBadge.label.en}
+              </span>
+            </div>
+          )}
+
+          {/* Barcode source badge */}
+          {isBarcodeResult && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border bg-teal-500/15 border-teal-500/30">
+              <span className="text-xs font-semibold text-teal-300">
+                {lang === 'es' ? '✅ Datos de Open Food Facts — 100% precisos' : lang === 'nl' ? '✅ Gegevens van Open Food Facts — 100% nauwkeurig' : '✅ Data from Open Food Facts — 100% accurate'}
+              </span>
+            </div>
+          )}
 
           {/* Suspicious macros warning */}
           {suspiciousMacros && (
@@ -975,17 +1009,19 @@ export default function MealResult() {
             </div>
           )}
 
-          {/* Accuracy disclaimer */}
-          <p className="text-white/30 text-xs text-center leading-relaxed">
-            {lang === 'es'
-              ? 'Estimación con ±10-15% de precisión. Podés editar los valores si sabés el dato exacto.'
-              : lang === 'nl'
-              ? 'Schatting met ±10-15% nauwkeurigheid. Je kunt waarden bewerken als je het exacte bedrag weet.'
-              : 'Estimate with ±10-15% accuracy. You can edit values if you know the exact amount.'}
-          </p>
+          {/* Accuracy disclaimer — AI only */}
+          {!isBarcodeResult && (
+            <p className="text-white/30 text-xs text-center leading-relaxed">
+              {lang === 'es'
+                ? 'Estimación con ±10-15% de precisión. Podés editar los valores si sabés el dato exacto.'
+                : lang === 'nl'
+                ? 'Schatting met ±10-15% nauwkeurigheid. Je kunt waarden bewerken als je het exacte bedrag weet.'
+                : 'Estimate with ±10-15% accuracy. You can edit values if you know the exact amount.'}
+            </p>
+          )}
 
           {/* Low confidence warning */}
-          {confidence < 50 && (
+          {!isBarcodeResult && confidence < 50 && (
             <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl p-3 flex items-start gap-3">
               <AlertCircle size={16} className="text-amber-400 mt-0.5 flex-shrink-0" />
               <p className="text-amber-300 text-xs font-medium">

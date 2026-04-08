@@ -12,6 +12,7 @@ import CameraPermissionPrompt from "@/components/CameraPermissionPrompt";
 import { getLocalDateKey } from "@/lib/utils";
 import AIConsentModal, { hasAIConsent } from "@/components/AIConsentModal";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
+import BarcodeScanner from "@/components/camera/BarcodeScanner";
 
 const FREE_DAILY_LIMIT = 5;
 const TRIAL_DAILY_LIMIT = 7;
@@ -663,7 +664,7 @@ export default function CameraScreen() {
         </div>
       )}
 
-      {/* Barcode coming-soon modal — rendered in top-layer portal */}
+      {/* Barcode scanner modal — rendered in top-layer portal */}
       {showBarcodeModal && createPortal(
         <>
           {/* Backdrop */}
@@ -677,59 +678,21 @@ export default function CameraScreen() {
               touchAction: 'none',
             }}
           />
-          {/* Sheet */}
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              position: 'fixed',
-              bottom: 0, left: 0, right: 0,
-              zIndex: 20001,
-              background: '#0f172a',
-              borderTop: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '24px 24px 0 0',
-              padding: '24px',
-              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
-              pointerEvents: 'auto',
-              touchAction: 'pan-y',
+          <BarcodeScanner
+            lang={lang}
+            videoStream={streamRef.current}
+            onClose={() => setShowBarcodeModal(false)}
+            onUseAI={() => { setShowBarcodeModal(false); capturePhoto(); }}
+            onResult={(barcodeData) => {
+              setShowBarcodeModal(false);
+              stopCamera();
+              // Navigate to MealResult with pre-filled data — skip AI analysis
+              navigate(createPageUrl("MealResult"), {
+                replace: false,
+                state: { barcodeData },
+              });
             }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: 700, margin: 0 }}>
-                {t("barcode") || "Barcode"}
-              </h3>
-              <button
-                onClick={() => setShowBarcodeModal(false)}
-                style={{
-                  padding: '8px', borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.08)',
-                  border: 'none', cursor: 'pointer',
-                  pointerEvents: 'auto', touchAction: 'manipulation',
-                  color: 'rgba(255,255,255,0.6)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
-              {t("barcode_coming_soon")}
-            </p>
-            <button
-              onClick={() => setShowBarcodeModal(false)}
-              style={{
-                width: '100%', padding: '14px',
-                borderRadius: '12px',
-                background: 'rgba(16,185,129,0.15)',
-                border: '1px solid rgba(16,185,129,0.4)',
-                color: '#6ee7b7',
-                fontWeight: 600, fontSize: '15px',
-                cursor: 'pointer',
-                pointerEvents: 'auto', touchAction: 'manipulation',
-              }}
-            >
-              {t("ok")}
-            </button>
-          </div>
+          />
         </>,
         document.body
       )}
