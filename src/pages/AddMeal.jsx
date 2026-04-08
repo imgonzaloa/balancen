@@ -184,7 +184,7 @@ export default function AddMeal() {
       toast.success(`${msg} • +${cal} kcal`);
       navigate(createPageUrl("Home"));
     } catch {
-      toast.error(lang === 'es' ? 'Error al registrar' : 'Error relogging');
+      toast.error(lang === 'es' ? 'Error al registrar' : lang === 'nl' ? 'Fout bij opnieuw registreren' : 'Error relogging');
     }
   };
 

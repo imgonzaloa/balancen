@@ -623,7 +623,7 @@ export default function Settings() {
               URL.revokeObjectURL(url);
               toast.success(lang === 'es' ? 'CSV descargado' : lang === 'nl' ? 'CSV gedownload' : 'CSV downloaded');
             } catch {
-              toast.error(lang === 'es' ? 'Error al exportar' : 'Export failed');
+              toast.error(lang === 'es' ? 'Error al exportar' : lang === 'nl' ? 'Fout bij exporteren' : 'Export failed');
             }
           }}
           className="w-full mt-6 h-12 rounded-2xl bg-teal-500/20 border border-teal-500/30 hover:bg-teal-500/30 text-teal-200 font-semibold transition-all flex items-center justify-center gap-2"

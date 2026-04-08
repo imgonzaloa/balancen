@@ -156,7 +156,7 @@ const Home = React.memo(() => {
       const msg = lang === 'es' ? 'Comida registrada de nuevo' : lang === 'nl' ? 'Maaltijd opnieuw geregistreerd' : 'Meal relogged';
       toast.success(`${msg} • +${cal} kcal`);
     } catch {
-      toast.error(lang === 'es' ? 'Error al registrar' : 'Error relogging');
+      toast.error(lang === 'es' ? 'Error al registrar' : lang === 'nl' ? 'Fout bij opnieuw registreren' : 'Error relogging');
     }
   }, [today, lang, user?.email, queryClient]);
 
