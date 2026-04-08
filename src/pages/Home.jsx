@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown, Pencil, Check, X } from "lucide-react";
+import { Camera, Lock, Sparkles, Dumbbell, Clock, Crown, Pencil, Check, X, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/AppStateContext";
 import { useMealsStore } from "@/components/MealsStore";
@@ -128,6 +128,33 @@ const Home = React.memo(() => {
 
 
   const { isPremium, trialDaysLeft, trialDay, isTrialActive } = useEntitlement(profile);
+
+  const handleRelog = useCallback(async (meal) => {
+    const now = new Date();
+    const dateKey = today;
+    const meal_time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+    const cal = Math.round(meal.totals?.calories || meal.estimated_calories || 0);
+    const prot = Math.round(meal.totals?.protein || meal.estimated_protein || 0);
+    const carbs = Math.round(meal.totals?.carbs || meal.estimated_carbs || 0);
+    const fats = Math.round(meal.totals?.fats || meal.estimated_fats || 0);
+    try {
+      await base44.entities.MealLog.create({
+        date: dateKey,
+        meal_time,
+        photo_url: meal.photoUri || meal.photo_url || null,
+        estimated_calories: cal,
+        estimated_protein: prot,
+        estimated_carbs: carbs,
+        estimated_fats: fats,
+        meal_type: meal.mealType || meal.meal_type || null,
+      });
+      queryClient.invalidateQueries({ queryKey: ['mealLogs', user?.email, today] });
+      const msg = lang === 'es' ? 'Comida registrada de nuevo' : lang === 'nl' ? 'Maaltijd opnieuw geregistreerd' : 'Meal relogged';
+      toast.success(`${msg} • +${cal} kcal`);
+    } catch {
+      toast.error(lang === 'es' ? 'Error al registrar' : 'Error relogging');
+    }
+  }, [today, lang, user?.email, queryClient]);
 
   // Streak milestone celebration
   const MILESTONES = [7, 14, 30];
@@ -375,8 +402,8 @@ const Home = React.memo(() => {
                         <Camera size={22} className="text-white/20" />
                       </div>
                     )}
-                    <div className="flex-1 p-3 flex items-center justify-between">
-                      <div>
+                    <div className="flex-1 p-3 flex items-center justify-between gap-2">
+                      <div className="flex-1 min-w-0">
                         <p className="text-white text-sm font-bold">
                           {getMealLabel()}
                         </p>
@@ -384,14 +411,23 @@ const Home = React.memo(() => {
                           {meal.createdAt ? formatTime(lang, meal.createdAt) : ''}
                         </p>
                         {meal.items?.length > 0 && (
-                          <p className="text-white/40 text-[10px] mt-0.5 truncate max-w-[120px]">
+                          <p className="text-white/40 text-[10px] mt-0.5 truncate max-w-[100px]">
                             {meal.items.slice(0, 2).map(i => i.name).join(', ')}
                           </p>
                         )}
                       </div>
-                      <div className="text-right">
-                        <p className="text-teal-300 font-black text-lg">{Math.round(meal.totals?.calories || 0)}</p>
-                        <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="text-right">
+                          <p className="text-teal-300 font-black text-lg">{Math.round(meal.totals?.calories || 0)}</p>
+                          <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
+                        </div>
+                        <button
+                          onClick={() => handleRelog(meal)}
+                          className="w-8 h-8 rounded-xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center hover:bg-teal-500/40 active:scale-90 transition-all"
+                          title={lang === 'es' ? 'Registrar de nuevo' : lang === 'nl' ? 'Opnieuw registreren' : 'Relog'}
+                        >
+                          <RefreshCw size={13} className="text-teal-300" />
+                        </button>
                       </div>
                     </div>
                   </div>

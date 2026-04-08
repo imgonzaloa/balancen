@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Search, Plus, X, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, Search, Plus, X, Sparkles, Loader2, RefreshCw, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useAppState } from "@/components/AppStateContext";
@@ -89,12 +89,75 @@ export default function AddMeal() {
   const { user } = useAppState();
   const { addMeal, formatLocalDateKey } = useMealsStore();
 
+  const [activeTab, setActiveTab] = useState("search"); // "search" | "recent"
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFoods, setSelectedFoods] = useState([]);
   const [saving, setSaving] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [recentMeals, setRecentMeals] = useState([]);
+  const [recentLoading, setRecentLoading] = useState(false);
   const debounceRef = useRef(null);
+
+  // Load recent meals when tab switches
+  useEffect(() => {
+    if (activeTab !== "recent" || !user?.email) return;
+    setRecentLoading(true);
+    base44.entities.MealLog.filter({ created_by: user.email }, '-created_date', 40)
+      .then((meals) => {
+        // Deduplicate by calorie fingerprint, keep most recent
+        const seen = new Set();
+        const unique = [];
+        for (const m of (meals || [])) {
+          const key = `${m.estimated_calories}-${m.estimated_protein}-${m.estimated_carbs}-${m.estimated_fats}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(m);
+          }
+          if (unique.length >= 10) break;
+        }
+        setRecentMeals(unique);
+      })
+      .catch(() => setRecentMeals([]))
+      .finally(() => setRecentLoading(false));
+  }, [activeTab, user?.email]);
+
+  const handleRelogRecent = async (meal) => {
+    const now = new Date();
+    const dateKey = formatLocalDateKey(now);
+    const meal_time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+    const cal = meal.estimated_calories || 0;
+    const prot = meal.estimated_protein || 0;
+    const carbs = meal.estimated_carbs || 0;
+    const fats = meal.estimated_fats || 0;
+    try {
+      addMeal({
+        id: crypto.randomUUID(),
+        dateKey,
+        createdAt: now.toISOString(),
+        photoUri: meal.photo_url || "",
+        mealType: meal.meal_type || "snack",
+        totals: { calories: cal, protein: prot, carbs, fats },
+        items: [],
+        confidence: 100,
+      });
+      base44.entities.MealLog.create({
+        date: dateKey,
+        meal_time,
+        photo_url: meal.photo_url || null,
+        estimated_calories: cal,
+        estimated_protein: prot,
+        estimated_carbs: carbs,
+        estimated_fats: fats,
+        meal_type: meal.meal_type || null,
+      }).catch(() => {});
+      const msg = lang === 'es' ? 'Comida registrada de nuevo' : lang === 'nl' ? 'Maaltijd opnieuw geregistreerd' : 'Meal relogged';
+      toast.success(`${msg} • +${cal} kcal`);
+      navigate(createPageUrl("Home"));
+    } catch {
+      toast.error(lang === 'es' ? 'Error al registrar' : 'Error relogging');
+    }
+  };
 
   const filteredFoods = FOOD_DATABASE.filter((food) =>
     food.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -226,8 +289,79 @@ export default function AddMeal() {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 bg-white/5 rounded-2xl p-1">
+          <button
+            onClick={() => setActiveTab("search")}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === "search" ? "bg-teal-500 text-white shadow" : "text-white/50 hover:text-white/70"
+            }`}
+          >
+            <Search size={14} />
+            {lang === 'es' ? 'Buscar' : lang === 'nl' ? 'Zoeken' : 'Search'}
+          </button>
+          <button
+            onClick={() => setActiveTab("recent")}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === "recent" ? "bg-teal-500 text-white shadow" : "text-white/50 hover:text-white/70"
+            }`}
+          >
+            <Clock size={14} />
+            {lang === 'es' ? 'Recientes' : lang === 'nl' ? 'Recent' : 'Recent'}
+          </button>
+        </div>
+
+        {/* Recent tab content */}
+        {activeTab === "recent" && (
+          <div className="space-y-3">
+            {recentLoading ? (
+              <div className="flex items-center justify-center py-12 gap-2 text-white/50">
+                <Loader2 size={18} className="animate-spin" />
+                <span className="text-sm">{lang === 'es' ? 'Cargando...' : lang === 'nl' ? 'Laden...' : 'Loading...'}</span>
+              </div>
+            ) : recentMeals.length === 0 ? (
+              <div className="bg-white/5 rounded-2xl p-8 text-center border border-white/10">
+                <Clock size={36} className="text-white/30 mx-auto mb-3" />
+                <p className="text-white/60 text-sm font-semibold">
+                  {lang === 'es' ? 'Sin comidas recientes' : lang === 'nl' ? 'Geen recente maaltijden' : 'No recent meals'}
+                </p>
+              </div>
+            ) : (
+              recentMeals.map((meal) => (
+                <div key={meal.id} className="bg-white/8 border border-white/10 rounded-2xl flex overflow-hidden">
+                  {meal.photo_url ? (
+                    <img src={meal.photo_url} alt="meal" className="w-16 h-16 object-cover flex-shrink-0" onError={e => e.target.style.display='none'} />
+                  ) : (
+                    <div className="w-16 h-16 flex-shrink-0 bg-white/5 flex items-center justify-center">
+                      <span className="text-2xl">🍽️</span>
+                    </div>
+                  )}
+                  <div className="flex-1 px-3 py-2.5 flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-bold text-sm">
+                        {meal.estimated_calories} kcal
+                      </p>
+                      <p className="text-white/50 text-xs mt-0.5">
+                        P {meal.estimated_protein}g · C {meal.estimated_carbs}g · F {meal.estimated_fats}g
+                      </p>
+                      {meal.date && <p className="text-white/30 text-[10px] mt-0.5">{meal.date}</p>}
+                    </div>
+                    <button
+                      onClick={() => handleRelogRecent(meal)}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold hover:bg-teal-500/40 active:scale-90 transition-all flex-shrink-0"
+                    >
+                      <RefreshCw size={12} />
+                      {lang === 'es' ? 'Relog' : lang === 'nl' ? 'Opnieuw' : 'Relog'}
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
         {/* Search */}
-        <div className="mb-6 relative">
+        {activeTab === "search" && <div className="mb-6 relative">
           <div className="relative">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
             <Input
@@ -284,10 +418,10 @@ export default function AddMeal() {
               )}
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Selected Foods */}
-        {selectedFoods.length > 0 && (
+        {activeTab === "search" && selectedFoods.length > 0 && (
           <div className="space-y-3 mb-8">
             <h3 className="text-white font-bold text-sm uppercase tracking-wide">{t("selected_foods") || "Selected"}</h3>
             {selectedFoods.map((food) => (
@@ -315,7 +449,7 @@ export default function AddMeal() {
         )}
 
         {/* Totals */}
-        {selectedFoods.length > 0 && (
+        {activeTab === "search" && selectedFoods.length > 0 && (
           <div className="bg-gradient-to-br from-teal-500/20 to-emerald-500/20 backdrop-blur-xl rounded-3xl p-6 border border-teal-500/30 mb-6">
             <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-4">{t("total_nutrition") || t("daily_intake")}</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -340,7 +474,7 @@ export default function AddMeal() {
         )}
 
         {/* Actions */}
-        {selectedFoods.length > 0 && (
+        {activeTab === "search" && selectedFoods.length > 0 && (
           <div className="flex gap-3">
             <Button
               onClick={() => navigate(-1)}
@@ -359,7 +493,7 @@ export default function AddMeal() {
           </div>
         )}
 
-        {selectedFoods.length === 0 && (
+        {activeTab === "search" && selectedFoods.length === 0 && (
           <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 text-center border border-white/10">
             <Search size={40} className="text-white/40 mx-auto mb-3" />
             <p className="text-white/70 font-semibold mb-1">{t("search_foods")}</p>
