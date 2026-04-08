@@ -56,7 +56,7 @@ function calcCalories({ gender, weight_kg, height_cm, age, activity_level }) {
   return Math.round(bmr * (multipliers[activity_level] || 1.375));
 }
 
-const TOTAL_STEPS = 22;
+const TOTAL_STEPS = 21;
 
 const TESTIMONIALS = [
   { name: "Carlos M.", flag: "🇲🇽", quote: { es: "¡Bajé 4 kg en 6 semanas sin pasar hambre!", en: "Lost 4 kg in 6 weeks without feeling hungry!", nl: "In 6 weken 4 kg afgevallen zonder honger!" } },
@@ -297,7 +297,7 @@ export default function Onboarding() {
         { title: "Día 3 — Empieza tu plan", sub: "Solo si no cancelás antes. Sin sorpresas." },
       ],
       trial_no_charge: "Sin cargo hoy. Cancelá cuando quieras.",
-      why_badge: "Todo esto que Cal AI no tiene",
+      why_badge: "Lo que ninguna otra app tiene",
       why_features: [
         { emoji: "📸", title: "Análisis IA de comidas", desc: "Fotografiá tu plato y obtené calorías, proteínas, carbos y grasas en segundos. Claude Vision de Anthropic — el mismo motor que usan investigadores y médicos." },
         { emoji: "🏆", title: "Retos y grupos", desc: "Competí con amigos y atletas en retos de nutrición" },
@@ -431,7 +431,7 @@ export default function Onboarding() {
         { title: "Day 3 — Your plan starts", sub: "Only if you don't cancel. No surprises." },
       ],
       trial_no_charge: "No charge today. Cancel anytime.",
-      why_badge: "Everything Cal AI doesn't have",
+      why_badge: "What no other app has",
       why_features: [
         { emoji: "📸", title: "AI Meal Analysis", desc: "Snap your plate and get calories, protein, carbs and fat in seconds. Powered by Claude Vision — used by researchers and doctors worldwide." },
         { emoji: "🏆", title: "Challenges & Groups", desc: "Compete with friends and athletes in nutrition challenges" },
@@ -440,6 +440,9 @@ export default function Onboarding() {
         { emoji: "🤖", title: "Personalized AI Coach", desc: "Daily recommendations based on your goals and real habits" },
         { emoji: "👥", title: "Social Feed", desc: "Follow real athletes and see what they eat every day" },
       ],
+      goal_insight_title: "This is for me →",
+      activity_insight_title: "Got it →",
+      timeline_weeks: "weeks",
       goal_insight_lose_weight: "Users with your goal lost an average of 4.2kg in 30 days with Balancen",
       goal_insight_build_muscle: "87% of our athletes hit their protein targets daily",
       goal_insight_maintain: "Consistency is everything — Balancen users log 6.2 meals per day on average",
@@ -563,7 +566,7 @@ export default function Onboarding() {
         { title: "Dag 3 — Je plan begint", sub: "Alleen als je niet annuleert. Geen verrassingen." },
       ],
       trial_no_charge: "Geen kosten vandaag. Annuleer wanneer je wilt.",
-      why_badge: "Alles wat Cal AI niet heeft",
+      why_badge: "Wat geen andere app heeft",
       why_features: [
         { emoji: "📸", title: "AI-maaltijdanalyse", desc: "Foto je bord en krijg calorieën, eiwit, koolhydraten en vetten in seconden. Claude Vision van Anthropic — dezelfde AI die onderzoekers en artsen wereldwijd gebruiken." },
         { emoji: "🏆", title: "Uitdagingen & groepen", desc: "Daag vrienden en atleten uit in voedingsuitdagingen" },
@@ -1356,90 +1359,16 @@ export default function Onboarding() {
               </motion.div>
               )}
 
-              {/* Step 18: Competition comparison */}
+              {/* Step 18: Feature showcase (merged 18+19) */}
               {step === 18 && (
-              <motion.div key="competition"
+              <motion.div key="features"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-5">
               {/* Badge */}
               <div className="flex justify-center">
                 <div className="bg-amber-500/20 border border-amber-400/50 rounded-full px-4 py-2 flex items-center gap-2">
                   <span className="text-lg">⚡</span>
-                  <span className="text-amber-200 font-bold text-sm">
-                    {currentLang === 'es' ? 'Lo que Cal AI y MyFitnessPal no tienen' : currentLang === 'nl' ? 'Wat Cal AI en MyFitnessPal niet hebben' : 'What Cal AI and MyFitnessPal don\'t have'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Feature grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  {
-                    emoji: '🔥',
-                    title: currentLang === 'es' ? 'Streaks y misiones' : currentLang === 'nl' ? 'Streaks & missies' : 'Streaks & missions',
-                    desc: currentLang === 'es' ? 'Mantené el hábito con recompensas diarias' : currentLang === 'nl' ? 'Houd de gewoonte bij met dagelijkse beloningen' : 'Build habits with daily rewards',
-                  },
-                  {
-                    emoji: '🏆',
-                    title: currentLang === 'es' ? 'Retos con amigos' : currentLang === 'nl' ? 'Uitdagingen met vrienden' : 'Challenges with friends',
-                    desc: currentLang === 'es' ? 'Competí y ganá motivación real' : currentLang === 'nl' ? 'Competeer en win echte motivatie' : 'Compete and gain real motivation',
-                  },
-                  {
-                    emoji: '👥',
-                    title: currentLang === 'es' ? 'Feed social' : currentLang === 'nl' ? 'Sociale feed' : 'Social feed',
-                    desc: currentLang === 'es' ? 'Seguí atletas reales y sus comidas' : currentLang === 'nl' ? 'Volg echte atleten en hun maaltijden' : 'Follow real athletes and their meals',
-                  },
-                  {
-                    emoji: '🤖',
-                    title: currentLang === 'es' ? 'Coach IA' : currentLang === 'nl' ? 'AI Coach' : 'AI Coach',
-                    desc: currentLang === 'es' ? 'Recomendaciones personalizadas cada día' : currentLang === 'nl' ? 'Dagelijkse gepersonaliseerde aanbevelingen' : 'Personalized recommendations every day',
-                  },
-                  {
-                    emoji: '📷',
-                    title: currentLang === 'es' ? 'Fotos de progreso' : currentLang === 'nl' ? 'Voortgangsfoto\'s' : 'Progress photos',
-                    desc: currentLang === 'es' ? 'Visualizá tu transformación semana a semana' : currentLang === 'nl' ? 'Visualiseer je transformatie week voor week' : 'Visualize your transformation week by week',
-                  },
-                  {
-                    emoji: '💬',
-                    title: currentLang === 'es' ? 'Chat con tu equipo' : currentLang === 'nl' ? 'Chat met je team' : 'Chat with your team',
-                    desc: currentLang === 'es' ? 'Motivate con tus compañeros' : currentLang === 'nl' ? 'Motiveer jezelf met je teamgenoten' : 'Stay motivated with your teammates',
-                  },
-                ].map((feat, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 * i }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-xl">
-                      {feat.emoji}
-                    </div>
-                    <p className="text-white font-bold text-sm leading-snug">{feat.title}</p>
-                    <p className="text-white/50 text-xs leading-relaxed">{feat.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Continue button */}
-              <button
-                onClick={() => setStep(19)}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
-                {l.next}
-              </button>
-              </motion.div>
-              )}
-
-              {/* Step 19: Why Balancen */}
-              {step === 19 && (
-              <motion.div key="why"
-              initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-              className="space-y-5">
-              {/* Comparison badge */}
-              <div className="flex justify-center">
-                <div className="bg-gradient-to-r from-teal-500/30 to-emerald-500/30 border border-teal-400/50 rounded-full px-4 py-2 flex items-center gap-2">
-                  <span className="text-lg">⚡</span>
-                  <span className="text-teal-200 font-bold text-sm">{l.why_badge}</span>
+                  <span className="text-amber-200 font-bold text-sm">{l.why_badge}</span>
                 </div>
               </div>
 
@@ -1464,15 +1393,15 @@ export default function Onboarding() {
 
               {/* Continue button */}
               <button
-                onClick={() => setStep(20)}
+                onClick={() => setStep(19)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
               </motion.div>
               )}
 
-              {/* Step 20: Paywall — redesigned */}
-              {step === 20 && (
+              {/* Step 19: Paywall — redesigned */}
+              {step === 19 && (
             <motion.div key="paywall"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="space-y-5 text-center">
@@ -1694,8 +1623,8 @@ export default function Onboarding() {
               </motion.div>
               )}
 
-              {/* Step 21: Confirmation (NEW) */}
-              {step === 21 && (
+              {/* Step 20: Confirmation (NEW) */}
+              {step === 20 && (
               <motion.div key="confirmation"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="space-y-6 flex flex-col items-center justify-center text-center">
