@@ -1,45 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Zap, Crown, Clock } from "lucide-react";
+import { X, Crown, Zap } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-
-const OFFER_KEY = "balancen_trial_offer_expires";
-const OFFER_PRICE = "€31.99";
-const ORIGINAL_PRICE = "€39.99";
-
-function getOrCreateOfferExpiry() {
-  const stored = localStorage.getItem(OFFER_KEY);
-  if (stored) return parseInt(stored, 10);
-  const expiry = Date.now() + 24 * 60 * 60 * 1000;
-  localStorage.setItem(OFFER_KEY, String(expiry));
-  return expiry;
-}
-
-function useOfferCountdown(isLastDay) {
-  const [timeLeft, setTimeLeft] = useState({ hours: 0, mins: 0, expired: false });
-  const expiryRef = useRef(null);
-
-  useEffect(() => {
-    if (!isLastDay) return;
-    expiryRef.current = getOrCreateOfferExpiry();
-    const tick = () => {
-      const diff = expiryRef.current - Date.now();
-      if (diff <= 0) { setTimeLeft({ hours: 0, mins: 0, expired: true }); return; }
-      setTimeLeft({
-        hours: Math.floor(diff / 3600000),
-        mins: Math.floor((diff % 3600000) / 60000),
-        expired: false,
-      });
-    };
-    tick();
-    const id = setInterval(tick, 30000);
-    return () => clearInterval(id);
-  }, [isLastDay]);
-
-  return timeLeft;
-}
 
 const translations = {
   es: {
@@ -51,9 +15,13 @@ const translations = {
     scans_per_month: "300 análisis/mes",
     per_month: "/mes",
     per_year: "/año",
-    upgrade_now: "Upgradear ahora",
+    upgrade_now: "Continuar a Premium",
     soft_message: "Aunque no utilizaste mucho Balancen durante el trial, te invitamos a experimentar con nuestro plan. ¡Te puede sorprender!",
     best_value: "Mejor valor",
+    what_you_lose_title: "Lo que perdés si no continuás:",
+    lose_scans: (count) => `Tus ${count} análisis de comidas guardados`,
+    lose_streak: (count) => `Tu racha de ${count} día${count !== 1 ? 's' : ''}`,
+    lose_social: "Acceso al feed social y retos",
   },
   en: {
     usage_headline: (name, meals, scans) => `${name}, during your trial you logged ${meals} meal${meals !== 1 ? 's' : ''} and used ${scans} AI analyses`,
@@ -64,9 +32,13 @@ const translations = {
     scans_per_month: "300 analyses/month",
     per_month: "/month",
     per_year: "/year",
-    upgrade_now: "Upgrade now",
+    upgrade_now: "Continue to Premium",
     soft_message: "Although you didn't use Balancen much during the trial, we invite you to explore our plans. You might be surprised!",
     best_value: "Best value",
+    what_you_lose_title: "What you'll lose when trial ends:",
+    lose_scans: (count) => `Your ${count} saved meal analyses`,
+    lose_streak: (count) => `Your ${count}-day streak`,
+    lose_social: "Access to social feed and challenges",
   },
   nl: {
     usage_headline: (name, meals, scans) => `${name}, tijdens je trial registreerde je ${meals} maaltijd${meals !== 1 ? 's' : ''} en gebruikte je ${scans} AI-analyses`,
@@ -77,9 +49,13 @@ const translations = {
     scans_per_month: "300 analyses/maand",
     per_month: "/maand",
     per_year: "/jaar",
-    upgrade_now: "Nu upgraden",
+    upgrade_now: "Doorgaan naar Premium",
     soft_message: "Hoewel je Balancen niet veel gebruikte tijdens de trial, nodigen we je uit om onze plannen te verkennen. Je kunt verrast zijn!",
     best_value: "Beste waarde",
+    what_you_lose_title: "Wat je verliest wanneer de trial eindigt:",
+    lose_scans: (count) => `Je ${count} opgeslagen maaltijdanalyses`,
+    lose_streak: (count) => `Je reeks van ${count} dag${count !== 1 ? 'en' : ''}`,
+    lose_social: "Toegang tot sociale feed en uitdagingen",
   },
 };
 
@@ -88,8 +64,6 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
   const [isVisible, setIsVisible] = useState(false);
   const [mealCount, setMealCount] = useState(0);
   const [scansUsed, setScansUsed] = useState(0);
-  const isLastDay = trialDaysLeft !== null && trialDaysLeft <= 1;
-  const countdown = useOfferCountdown(isLastDay);
 
   // Only show if trial <= 2 days left and not dismissed
   useEffect(() => {
@@ -127,9 +101,8 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
   const t = translations[lang] || translations.en;
   const isSoftMessage = mealCount < 5;
   const recommendPower = scansUsed > 150;
-  const ctaLabel = isLastDay
-    ? (lang === 'es' ? 'Activar oferta — €31.99/año' : lang === 'nl' ? 'Activeer aanbieding — €31,99/jaar' : 'Activate offer — €31.99/year')
-    : t.upgrade_now;
+  const displayName = profile?.display_name?.split(" ")[0] || "User";
+  const currentStreak = profile?.current_streak || 0;
 
   const handleClose = () => {
     localStorage.setItem("balancen_upgrade_modal_dismissed", "true");
@@ -140,8 +113,6 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
     handleClose();
     navigate(createPageUrl("Paywall"));
   };
-
-  const displayName = profile?.display_name?.split(" ")[0] || "User";
 
   return (
     <AnimatePresence>
@@ -166,7 +137,7 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
             className="fixed inset-0 z-[9001] flex items-center justify-center px-4"
             style={{ pointerEvents: "auto" }}
           >
-            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 rounded-3xl p-6 max-w-md w-full border border-white/10 shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 rounded-3xl p-6 max-w-md w-full border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
               {/* Close button */}
               <button
                 onClick={handleClose}
@@ -174,29 +145,6 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
               >
                 <X size={24} />
               </button>
-
-              {/* Last-day urgency offer */}
-              {isLastDay && !countdown.expired && (
-                <div className="mb-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-400/40 rounded-2xl p-3 flex items-center justify-between gap-2">
-                  <div>
-                    <p className="text-amber-300 text-xs font-black uppercase tracking-wide">
-                      {lang === 'es' ? '🔥 Oferta limitada' : lang === 'nl' ? '🔥 Beperkt aanbod' : '🔥 Limited offer'}
-                    </p>
-                    <div className="flex items-baseline gap-2 mt-0.5">
-                      <span className="text-white/40 text-sm line-through">{ORIGINAL_PRICE}</span>
-                      <span className="text-amber-300 font-black text-lg">{OFFER_PRICE}</span>
-                      <span className="text-amber-400/70 text-xs">{lang === 'es' ? '/año' : lang === 'nl' ? '/jaar' : '/year'}</span>
-                      <span className="bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">-20%</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0 bg-black/20 rounded-xl px-2.5 py-2">
-                    <Clock size={12} className="text-amber-300" />
-                    <span className="text-amber-300 font-black text-sm tabular-nums">
-                      {String(countdown.hours).padStart(2,'0')}:{String(countdown.mins).padStart(2,'0')}
-                    </span>
-                  </div>
-                </div>
-              )}
 
               {/* Usage headline */}
               <div className="mb-6 pt-2">
@@ -212,6 +160,39 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
                 )}
               </div>
 
+              {/* What you'll lose section */}
+              {!isSoftMessage && (
+                <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+                  <p className="text-red-300 font-bold text-sm mb-3">
+                    {t.what_you_lose_title}
+                  </p>
+                  <div className="space-y-2">
+                    {scansUsed > 0 && (
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-red-400 text-lg">✕</span>
+                        <span className="text-white/80 text-sm">
+                          {t.lose_scans(scansUsed)}
+                        </span>
+                      </div>
+                    )}
+                    {currentStreak > 0 && (
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-red-400 text-lg">✕</span>
+                        <span className="text-white/80 text-sm">
+                          {t.lose_streak(currentStreak)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-red-400 text-lg">✕</span>
+                      <span className="text-white/80 text-sm">
+                        {t.lose_social}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {!isSoftMessage && (
                 <>
                   {/* Recommendation header */}
@@ -221,10 +202,9 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
 
                   {/* Plan cards */}
                   <div className="space-y-3 mb-6">
-                    {/* Recommended plan */}
                     {recommendPower ? (
                       <>
-                        {/* Power Plan */}
+                        {/* Power Plan - Recommended */}
                         <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl p-4 border-2 border-purple-500/60 relative">
                           <div className="absolute -top-3 left-4">
                             <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -246,62 +226,48 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
                           </div>
                         </div>
 
-                        {/* Premium Annual (secondary) */}
+                        {/* Premium Annual - Secondary */}
                         <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                         <div className="flex items-start justify-between">
-                           <div>
-                             <h3 className="text-white font-black text-base flex items-center gap-2">
-                               <Crown size={18} className="text-amber-400" />
-                               {t.premium_plan}
-                             </h3>
-                             <p className="text-white/60 text-sm mt-2">{t.scans_per_month}</p>
-                           </div>
-                           <div className="text-right">
-                             {isLastDay ? (
-                               <>
-                                 <p className="text-white/40 text-sm line-through">€39.99</p>
-                                 <p className="text-amber-300 font-black text-2xl">€31.99</p>
-                               </>
-                             ) : (
-                               <p className="text-white font-black text-2xl">€39.99</p>
-                             )}
-                             <p className="text-white/50 text-xs">{t.per_year}</p>
-                           </div>
-                         </div>
-                        </div>
-                               </>
-                               ) : (
-                               <>
-                               {/* Premium Annual (primary recommendation) */}
-                               <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 rounded-2xl p-4 border-2 border-amber-500/60 relative">
-                               <div className="absolute -top-3 left-4">
-                               <span className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                               {t.best_value}
-                               </span>
-                               </div>
-                               <div className="flex items-start justify-between pt-1">
-                               <div>
-                               <h3 className="text-white font-black text-base flex items-center gap-2">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="text-white font-black text-base flex items-center gap-2">
                                 <Crown size={18} className="text-amber-400" />
                                 {t.premium_plan}
-                               </h3>
-                               <p className="text-white/60 text-sm mt-2">{t.scans_per_month}</p>
-                               </div>
-                               <div className="text-right">
-                                {isLastDay ? (
-                                  <>
-                                    <p className="text-white/40 text-sm line-through">€39.99</p>
-                                    <p className="text-amber-300 font-black text-2xl">€31.99</p>
-                                  </>
-                                ) : (
-                                  <p className="text-white font-black text-2xl">€39.99</p>
-                                )}
-                                <p className="text-white/50 text-xs">{t.per_year}</p>
-                               </div>
-                               </div>
-                               </div>
+                              </h3>
+                              <p className="text-white/60 text-sm mt-2">{t.scans_per_month}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-white font-black text-2xl">€39.99</p>
+                              <p className="text-white/50 text-xs">{t.per_year}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Premium Annual - Recommended */}
+                        <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 rounded-2xl p-4 border-2 border-amber-500/60 relative">
+                          <div className="absolute -top-3 left-4">
+                            <span className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                              {t.best_value}
+                            </span>
+                          </div>
+                          <div className="flex items-start justify-between pt-1">
+                            <div>
+                              <h3 className="text-white font-black text-base flex items-center gap-2">
+                                <Crown size={18} className="text-amber-400" />
+                                {t.premium_plan}
+                              </h3>
+                              <p className="text-white/60 text-sm mt-2">{t.scans_per_month}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-white font-black text-2xl">€39.99</p>
+                              <p className="text-white/50 text-xs">{t.per_year}</p>
+                            </div>
+                          </div>
+                        </div>
 
-                              {/* Power Plan (secondary) */}
+                        {/* Power Plan - Secondary */}
                         <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
                           <div className="flex items-start justify-between">
                             <div>
@@ -326,13 +292,9 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
               {/* CTA Button */}
               <button
                 onClick={handleUpgrade}
-                className={`w-full font-bold py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg text-white ${
-                  isLastDay
-                    ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:shadow-xl hover:shadow-amber-500/40'
-                    : 'bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 hover:shadow-xl hover:shadow-teal-500/40'
-                }`}
+                className="w-full font-bold py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg text-white bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 hover:shadow-xl hover:shadow-teal-500/40"
               >
-                {ctaLabel}
+                {t.upgrade_now}
               </button>
 
               {/* Dismiss link */}
