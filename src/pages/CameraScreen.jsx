@@ -56,12 +56,8 @@ export default function CameraScreen() {
   const [capturedPreview, setCapturedPreview] = useState(null); // stable blob URL
   const [captureError, setCaptureError] = useState(null); // error after capture
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
-  const [livePreview, setLivePreview] = useState(null); // { calories, protein, carbs, fats }
-  const [liveAnalyzing, setLiveAnalyzing] = useState(false);
   const [scansUsedToday, setScansUsedToday] = useState(null); // null = not yet loaded
   const [scansUsedThisMonth, setScansUsedThisMonth] = useState(null); // null = not yet loaded
-  const liveThrottleRef = useRef(null);
-  const liveAbortRef = useRef(null);
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
   const isPowerUser = profile?.plan_type === 'power' || profile?.subscription_plan === 'power';
@@ -364,77 +360,6 @@ export default function CameraScreen() {
     reader.readAsDataURL(selectedFile);
   };
 
-  // Live nutrition preview — throttled, cancellable
-  const runLivePreview = useCallback(async () => {
-    if (!videoRef.current || !videoReady || videoRef.current.videoWidth === 0) return;
-    if (liveAbortRef.current) liveAbortRef.current = true; // signal previous call to abort
-
-    const abortFlag = { cancelled: false };
-    liveAbortRef.current = abortFlag;
-    setLiveAnalyzing(true);
-
-    try {
-      const video = videoRef.current;
-      const canvas = document.createElement("canvas");
-      // Use smaller resolution for live preview to keep it fast
-      canvas.width = Math.min(video.videoWidth, 640);
-      canvas.height = Math.round(canvas.width * (video.videoHeight / video.videoWidth));
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
-
-      if (abortFlag.cancelled) return;
-
-      // Upload thumbnail for analysis
-      const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.6));
-      if (abortFlag.cancelled) return;
-      const file = new File([blob], "preview.jpg", { type: "image/jpeg" });
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      if (abortFlag.cancelled) return;
-
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: "Quick nutrition estimate for the food visible in this photo. Return JSON only.",
-        file_urls: [file_url],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            calories: { type: "number" },
-            protein: { type: "number" },
-            carbs: { type: "number" },
-            fats: { type: "number" },
-          }
-        }
-      });
-
-      if (abortFlag.cancelled) return;
-      if (mountedRef.current) {
-        setLivePreview({
-          calories: Math.round(result.calories || 0),
-          protein: Math.round(result.protein || 0),
-          carbs: Math.round(result.carbs || 0),
-          fats: Math.round(result.fats || 0),
-        });
-      }
-    } catch (_) {
-      // silently ignore live preview errors
-    } finally {
-      if (!abortFlag.cancelled && mountedRef.current) setLiveAnalyzing(false);
-    }
-  }, [videoReady]);
-
-  // Trigger live preview once camera is ready, then throttle every 8000ms
-  // DISABLED in profile photo mode — no food analysis
-  useEffect(() => {
-    if (!videoReady || isProfilePhotoMode) return;
-    const initial = setTimeout(() => { runLivePreview(); }, 3000);
-    const interval = setInterval(() => { runLivePreview(); }, 8000);
-    return () => {
-      clearTimeout(initial);
-      clearInterval(interval);
-      if (liveAbortRef.current) liveAbortRef.current.cancelled = true;
-    };
-  }, [videoReady, runLivePreview, isProfilePhotoMode]);
-
   // Save a captured file as a profile photo and return to profile
   const saveProfilePhoto = useCallback(async (file, dataUrl) => {
     if (!file) return;
@@ -595,41 +520,6 @@ export default function CameraScreen() {
              ✨ {freeScansLeft !== null ? freeScansLeft : trialScansLeft} {t("ai_scans_left")}
            </div>
           )}
-        </div>
-      )}
-
-      {/* Live nutrition preview panel — hidden in profile photo mode */}
-      {videoReady && !isProfilePhotoMode && (
-        <div
-          className="absolute top-0 left-0 right-0 z-[6] pointer-events-none"
-          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 64px)', paddingLeft: '16px', paddingRight: '16px' }}
-        >
-          <div className="bg-black/60 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/10">
-            {liveAnalyzing && !livePreview ? (
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-teal-400 animate-pulse" />
-                <span className="text-white/70 text-xs font-semibold">{t("analyzing_ellipsis")}</span>
-              </div>
-            ) : livePreview ? (
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-1.5">
-                  {liveAnalyzing && <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse flex-shrink-0" />}
-                  <span className="text-teal-300 font-black text-base">~{livePreview.calories}</span>
-                  <span className="text-white/50 text-xs font-bold">kcal</span>
-                </div>
-                <div className="flex items-center gap-3 text-xs font-bold">
-                  <span className="text-blue-300">P <span className="font-black">{livePreview.protein}g</span></span>
-                  <span className="text-amber-300">C <span className="font-black">{livePreview.carbs}g</span></span>
-                  <span className="text-pink-300">F <span className="font-black">{livePreview.fats}g</span></span>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-white/20" />
-                <span className="text-white/40 text-xs font-semibold">{t("point_camera_at_food")}</span>
-              </div>
-            )}
-          </div>
         </div>
       )}
 
