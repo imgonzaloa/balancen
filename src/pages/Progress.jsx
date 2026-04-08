@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Lock, BarChart3, Sparkles, Flame, Camera } from "lucide-react";
+import { Lock, BarChart3, Sparkles, Flame, Camera, Info } from "lucide-react";
 import { useAppState } from "@/components/AppStateContext";
 import { useTranslation } from "@/components/TranslationProvider";
 import { base44 } from "@/api/base44Client";
@@ -149,18 +149,29 @@ export default function Progress() {
               </div>
             </div>
             <div className="flex-1 space-y-2">
-              {[
-                { label: t('protein'), value: Math.round(calculations.totalProtein), unit: 'g', color: '#3b82f6' },
-                { label: t('carbs') || 'Carbs', value: Math.round(calculations.totalCarbs), unit: 'g', color: '#a855f7' },
-                { label: lang === 'es' ? 'Carbs netos' : lang === 'nl' ? 'Netto koolh.' : 'Net carbs', value: Math.round(calculations.totalNetCarbs), unit: 'g', color: '#c084fc', sub: true },
-                { label: t('fats') || 'Fats', value: Math.round(calculations.totalFats), unit: 'g', color: '#f59e0b' },
-              ].map(macro => (
-                <div key={macro.label} className={`flex items-center gap-2 ${macro.sub ? 'pl-4 opacity-80' : ''}`}>
-                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: macro.color }} />
-                  <span className="text-white/60 text-xs w-16">{macro.label}</span>
-                  <span className="text-white font-semibold text-sm">{macro.value}{macro.unit}</span>
-                </div>
-              ))}
+             {[
+               { label: t('protein'), value: Math.round(calculations.totalProtein), unit: 'g', color: '#3b82f6' },
+               { label: t('carbs') || 'Carbs', value: Math.round(calculations.totalCarbs), unit: 'g', color: '#a855f7' },
+               { label: t('fats') || 'Fats', value: Math.round(calculations.totalFats), unit: 'g', color: '#f59e0b' },
+             ].map(macro => (
+               <div key={macro.label} className={`flex items-center gap-2`}>
+                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: macro.color }} />
+                 <span className="text-white/60 text-xs w-16">{macro.label}</span>
+                 <span className="text-white font-semibold text-sm">{macro.value}{macro.unit}</span>
+               </div>
+             ))}
+             {/* Net carbs row */}
+             <div className="flex items-center gap-2 pl-2 pt-1 border-t border-white/10">
+               <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: '#14b8a6' }} />
+               <span className="text-white/60 text-xs w-16">{lang === 'es' ? 'Carbos netos' : lang === 'nl' ? 'Netto koolh.' : 'Net carbs'}</span>
+               <span className="text-teal-300 font-semibold text-sm flex-1">{Math.round(calculations.totalCarbs * 0.85)}g</span>
+               <div className="group relative">
+                 <Info size={12} className="text-white/40 cursor-help" />
+                 <div className="absolute bottom-full right-0 mb-1 px-2 py-1 bg-slate-700 rounded-md text-white text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                   {lang === 'es' ? 'Estimado. Registrá fibra manualmente para mayor precisión.' : lang === 'nl' ? 'Geschat. Log vezels handmatig voor meer nauwkeurigheid.' : 'Estimated. Log fiber manually for more accuracy.'}
+                 </div>
+               </div>
+             </div>
             </div>
           </div>
         </div>

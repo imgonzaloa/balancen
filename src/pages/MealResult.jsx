@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { X, Loader2, AlertCircle, Check, Plus, Minus, ChevronDown, ChevronUp, RefreshCw, Edit3, Crown } from "lucide-react";
+import { X, Loader2, AlertCircle, Check, Plus, Minus, ChevronDown, ChevronUp, RefreshCw, Edit3, Crown, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -969,7 +969,6 @@ export default function MealResult() {
               {[
                 { labelKey: 'protein', value: totals.protein, color: "text-blue-400" },
                 { labelKey: 'carbs', value: totals.carbs, color: "text-amber-400" },
-                { label: lang === 'es' ? 'Net carbs' : lang === 'nl' ? 'Netto' : 'Net carbs', value: Math.max(0, (totals.carbs || 0) - (totals.fiber || 0)), color: "text-purple-400" },
                 { labelKey: 'fats', value: totals.fats, color: "text-pink-400" },
               ].map(({ labelKey, label, value, color }) => (
                 <div key={labelKey || label} className="text-center">
@@ -977,6 +976,22 @@ export default function MealResult() {
                   <p className="text-white/40 text-[10px] uppercase font-bold leading-tight">{label || t(labelKey)}</p>
                 </div>
               ))}
+            </div>
+            
+            {/* Net carbs row */}
+            <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between px-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-white/50 text-xs font-semibold">
+                  {lang === 'es' ? 'Carbos netos (est.)' : lang === 'nl' ? 'Netto koolhydraten (est.)' : 'Net carbs (est.)'}
+                </span>
+                <div className="group relative">
+                  <Info size={12} className="text-white/40 cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-slate-700 rounded-md text-white text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    {lang === 'es' ? 'Estimado. Registrá fibra manualmente para mayor precisión.' : lang === 'nl' ? 'Geschat. Log vezels handmatig voor meer nauwkeurigheid.' : 'Estimated. Log fiber manually for more accuracy.'}
+                  </div>
+                </div>
+              </div>
+              <span className="text-teal-300 text-sm font-bold">{Math.round(Math.max(0, (totals.carbs || 0) * 0.85))}g</span>
             </div>
           </div>
 
