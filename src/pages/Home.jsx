@@ -17,6 +17,7 @@ import TrialBanner from "@/components/home/TrialBanner";
 import MacroBreakdownBar from "@/components/home/MacroBreakdownBar";
 import StreakCelebration from "@/components/home/StreakCelebration";
 import DailyAIInsightCard from "@/components/home/DailyAIInsightCard";
+import AICoachCard from "@/components/home/AICoachCard";
 import DailyMissionsPanel from "@/components/home/DailyMissionsPanel";
 import FastingTracker from "@/components/home/FastingTracker";
 import MealEditModal from "@/components/home/MealEditModal";
@@ -446,6 +447,13 @@ const Home = React.memo(() => {
         <DailyAIInsightCard
           lang={lang}
           onViewPlan={() => handleNavigate('GoalsAssistant')}
+        />
+
+        {/* AI Coach quick access */}
+        <AICoachCard
+          lang={lang}
+          isPremium={isPremium}
+          onNavigate={handleNavigate}
         />
 
         {/* Streak celebration overlay */}
