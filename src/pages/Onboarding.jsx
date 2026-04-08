@@ -1691,10 +1691,68 @@ export default function Onboarding() {
                 className="text-white/40 text-xs underline underline-offset-2 active:opacity-60">
                 {l.restore}
               </button>
-            </motion.div>
-          )}
+              </motion.div>
+              )}
 
-        </AnimatePresence>
+              {/* Step 21: Confirmation (NEW) */}
+              {step === 21 && (
+              <motion.div key="confirmation"
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              className="space-y-6 flex flex-col items-center justify-center text-center">
+
+              {/* Celebration checkmark */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 120, damping: 12 }}
+              >
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center shadow-2xl shadow-emerald-500/50">
+                  <CheckCircle size={50} className="text-white" strokeWidth={1.5} />
+                </div>
+              </motion.div>
+
+              {/* Success message */}
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black text-white">
+                  {currentLang === 'es' ? '¡Bienvenido a Balancen!' : currentLang === 'nl' ? 'Welkom bij Balancen!' : 'Welcome to Balancen!'}
+                </h2>
+                <p className="text-white/70 text-base">
+                  {currentLang === 'es' ? 'Tu plan personalizado está activado. Disfruta tu trial de 3 días sin cargo.' : currentLang === 'nl' ? 'Je persoonlijke plan is geactiveerd. Geniet van je 3 gratis dagen.' : 'Your personalized plan is activated. Enjoy your 3 free days.'}
+                </p>
+              </div>
+
+              {/* Benefits card */}
+              <div className="w-full bg-gradient-to-br from-teal-500/15 to-emerald-500/15 border border-teal-400/30 rounded-2xl p-4 space-y-3">
+                {[
+                  { emoji: '📸', text: currentLang === 'es' ? 'Análisis IA ilimitados hoy' : currentLang === 'nl' ? 'Onbeperkte AI-analyses vandaag' : 'Unlimited AI analyses today' },
+                  { emoji: '👥', text: currentLang === 'es' ? 'Acceso total a Feed social' : currentLang === 'nl' ? 'Volledige toegang tot sociale feed' : 'Full social feed access' },
+                  { emoji: '🏆', text: currentLang === 'es' ? 'Retos y grupos desbloqueados' : currentLang === 'nl' ? 'Uitdagingen en groepen ontgrendeld' : 'Challenges & groups unlocked' },
+                  { emoji: '🤖', text: currentLang === 'es' ? 'Coach IA personalizado listo' : currentLang === 'nl' ? 'Aangepaste AI-coach klaar' : 'Personalized AI coach ready' },
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.1 }}
+                    className="flex items-center gap-3"
+                  >
+                    <span className="text-2xl">{item.emoji}</span>
+                    <p className="text-white/90 text-sm font-semibold text-left">{item.text}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Final CTA */}
+              <button
+                onClick={() => handleActivateTrial()}
+                disabled={saving}
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform disabled:opacity-70">
+                {saving ? l.entering : (currentLang === 'es' ? '¡Empezar ahora!' : currentLang === 'nl' ? 'Nu starten!' : 'Start now!')}
+              </button>
+              </motion.div>
+              )}
+
+              </AnimatePresence>
       </div>
     </div>
   );
