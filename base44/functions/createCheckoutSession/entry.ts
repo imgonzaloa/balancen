@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
         quantity: 1,
       }],
       subscription_data: {
-        trial_period_days: 5,
+        trial_period_days: 3,
         metadata: {
           user_email: user.email,
           user_id: user.id,
