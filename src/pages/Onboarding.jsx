@@ -994,8 +994,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 9: Meals per day (if calories skipped) or actual step 9 */}
-          {((step === 9 && formData.height_cm && formData.weight_kg) || (step === 8 && (!formData.height_cm || !formData.weight_kg))) && (
+          {/* Step 9: Meals per day */}
+          {step === 9 && (
             <motion.div key="meals"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1006,7 +1006,7 @@ export default function Onboarding() {
               <div className="space-y-3">
                 {l.meals.map((opt) => (
                   <button key={opt.value}
-                    onClick={() => { setFormData(p => ({ ...p, meals_per_day: opt.value })); setStep(9); }}
+                    onClick={() => { setFormData(p => ({ ...p, meals_per_day: opt.value })); setStep(10); }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
                       formData.meals_per_day === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
