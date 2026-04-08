@@ -306,7 +306,7 @@
     },
     "referral_source": {
       "type": "string",
-      "description": "How the user heard about Balancen (tiktok, instagram, google, friend, coach, podcast, email, other)"
+      "description": "How the user heard about Balancen (tiktok, instagram, google, friend, coach, podcast, email, affiliate_code, other)"
     },
     "fasting_start": {
       "type": "string",
@@ -317,6 +317,10 @@
       "type": "number",
       "default": 16,
       "description": "Fasting window in hours (e.g. 16 for 16:8)"
+    },
+    "affiliate_code": {
+      "type": "string",
+      "description": "Unique affiliate code for tracking referrals (only for affiliate partners)"
     }
   },
   "required": [

@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import MobileSelect from "@/components/MobileSelectWrapper";
 import BodyGoalsFields from "@/components/settings/BodyGoalsFields";
+import AffiliatesSection from "@/components/settings/AffiliatesSection";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -508,9 +509,18 @@ export default function Settings() {
                    </div>
                  ) : null}
                </div>
-             </motion.div>
-            </>
-            )}
+               </motion.div>
+
+               {/* Affiliates Section - Owner Only */}
+               <AffiliatesSection 
+               profile={profile}
+               lang={lang}
+               onProfileUpdated={(updated) => {
+                 queryClient.invalidateQueries(['profile', user?.email]);
+               }}
+               />
+               </>
+               )}
 
 
 
