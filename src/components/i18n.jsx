@@ -751,6 +751,7 @@ const resources = {
       share_failed: "Share failed",
       feature_premium_scans: "300 AI meal scans per month",
       feature_power_scans: "Unlimited AI meal scans",
+      try_for_free_fine_print: "3 days free · No card required · Cancel anytime",
       }
       },
   nl: {
@@ -936,6 +937,7 @@ const resources = {
       canvas: "canvas",
       feature_premium_scans: "300 AI-maaltijdanalyses per maand",
       feature_power_scans: "Onbeperkte AI-maaltijdanalyses",
+      try_for_free_fine_print: "3 dagen gratis · Geen kaart · Op elk moment annuleren",
       }
       },
   es: {
@@ -1693,6 +1695,7 @@ const resources = {
       share_failed: "Error al compartir",
       feature_premium_scans: "300 análisis de comida con IA por mes",
       feature_power_scans: "Análisis de comida con IA ilimitados",
+      try_for_free_fine_print: "3 días gratis · Sin tarjeta · Cancelá cuando quieras",
 
       // Meal types and actions
       breakfast: "Desayuno",

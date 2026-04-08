@@ -42,12 +42,12 @@ export default function Paywall() {
          .then(res => setPricing(res.data))
          .catch(() => setPricing({
            region: 'EUR', currency: '€',
-           prices: { monthly: 8.99, yearly: 52.99, power_monthly: 12.99, power_yearly: 89.99 },
+           prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 },
            priceIds: { monthly: null, yearly: null, power_monthly: null, power_yearly: null }
          }));
      } else {
        // On native, show fallback prices (RevenueCat will use store prices)
-       setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 52.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
+       setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
      }
 
     if (appUser?.email) {

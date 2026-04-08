@@ -41,7 +41,7 @@ export default function Premium() {
         .catch(() => toast.error(t('payment_system_unavailable')));
     } else {
       // Fallback pricing display (actual price from Stripe)
-      setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 52.99 }, priceIds: {} });
+      setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99 }, priceIds: {} });
     }
   }, [isNative]);
 

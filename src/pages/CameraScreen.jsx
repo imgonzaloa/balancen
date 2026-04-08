@@ -14,7 +14,7 @@ import AIConsentModal, { hasAIConsent } from "@/components/AIConsentModal";
 import { useEntitlement } from "@/components/hooks/useEntitlement";
 
 const FREE_DAILY_LIMIT = 5;
-const TRIAL_DAILY_LIMIT = 10;
+const TRIAL_DAILY_LIMIT = 7;
 const PREMIUM_MONTHLY_LIMIT = 300;
 
 // Module-level stable store so photo survives navigation/re-render
@@ -316,10 +316,10 @@ export default function CameraScreen() {
     } else if (isTrialUser && trialScansLeft === 0) {
       // Trial user daily limit
       const limitMsg = lang === 'es' 
-        ? 'Alcanzaste tu límite diario de prueba (10 análisis). Suscribirse a Premium para más.'
-        : lang === 'nl'
-        ? 'Je hebt je dagelijkse proefperiode limiet bereikt (10 analyses). Abonneer je op Premium voor meer.'
-        : 'You reached your daily trial limit (10 analyses). Subscribe to Premium for more.';
+        ? 'Alcanzaste tu límite diario de prueba (7 análisis). Suscribirse a Premium para más.'
+          : lang === 'nl'
+          ? 'Je hebt je dagelijkse proefperiode limiet bereikt (7 analyses). Abonneer je op Premium voor meer.'
+          : 'You reached your daily trial limit (7 analyses). Subscribe to Premium for more.';
       toast.error(limitMsg);
       navigate(createPageUrl("Premium"));
       return;

@@ -193,31 +193,31 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
                               <p className="text-white/60 text-sm mt-2">{t.scans_per_month}</p>
                             </div>
                             <div className="text-right">
-                               <p className="text-white font-black text-2xl">€52.99</p>
+                               <p className="text-white font-black text-2xl">€39.99</p>
                                <p className="text-white/50 text-xs">{t.per_year}</p>
-                             </div>
-                            </div>
-                            </div>
-                            </>
-                            ) : (
-                      <>
-                        {/* Premium Annual (primary recommendation) */}
-                        <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 rounded-2xl p-4 border-2 border-amber-500/60 relative">
-                          <div className="absolute -top-3 left-4">
-                            <span className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                              {t.best_value}
-                            </span>
-                          </div>
-                          <div className="flex items-start justify-between pt-1">
-                            <div>
-                              <h3 className="text-white font-black text-base flex items-center gap-2">
+                               </div>
+                               </div>
+                               </div>
+                               </>
+                               ) : (
+                               <>
+                               {/* Premium Annual (primary recommendation) */}
+                               <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 rounded-2xl p-4 border-2 border-amber-500/60 relative">
+                               <div className="absolute -top-3 left-4">
+                               <span className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                               {t.best_value}
+                               </span>
+                               </div>
+                               <div className="flex items-start justify-between pt-1">
+                               <div>
+                               <h3 className="text-white font-black text-base flex items-center gap-2">
                                 <Crown size={18} className="text-amber-400" />
                                 {t.premium_plan}
-                              </h3>
-                              <p className="text-white/60 text-sm mt-2">{t.scans_per_month}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-white font-black text-2xl">€52.99</p>
+                               </h3>
+                               <p className="text-white/60 text-sm mt-2">{t.scans_per_month}</p>
+                               </div>
+                               <div className="text-right">
+                               <p className="text-white font-black text-2xl">€39.99</p>
                               <p className="text-white/50 text-xs">{t.per_year}</p>
                               </div>
                               </div>

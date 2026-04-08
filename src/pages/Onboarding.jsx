@@ -132,7 +132,7 @@ export default function Onboarding() {
       }
 
       const now = new Date();
-      const trialEndDate = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
+      const trialEndDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
       const existingProfile = await base44.entities.UserProfile.filter({ created_by: currentUser.email });
 
       const trialData = {
@@ -257,10 +257,10 @@ export default function Onboarding() {
       social_count: "10,000+",
       social_sub: "personas con tu mismo objetivo ya empezaron",
       trial_title: "¡Tu plan está listo!",
-      trial_sub: "5 días gratis. Sin tarjeta. Sin trampa.",
+      trial_sub: "3 días gratis. Sin tarjeta. Sin trampa.",
       annual_label: "Plan Anual",
-      annual_price: "€52.99/año",
-      annual_monthly: "equivale a €4.42/mes",
+      annual_price: "€39.99/año",
+      annual_monthly: "equivale a €3.33/mes",
       annual_badge: "Mejor valor",
       monthly_label: "Plan Mensual",
       monthly_price: "€8.99/mes",
@@ -273,7 +273,7 @@ export default function Onboarding() {
       power_price: "€12.99/mes",
       power_monthly: "Análisis ilimitados",
       power_subtitle: "Para usuarios intensivos",
-      save_vs_monthly: "Ahorrá €54 vs mensual",
+      save_vs_monthly: "Ahorrá €27 vs mensual",
       compare_title: "¿Qué incluye cada plan?",
       plan_free_header: "Free",
       plan_premium_header: "Premium",
@@ -290,7 +290,7 @@ export default function Onboarding() {
       founder_title: "Hi, I'm Gonzalo 👋",
       founder_para1: "Creé Balancen porque yo mismo luché para mantener hábitos de nutrición siendo deportista. Las apps existentes eran o muy complicadas o demasiado genéricas.",
       founder_para2: "Sé honesto: cada análisis de IA tiene un costo real. El precio de Balancen está calculado para ser justo — ni demasiado caro para vos, ni insostenible para mí. Quiero construir esto a largo plazo.",
-      founder_para3: "5 días gratis, sin tarjeta. Si no te cambia el hábito, cancelás sin drama. — Gonzalo 🙌",
+      founder_para3: "3 días gratis, sin tarjeta. Si no te cambia el hábito, cancelás sin drama. — Gonzalo 🙌",
       },
     en: {
       lang_title: "Choose your language",
@@ -358,10 +358,10 @@ export default function Onboarding() {
       social_count: "10,000+",
       social_sub: "people with your same goal already started",
       trial_title: "Your plan is ready!",
-      trial_sub: "5 days free. No card. No catch.",
+      trial_sub: "3 days free. No card. No catch.",
       annual_label: "Annual Plan",
-      annual_price: "€52.99/year",
-      annual_monthly: "equals €4.42/month",
+      annual_price: "€39.99/year",
+      annual_monthly: "equals €3.33/month",
       annual_badge: "Best value",
       monthly_label: "Monthly Plan",
       monthly_price: "€8.99/month",
@@ -374,7 +374,7 @@ export default function Onboarding() {
       power_price: "€12.99/month",
       power_monthly: "Unlimited analyses",
       power_subtitle: "For power users",
-      save_vs_monthly: "Save €54 vs monthly",
+      save_vs_monthly: "Save €27 vs monthly",
       compare_title: "What does each plan include?",
       plan_free_header: "Free",
       plan_premium_header: "Premium",
@@ -391,7 +391,7 @@ export default function Onboarding() {
       founder_title: "Hi, I'm Gonzalo 👋",
       founder_para1: "I built Balancen because I struggled myself to maintain nutrition habits as an athlete. Existing apps were either too complex or too generic.",
       founder_para2: "Full transparency: every AI analysis has a real cost. Balancen's price is calculated to be fair — not too expensive for you, not unsustainable for me. I want to build this for the long term.",
-      founder_para3: "5 days free, no card needed. If it doesn't change your habit, cancel no drama. — Gonzalo 🙌",
+      founder_para3: "3 days free, no card needed. If it doesn't change your habit, cancel no drama. — Gonzalo 🙌",
       },
       nl: {
       lang_title: "Kies je taal",
@@ -459,15 +459,15 @@ export default function Onboarding() {
       social_count: "10.000+",
       social_sub: "mensen met hetzelfde doel zijn al gestart",
       trial_title: "Je plan is klaar!",
-      trial_sub: "5 dagen gratis. Geen kaart. Geen foefjes.",
+      trial_sub: "3 dagen gratis. Geen kaart. Geen foefjes.",
       annual_label: "Jaarplan",
-      annual_price: "€52,99/jaar",
-      annual_monthly: "gelijk aan €4,42/maand",
+      annual_price: "€39,99/jaar",
+      annual_monthly: "gelijk aan €3,33/maand",
       annual_badge: "Beste waarde",
       monthly_label: "Maandplan",
       monthly_price: "€8,99/maand",
       power_subtitle: "Voor intensieve gebruikers",
-      save_vs_monthly: "Bespaar €54 vs maandelijks",
+      save_vs_monthly: "Bespaar €27 vs maandelijks",
       compare_title: "Wat zit er in elk plan?",
       plan_free_header: "Gratis",
       plan_premium_header: "Premium",
@@ -492,7 +492,7 @@ export default function Onboarding() {
       founder_title: "Hallo, ik ben Gonzalo 👋",
       founder_para1: "Ik heb Balancen gemaakt omdat ik zelf moeite had met voedingsgewoonten als sporter. Bestaande apps waren te complex of te generiek.",
       founder_para2: "Volledige transparantie: elke AI-analyse kost geld. Balancens prijs is fair berekend — niet te duur voor jou, niet onhoudbaar voor mij.",
-      founder_para3: "5 dagen gratis, geen kaart nodig. Als het je gewoonte niet verandert, kun je annuleren zonder stress. — Gonzalo 🙌",
+      founder_para3: "3 dagen gratis, geen kaart nodig. Als het je gewoonte niet verandert, kun je annuleren zonder stress. — Gonzalo 🙌",
       },
       pt: {
       lang_title: "Escolha seu idioma",
