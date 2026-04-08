@@ -1,126 +1,171 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, Timer, Play, Square } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { ChevronDown, ChevronUp, Timer, Play, Square, Clock } from "lucide-react";
 import { toast } from "sonner";
+
+const STORAGE_KEY = "balancen_fasting";
 
 const PRESETS = [
   { label: "16:8", hours: 16 },
   { label: "18:6", hours: 18 },
   { label: "20:4", hours: 20 },
-  { label: "14:10", hours: 14 },
 ];
 
-function getLabels(lang) {
-  return {
-    title: lang === "es" ? "Ayuno intermitente" : lang === "nl" ? "Intermittent vasten" : "Intermittent Fasting",
-    fasting: lang === "es" ? "Ayunando" : lang === "nl" ? "Vasten" : "Fasting",
-    eating: lang === "es" ? "Comiendo" : lang === "nl" ? "Eetvenster" : "Eating window",
-    startFast: lang === "es" ? "Comenzar ayuno" : lang === "nl" ? "Start vasten" : "Start fasting",
-    endFast: lang === "es" ? "Terminar ayuno" : lang === "nl" ? "Stop vasten" : "End fasting",
-    goal: lang === "es" ? "Meta" : lang === "nl" ? "Doel" : "Goal",
-    remaining: lang === "es" ? "restante" : lang === "nl" ? "resterend" : "remaining",
-    completed: lang === "es" ? "¡Ayuno completado! 🎉" : lang === "nl" ? "Vasten voltooid! 🎉" : "Fast complete! 🎉",
-    window: lang === "es" ? "Ventana de ayuno" : lang === "nl" ? "Vastenvenster" : "Fasting window",
-  };
+const txt = {
+  title:       { es: "⏱ Ayuno intermitente", en: "⏱ Intermittent Fasting", nl: "⏱ Intermittent vasten" },
+  startFast:   { es: "Iniciar ayuno",   en: "Start fast",   nl: "Vast starten" },
+  breakFast:   { es: "Romper ayuno",    en: "Break fast",   nl: "Vast breken" },
+  fasting:     { es: "Ayunando",        en: "Fasting",      nl: "Aan het vasten" },
+  eating:      { es: "Ventana de comida", en: "Eating window", nl: "Eetvenster actief" },
+  remaining:   { es: "restante",        en: "remaining",    nl: "resterend" },
+  ends:        { es: "Termina a las",   en: "Ends at",      nl: "Eindigt om" },
+  goal:        { es: "Meta",            en: "Goal",         nl: "Doel" },
+  custom:      { es: "Horas personalizadas", en: "Custom hours", nl: "Aangepast" },
+  completed:   { es: "¡Ayuno completado! 🎉", en: "Fast complete! 🎉", nl: "Vasten voltooid! 🎉" },
+  started:     { es: "¡Ayuno iniciado!", en: "Fast started!", nl: "Vasten gestart!" },
+  broken:      { es: "Ayuno terminado", en: "Fast ended",   nl: "Vasten gestopt" },
+  window:      { es: "Protocolo",       en: "Protocol",     nl: "Protocol" },
+};
+const T = (key, lang) => txt[key]?.[lang] || txt[key]?.en || "";
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : { fasting_start_time: null, eating_window: 16 };
+  } catch {
+    return { fasting_start_time: null, eating_window: 16 };
+  }
 }
 
-export default function FastingTracker({ profile, lang, onProfileUpdate }) {
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function formatHHMM(date) {
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+export default function FastingTracker({ lang = "en" }) {
   const [open, setOpen] = useState(false);
-  const [elapsed, setElapsed] = useState(0); // seconds
-  const [saving, setSaving] = useState(false);
+  const [state, setState] = useState(loadState);
+  const [elapsed, setElapsed] = useState(0);
+  const [customHours, setCustomHours] = useState("");
   const timerRef = useRef(null);
 
-  const fastingStart = profile?.fasting_start || null;
-  const eatingWindowHours = profile?.eating_window_hours || 16;
-  const goalSeconds = eatingWindowHours * 3600;
-  const isActive = !!fastingStart;
+  const { fasting_start_time, eating_window } = state;
+  const goalSeconds = eating_window * 3600;
+  const isActive = !!fasting_start_time;
 
-  const labels = getLabels(lang);
+  // After fasting goal is reached, we're in the eating window
+  const isEating = isActive && elapsed >= goalSeconds;
+  const eatWindowGoalSeconds = (24 - eating_window) * 3600;
 
-  // Tick every second while fasting
+  // Tick
   useEffect(() => {
-    if (!isActive) { setElapsed(0); return; }
+    if (!isActive) { setElapsed(0); clearInterval(timerRef.current); return; }
     const update = () => {
-      const diff = Math.floor((Date.now() - new Date(fastingStart).getTime()) / 1000);
+      const diff = Math.floor((Date.now() - new Date(fasting_start_time).getTime()) / 1000);
       setElapsed(Math.max(0, diff));
     };
     update();
     timerRef.current = setInterval(update, 1000);
     return () => clearInterval(timerRef.current);
-  }, [fastingStart, isActive]);
+  }, [fasting_start_time, isActive]);
 
-  const pct = Math.min((elapsed / goalSeconds) * 100, 100);
-  const hours = Math.floor(elapsed / 3600);
-  const mins = Math.floor((elapsed % 3600) / 60);
-  const secs = elapsed % 60;
-  const isComplete = elapsed >= goalSeconds;
+  const update = useCallback((patch) => {
+    setState(prev => {
+      const next = { ...prev, ...patch };
+      saveState(next);
+      return next;
+    });
+  }, []);
 
-  const circumference = 2 * Math.PI * 54; // r=54
-  const strokeDash = (pct / 100) * circumference;
-
-  const handleSetWindow = async (hours) => {
-    if (!profile?.id) return;
-    setSaving(true);
-    try {
-      await base44.entities.UserProfile.update(profile.id, { eating_window_hours: hours });
-      onProfileUpdate?.({ ...profile, eating_window_hours: hours });
-    } catch {
-      toast.error(lang === "es" ? "Error al guardar" : "Error saving");
-    } finally {
-      setSaving(false);
-    }
+  const handleStartFast = () => {
+    update({ fasting_start_time: new Date().toISOString() });
+    toast.success(T("started", lang));
   };
 
-  const handleToggle = async () => {
-    if (!profile?.id) return;
-    setSaving(true);
-    try {
-      if (isActive) {
-        await base44.entities.UserProfile.update(profile.id, { fasting_start: null });
-        onProfileUpdate?.({ ...profile, fasting_start: null });
-        toast.success(lang === "es" ? "Ayuno terminado" : lang === "nl" ? "Vasten gestopt" : "Fast ended");
-      } else {
-        const now = new Date().toISOString();
-        await base44.entities.UserProfile.update(profile.id, { fasting_start: now });
-        onProfileUpdate?.({ ...profile, fasting_start: now });
-        toast.success(lang === "es" ? "Ayuno iniciado" : lang === "nl" ? "Vasten gestart" : "Fast started");
-      }
-    } catch {
-      toast.error(lang === "es" ? "Error al guardar" : "Error saving");
-    } finally {
-      setSaving(false);
-    }
+  const handleBreakFast = () => {
+    update({ fasting_start_time: null });
+    toast.success(T("broken", lang));
   };
 
-  const ringColor = isComplete ? "#34d399" : isActive ? "#14b8a6" : "#475569";
+  const handlePreset = (hours) => {
+    update({ eating_window: hours });
+  };
+
+  const handleCustom = () => {
+    const h = parseFloat(customHours);
+    if (!h || h < 1 || h > 23) return;
+    update({ eating_window: h });
+    setCustomHours("");
+  };
+
+  // Progress values
+  let ringPct, ringColor, displayHours, displayMins, displaySecs, centerLabel, remainingLabel, endTimeLabel;
+  const circumference = 2 * Math.PI * 54;
+
+  if (!isActive) {
+    ringPct = 0;
+    ringColor = "#475569";
+  } else if (!isEating) {
+    // Fasting phase
+    ringPct = Math.min((elapsed / goalSeconds) * 100, 100);
+    ringColor = ringPct >= 100 ? "#34d399" : "#14b8a6";
+    const h = Math.floor(elapsed / 3600);
+    const m = Math.floor((elapsed % 3600) / 60);
+    const s = elapsed % 60;
+    displayHours = h; displayMins = m; displaySecs = s;
+    const endTime = new Date(new Date(fasting_start_time).getTime() + goalSeconds * 1000);
+    endTimeLabel = `${T("ends", lang)} ${formatHHMM(endTime)}`;
+    const remSec = Math.max(0, goalSeconds - elapsed);
+    const rh = Math.floor(remSec / 3600);
+    const rm = Math.floor((remSec % 3600) / 60);
+    remainingLabel = `${rh}h ${rm}m ${T("remaining", lang)}`;
+    centerLabel = T("fasting", lang);
+  } else {
+    // Eating window phase — count elapsed since eating started
+    const eatElapsed = elapsed - goalSeconds;
+    ringPct = Math.min((eatElapsed / eatWindowGoalSeconds) * 100, 100);
+    ringColor = "#10b981";
+    const h = Math.floor(eatElapsed / 3600);
+    const m = Math.floor((eatElapsed % 3600) / 60);
+    const s = eatElapsed % 60;
+    displayHours = h; displayMins = m; displaySecs = s;
+    const remSec = Math.max(0, eatWindowGoalSeconds - eatElapsed);
+    const rh = Math.floor(remSec / 3600);
+    const rm = Math.floor((remSec % 3600) / 60);
+    remainingLabel = `${rh}h ${rm}m ${T("remaining", lang)}`;
+    centerLabel = T("eating", lang);
+  }
+
+  const strokeDash = (ringPct / 100) * circumference;
 
   return (
     <div className="bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
-      {/* Header */}
+      {/* Toggle header */}
       <button
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-5 py-4 active:bg-white/5 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isActive ? "bg-teal-500/20" : "bg-white/5"}`}>
-            <Timer size={16} className={isActive ? "text-teal-300" : "text-white/40"} />
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isActive ? (isEating ? "bg-emerald-500/20" : "bg-teal-500/20") : "bg-white/5"}`}>
+            <Timer size={16} className={isActive ? (isEating ? "text-emerald-300" : "text-teal-300") : "text-white/40"} />
           </div>
           <div className="text-left">
-            <p className="text-white font-bold text-sm">{labels.title}</p>
+            <p className="text-white font-bold text-sm">{T("title", lang)}</p>
             {isActive ? (
-              <p className="text-teal-300 text-xs font-semibold">
-                {String(hours).padStart(2,"0")}:{String(mins).padStart(2,"0")} {labels.fasting.toLowerCase()}
+              <p className={`text-xs font-semibold ${isEating ? "text-emerald-300" : "text-teal-300"}`}>
+                {isEating ? T("eating", lang) : `${String(displayHours).padStart(2,"0")}:${String(displayMins).padStart(2,"0")} ${T("fasting", lang).toLowerCase()}`}
               </p>
             ) : (
-              <p className="text-white/40 text-xs">{eatingWindowHours}h {labels.window.toLowerCase()}</p>
+              <p className="text-white/40 text-xs">{eating_window}h {T("goal", lang).toLowerCase()}</p>
             )}
           </div>
         </div>
         {open ? <ChevronUp size={16} className="text-white/40" /> : <ChevronDown size={16} className="text-white/40" />}
       </button>
 
-      {/* Expanded content */}
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
@@ -131,8 +176,9 @@ export default function FastingTracker({ profile, lang, onProfileUpdate }) {
             className="overflow-hidden"
           >
             <div className="px-5 pb-5 space-y-5">
-              {/* Circular timer */}
-              <div className="flex flex-col items-center gap-3 pt-2">
+
+              {/* Ring */}
+              <div className="flex flex-col items-center gap-2 pt-2">
                 <div className="relative w-36 h-36">
                   <svg width="144" height="144" className="-rotate-90">
                     <circle cx="72" cy="72" r="54" stroke="rgba(255,255,255,0.06)" strokeWidth="10" fill="none" />
@@ -151,46 +197,45 @@ export default function FastingTracker({ profile, lang, onProfileUpdate }) {
                     {isActive ? (
                       <>
                         <p className="text-white font-black text-2xl leading-none">
-                          {String(hours).padStart(2,"0")}:{String(mins).padStart(2,"0")}
+                          {String(displayHours).padStart(2,"0")}:{String(displayMins).padStart(2,"0")}
                         </p>
-                        <p className="text-white/40 text-xs mt-0.5">
-                          {String(secs).padStart(2,"0")}s
-                        </p>
-                        <p className={`text-xs font-bold mt-1 ${isComplete ? "text-emerald-400" : "text-teal-300"}`}>
-                          {Math.round(pct)}%
+                        <p className="text-white/40 text-[11px] mt-0.5">{String(displaySecs).padStart(2,"0")}s</p>
+                        <p className={`text-[10px] font-bold mt-0.5 ${isEating ? "text-emerald-400" : "text-teal-300"}`}>
+                          {centerLabel}
                         </p>
                       </>
                     ) : (
                       <>
-                        <Timer size={24} className="text-white/20 mb-1" />
-                        <p className="text-white/40 text-xs">{eatingWindowHours}h</p>
+                        <Clock size={22} className="text-white/20 mb-1" />
+                        <p className="text-white/40 text-xs">{eating_window}h</p>
                       </>
                     )}
                   </div>
                 </div>
 
-                {isComplete && (
-                  <p className="text-emerald-400 text-sm font-bold text-center">{labels.completed}</p>
+                {isActive && remainingLabel && (
+                  <p className="text-white/50 text-xs text-center">{remainingLabel}</p>
                 )}
-
-                {isActive && !isComplete && (
-                  <p className="text-white/50 text-xs text-center">
-                    {Math.max(0, eatingWindowHours - hours)}h {Math.max(0, 59 - mins)}m {labels.remaining}
+                {isActive && endTimeLabel && (
+                  <p className="text-white/40 text-[11px] text-center flex items-center gap-1">
+                    <Clock size={10} />{endTimeLabel}
                   </p>
+                )}
+                {isActive && isEating && (
+                  <p className="text-emerald-400 text-xs font-bold">{T("completed", lang)}</p>
                 )}
               </div>
 
-              {/* Preset selector */}
+              {/* Protocol selector */}
               <div>
-                <p className="text-white/50 text-xs font-bold uppercase tracking-wide mb-2">{labels.window}</p>
-                <div className="flex gap-2">
+                <p className="text-white/50 text-xs font-bold uppercase tracking-wide mb-2">{T("window", lang)}</p>
+                <div className="flex gap-2 mb-2">
                   {PRESETS.map(p => (
                     <button
                       key={p.label}
-                      onClick={() => handleSetWindow(p.hours)}
-                      disabled={saving}
+                      onClick={() => handlePreset(p.hours)}
                       className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
-                        eatingWindowHours === p.hours
+                        eating_window === p.hours
                           ? "bg-teal-500 text-white shadow"
                           : "bg-white/8 text-white/50 border border-white/10 hover:border-white/30"
                       }`}
@@ -199,23 +244,44 @@ export default function FastingTracker({ profile, lang, onProfileUpdate }) {
                     </button>
                   ))}
                 </div>
+                {/* Custom input */}
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={23}
+                    value={customHours}
+                    onChange={e => setCustomHours(e.target.value)}
+                    placeholder={T("custom", lang)}
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs placeholder-white/25 focus:outline-none focus:border-teal-400"
+                  />
+                  <button
+                    onClick={handleCustom}
+                    className="px-3 py-2 rounded-xl bg-white/10 border border-white/15 text-white/70 text-xs font-bold hover:bg-white/20 transition-colors"
+                  >
+                    OK
+                  </button>
+                </div>
               </div>
 
-              {/* CTA button */}
-              <button
-                onClick={handleToggle}
-                disabled={saving}
-                className={`w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
-                  isActive
-                    ? "bg-red-500/20 border border-red-400/40 text-red-300 hover:bg-red-500/30"
-                    : "bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/30"
-                }`}
-              >
-                {isActive
-                  ? <><Square size={14} />{labels.endFast}</>
-                  : <><Play size={14} />{labels.startFast}</>
-                }
-              </button>
+              {/* CTA buttons */}
+              <div className="flex gap-2">
+                {!isActive ? (
+                  <button
+                    onClick={handleStartFast}
+                    className="flex-1 py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/30 active:scale-[0.98] transition-all"
+                  >
+                    <Play size={14} />{T("startFast", lang)}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleBreakFast}
+                    className="flex-1 py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-red-500/20 border border-red-400/40 text-red-300 hover:bg-red-500/30 active:scale-[0.98] transition-all"
+                  >
+                    <Square size={14} />{T("breakFast", lang)}
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

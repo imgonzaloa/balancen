@@ -510,11 +510,7 @@ const Home = React.memo(() => {
         </div>
 
         {/* Fasting Tracker */}
-        <FastingTracker
-          profile={profile}
-          lang={lang}
-          onProfileUpdate={(updated) => { setProfile(updated); setContextProfile(updated); }}
-        />
+        <FastingTracker lang={lang} />
 
         {/* Daily Missions (5 missions) */}
         <DailyMissionsPanel
