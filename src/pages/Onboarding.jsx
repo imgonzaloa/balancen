@@ -1274,6 +1274,54 @@ export default function Onboarding() {
                   </div>
                 )}
               </div>
+              {/* Progress Timeline — only if weight goal is set */}
+              {formData.target_weight_kg && (
+                <div className="space-y-3">
+                  <p className="text-white/60 text-xs uppercase tracking-wider font-semibold">
+                    {currentLang === 'es' ? 'Tu camino hacia la meta' : currentLang === 'nl' ? 'Jouw weg naar het doel' : 'Your path to your goal'}
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    {/* Milestone 1: Week 1 */}
+                    <div className="flex flex-col items-center flex-1">
+                      <div className="w-6 h-6 rounded-full bg-teal-400 border-2 border-teal-300 flex items-center justify-center mb-2">
+                        <span className="text-white text-xs font-black">1</span>
+                      </div>
+                      <p className="text-white font-bold text-xs text-center leading-tight">
+                        {currentLang === 'es' ? "Formás el hábito" : currentLang === 'nl' ? "Gewoonte vormen" : "Building the habit"}
+                      </p>
+                    </div>
+
+                    {/* Connecting line 1 */}
+                    <div className="h-0.5 flex-1 bg-gradient-to-r from-teal-300 to-slate-400 mb-6" />
+
+                    {/* Milestone 2: Week 2-4 */}
+                    <div className="flex flex-col items-center flex-1">
+                      <div className="w-6 h-6 rounded-full bg-slate-400 border-2 border-slate-300 flex items-center justify-center mb-2">
+                        <span className="text-white text-xs font-black">2</span>
+                      </div>
+                      <p className="text-white font-bold text-xs text-center leading-tight">
+                        {currentLang === 'es' ? "Primeros cambios visibles" : currentLang === 'nl' ? "Eerste zichtbare veranderingen" : "First visible changes"}
+                      </p>
+                    </div>
+
+                    {/* Connecting line 2 */}
+                    <div className="h-0.5 flex-1 bg-slate-400 mb-6" />
+
+                    {/* Milestone 3: Goal Week */}
+                    <div className="flex flex-col items-center flex-1">
+                      <div className="w-6 h-6 rounded-full bg-slate-400 border-2 border-slate-300 flex items-center justify-center mb-2">
+                        <span className="text-white text-xs font-black">✓</span>
+                      </div>
+                      <p className="text-white font-bold text-xs text-center leading-tight">
+                        {currentLang === 'es' ? `Meta alcanzada` : currentLang === 'nl' ? `Doel bereikt` : `Goal reached`}
+                        <br />
+                        <span className="text-white/60">({formData.goal_weeks}w)</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={() => setStep(16)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
