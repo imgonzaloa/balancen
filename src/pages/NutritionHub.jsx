@@ -41,7 +41,7 @@ export default function NutritionHub() {
     );
   }
 
-  const { data: nutritionPlan } = useQuery({
+  const { data: nutritionPlan, isLoading: isPlanLoading } = useQuery({
     queryKey: ["nutrition-plan", user?.email],
     queryFn: async () => {
       const plans = await base44.entities.NutritionPlan.filter(
@@ -200,8 +200,20 @@ export default function NutritionHub() {
           </div>
         )}
 
+        {/* Active Plan — Loading Skeleton */}
+        {isPlanLoading && (
+          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6 space-y-4 animate-pulse">
+            <div className="h-5 w-40 bg-white/15 rounded-lg" />
+            <div className="h-4 w-56 bg-white/10 rounded-lg" />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="h-12 bg-white/10 rounded-xl" />
+              <div className="h-12 bg-white/10 rounded-xl" />
+            </div>
+          </div>
+        )}
+
         {/* Active Plan */}
-        {nutritionPlan && (
+        {!isPlanLoading && nutritionPlan && (
           <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-3xl p-6 border border-amber-500/30 mb-6">
             <h3 className="text-white font-bold text-lg mb-2">{nutritionPlan.plan_name}</h3>
             <p className="text-amber-200 text-sm mb-4">
@@ -229,11 +241,28 @@ export default function NutritionHub() {
           </div>
         )}
 
+        {/* Empty State — No plan yet */}
+        {!isPlanLoading && !nutritionPlan && (
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 mb-6 flex flex-col items-center text-center">
+            <div className="text-6xl mb-4">🥗</div>
+            <h3 className="text-white font-bold text-lg mb-2">
+              {lang === 'es' ? 'Aún no tenés un plan nutricional'
+                : lang === 'nl' ? 'Je hebt nog geen voedingsplan'
+                : "You don't have a nutrition plan yet"}
+            </h3>
+            <p className="text-white/50 text-sm mb-6 max-w-xs">
+              {lang === 'es' ? 'Generá tu plan personalizado con IA en segundos'
+                : lang === 'nl' ? 'Genereer je gepersonaliseerde AI-plan in seconden'
+                : 'Generate your personalized AI plan in seconds'}
+            </p>
+          </div>
+        )}
+
         {/* Generate Plan */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 mb-6">
           <h3 className="text-white font-bold mb-4 flex items-center gap-2">
             <Target size={18} />
-            Crear Plan Personalizado
+            {lang === 'es' ? 'Crear Plan Personalizado' : lang === 'nl' ? 'Gepersonaliseerd plan maken' : 'Create Personalized Plan'}
           </h3>
           <div className="grid grid-cols-2 gap-2">
             {["weight_loss", "muscle_gain", "maintenance", "performance"].map((goal) => (
@@ -241,7 +270,7 @@ export default function NutritionHub() {
                 key={goal}
                 onClick={() => generatePlanMutation.mutate(goal)}
                 disabled={generatePlanMutation.isPending}
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 py-6"
+                className={`bg-white/10 hover:bg-white/20 text-white border border-white/20 py-6 ${!nutritionPlan ? 'bg-gradient-to-r from-amber-500/30 to-orange-500/30 border-amber-500/40' : ''}`}
               >
                 {goal === "weight_loss" && "🔥 Pérdida"}
                 {goal === "muscle_gain" && "💪 Ganancia"}
