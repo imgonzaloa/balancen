@@ -152,6 +152,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
     const scrollPositions = React.useRef({});
     const scrollContainerRef = React.useRef(null);
     const [debugOpen, setDebugOpen] = React.useState(false);
+    const touchStartX = React.useRef(null);
+    const touchStartY = React.useRef(null);
+    const isSwiping = React.useRef(false);
 
   const location = useLocation();
 
@@ -206,6 +209,40 @@ function LayoutInner({ children, currentPageName, bootState }) {
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  const isMainTab = mainTabs.includes(currentPageName);
+
+  const handleTouchStart = React.useCallback((e) => {
+    if (!isMainTab) return;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isSwiping.current = false;
+  }, [isMainTab]);
+
+  const handleTouchMove = React.useCallback((e) => {
+    if (!isMainTab || touchStartX.current === null) return;
+    const deltaX = e.touches[0].clientX - touchStartX.current;
+    const deltaY = e.touches[0].clientY - touchStartY.current;
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      isSwiping.current = false;
+      return;
+    }
+    if (Math.abs(deltaX) > 10) {
+      isSwiping.current = true;
+    }
+  }, [isMainTab]);
+
+  const handleTouchEnd = React.useCallback((e) => {
+    if (!isMainTab || !isSwiping.current) { isSwiping.current = false; return; }
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const currentIndex = mainTabs.indexOf(currentPageName);
+    if (deltaX < -50 && currentIndex < mainTabs.length - 1) {
+      navigateToTab(mainTabs[currentIndex + 1]);
+    } else if (deltaX > 50 && currentIndex > 0) {
+      navigateToTab(mainTabs[currentIndex - 1]);
+    }
+    isSwiping.current = false;
+  }, [isMainTab, currentPageName, navigateToTab]);
+
   // Only show the global header on pages where it makes sense (hide on full-screen flows)
   const hideHeader = ["Onboarding", "Paywall", "CameraScreen", "MealResult", "LanguageSelector", "Premium", "ProfileSetup"].includes(currentPageName);
 
@@ -236,6 +273,9 @@ function LayoutInner({ children, currentPageName, bootState }) {
       <main
         ref={scrollContainerRef}
         data-scroll-container
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         style={{
           flex: 1,
           overflowY: 'auto',
