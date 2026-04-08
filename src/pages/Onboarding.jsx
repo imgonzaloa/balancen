@@ -111,10 +111,10 @@ export default function Onboarding() {
     init();
   }, [navigate]);
 
-  // Auto-advance for social proof screen (step 13)
+  // Auto-advance for social proof screen (step 16)
   useEffect(() => {
-    if (step === 13) {
-      const timer = setTimeout(() => setStep(14), 4000);
+    if (step === 16) {
+      const timer = setTimeout(() => setStep(17), 4000);
       return () => clearTimeout(timer);
     }
   }, [step]);
