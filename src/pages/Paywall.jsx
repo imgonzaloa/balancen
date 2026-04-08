@@ -133,6 +133,7 @@ export default function Paywall() {
   const handleClose = () => { window.location.href = createPageUrl('Home'); };
 
   const yearlyMonthly = pricing ? (pricing.prices.yearly / 12).toFixed(2) : null;
+  const savingsPct = Math.round((1 - (39.99 / 12) / 8.99) * 100);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950 relative overflow-hidden flex flex-col" style={{ pointerEvents: 'auto' }}>
@@ -174,7 +175,9 @@ export default function Paywall() {
           ) : (
             <>
               <h1 className="text-3xl font-black text-white mb-2">{t("go_premium")}</h1>
-              <p className="text-white/60 text-base">{t("full_access_no_limits")}</p>
+              <p className="text-white/60 text-base">
+                {lang === 'es' ? 'Todo lo que necesitás para transformar tu alimentación' : lang === 'nl' ? 'Alles wat je nodig hebt voor betere voeding' : 'Everything you need to transform your nutrition'}
+              </p>
             </>
           )}
         </motion.div>
@@ -283,7 +286,7 @@ export default function Paywall() {
                  <span className="text-white/50 text-sm">/ {t("year_label")}</span>
                </div>
                <p className="text-teal-300 text-sm font-semibold">
-                 {pricing.currency}{yearlyMonthly} / {t("month_label")} — {t("save_40")}
+                 {pricing.currency}{yearlyMonthly} / {t("month_label")} — {lang === 'es' ? `Ahorrá un ${savingsPct}%` : lang === 'nl' ? `Bespaar ${savingsPct}%` : `Save ${savingsPct}%`}
                </p>
              </button>
 
@@ -389,6 +392,21 @@ export default function Paywall() {
                 label: lang === 'es' ? '💰 Precio mensual' : lang === 'nl' ? '💰 Maandelijks' : '💰 Monthly',
                 premium: '€8.99',
                 power: '€12.99'
+              },
+              {
+                label: lang === 'es' ? '🔥 Streaks y retos' : lang === 'nl' ? '🔥 Streaks & uitdagingen' : '🔥 Streaks & challenges',
+                premium: '✓',
+                power: '✓'
+              },
+              {
+                label: lang === 'es' ? '👥 Feed social' : lang === 'nl' ? '👥 Sociale feed' : '👥 Social feed',
+                premium: '✓',
+                power: '✓'
+              },
+              {
+                label: lang === 'es' ? '🤖 Coach IA' : lang === 'nl' ? '🤖 AI Coach' : '🤖 AI Coach',
+                premium: '✓',
+                power: '✓'
               },
               {
                 label: lang === 'es' ? '🏆 Para quién' : lang === 'nl' ? '🏆 Voor wie' : '🏆 Best for',
