@@ -97,10 +97,9 @@ export default function Paywall() {
     // ── Web/PWA: Stripe Checkout ──
      if (!pricing) { toast.error(t("payment_not_configured")); setLoading(false); return; }
      try {
-       // Map plan names: yearly, monthly, power → priceIds keys
-       const planKey = selectedPlan.startsWith('power') ? selectedPlan : selectedPlan;
+       const planKey = selectedPlan;
        const priceId = pricing.priceIds[planKey];
-       const response = await base44.functions.invoke('createCheckoutSession', { priceId, planType: selectedPlan });
+       const response = await base44.functions.invoke('createCheckoutSession', { priceId, planType: selectedPlan, region: pricing?.region });
        if (!response?.data?.url) throw new Error('No checkout URL returned from server');
        window.location.href = response.data.url;
      } catch (error) {

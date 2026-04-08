@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { priceId, selectedPlan } = body;
+    const { priceId, planType } = body;
 
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     console.log('Stripe key prefix:', stripeKey ? stripeKey.substring(0, 7) : 'MISSING');
@@ -27,8 +27,12 @@ Deno.serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
 
-    const priceType = selectedPlan === 'yearly' ? 'YEARLY' : 'MONTHLY';
-    const envKey = `STRIPE_${priceType}_PRICE_ID_EUR`;
+    let envKey;
+    if (planType === 'yearly') envKey = 'STRIPE_YEARLY_PRICE_ID_EUR';
+    else if (planType === 'power_yearly') envKey = 'STRIPE_POWER_YEARLY_PRICE_ID_EUR';
+    else if (planType === 'power_monthly') envKey = 'STRIPE_POWER_MONTHLY_PRICE_ID_EUR';
+    else envKey = 'STRIPE_MONTHLY_PRICE_ID_EUR';
+
     const finalPriceId = priceId || Deno.env.get(envKey);
 
     if (!finalPriceId) {
@@ -44,15 +48,17 @@ Deno.serve(async (req) => {
         quantity: 1,
       }],
       subscription_data: {
-        trial_period_days: 7,
+        trial_period_days: 5,
         metadata: {
           user_email: user.email,
           user_id: user.id,
+          plan_type: planType || 'monthly',
         },
       },
       metadata: {
         user_email: user.email,
         user_id: user.id,
+        plan_type: planType || 'monthly',
       },
       success_url: `https://${req.headers.get('host')}/Home?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://${req.headers.get('host')}/Premium`,

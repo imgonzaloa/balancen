@@ -66,10 +66,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Profile not found" }, { status: 404 });
     }
 
+    const isPower = planType && planType.includes('power');
     await base44.entities.UserProfile.update(profile.id, {
       is_premium: true,
       premium_source: "subscription",
       subscription_status: "active",
+      plan_type: isPower ? 'power' : 'premium',
     });
 
     return Response.json({
