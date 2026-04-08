@@ -297,14 +297,15 @@ export default function Onboarding() {
         { title: "Día 3 — Empieza tu plan", sub: "Solo si no cancelás antes. Sin sorpresas." },
       ],
       trial_no_charge: "Sin cargo hoy. Cancelá cuando quieras.",
-      why_badge: "Lo que ninguna otra app tiene",
+      why_badge: "Lo que solo Balancen tiene",
+      why_title: "La única app de nutrición con comunidad deportiva real",
       why_features: [
-        { emoji: "📸", title: "Análisis IA de comidas", desc: "Fotografiá tu plato y obtené calorías, proteínas, carbos y grasas en segundos. Claude Vision de Anthropic — el mismo motor que usan investigadores y médicos." },
-        { emoji: "🏆", title: "Retos y grupos", desc: "Competí con amigos y atletas en retos de nutrición" },
-        { emoji: "🔥", title: "Streaks y misiones", desc: "Mantené tu racha diaria y completá misiones para ganar recompensas" },
-        { emoji: "📊", title: "Progreso visual", desc: "Gráficos semanales, fotos de progreso y métricas de consistencia" },
-        { emoji: "🤖", title: "Coach IA personalizado", desc: "Recomendaciones diarias basadas en tus objetivos y hábitos reales" },
-        { emoji: "👥", title: "Feed social", desc: "Seguí a atletas reales y ve qué comen cada día" },
+        { emoji: "📸", title: "Análisis IA", desc: "Foto tu plato, obtén calorías en segundos" },
+        { emoji: "🏆", title: "Retos y grupos", desc: "Competí con amigos y atletas" },
+        { emoji: "🔥", title: "Streaks y misiones", desc: "Mantené tu racha y gana recompensas" },
+        { emoji: "📊", title: "Progreso visual", desc: "Gráficos semanales y fotos de progreso" },
+        { emoji: "🤖", title: "Coach IA", desc: "Recomendaciones personalizadas diarias" },
+        { emoji: "👥", title: "Feed social", desc: "Seguí atletas reales y su nutrición" },
       ],
       goal_insight_lose_weight: "Usuarios con tu objetivo perdieron un promedio de 4.2kg en 30 días con Balancen",
       goal_insight_build_muscle: "87% de nuestros atletas cumplen sus objetivos de proteína diaria",
@@ -431,14 +432,15 @@ export default function Onboarding() {
         { title: "Day 3 — Your plan starts", sub: "Only if you don't cancel. No surprises." },
       ],
       trial_no_charge: "No charge today. Cancel anytime.",
-      why_badge: "What no other app has",
+      why_badge: "Only Balancen has this",
+      why_title: "The only nutrition app with a real sports community",
       why_features: [
-        { emoji: "📸", title: "AI Meal Analysis", desc: "Snap your plate and get calories, protein, carbs and fat in seconds. Powered by Claude Vision — used by researchers and doctors worldwide." },
-        { emoji: "🏆", title: "Challenges & Groups", desc: "Compete with friends and athletes in nutrition challenges" },
-        { emoji: "🔥", title: "Streaks & Missions", desc: "Keep your daily streak and complete missions to earn rewards" },
-        { emoji: "📊", title: "Visual Progress", desc: "Weekly charts, progress photos and consistency metrics" },
-        { emoji: "🤖", title: "Personalized AI Coach", desc: "Daily recommendations based on your goals and real habits" },
-        { emoji: "👥", title: "Social Feed", desc: "Follow real athletes and see what they eat every day" },
+        { emoji: "📸", title: "AI Analysis", desc: "Snap your plate, get calories in seconds" },
+        { emoji: "🏆", title: "Challenges & Groups", desc: "Compete with friends and athletes" },
+        { emoji: "🔥", title: "Streaks & Missions", desc: "Keep your streak and earn rewards" },
+        { emoji: "📊", title: "Visual Progress", desc: "Weekly charts and progress photos" },
+        { emoji: "🤖", title: "AI Coach", desc: "Daily personalized recommendations" },
+        { emoji: "👥", title: "Social Feed", desc: "Follow real athletes and their nutrition" },
       ],
       goal_insight_title: "This is for me →",
       activity_insight_title: "Got it →",
@@ -566,14 +568,15 @@ export default function Onboarding() {
         { title: "Dag 3 — Je plan begint", sub: "Alleen als je niet annuleert. Geen verrassingen." },
       ],
       trial_no_charge: "Geen kosten vandaag. Annuleer wanneer je wilt.",
-      why_badge: "Wat geen andere app heeft",
+      why_badge: "Alleen Balancen heeft dit",
+      why_title: "De enige voedings-app met een echte sportgemeenschap",
       why_features: [
-        { emoji: "📸", title: "AI-maaltijdanalyse", desc: "Foto je bord en krijg calorieën, eiwit, koolhydraten en vetten in seconden. Claude Vision van Anthropic — dezelfde AI die onderzoekers en artsen wereldwijd gebruiken." },
-        { emoji: "🏆", title: "Uitdagingen & groepen", desc: "Daag vrienden en atleten uit in voedingsuitdagingen" },
-        { emoji: "🔥", title: "Reeksen & missies", desc: "Houd je dagelijkse reeks bij en voltooi missies voor beloningen" },
-        { emoji: "📊", title: "Visuele vooruitgang", desc: "Wekelijkse grafieken, voortgangsfoto's en consistentiecijfers" },
-        { emoji: "🤖", title: "Persoonlijke AI-coach", desc: "Dagelijkse aanbevelingen op basis van je doelen en echte gewoonten" },
-        { emoji: "👥", title: "Sociale feed", desc: "Volg echte atleten en zie wat ze elke dag eten" },
+        { emoji: "📸", title: "AI-analyse", desc: "Foto je bord, krijg calorieën in seconden" },
+        { emoji: "🏆", title: "Uitdagingen & groepen", desc: "Daag vrienden en atleten uit" },
+        { emoji: "🔥", title: "Reeksen & missies", desc: "Houd je reeks en win beloningen" },
+        { emoji: "📊", title: "Visuele vooruitgang", desc: "Wekelijkse grafieken en voortgangsfoto's" },
+        { emoji: "🤖", title: "AI-coach", desc: "Dagelijkse persoonlijke aanbevelingen" },
+        { emoji: "👥", title: "Sociale feed", desc: "Volg echte atleten en hun voeding" },
       ],
       },
       pt: {
@@ -1370,6 +1373,11 @@ export default function Onboarding() {
                   <span className="text-lg">⚡</span>
                   <span className="text-amber-200 font-bold text-sm">{l.why_badge}</span>
                 </div>
+              </div>
+
+              {/* Subtitle */}
+              <div className="text-center">
+                <p className="text-white/80 text-sm font-semibold">{l.why_title}</p>
               </div>
 
               {/* Feature grid */}
