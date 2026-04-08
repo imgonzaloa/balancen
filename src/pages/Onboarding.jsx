@@ -832,7 +832,7 @@ export default function Onboarding() {
               <div className="space-y-3">
                 {l.obstacles.map((opt) => (
                   <button key={opt.value}
-                    onClick={() => { setFormData(p => ({ ...p, obstacle: opt.value })); setStep(4); }}
+                    onClick={() => { setFormData(p => ({ ...p, obstacle: opt.value })); setStep(5); }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
                       formData.obstacle === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -844,8 +844,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 4: Gender */}
-          {step === 4 && (
+          {/* Step 5: Gender */}
+          {step === 5 && (
             <motion.div key="gender"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -858,8 +858,8 @@ export default function Onboarding() {
                   { value: "male", emoji: "👨", label: l.male },
                   { value: "female", emoji: "👩", label: l.female },
                 ].map((opt) => (
-                  <button key={opt.value}
-                    onClick={() => { setFormData(p => ({ ...p, gender: opt.value })); setStep(5); }}
+                   <button key={opt.value}
+                     onClick={() => { setFormData(p => ({ ...p, gender: opt.value })); setStep(6); }}
                     className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center gap-4 ${
                       formData.gender === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -871,8 +871,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 5: Height, weight, age */}
-          {step === 5 && (
+          {/* Step 6: Height, weight, age */}
+          {step === 6 && (
             <motion.div key="body"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -912,7 +912,7 @@ export default function Onboarding() {
                 {ageError && <p className="text-red-400 text-sm font-semibold">{ageError}</p>}
               </div>
               <button
-                onClick={() => setStep(6)}
+                onClick={() => setStep(7)}
                 disabled={!formData.height_cm || !formData.weight_kg || !formData.age || ageError}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed">
                 {l.next}
@@ -920,8 +920,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 6: Activity level */}
-          {step === 6 && (
+          {/* Step 7: Activity level */}
+          {step === 7 && (
             <motion.div key="activity"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -940,7 +940,7 @@ export default function Onboarding() {
                     onClick={() => {
                       const calories = calcCalories({ ...formData, activity_level: opt.value });
                       setFormData(p => ({ ...p, activity_level: opt.value, calories_goal: calories }));
-                      setStep(7);
+                      setStep(8);
                     }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
                       formData.activity_level === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
@@ -953,8 +953,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 7: Meals per day (NEW) */}
-          {step === 7 && (
+          {/* Step 8: Meals per day (NEW) */}
+          {step === 8 && (
             <motion.div key="meals"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -965,7 +965,7 @@ export default function Onboarding() {
               <div className="space-y-3">
                 {l.meals.map((opt) => (
                   <button key={opt.value}
-                    onClick={() => { setFormData(p => ({ ...p, meals_per_day: opt.value })); setStep(8); }}
+                    onClick={() => { setFormData(p => ({ ...p, meals_per_day: opt.value })); setStep(9); }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
                       formData.meals_per_day === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -976,8 +976,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 8: Dietary restrictions (NEW, multi-select) */}
-          {step === 8 && (
+          {/* Step 9: Dietary restrictions (NEW, multi-select) */}
+          {step === 9 && (
             <motion.div key="diet"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1002,15 +1002,15 @@ export default function Onboarding() {
                 })}
               </div>
               <button
-                onClick={() => setStep(9)}
+                onClick={() => setStep(10)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.diet_continue}
               </button>
             </motion.div>
           )}
 
-          {/* Step 9: Motivation */}
-          {step === 9 && (
+          {/* Step 10: Motivation */}
+          {step === 10 && (
             <motion.div key="motivation"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1026,7 +1026,7 @@ export default function Onboarding() {
                   { value: "perform_better", emoji: "⚡", label: l.perform_better },
                 ].map((opt) => (
                   <button key={opt.value}
-                    onClick={() => { setFormData(p => ({ ...p, motivation: opt.value })); setStep(10); }}
+                    onClick={() => { setFormData(p => ({ ...p, motivation: opt.value })); setStep(11); }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
                       formData.motivation === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -1038,8 +1038,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 10: Weight goal + timeframe (NEW) */}
-          {step === 10 && (
+          {/* Step 11: Weight goal + timeframe (NEW) */}
+          {step === 11 && (
             <motion.div key="weightgoal"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1085,15 +1085,15 @@ export default function Onboarding() {
                 </div>
               )}
               <button
-                onClick={() => setStep(11)}
+                onClick={() => setStep(12)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
             </motion.div>
           )}
 
-          {/* Step 11: Who will you follow? */}
-          {step === 11 && (
+          {/* Step 12: Who will you follow? */}
+          {step === 12 && (
             <motion.div key="follow"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1108,7 +1108,7 @@ export default function Onboarding() {
                   { emoji: "🏆", title: currentLang === 'es' ? "Ambos" : currentLang === 'nl' ? "Beide" : "Both", subtitle: currentLang === 'es' ? "La experiencia completa de Balancen" : currentLang === 'nl' ? "De volledige Balancen-ervaring" : "The full Balancen experience", value: "both" },
                 ].map((option) => (
                   <button key={option.value}
-                    onClick={() => { setFormData(p => ({ ...p, follow_preference: option.value })); setStep(12); }}
+                    onClick={() => { setFormData(p => ({ ...p, follow_preference: option.value })); setStep(13); }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
                       (formData.follow_preference || "both") === option.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -1123,8 +1123,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 12: Referral source (NEW) */}
-          {step === 12 && (
+          {/* Step 13: Referral source (NEW) */}
+          {step === 13 && (
             <motion.div key="referral"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1144,7 +1144,7 @@ export default function Onboarding() {
                   { emoji: "🌐", value: "other", label: currentLang === 'es' ? "Otro" : currentLang === 'nl' ? "Anders" : "Other" },
                 ].map((opt) => (
                   <button key={opt.value}
-                    onClick={() => { setFormData(p => ({ ...p, referral_source: opt.value })); setStep(13); }}
+                    onClick={() => { setFormData(p => ({ ...p, referral_source: opt.value })); setStep(14); }}
                     className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
                       formData.referral_source === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -1156,8 +1156,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 13: Personalized summary (NEW) */}
-          {step === 13 && (
+          {/* Step 14: Personalized summary (NEW) */}
+          {step === 14 && (
             <motion.div key="summary"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
