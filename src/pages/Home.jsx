@@ -19,6 +19,7 @@ import StreakCelebration from "@/components/home/StreakCelebration";
 import DailyAIInsightCard from "@/components/home/DailyAIInsightCard";
 import DailyMissionsPanel from "@/components/home/DailyMissionsPanel";
 import FastingTracker from "@/components/home/FastingTracker";
+import MealEditModal from "@/components/home/MealEditModal";
 import PullToRefresh from "@/components/PullToRefresh";
 import SmartUpgradeModal from "@/components/SmartUpgradeModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -160,6 +161,7 @@ const Home = React.memo(() => {
   // Streak milestone celebration
   const MILESTONES = [7, 14, 30];
   const [celebratingStreak, setCelebratingStreak] = useState(null);
+  const [editingMeal, setEditingMeal] = useState(null);
 
   useEffect(() => {
     const streak = profile?.current_streak || 0;
@@ -390,7 +392,7 @@ const Home = React.memo(() => {
                 };
 
                 return (
-                  <div key={meal.id} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 flex">
+                  <div key={meal.id} onClick={() => setEditingMeal(meal)} className="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 flex cursor-pointer active:scale-[0.98] transition-transform">
                     {photoSrc ? (
                       <img
                         src={photoSrc}
@@ -423,7 +425,7 @@ const Home = React.memo(() => {
                           <p className="text-white/50 text-[10px] uppercase font-bold">{t('kcal_short')}</p>
                         </div>
                         <button
-                          onClick={() => handleRelog(meal)}
+                          onClick={(e) => { e.stopPropagation(); handleRelog(meal); }}
                           className="w-8 h-8 rounded-xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center hover:bg-teal-500/40 active:scale-90 transition-all"
                           title={lang === 'es' ? 'Registrar de nuevo' : lang === 'nl' ? 'Opnieuw registreren' : 'Relog'}
                         >
@@ -452,6 +454,18 @@ const Home = React.memo(() => {
             streak={celebratingStreak}
             lang={lang}
             onDone={() => setCelebratingStreak(null)}
+          />
+        )}
+
+        {/* Meal edit modal */}
+        {editingMeal && (
+          <MealEditModal
+            meal={editingMeal}
+            lang={lang}
+            userEmail={user?.email}
+            onClose={() => setEditingMeal(null)}
+            onSaved={() => setEditingMeal(null)}
+            onDeleted={() => setEditingMeal(null)}
           />
         )}
 
