@@ -39,12 +39,24 @@ const getAppParams = () => {
 		storage.removeItem('base44_access_token');
 		storage.removeItem('token');
 	}
+	
+	const serverUrl = getAppParamValue("server_url");
+	const appBaseUrl = serverUrl || getAppParamValue("app_base_url", { defaultValue: import.meta.env.VITE_BASE44_APP_BASE_URL });
+	
+	if (typeof window !== 'undefined') {
+		console.log('AppParams resolved:', {
+			appId: getAppParamValue("app_id", { defaultValue: import.meta.env.VITE_BASE44_APP_ID }) ? 'set' : 'missing',
+			appBaseUrl: appBaseUrl ? appBaseUrl.substring(0, 30) + '...' : 'missing',
+			serverUrl: serverUrl ? 'from URL' : 'from fallback',
+		});
+	}
+	
 	return {
 		appId: getAppParamValue("app_id", { defaultValue: import.meta.env.VITE_BASE44_APP_ID }),
 		token: getAppParamValue("access_token", { removeFromUrl: true }),
 		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.href }),
 		functionsVersion: getAppParamValue("functions_version", { defaultValue: import.meta.env.VITE_BASE44_FUNCTIONS_VERSION }),
-		appBaseUrl: getAppParamValue("server_url") || getAppParamValue("app_base_url", { defaultValue: import.meta.env.VITE_BASE44_APP_BASE_URL }),
+		appBaseUrl: appBaseUrl,
 	}
 }
 

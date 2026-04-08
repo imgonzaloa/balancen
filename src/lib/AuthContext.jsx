@@ -32,12 +32,10 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingPublicSettings(false);
     } catch (error) {
       console.error('App state check failed:', error);
-      setAuthError({
-        type: 'unknown',
-        message: error.message || 'Failed to load app'
-      });
-      setIsLoadingPublicSettings(false);
+      // Treat any auth failure as unauthenticated, don't show error
       setIsLoadingAuth(false);
+      setIsAuthenticated(false);
+      setIsLoadingPublicSettings(false);
     }
   };
 
