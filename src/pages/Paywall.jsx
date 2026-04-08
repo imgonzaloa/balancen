@@ -407,32 +407,62 @@ export default function Paywall() {
                   ? 'text-white/60 border-amber-500/20'
                   : 'text-white/60 border-teal-500/20'
               }`} />
-              <div className="p-3 text-xs font-bold text-white text-center">
-                {selectedPlan === 'monthly' ? (lang === 'es' ? 'Premium Mensual' : lang === 'nl' ? 'Premium Maandelijks' : 'Premium Monthly') : lang === 'es' ? 'Premium Anual' : lang === 'nl' ? 'Premium Jaarlijks' : 'Premium Annual'}
+              <div className={`p-3 text-xs font-bold text-center ${
+                selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                  ? 'text-white'
+                  : 'text-teal-300'
+              }`}>
+                {selectedPlan === 'power_monthly' || selectedPlan === 'power_yearly'
+                  ? lang === 'es' ? 'Premium (Alternativa)' : lang === 'nl' ? 'Premium (Alternatief)' : 'Premium (Alternative)'
+                  : selectedPlan === 'monthly'
+                  ? (lang === 'es' ? `Premium — €8.99/${lang === 'es' ? 'mes' : lang === 'nl' ? 'maand' : 'month'}` : lang === 'nl' ? `Premium — €8.99/maand` : `Premium — €8.99/month`)
+                  : (lang === 'es' ? `Premium — €39.99/${lang === 'es' ? 'año' : lang === 'nl' ? 'jaar' : 'year'}` : lang === 'nl' ? `Premium — €39.99/jaar` : `Premium — €39.99/year`)
+                }
               </div>
               <div className={`p-3 text-xs font-bold text-center ${
                 selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
                   ? 'text-amber-300'
                   : 'text-white'
-              }`}>Power</div>
+              }`}>
+                {selectedPlan === 'power_monthly'
+                  ? (lang === 'es' ? `Power — €12.99/mes` : lang === 'nl' ? `Power — €12.99/maand` : `Power — €12.99/month`)
+                  : selectedPlan === 'power_yearly'
+                  ? (lang === 'es' ? `Power — €89.99/año` : lang === 'nl' ? `Power — €89.99/jaar` : `Power — €89.99/year`)
+                  : (lang === 'es' ? 'Power (Premium+)' : lang === 'nl' ? 'Power (Premium+)' : 'Power (Premium+)')
+                }
+              </div>
             </div>
 
             {/* Rows */}
             {[
               {
                 label: lang === 'es' ? '📸 Análisis IA' : lang === 'nl' ? '📸 AI-analyse' : '📸 AI Analysis',
-                premium: lang === 'es' ? '300/mes' : lang === 'nl' ? '300/mnd' : '300/mo',
+                premium: selectedPlan === 'monthly' || selectedPlan === 'power_monthly' ? (lang === 'es' ? '300/mes' : lang === 'nl' ? '300/mnd' : '300/mo') : (lang === 'es' ? '300/mes' : lang === 'nl' ? '300/mnd' : '300/mo'),
                 power: lang === 'es' ? '∞ Ilimitado' : lang === 'nl' ? '∞ Onbeperkt' : '∞ Unlimited'
               },
               {
                 label: lang === 'es' ? '💰 Precio' : lang === 'nl' ? '💰 Prijs' : '💰 Price',
-                premium: selectedPlan === 'monthly' ? '€8.99/mes' : '€39.99/año',
-                power: selectedPlan === 'power_monthly' ? '€12.99/mes' : '€89.99/año'
+                premium: selectedPlan === 'monthly' 
+                  ? (lang === 'es' ? '€8.99/mes' : lang === 'nl' ? '€8.99/maand' : '€8.99/month')
+                  : selectedPlan === 'power_monthly'
+                  ? (lang === 'es' ? '€8.99/mes' : lang === 'nl' ? '€8.99/maand' : '€8.99/month')
+                  : selectedPlan === 'power_yearly'
+                  ? (lang === 'es' ? '€39.99/año' : lang === 'nl' ? '€39.99/jaar' : '€39.99/year')
+                  : (lang === 'es' ? '€39.99/año' : lang === 'nl' ? '€39.99/jaar' : '€39.99/year'),
+                power: selectedPlan === 'power_monthly' 
+                  ? (lang === 'es' ? '€12.99/mes' : lang === 'nl' ? '€12.99/maand' : '€12.99/month')
+                  : (lang === 'es' ? '€89.99/año' : lang === 'nl' ? '€89.99/jaar' : '€89.99/year')
               },
               {
                 label: lang === 'es' ? '💡 Ventaja' : lang === 'nl' ? '💡 Voordeel' : '💡 Advantage',
-                premium: selectedPlan === 'monthly' ? (lang === 'es' ? 'Ahorrá €4/mes' : lang === 'nl' ? 'Bespaar €4/maand' : 'Save €4/month') : (lang === 'es' ? 'Mejor valor' : lang === 'nl' ? 'Beste waarde' : 'Best value'),
-                power: lang === 'es' ? 'Análisis ilimitados' : lang === 'nl' ? 'Onbeperkte analyses' : 'Unlimited analyses'
+                premium: selectedPlan === 'monthly'
+                  ? (lang === 'es' ? 'Ahorrá €4/mes' : lang === 'nl' ? 'Bespaar €4/maand' : 'Save €4/month')
+                  : selectedPlan === 'power_monthly'
+                  ? (lang === 'es' ? 'Ahorrá €4/mes' : lang === 'nl' ? 'Bespaar €4/maand' : 'Save €4/month')
+                  : (lang === 'es' ? 'Mejor valor' : lang === 'nl' ? 'Beste waarde' : 'Best value'),
+                power: selectedPlan === 'power_monthly' 
+                  ? (lang === 'es' ? 'Análisis ilimitados' : lang === 'nl' ? 'Onbeperkte analyses' : 'Unlimited analyses')
+                  : (lang === 'es' ? 'Análisis ilimitados' : lang === 'nl' ? 'Onbeperkte analyses' : 'Unlimited analyses')
               },
               {
                 label: lang === 'es' ? '🔥 Streaks y retos' : lang === 'nl' ? '🔥 Streaks & uitdagingen' : '🔥 Streaks & challenges',
@@ -472,7 +502,11 @@ export default function Paywall() {
                 }`}>
                   {row.label}
                 </div>
-                <div className="p-3 text-xs text-white text-center">{row.premium}</div>
+                <div className={`p-3 text-xs text-center font-semibold ${
+                  selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                    ? 'text-white'
+                    : 'text-teal-300'
+                }`}>{row.premium}</div>
                 <div className={`p-3 text-xs font-semibold text-center ${
                   selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
                     ? 'text-amber-300'
