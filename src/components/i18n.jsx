@@ -749,6 +749,8 @@ const resources = {
       invite_description: "You + your friend both get 5 extra Premium days",
       joined_with_link: "joined with your link",
       share_failed: "Share failed",
+      feature_premium_scans: "300 AI meal scans per month",
+      feature_power_scans: "Unlimited AI meal scans",
       }
       },
   nl: {
@@ -932,6 +934,8 @@ const resources = {
       save_failed: "Opslaan mislukt. Probeer opnieuw.",
       keep_it_up: "Ga door",
       canvas: "canvas",
+      feature_premium_scans: "300 AI-maaltijdanalyses per maand",
+      feature_power_scans: "Onbeperkte AI-maaltijdanalyses",
       }
       },
   es: {
@@ -1687,6 +1691,8 @@ const resources = {
       invite_description: "Tú y tu amigo ganan 5 días extra de Premium",
       joined_with_link: "se unió con tu link",
       share_failed: "Error al compartir",
+      feature_premium_scans: "300 análisis de comida con IA por mes",
+      feature_power_scans: "Análisis de comida con IA ilimitados",
 
       // Meal types and actions
       breakfast: "Desayuno",

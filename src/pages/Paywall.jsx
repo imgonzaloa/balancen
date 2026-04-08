@@ -413,15 +413,13 @@ export default function Paywall() {
            className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 space-y-2.5"
            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
            >
-           {/* AI Scans feature at top */}
+           {/* AI Scans feature at top — changes based on selected plan */}
            <div className="flex items-start gap-2.5 pb-2.5 border-b border-white/10">
             <Check size={15} className="text-teal-400 flex-shrink-0 mt-0.5" />
             <span className="text-white/80 text-sm">
-              {lang === 'es'
-                ? '📸 300 análisis de comida con IA/mes (Premium) — ilimitado con Power'
-                : lang === 'nl'
-                ? '📸 300 maaltijdanalyses met AI/maand (Premium) — onbeperkt met Power'
-                : '📸 300 AI meal analyses/month (Premium) — unlimited with Power'}
+              📸 {(selectedPlan === 'power_monthly' || selectedPlan === 'power_yearly')
+                ? t("feature_power_scans")
+                : t("feature_premium_scans")}
             </span>
            </div>
 
