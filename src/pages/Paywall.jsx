@@ -556,26 +556,33 @@ export default function Paywall() {
 
         {/* CTA */}
         <motion.div className="space-y-3" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-          <button
-             onClick={handleContinue}
-             disabled={loading || !pricing}
-             className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-black text-lg shadow-2xl shadow-teal-500/40 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
-           >
-             {loading ? (
-               <><Loader2 size={20} className="animate-spin" /> {t("processing_ellipsis")}</>
-             ) : isTrialExpired ? (
-               <><Crown size={20} /> {t("unlock_premium")}</>
-             ) : (
-               <><Sparkles size={20} /> {(() => {
-                 const baseText = lang === 'es' ? 'Probar gratis 3 días → ' : lang === 'nl' ? '3 dagen gratis proberen → ' : 'Try free 3 days → ';
-                 if (selectedPlan === 'yearly') return baseText + '€39.99/año';
-                 if (selectedPlan === 'monthly') return baseText + '€8.99/mes';
-                 if (selectedPlan === 'power_yearly') return baseText + '€89.99/año';
-                 if (selectedPlan === 'power_monthly') return baseText + '€12.99/mes';
-                 return baseText;
-               })()}</>
+          <div>
+            <button
+               onClick={handleContinue}
+               disabled={loading || !pricing}
+               className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-black text-lg shadow-2xl shadow-teal-500/40 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
+             >
+               {loading ? (
+                 <><Loader2 size={20} className="animate-spin" /> {t("processing_ellipsis")}</>
+               ) : isTrialExpired ? (
+                 <><Crown size={20} /> {t("unlock_premium")}</>
+               ) : (
+                 <><Sparkles size={20} /> {(() => {
+                   const baseText = lang === 'es' ? 'Probar gratis 3 días → ' : lang === 'nl' ? '3 dagen gratis proberen → ' : 'Try free 3 days → ';
+                   if (selectedPlan === 'yearly') return baseText + '€39.99/año';
+                   if (selectedPlan === 'monthly') return baseText + '€8.99/mes';
+                   if (selectedPlan === 'power_yearly') return baseText + '€89.99/año';
+                   if (selectedPlan === 'power_monthly') return baseText + '€12.99/mes';
+                   return baseText;
+                 })()}</>
+               )}
+             </button>
+             {selectedPlan === 'monthly' && (
+               <p className="text-center text-xs text-teal-300/80 font-semibold mt-2">
+                 {lang === 'es' ? 'Sin compromiso anual — cancelá cuando quieras' : lang === 'nl' ? 'Geen jaarlijkse verplichting — annuleer wanneer je wilt' : 'No annual commitment — cancel anytime'}
+               </p>
              )}
-           </button>
+          </div>
 
           <p className="text-center text-xs text-white/40">
             {t("try_for_free_fine_print")}
