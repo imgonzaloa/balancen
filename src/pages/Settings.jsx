@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
-import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity, Star, MessageSquare, BarChart3, Loader2 } from "lucide-react";
+import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity, Star, MessageSquare, BarChart3, Loader2, Download } from "lucide-react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -512,6 +512,39 @@ export default function Settings() {
             )}
 
 
+
+        {/* Export Data Button */}
+        <Button
+          onClick={async () => {
+            try {
+              const now = new Date();
+              const from = new Date(now);
+              from.setDate(from.getDate() - 30);
+              const fromStr = from.toISOString().split('T')[0];
+              const meals = await base44.entities.MealLog.filter({ created_by: user?.email }, "-date", 500);
+              const recent = meals.filter(m => m.date >= fromStr);
+              const header = "date,meal_type,estimated_calories,estimated_protein,estimated_carbs,estimated_fats";
+              const rows = recent.map(m =>
+                [m.date, m.meal_type || "", m.estimated_calories || 0, m.estimated_protein || 0, m.estimated_carbs || 0, m.estimated_fats || 0].join(",")
+              );
+              const csv = [header, ...rows].join("\n");
+              const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "balancen-historial.csv";
+              a.click();
+              URL.revokeObjectURL(url);
+              toast.success(lang === 'es' ? 'CSV descargado' : lang === 'nl' ? 'CSV gedownload' : 'CSV downloaded');
+            } catch {
+              toast.error(lang === 'es' ? 'Error al exportar' : 'Export failed');
+            }
+          }}
+          className="w-full mt-6 h-12 rounded-2xl bg-teal-500/20 border border-teal-500/30 hover:bg-teal-500/30 text-teal-200 font-semibold transition-all flex items-center justify-center gap-2"
+        >
+          <Download size={16} />
+          {lang === 'es' ? 'Exportar datos (últimos 30 días)' : lang === 'nl' ? 'Gegevens exporteren (30 dagen)' : 'Export data (last 30 days)'}
+        </Button>
 
         {/* Logout Button */}
          <Button

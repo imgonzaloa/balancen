@@ -904,15 +904,16 @@ export default function MealResult() {
                 {t('edit_manually') || t('add_manually')}
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/10">
+            <div className="grid grid-cols-4 gap-2 pt-3 border-t border-white/10">
               {[
                 { labelKey: 'protein', value: totals.protein, color: "text-blue-400" },
                 { labelKey: 'carbs', value: totals.carbs, color: "text-amber-400" },
+                { label: lang === 'es' ? 'Net carbs' : lang === 'nl' ? 'Netto' : 'Net carbs', value: Math.max(0, (totals.carbs || 0) - (totals.fiber || 0)), color: "text-purple-400" },
                 { labelKey: 'fats', value: totals.fats, color: "text-pink-400" },
-              ].map(({ labelKey, value, color }) => (
-                <div key={labelKey} className="text-center">
-                  <p className={`${color} font-black text-lg`}>{value}g</p>
-                  <p className="text-white/40 text-[10px] uppercase font-bold">{t(labelKey)}</p>
+              ].map(({ labelKey, label, value, color }) => (
+                <div key={labelKey || label} className="text-center">
+                  <p className={`${color} font-black text-base`}>{value}g</p>
+                  <p className="text-white/40 text-[10px] uppercase font-bold leading-tight">{label || t(labelKey)}</p>
                 </div>
               ))}
             </div>

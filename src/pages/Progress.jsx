@@ -57,6 +57,8 @@ export default function Progress() {
     const totalCaloriesToday = todayMeals.reduce((sum, m) => sum + (m.estimated_calories || 0), 0);
     const totalProtein = todayMeals.reduce((sum, m) => sum + (m.estimated_protein || 0), 0);
     const totalCarbs = todayMeals.reduce((sum, m) => sum + (m.estimated_carbs || 0), 0);
+    const totalFiber = todayMeals.reduce((sum, m) => sum + (m.estimated_fiber || 0), 0);
+    const totalNetCarbs = Math.max(0, totalCarbs - totalFiber);
     const totalFats = todayMeals.reduce((sum, m) => sum + (m.estimated_fats || 0), 0);
     const caloriesGoal = profile?.calories_goal || 2000;
     const trackingConsistency = Math.min((todayMeals.length / 3) * 100, 100);
@@ -65,7 +67,7 @@ export default function Progress() {
     const caloriesProgress = Math.min((totalCaloriesToday / caloriesGoal) * 100, 100);
     const proteinProgress = Math.min((totalProtein / 150) * 100, 100);
 
-    return { totalCaloriesToday, totalProtein, totalCarbs, totalFats, caloriesGoal, trackingConsistency, goalAdherence, momentumScore, caloriesProgress, proteinProgress };
+    return { totalCaloriesToday, totalProtein, totalCarbs, totalFiber, totalNetCarbs, totalFats, caloriesGoal, trackingConsistency, goalAdherence, momentumScore, caloriesProgress, proteinProgress };
   }, [todayMeals, profile?.calories_goal]);
 
   // 7-day log chart: which days had at least 1 meal logged
@@ -139,11 +141,12 @@ export default function Progress() {
               {[
                 { label: t('protein'), value: Math.round(calculations.totalProtein), unit: 'g', color: '#3b82f6' },
                 { label: t('carbs') || 'Carbs', value: Math.round(calculations.totalCarbs), unit: 'g', color: '#a855f7' },
+                { label: lang === 'es' ? 'Carbs netos' : lang === 'nl' ? 'Netto koolh.' : 'Net carbs', value: Math.round(calculations.totalNetCarbs), unit: 'g', color: '#c084fc', sub: true },
                 { label: t('fats') || 'Fats', value: Math.round(calculations.totalFats), unit: 'g', color: '#f59e0b' },
               ].map(macro => (
-                <div key={macro.label} className="flex items-center gap-2">
+                <div key={macro.label} className={`flex items-center gap-2 ${macro.sub ? 'pl-4 opacity-80' : ''}`}>
                   <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: macro.color }} />
-                  <span className="text-white/60 text-xs w-14">{macro.label}</span>
+                  <span className="text-white/60 text-xs w-16">{macro.label}</span>
                   <span className="text-white font-semibold text-sm">{macro.value}{macro.unit}</span>
                 </div>
               ))}
