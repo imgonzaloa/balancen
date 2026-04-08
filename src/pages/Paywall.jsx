@@ -133,7 +133,6 @@ export default function Paywall() {
 
   const yearlyMonthly = pricing ? (pricing.prices.yearly / 12).toFixed(2) : null;
   const savingsPct = Math.round((1 - (39.99 / 12) / 8.99) * 100);
-  const discountYearly = 31.99;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950 relative overflow-hidden flex flex-col" style={{ pointerEvents: 'auto' }}>
@@ -296,7 +295,7 @@ export default function Paywall() {
                  </p>
                ) : (
                  <p className="text-teal-300 text-sm font-semibold">
-                   {pricing.currency}{yearlyMonthly} / {t("month_label")} — {lang === 'es' ? `Ahorrá un ${savingsPct}%` : lang === 'nl' ? `Bespaar ${savingsPct}%` : `Save ${savingsPct}%`}
+                   {pricing.currency}{yearlyMonthly} / {t("month_label")} — {lang === 'es' ? 'Ahorrá un 63% vs mensual' : lang === 'nl' ? 'Bespaar 63% vs maandelijks' : 'Save 63% vs monthly'}
                  </p>
                )}
              </button>
