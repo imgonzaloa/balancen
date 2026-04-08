@@ -34,16 +34,9 @@ export default function Premium() {
 
   useEffect(() => {
     base44.auth.me().then(setUser);
-
-    if (!isNative) {
-      base44.functions.invoke('getStripePublishableKey', {})
-        .then(response => setPricing(response.data))
-        .catch(() => toast.error(t('payment_system_unavailable')));
-    } else {
-      // Fallback pricing display (actual price from Stripe)
-      setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99, yearly_original: 39.99 }, priceIds: {} });
-    }
-  }, [isNative]);
+    // Hardcoded pricing — loads instantly
+    setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
+  }, []);
 
   const handleStartTrial = async () => {
     if (!user) { toast.error(t("please_login_continue")); return; }

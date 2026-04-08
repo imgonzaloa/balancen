@@ -36,18 +36,8 @@ export default function Paywall() {
   const showCampusStats = isCampusExpired || isCampusAccess || isCampusReward;
 
   useEffect(() => {
-    // Only load Stripe pricing on web
-     if (!isNative) {
-       base44.functions.invoke('getStripePublishableKey', {})
-       .then(res => setPricing(res.data))
-       .catch(() => setPricing({
-        region: 'EUR', currency: '€',
-        prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 },
-        priceIds: { monthly: null, yearly: null, power_monthly: null, power_yearly: null }
-       }));
-       } else {
-       setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
-     }
+    // Hardcoded pricing — loads instantly
+    setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
 
     if (appUser?.email) {
       Promise.all([
@@ -64,7 +54,7 @@ export default function Paywall() {
         setUserStats({ mealsLogged: 0, daysTracked: 0, streak: 0, consistencyPercent: null });
       });
     }
-  }, [appUser?.email, profile?.current_streak, profile?.campus_consistency_percent, isNative]);
+  }, [appUser?.email, profile?.current_streak, profile?.campus_consistency_percent]);
 
   const handleContinue = async () => {
     if (!appUser) { toast.error(t("please_login_continue")); return; }
