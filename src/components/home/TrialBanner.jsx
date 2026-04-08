@@ -14,7 +14,7 @@ export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate })
   // Message variants by urgency
   const getMessage = () => {
     if (trialDaysLeft <= 1) {
-      // Day 7 — last day
+      // Day 5 — last day
       return {
         icon: <AlertTriangle size={18} className="text-red-300 flex-shrink-0" />,
         bg: "from-red-500/20 to-orange-500/20",
@@ -26,7 +26,7 @@ export default function TrialBanner({ trialDay, trialDaysLeft, lang, navigate })
       };
     }
     if (trialDaysLeft === 2) {
-      // Day 6 — ends tomorrow
+      // Day 4 — ends tomorrow
       return {
         icon: <Clock size={18} className="text-orange-300 flex-shrink-0" />,
         bg: "from-orange-500/20 to-amber-500/20",
