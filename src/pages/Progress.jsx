@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import AdvancedAnalytics from "@/components/progress/AdvancedAnalytics";
 import WeeklyCalorieChart from "@/components/progress/WeeklyCalorieChart";
 import WeeklyConsistencyCard from "@/components/progress/WeeklyConsistencyCard";
+import WeightTrackingCard from "@/components/progress/WeightTrackingCard";
 import { useQuery } from "@tanstack/react-query";
 import GlobalHeader from "@/components/GlobalHeader";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -89,6 +90,13 @@ export default function Progress() {
     staleTime: 10 * 60 * 1000,
   });
 
+  const { data: progressSnapshots = [] } = useQuery({
+    queryKey: ["progressSnapshots", user?.email],
+    queryFn: () => base44.entities.ProgressSnapshot.filter({ created_by: user.email }, "-date", 20),
+    enabled: !!user?.email,
+    staleTime: 2 * 60 * 1000,
+  });
+
   if (loading) return <ProgressSkeleton />;
 
   // Anonymous or no profile yet — show actionable empty state, never blank
@@ -119,6 +127,9 @@ export default function Progress() {
             {t('track_your_journey')}
           </p>
         </div>
+
+        {/* WEIGHT TRACKING */}
+        <WeightTrackingCard snapshots={progressSnapshots} lang={lang} userEmail={user?.email} />
 
         {/* TODAY'S CALORIES — ring + goal */}
         <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-5 border border-white/10">
