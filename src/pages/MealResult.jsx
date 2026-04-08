@@ -853,7 +853,7 @@ export default function MealResult() {
       <SharePrompt
         totals={savedTotals}
         photoUrl={savedPhotoUrl}
-        user={profile}
+        user={profile || {}}
         onShare={async () => {
           try {
             await base44.entities.Post.create({

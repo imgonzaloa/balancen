@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Share2 } from "lucide-react";
+import StoryCardGenerator from "./StoryCardGenerator";
 
 const AUTO_DISMISS_SECS = 8;
 
-export default function SharePrompt({ totals, photoUrl, onShare, onSkip }) {
+export default function SharePrompt({ totals, photoUrl, user, onShare, onSkip }) {
   const [countdown, setCountdown] = useState(AUTO_DISMISS_SECS);
   const [sharing, setSharing] = useState(false);
 
@@ -88,6 +89,18 @@ export default function SharePrompt({ totals, photoUrl, onShare, onSkip }) {
             <Share2 size={20} />
             Share to feed
           </button>
+
+          <StoryCardGenerator
+            mealName={totals?.mealName || 'Meal'}
+            macros={{
+              calories: totals?.calories || 0,
+              protein: totals?.protein || 0,
+              carbs: totals?.carbs || 0,
+              fats: totals?.fats || 0,
+            }}
+            streak={user?.current_streak || 0}
+            onShared={onSkip}
+          />
 
           <button
             onClick={onSkip}
