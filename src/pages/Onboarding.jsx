@@ -56,7 +56,7 @@ function calcCalories({ gender, weight_kg, height_cm, age, activity_level }) {
   return Math.round(bmr * (multipliers[activity_level] || 1.375));
 }
 
-const TOTAL_STEPS = 16;
+const TOTAL_STEPS = 17;
 
 const TESTIMONIALS = [
   { name: "Carlos M.", flag: "🇲🇽", quote: { es: "¡Bajé 4 kg en 6 semanas sin pasar hambre!", en: "Lost 4 kg in 6 weeks without feeling hungry!", nl: "In 6 weken 4 kg afgevallen zonder honger!" } },
@@ -291,6 +291,15 @@ export default function Onboarding() {
       founder_para1: "Creé Balancen porque yo mismo luché para mantener hábitos de nutrición siendo deportista. Las apps existentes eran o muy complicadas o demasiado genéricas.",
       founder_para2: "Sé honesto: cada análisis de IA tiene un costo real. El precio de Balancen está calculado para ser justo — ni demasiado caro para vos, ni insostenible para mí. Quiero construir esto a largo plazo.",
       founder_para3: "3 días gratis, sin tarjeta. Si no te cambia el hábito, cancelás sin drama. — Gonzalo 🙌",
+      why_badge: "Todo esto que Cal AI no tiene",
+      why_features: [
+        { emoji: "📸", title: "Análisis IA de comidas", desc: "Fotografiá tu plato y obtené calorías, proteínas, carbos y grasas en segundos" },
+        { emoji: "🏆", title: "Retos y grupos", desc: "Competí con amigos y atletas en retos de nutrición" },
+        { emoji: "🔥", title: "Streaks y misiones", desc: "Mantené tu racha diaria y completá misiones para ganar recompensas" },
+        { emoji: "📊", title: "Progreso visual", desc: "Gráficos semanales, fotos de progreso y métricas de consistencia" },
+        { emoji: "🤖", title: "Coach IA personalizado", desc: "Recomendaciones diarias basadas en tus objetivos y hábitos reales" },
+        { emoji: "👥", title: "Feed social", desc: "Seguí a atletas reales y ve qué comen cada día" },
+      ],
       },
     en: {
       lang_title: "Choose your language",
@@ -392,6 +401,15 @@ export default function Onboarding() {
       founder_para1: "I built Balancen because I struggled myself to maintain nutrition habits as an athlete. Existing apps were either too complex or too generic.",
       founder_para2: "Full transparency: every AI analysis has a real cost. Balancen's price is calculated to be fair — not too expensive for you, not unsustainable for me. I want to build this for the long term.",
       founder_para3: "3 days free, no card needed. If it doesn't change your habit, cancel no drama. — Gonzalo 🙌",
+      why_badge: "Everything Cal AI doesn't have",
+      why_features: [
+        { emoji: "📸", title: "AI Meal Analysis", desc: "Snap your plate and get calories, protein, carbs and fat in seconds" },
+        { emoji: "🏆", title: "Challenges & Groups", desc: "Compete with friends and athletes in nutrition challenges" },
+        { emoji: "🔥", title: "Streaks & Missions", desc: "Keep your daily streak and complete missions to earn rewards" },
+        { emoji: "📊", title: "Visual Progress", desc: "Weekly charts, progress photos and consistency metrics" },
+        { emoji: "🤖", title: "Personalized AI Coach", desc: "Daily recommendations based on your goals and real habits" },
+        { emoji: "👥", title: "Social Feed", desc: "Follow real athletes and see what they eat every day" },
+      ],
       },
       nl: {
       lang_title: "Kies je taal",
@@ -493,6 +511,15 @@ export default function Onboarding() {
       founder_para1: "Ik heb Balancen gemaakt omdat ik zelf moeite had met voedingsgewoonten als sporter. Bestaande apps waren te complex of te generiek.",
       founder_para2: "Volledige transparantie: elke AI-analyse kost geld. Balancens prijs is fair berekend — niet te duur voor jou, niet onhoudbaar voor mij.",
       founder_para3: "3 dagen gratis, geen kaart nodig. Als het je gewoonte niet verandert, kun je annuleren zonder stress. — Gonzalo 🙌",
+      why_badge: "Alles wat Cal AI niet heeft",
+      why_features: [
+        { emoji: "📸", title: "AI-maaltijdanalyse", desc: "Foto je bord en krijg calorieën, eiwit, koolhydraten en vetten in seconden" },
+        { emoji: "🏆", title: "Uitdagingen & groepen", desc: "Daag vrienden en atleten uit in voedingsuitdagingen" },
+        { emoji: "🔥", title: "Reeksen & missies", desc: "Houd je dagelijkse reeks bij en voltooi missies voor beloningen" },
+        { emoji: "📊", title: "Visuele vooruitgang", desc: "Wekelijkse grafieken, voortgangsfoto's en consistentiecijfers" },
+        { emoji: "🤖", title: "Persoonlijke AI-coach", desc: "Dagelijkse aanbevelingen op basis van je doelen en echte gewoonten" },
+        { emoji: "👥", title: "Sociale feed", desc: "Volg echte atleten en zie wat ze elke dag eten" },
+      ],
       },
       pt: {
       lang_title: "Escolha seu idioma",
@@ -1196,8 +1223,49 @@ export default function Onboarding() {
               </motion.div>
               )}
 
-              {/* Step 16: Paywall — redesigned */}
+              {/* Step 16: Why Balancen */}
               {step === 16 && (
+              <motion.div key="why"
+              initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
+              className="space-y-5">
+              {/* Comparison badge */}
+              <div className="flex justify-center">
+                <div className="bg-gradient-to-r from-teal-500/30 to-emerald-500/30 border border-teal-400/50 rounded-full px-4 py-2 flex items-center gap-2">
+                  <span className="text-lg">⚡</span>
+                  <span className="text-teal-200 font-bold text-sm">{l.why_badge}</span>
+                </div>
+              </div>
+
+              {/* Feature grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {(l.why_features || []).map((feat, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 * i }}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500/30 to-emerald-500/30 border border-teal-400/30 flex items-center justify-center text-xl">
+                      {feat.emoji}
+                    </div>
+                    <p className="text-white font-bold text-sm leading-snug">{feat.title}</p>
+                    <p className="text-white/50 text-xs leading-relaxed">{feat.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Continue button */}
+              <button
+                onClick={() => setStep(17)}
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
+                {l.next}
+              </button>
+              </motion.div>
+              )}
+
+              {/* Step 17: Paywall — redesigned */}
+              {step === 17 && (
             <motion.div key="paywall"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="space-y-5 text-center">
