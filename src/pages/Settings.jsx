@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
@@ -6,6 +7,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity, Star, MessageSquare, BarChart3, Loader2, Download, Smartphone } from "lucide-react";
 import { isHealthAvailable } from "@/lib/healthKit";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import CancellationModal from "@/components/CancellationModal";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ export default function Settings() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackCategory, setFeedbackCategory] = useState("suggestion");
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
     const queryClient = useQueryClient();
     const { changeLanguage, lang, t } = useTranslation();
 
@@ -119,17 +122,25 @@ export default function Settings() {
         {/* Premium Status */}
         {profile?.is_premium && profile?.role !== "owner" ? (
           <motion.div
-            className="relative overflow-hidden rounded-3xl p-5 mb-6 bg-gradient-to-br from-amber-500 to-orange-600 shadow-2xl"
+            className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-gradient-to-br from-amber-500 to-orange-600 shadow-2xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-2xl" />
-            <div className="flex items-center gap-3 relative z-10">
-              <Crown size={32} className="text-white" />
-              <div>
-                <p className="text-white font-bold text-lg">{t('premium_active')}</p>
-                <p className="text-amber-100 text-sm">{t('all_features_unlocked')}</p>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 relative z-10">
+                <Crown size={32} className="text-white" />
+                <div>
+                  <p className="text-white font-bold text-lg">{t('premium_active')}</p>
+                  <p className="text-amber-100 text-sm">{t('all_features_unlocked')}</p>
+                </div>
               </div>
+              <button
+                onClick={() => setShowCancellationModal(true)}
+                className="w-full py-2.5 rounded-xl bg-red-500/30 hover:bg-red-500/40 border border-red-400/50 text-red-200 font-semibold text-sm transition-all active:scale-95"
+              >
+                {lang === 'es' ? 'Cancelar suscripción' : lang === 'nl' ? 'Abonnement opzeggen' : 'Cancel subscription'}
+              </button>
             </div>
           </motion.div>
         ) : !profile?.is_premium && profile?.role !== "owner" && profile?.role !== "collaborator" ? (
@@ -918,9 +929,25 @@ export default function Settings() {
         )}
 
         <DeleteAccountDialog
-          isOpen={showDeleteDialog}
-          onClose={() => setShowDeleteDialog(false)}
-          email={user?.email}
+           isOpen={showDeleteDialog}
+           onClose={() => setShowDeleteDialog(false)}
+           email={user?.email}
+         />
+
+        <CancellationModal
+          isOpen={showCancellationModal}
+          onClose={() => setShowCancellationModal(false)}
+          userEmail={user?.email}
+          lang={lang}
+          onConfirmCancel={async () => {
+            // Actual cancel subscription logic here
+            try {
+              // Call your Stripe/RevenueCat cancellation endpoint
+              toast.success(lang === 'es' ? 'Suscripción cancelada' : lang === 'nl' ? 'Abonnement geannuleerd' : 'Subscription cancelled');
+            } catch (error) {
+              toast.error(lang === 'es' ? 'Error al cancelar' : lang === 'nl' ? 'Fout bij annulering' : 'Error cancelling subscription');
+            }
+          }}
         />
 
         {/* Support Fallback Modal */}

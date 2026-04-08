@@ -321,6 +321,11 @@
     "affiliate_code": {
       "type": "string",
       "description": "Unique affiliate code for tracking referrals (only for affiliate partners)"
+    },
+    "retention_offer_accepted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user accepted retention discount offer"
     }
   },
   "required": [
