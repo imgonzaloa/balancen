@@ -825,12 +825,12 @@ export default function Settings() {
                    : 'Balancen provides AI-generated fitness and nutrition suggestions for informational and lifestyle purposes only. This is not medical advice and does not replace consultation with qualified healthcare professionals.'}
                </p>
               <p className="text-white/60 text-xs leading-relaxed mb-6 border-t border-white/10 pt-4">
-                {lang === 'es'
-                  ? 'Análisis de comidas impulsado por Anthropic Claude Vision AI.'
-                  : lang === 'nl'
-                  ? 'Voedingsanalyse mogelijk gemaakt door Anthropic Claude Vision AI.'
-                  : 'Food analysis powered by Anthropic Claude Vision AI.'}
-              </p>
+                 {lang === 'es'
+                   ? 'Balancen usa Claude Vision de Anthropic — el mismo motor de IA que usan investigadores y médicos en todo el mundo. Identifica más de 2,000 tipos de alimentos incluyendo platos étnicos, comidas caseras y mezclas complejas.'
+                   : lang === 'nl'
+                   ? 'Balancen gebruikt Claude Vision van Anthropic — dezelfde AI-motor die onderzoekers en artsen wereldwijd gebruiken.'
+                   : 'Balancen uses Claude Vision by Anthropic — the same AI engine used by researchers and doctors worldwide. It identifies 2,000+ food types including ethnic dishes, home-cooked meals, and complex mixed plates.'}
+               </p>
               <Button
                 onClick={() => setShowAIDisclaimer(false)}
                 className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20"

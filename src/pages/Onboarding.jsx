@@ -299,7 +299,7 @@ export default function Onboarding() {
       trial_no_charge: "Sin cargo hoy. Cancelá cuando quieras.",
       why_badge: "Todo esto que Cal AI no tiene",
       why_features: [
-        { emoji: "📸", title: "Análisis IA de comidas", desc: "Fotografiá tu plato y obtené calorías, proteínas, carbos y grasas en segundos" },
+        { emoji: "📸", title: "Análisis IA de comidas", desc: "Fotografiá tu plato y obtené calorías, proteínas, carbos y grasas en segundos. Claude Vision de Anthropic — el mismo motor que usan investigadores y médicos." },
         { emoji: "🏆", title: "Retos y grupos", desc: "Competí con amigos y atletas en retos de nutrición" },
         { emoji: "🔥", title: "Streaks y misiones", desc: "Mantené tu racha diaria y completá misiones para ganar recompensas" },
         { emoji: "📊", title: "Progreso visual", desc: "Gráficos semanales, fotos de progreso y métricas de consistencia" },
@@ -415,7 +415,7 @@ export default function Onboarding() {
       trial_no_charge: "No charge today. Cancel anytime.",
       why_badge: "Everything Cal AI doesn't have",
       why_features: [
-        { emoji: "📸", title: "AI Meal Analysis", desc: "Snap your plate and get calories, protein, carbs and fat in seconds" },
+        { emoji: "📸", title: "AI Meal Analysis", desc: "Snap your plate and get calories, protein, carbs and fat in seconds. Powered by Claude Vision — used by researchers and doctors worldwide." },
         { emoji: "🏆", title: "Challenges & Groups", desc: "Compete with friends and athletes in nutrition challenges" },
         { emoji: "🔥", title: "Streaks & Missions", desc: "Keep your daily streak and complete missions to earn rewards" },
         { emoji: "📊", title: "Visual Progress", desc: "Weekly charts, progress photos and consistency metrics" },
@@ -531,7 +531,7 @@ export default function Onboarding() {
       trial_no_charge: "Geen kosten vandaag. Annuleer wanneer je wilt.",
       why_badge: "Alles wat Cal AI niet heeft",
       why_features: [
-        { emoji: "📸", title: "AI-maaltijdanalyse", desc: "Foto je bord en krijg calorieën, eiwit, koolhydraten en vetten in seconden" },
+        { emoji: "📸", title: "AI-maaltijdanalyse", desc: "Foto je bord en krijg calorieën, eiwit, koolhydraten en vetten in seconden. Claude Vision van Anthropic — dezelfde AI die onderzoekers en artsen wereldwijd gebruiken." },
         { emoji: "🏆", title: "Uitdagingen & groepen", desc: "Daag vrienden en atleten uit in voedingsuitdagingen" },
         { emoji: "🔥", title: "Reeksen & missies", desc: "Houd je dagelijkse reeks bij en voltooi missies voor beloningen" },
         { emoji: "📊", title: "Visuele vooruitgang", desc: "Wekelijkse grafieken, voortgangsfoto's en consistentiecijfers" },

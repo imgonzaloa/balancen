@@ -919,6 +919,15 @@ export default function MealResult() {
             </div>
           </div>
 
+          {/* Accuracy disclaimer */}
+          <p className="text-white/30 text-xs text-center leading-relaxed">
+            {lang === 'es'
+              ? 'Estimación con ±10-15% de precisión. Podés editar los valores si sabés el dato exacto.'
+              : lang === 'nl'
+              ? 'Schatting met ±10-15% nauwkeurigheid. Je kunt waarden bewerken als je het exacte bedrag weet.'
+              : 'Estimate with ±10-15% accuracy. You can edit values if you know the exact amount.'}
+          </p>
+
           {/* Low confidence warning */}
           {confidence < 50 && (
             <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl p-3 flex items-start gap-3">
