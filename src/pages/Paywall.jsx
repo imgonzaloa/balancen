@@ -36,25 +36,25 @@ export default function Paywall() {
   const showCampusStats = isCampusExpired || isCampusAccess || isCampusReward;
 
   useEffect(() => {
-    // Hardcoded pricing — loads instantly
-    setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
+     // Hardcoded pricing — loads instantly
+     setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
 
-    if (appUser?.email) {
-      Promise.all([
-        base44.entities.MealLog.filter({ created_by: appUser.email }),
-        base44.entities.DailyCheckIn.filter({ created_by: appUser.email }),
-      ]).then(([meals, checkins]) => {
-        setUserStats({
-          mealsLogged: meals?.length || 0,
-          daysTracked: checkins?.length || 0,
-          streak: profile?.current_streak || 0,
-          consistencyPercent: profile?.campus_consistency_percent ?? null,
-        });
-      }).catch(() => {
-        setUserStats({ mealsLogged: 0, daysTracked: 0, streak: 0, consistencyPercent: null });
-      });
-    }
-  }, [appUser?.email, profile?.current_streak, profile?.campus_consistency_percent]);
+     if (appUser?.email) {
+       Promise.all([
+         base44.entities.MealLog.filter({ created_by: appUser.email }).catch(() => []),
+         base44.entities.DailyCheckIn.filter({ created_by: appUser.email }).catch(() => []),
+       ]).then(([meals, checkins]) => {
+         setUserStats({
+           mealsLogged: meals?.length || 0,
+           daysTracked: checkins?.length || 0,
+           streak: profile?.current_streak || 0,
+           consistencyPercent: profile?.campus_consistency_percent ?? null,
+         });
+       }).catch(() => {
+         setUserStats({ mealsLogged: 0, daysTracked: 0, streak: 0, consistencyPercent: null });
+       });
+     }
+   }, [appUser?.email, profile?.current_streak, profile?.campus_consistency_percent]);
 
   const handleContinue = async () => {
     if (!appUser) { toast.error(t("please_login_continue")); return; }
