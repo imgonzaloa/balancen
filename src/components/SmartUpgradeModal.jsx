@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Crown, Zap } from "lucide-react";
+import { X, Crown, Zap, XCircle } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -19,9 +19,10 @@ const translations = {
     soft_message: "Aunque no utilizaste mucho Balancen durante el trial, te invitamos a experimentar con nuestro plan. ¡Te puede sorprender!",
     best_value: "Mejor valor",
     what_you_lose_title: "Lo que perdés si no continuás:",
-    lose_scans: (count) => `Tus ${count} análisis de comidas guardados`,
+    lose_scans: (count) => `Tus ${count} análisis guardados`,
     lose_streak: (count) => `Tu racha de ${count} día${count !== 1 ? 's' : ''}`,
     lose_social: "Acceso al feed social y retos",
+    lose_photos: "Tus fotos de progreso",
   },
   en: {
     usage_headline: (name, meals, scans) => `${name}, during your trial you logged ${meals} meal${meals !== 1 ? 's' : ''} and used ${scans} AI analyses`,
@@ -36,9 +37,10 @@ const translations = {
     soft_message: "Although you didn't use Balancen much during the trial, we invite you to explore our plans. You might be surprised!",
     best_value: "Best value",
     what_you_lose_title: "What you'll lose when trial ends:",
-    lose_scans: (count) => `Your ${count} saved meal analyses`,
+    lose_scans: (count) => `Your ${count} saved analyses`,
     lose_streak: (count) => `Your ${count}-day streak`,
     lose_social: "Access to social feed and challenges",
+    lose_photos: "Your progress photos",
   },
   nl: {
     usage_headline: (name, meals, scans) => `${name}, tijdens je trial registreerde je ${meals} maaltijd${meals !== 1 ? 's' : ''} en gebruikte je ${scans} AI-analyses`,
@@ -53,9 +55,10 @@ const translations = {
     soft_message: "Hoewel je Balancen niet veel gebruikte tijdens de trial, nodigen we je uit om onze plannen te verkennen. Je kunt verrast zijn!",
     best_value: "Beste waarde",
     what_you_lose_title: "Wat je verliest wanneer de trial eindigt:",
-    lose_scans: (count) => `Je ${count} opgeslagen maaltijdanalyses`,
+    lose_scans: (count) => `Je ${count} opgeslagen analyses`,
     lose_streak: (count) => `Je reeks van ${count} dag${count !== 1 ? 'en' : ''}`,
     lose_social: "Toegang tot sociale feed en uitdagingen",
+    lose_photos: "Je voortgangsfoto's",
   },
 };
 
@@ -166,10 +169,10 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
                   <p className="text-red-300 font-bold text-sm mb-3">
                     {t.what_you_lose_title}
                   </p>
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {scansUsed > 0 && (
                       <div className="flex items-center gap-2.5">
-                        <span className="text-red-400 text-lg">✕</span>
+                        <XCircle size={16} className="text-red-400 flex-shrink-0" />
                         <span className="text-white/80 text-sm">
                           {t.lose_scans(scansUsed)}
                         </span>
@@ -177,16 +180,22 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
                     )}
                     {currentStreak > 0 && (
                       <div className="flex items-center gap-2.5">
-                        <span className="text-red-400 text-lg">✕</span>
+                        <XCircle size={16} className="text-red-400 flex-shrink-0" />
                         <span className="text-white/80 text-sm">
                           {t.lose_streak(currentStreak)}
                         </span>
                       </div>
                     )}
                     <div className="flex items-center gap-2.5">
-                      <span className="text-red-400 text-lg">✕</span>
+                      <XCircle size={16} className="text-red-400 flex-shrink-0" />
                       <span className="text-white/80 text-sm">
                         {t.lose_social}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <XCircle size={16} className="text-red-400 flex-shrink-0" />
+                      <span className="text-white/80 text-sm">
+                        {t.lose_photos}
                       </span>
                     </div>
                   </div>
