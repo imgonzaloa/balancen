@@ -289,7 +289,7 @@ export default function Paywall() {
                  <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
                  <span className="text-white/50 text-sm">/ {t("year_label")}</span>
                </div>
-               {trialDaysLeft !== null && trialDaysLeft <= 1 ? (
+               {profile?.subscription_status === 'trial' && profile?.trial_start_date && trialDaysLeft <= 1 ? (
                  <p className="text-amber-400 text-sm font-bold">
                    {lang === 'es' ? '¡Última oportunidad! El trial termina hoy' : lang === 'nl' ? 'Laatste kans! Proefperiode eindigt vandaag' : 'Last chance! Trial ends today'}
                  </p>
