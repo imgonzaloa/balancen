@@ -188,7 +188,7 @@ export default function Onboarding() {
     { value: "stay_active", emoji: "🏃" },
   ];
 
-  const progressPct = ((step - 1) / (TOTAL_STEPS - 1)) * 100;
+  const progressPct = ((step - 1) / (TOTAL_STEPS - 2)) * 100;
 
   const L = {
     es: {
@@ -718,7 +718,7 @@ export default function Onboarding() {
                 transition={{ duration: 0.4 }}
               />
             </div>
-            <p className="text-white/30 text-xs">{step}/{TOTAL_STEPS - 1}</p>
+            <p className="text-white/30 text-xs">{step}/{TOTAL_STEPS}</p>
           </div>
         </div>
       )}
