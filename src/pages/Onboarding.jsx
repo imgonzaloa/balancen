@@ -1376,6 +1376,49 @@ export default function Onboarding() {
                 </div>
               </div>
 
+              {/* Trial Timeline */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left mb-2">
+                {[
+                  {
+                    icon: '🔒',
+                    circleColor: 'bg-teal-500',
+                    title: currentLang === 'es' ? 'Hoy — Acceso completo' : currentLang === 'nl' ? 'Vandaag — Volledige toegang' : 'Today — Full access',
+                    sub: currentLang === 'es' ? 'Desbloqueás análisis IA, social, retos y más' : currentLang === 'nl' ? 'Ontgrendel AI-analyse, sociaal, uitdagingen en meer' : 'Unlock AI analysis, social, challenges and more',
+                  },
+                  {
+                    icon: '🔔',
+                    circleColor: 'bg-amber-500',
+                    title: currentLang === 'es' ? 'Día 2 — Te avisamos' : currentLang === 'nl' ? 'Dag 2 — We herinneren je' : 'Day 2 — We remind you',
+                    sub: currentLang === 'es' ? 'Recordatorio antes de que termine tu trial' : currentLang === 'nl' ? 'We sturen je een herinnering voor het einde van je proefperiode' : 'We send you a reminder before your trial ends',
+                  },
+                  {
+                    icon: '👑',
+                    circleColor: 'bg-slate-500',
+                    title: currentLang === 'es' ? 'Día 3 — Empieza tu plan' : currentLang === 'nl' ? 'Dag 3 — Je plan begint' : 'Day 3 — Your plan starts',
+                    sub: currentLang === 'es' ? 'Solo si no cancelás antes. Sin sorpresas.' : currentLang === 'nl' ? 'Alleen als je niet annuleert. Geen verrassingen.' : 'Only if you don\'t cancel. No surprises.',
+                  },
+                ].map((item, i, arr) => (
+                  <div key={i} className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full ${item.circleColor} flex items-center justify-center flex-shrink-0 text-sm`}>
+                        {item.icon}
+                      </div>
+                      {i < arr.length - 1 && <div className="w-0.5 flex-1 bg-teal-500/40 my-1" style={{ minHeight: '24px' }} />}
+                    </div>
+                    <div className="pb-4">
+                      <p className="text-white font-bold text-sm leading-snug">{item.title}</p>
+                      <p className="text-white/50 text-xs mt-0.5 leading-relaxed">{item.sub}</p>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2 pt-3 border-t border-white/10 mt-1">
+                  <span className="text-emerald-400 text-sm font-black">✓</span>
+                  <p className="text-emerald-300 text-xs font-semibold">
+                    {currentLang === 'es' ? 'Sin cargo hoy. Cancelá cuando quieras.' : currentLang === 'nl' ? 'Geen kosten vandaag. Annuleer wanneer je wilt.' : 'No charge today. Cancel anytime.'}
+                  </p>
+                </div>
+              </div>
+
               {/* Annual Premium — highlighted */}
               <button
                 onClick={() => setSelectedPlan('annual')}
