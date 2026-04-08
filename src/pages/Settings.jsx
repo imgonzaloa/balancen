@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useTranslation } from "@/components/TranslationProvider";
 import { motion } from "framer-motion";
-import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity, Star, MessageSquare, BarChart3, Loader2, Download } from "lucide-react";
+import { ChevronLeft, Sparkles, Crown, Bell, Shield, Globe, Zap, UserPlus, Users, Bug, Trash2, Scale, FileText, AlertTriangle, Mail, ExternalLink, Activity, Star, MessageSquare, BarChart3, Loader2, Download, Smartphone } from "lucide-react";
+import { isHealthAvailable } from "@/lib/healthKit";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -512,6 +513,71 @@ export default function Settings() {
             )}
 
 
+
+        {/* Integrations Section */}
+        <motion.div
+          className="mt-8 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Smartphone size={18} className="text-teal-300" />
+            <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
+              {lang === 'es' ? 'Integraciones' : lang === 'nl' ? 'Integraties' : 'Integrations'}
+            </h2>
+          </div>
+
+          <div className="relative overflow-hidden rounded-3xl p-5 bg-white/10 backdrop-blur-xl border border-white/20">
+            <div className="space-y-4">
+              {/* Apple Health / Google Fit toggle */}
+              {['apple_health', 'google_fit'].map((key) => {
+                const isApple = key === 'apple_health';
+                const label = isApple
+                  ? 'Apple Health'
+                  : 'Google Fit';
+                const icon = isApple ? '🍎' : '🟢';
+                const platform = isApple
+                  ? (lang === 'es' ? 'iOS' : lang === 'nl' ? 'iOS' : 'iOS')
+                  : (lang === 'es' ? 'Android' : lang === 'nl' ? 'Android' : 'Android');
+                const healthAvailable = isHealthAvailable();
+
+                return (
+                  <div key={key} className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <span className="text-xl">{icon}</span>
+                      <div className="min-w-0">
+                        <p className="text-white font-semibold text-sm">{label}</p>
+                        {!healthAvailable ? (
+                          <p className="text-white/40 text-xs truncate">
+                            {lang === 'es' ? `Disponible en la app nativa ${platform}` : lang === 'nl' ? `Beschikbaar in de native ${platform} app` : `Available in the native ${platform} app`}
+                          </p>
+                        ) : (
+                          <p className="text-emerald-400 text-xs">
+                            {lang === 'es' ? 'Disponible' : lang === 'nl' ? 'Beschikbaar' : 'Available'}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Switch
+                      disabled={!healthAvailable}
+                      checked={healthAvailable && !!(profile?.[`${key}_enabled`])}
+                      onCheckedChange={(checked) => handleToggle(`${key}_enabled`, checked)}
+                    />
+                  </div>
+                );
+              })}
+
+              <p className="text-white/30 text-xs pt-2 border-t border-white/10 leading-relaxed">
+                {lang === 'es'
+                  ? 'Cuando está activo, cada comida registrada escribe los datos nutricionales a Apple Health / Google Fit automáticamente.'
+                  : lang === 'nl'
+                  ? 'Wanneer ingeschakeld, worden voedingsgegevens automatisch naar Apple Health / Google Fit geschreven na elke maaltijdregistratie.'
+                  : 'When enabled, each meal log automatically writes nutritional data to Apple Health / Google Fit.'}
+              </p>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Export Data Button */}
         <Button

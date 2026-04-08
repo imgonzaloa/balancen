@@ -18,6 +18,7 @@ import MacroBreakdownBar from "@/components/home/MacroBreakdownBar";
 import StreakCelebration from "@/components/home/StreakCelebration";
 import DailyAIInsightCard from "@/components/home/DailyAIInsightCard";
 import AICoachCard from "@/components/home/AICoachCard";
+import StepsCard from "@/components/home/StepsCard";
 import DailyMissionsPanel from "@/components/home/DailyMissionsPanel";
 import FastingTracker from "@/components/home/FastingTracker";
 import MealEditModal from "@/components/home/MealEditModal";
@@ -455,6 +456,9 @@ const Home = React.memo(() => {
           isPremium={isPremium}
           onNavigate={handleNavigate}
         />
+
+        {/* Steps / Health card */}
+        <StepsCard lang={lang} />
 
         {/* Streak celebration overlay */}
         {celebratingStreak && (
