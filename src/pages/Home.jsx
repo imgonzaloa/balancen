@@ -18,6 +18,7 @@ import MacroBreakdownBar from "@/components/home/MacroBreakdownBar";
 import StreakCelebration from "@/components/home/StreakCelebration";
 import DailyAIInsightCard from "@/components/home/DailyAIInsightCard";
 import DailyMissionsPanel from "@/components/home/DailyMissionsPanel";
+import FastingTracker from "@/components/home/FastingTracker";
 import PullToRefresh from "@/components/PullToRefresh";
 import SmartUpgradeModal from "@/components/SmartUpgradeModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -507,6 +508,13 @@ const Home = React.memo(() => {
             </div>
           </div>
         </div>
+
+        {/* Fasting Tracker */}
+        <FastingTracker
+          profile={profile}
+          lang={lang}
+          onProfileUpdate={(updated) => { setProfile(updated); setContextProfile(updated); }}
+        />
 
         {/* Daily Missions (5 missions) */}
         <DailyMissionsPanel

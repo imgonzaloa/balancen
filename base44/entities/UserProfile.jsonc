@@ -307,6 +307,16 @@
     "referral_source": {
       "type": "string",
       "description": "How the user heard about Balancen (tiktok, instagram, google, friend, coach, podcast, email, other)"
+    },
+    "fasting_start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when current fast started (null = not fasting)"
+    },
+    "eating_window_hours": {
+      "type": "number",
+      "default": 16,
+      "description": "Fasting window in hours (e.g. 16 for 16:8)"
     }
   },
   "required": [
