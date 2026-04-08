@@ -364,27 +364,81 @@ export default function Paywall() {
                )}
              </div>
            </motion.div>
-         )}
+           )}
 
-        {/* Features */}
-        <motion.div
-          className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 space-y-2.5"
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        >
-          {[
+           {/* Plan Comparison */}
+           {pricing && (
+           <motion.div
+            className="bg-teal-900/40 border border-teal-500/30 rounded-2xl overflow-hidden mb-6"
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.17 }}
+           >
+            {/* Header row */}
+            <div className="grid grid-cols-3 bg-teal-600/60 border-b border-teal-500/30">
+              <div className="p-3 text-xs font-bold text-white/60 border-r border-teal-500/20" />
+              <div className="p-3 text-xs font-bold text-white text-center">Premium</div>
+              <div className="p-3 text-xs font-bold text-white text-center">Power</div>
+            </div>
+
+            {/* Rows */}
+            {[
+              {
+                label: lang === 'es' ? '📸 Análisis IA' : lang === 'nl' ? '📸 AI-analyse' : '📸 AI Analysis',
+                premium: lang === 'es' ? '300/mes' : lang === 'nl' ? '300/mnd' : '300/mo',
+                power: lang === 'es' ? '∞ Ilimitado' : lang === 'nl' ? '∞ Onbeperkt' : '∞ Unlimited'
+              },
+              {
+                label: lang === 'es' ? '💰 Precio mensual' : lang === 'nl' ? '💰 Maandelijks' : '💰 Monthly',
+                premium: '€8.99',
+                power: '€12.99'
+              },
+              {
+                label: lang === 'es' ? '🏆 Para quién' : lang === 'nl' ? '🏆 Voor wie' : '🏆 Best for',
+                premium: lang === 'es' ? 'Usuario regular' : lang === 'nl' ? 'Standaardgebruiker' : 'Regular user',
+                power: lang === 'es' ? 'Usuario intensivo' : lang === 'nl' ? 'Intensieve gebruiker' : 'Power user'
+              }
+            ].map((row, i) => (
+              <div key={i} className="grid grid-cols-3 border-b border-teal-500/20 last:border-b-0">
+                <div className="p-3 text-xs font-semibold text-white/70 border-r border-teal-500/20">
+                  {row.label}
+                </div>
+                <div className="p-3 text-xs text-white text-center">{row.premium}</div>
+                <div className="p-3 text-xs text-amber-300 font-semibold text-center">{row.power}</div>
+              </div>
+            ))}
+           </motion.div>
+           )}
+
+           {/* Features */}
+           <motion.div
+           className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 space-y-2.5"
+           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+           >
+           {/* AI Scans feature at top */}
+           <div className="flex items-start gap-2.5 pb-2.5 border-b border-white/10">
+            <Check size={15} className="text-teal-400 flex-shrink-0 mt-0.5" />
+            <span className="text-white/80 text-sm">
+              {lang === 'es'
+                ? '📸 300 análisis de comida con IA/mes (Premium) — ilimitado con Power'
+                : lang === 'nl'
+                ? '📸 300 maaltijdanalyses met AI/maand (Premium) — onbeperkt met Power'
+                : '📸 300 AI meal analyses/month (Premium) — unlimited with Power'}
+            </span>
+           </div>
+
+           {[
             "feature_unlimited_ai",
             "feature_advanced_progress",
             "feature_groups_social",
             "feature_ai_recommendations",
             "feature_streak_metrics",
             "feature_history_export",
-          ].map((key, i) => (
+           ].map((key, i) => (
             <div key={i} className="flex items-center gap-2.5">
               <Check size={15} className="text-teal-400 flex-shrink-0" />
               <span className="text-white/80 text-sm">{t(key)}</span>
             </div>
-          ))}
-        </motion.div>
+           ))}
+           </motion.div>
 
         {/* Error banner */}
         {purchaseError && (
