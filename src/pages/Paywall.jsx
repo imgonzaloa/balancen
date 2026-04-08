@@ -275,9 +275,14 @@ export default function Paywall() {
                className={`w-full relative rounded-2xl p-5 mb-3 border-2 transition-all text-left ${
                  selectedPlan === 'yearly'
                    ? 'bg-gradient-to-r from-teal-500/25 to-emerald-500/25 border-teal-400 shadow-xl'
-                   : 'bg-white/5 border-white/15 hover:border-white/30'
+                   : 'bg-white/5 border-white/15 opacity-80'
                }`}
              >
+               {selectedPlan === 'yearly' && (
+                 <div className="absolute top-3 right-3 text-teal-400">
+                   <Check size={20} strokeWidth={3} />
+                 </div>
+               )}
                <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">
                  {t("best_value_label")}
                </div>
@@ -301,12 +306,17 @@ export default function Paywall() {
              {/* Monthly */}
              <button
                onClick={() => setSelectedPlan("monthly")}
-               className={`w-full rounded-2xl p-4 border-2 transition-all text-left mb-3 ${
+               className={`w-full relative rounded-2xl p-5 border-2 transition-all text-left mb-3 ${
                  selectedPlan === 'monthly'
-                   ? 'bg-white/10 border-white/40 shadow-lg'
-                   : 'bg-white/5 border-white/15 hover:border-white/30'
+                   ? 'bg-gradient-to-r from-teal-500/25 to-emerald-500/25 border-teal-400 shadow-lg shadow-teal-500/20'
+                   : 'bg-white/5 border-white/15 opacity-80 hover:border-white/30'
                }`}
              >
+               {selectedPlan === 'monthly' && (
+                 <div className="absolute top-3 right-3 text-teal-400">
+                   <Check size={20} strokeWidth={3} />
+                 </div>
+               )}
                <div className="flex items-baseline gap-2">
                  <span className="text-2xl font-black text-white">{pricing.currency}{pricing.prices.monthly}</span>
                  <span className="text-white/50 text-sm">/ {t("month_label")}</span>
@@ -376,17 +386,35 @@ export default function Paywall() {
            </motion.div>
            )}
 
-           {/* Plan Comparison */}
+           {/* Plan Comparison - Dynamic */}
            {pricing && (
            <motion.div
-            className="bg-teal-900/40 border border-teal-500/30 rounded-2xl overflow-hidden mb-6"
+            className={`border rounded-2xl overflow-hidden mb-6 ${
+              selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                ? 'bg-amber-900/40 border-amber-500/30'
+                : 'bg-teal-900/40 border-teal-500/30'
+            }`}
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.17 }}
            >
             {/* Header row */}
-            <div className="grid grid-cols-3 bg-teal-600/60 border-b border-teal-500/30">
-              <div className="p-3 text-xs font-bold text-white/60 border-r border-teal-500/20" />
-              <div className="p-3 text-xs font-bold text-white text-center">Premium</div>
-              <div className="p-3 text-xs font-bold text-white text-center">Power</div>
+            <div className={`grid grid-cols-3 border-b ${
+              selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                ? 'bg-amber-600/60 border-amber-500/30'
+                : 'bg-teal-600/60 border-teal-500/30'
+            }`}>
+              <div className={`p-3 text-xs font-bold border-r ${
+                selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                  ? 'text-white/60 border-amber-500/20'
+                  : 'text-white/60 border-teal-500/20'
+              }`} />
+              <div className="p-3 text-xs font-bold text-white text-center">
+                {selectedPlan === 'monthly' ? (lang === 'es' ? 'Premium Mensual' : lang === 'nl' ? 'Premium Maandelijks' : 'Premium Monthly') : lang === 'es' ? 'Premium Anual' : lang === 'nl' ? 'Premium Jaarlijks' : 'Premium Annual'}
+              </div>
+              <div className={`p-3 text-xs font-bold text-center ${
+                selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                  ? 'text-amber-300'
+                  : 'text-white'
+              }`}>Power</div>
             </div>
 
             {/* Rows */}
@@ -397,24 +425,14 @@ export default function Paywall() {
                 power: lang === 'es' ? '∞ Ilimitado' : lang === 'nl' ? '∞ Onbeperkt' : '∞ Unlimited'
               },
               {
-                label: lang === 'es' ? '💰 Precio mensual' : lang === 'nl' ? '💰 Maandelijks' : '💰 Monthly',
-                premium: trialDaysLeft !== null && trialDaysLeft <= 1 ? `€${(discountYearly / 12).toFixed(2)}/mo` : '€8.99',
-                power: '€12.99'
+                label: lang === 'es' ? '💰 Precio' : lang === 'nl' ? '💰 Prijs' : '💰 Price',
+                premium: selectedPlan === 'monthly' ? '€8.99/mes' : '€39.99/año',
+                power: selectedPlan === 'power_monthly' ? '€12.99/mes' : '€89.99/año'
               },
               {
-                label: lang === 'es' ? '🔥 Streaks y retos' : lang === 'nl' ? '🔥 Streaks & uitdagingen' : '🔥 Streaks & challenges',
-                premium: '✓',
-                power: '✓'
-              },
-              {
-                label: lang === 'es' ? '👥 Feed social' : lang === 'nl' ? '👥 Sociale feed' : '👥 Social feed',
-                premium: '✓',
-                power: '✓'
-              },
-              {
-                label: lang === 'es' ? '🤖 Coach IA' : lang === 'nl' ? '🤖 AI Coach' : '🤖 AI Coach',
-                premium: '✓',
-                power: '✓'
+                label: lang === 'es' ? '💡 Ventaja' : lang === 'nl' ? '💡 Voordeel' : '💡 Advantage',
+                premium: selectedPlan === 'monthly' ? (lang === 'es' ? 'Ahorrá €4/mes' : lang === 'nl' ? 'Bespaar €4/maand' : 'Save €4/month') : (lang === 'es' ? 'Mejor valor' : lang === 'nl' ? 'Beste waarde' : 'Best value'),
+                power: lang === 'es' ? 'Análisis ilimitados' : lang === 'nl' ? 'Onbeperkte analyses' : 'Unlimited analyses'
               },
               {
                 label: lang === 'es' ? '🔥 Streaks y retos' : lang === 'nl' ? '🔥 Streaks & uitdagingen' : '🔥 Streaks & challenges',
@@ -442,12 +460,24 @@ export default function Paywall() {
                 power: lang === 'es' ? 'Usuario intensivo' : lang === 'nl' ? 'Intensieve gebruiker' : 'Power user'
               }
             ].map((row, i) => (
-              <div key={i} className="grid grid-cols-3 border-b border-teal-500/20 last:border-b-0">
-                <div className="p-3 text-xs font-semibold text-white/70 border-r border-teal-500/20">
+              <div key={i} className={`grid grid-cols-3 border-b last:border-b-0 ${
+                selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                  ? 'border-amber-500/20'
+                  : 'border-teal-500/20'
+              }`}>
+                <div className={`p-3 text-xs font-semibold border-r ${
+                  selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                    ? 'text-white/70 border-amber-500/20'
+                    : 'text-white/70 border-teal-500/20'
+                }`}>
                   {row.label}
                 </div>
                 <div className="p-3 text-xs text-white text-center">{row.premium}</div>
-                <div className="p-3 text-xs text-amber-300 font-semibold text-center">{row.power}</div>
+                <div className={`p-3 text-xs font-semibold text-center ${
+                  selectedPlan === 'power_yearly' || selectedPlan === 'power_monthly'
+                    ? 'text-amber-300'
+                    : 'text-white'
+                }`}>{row.power}</div>
               </div>
             ))}
            </motion.div>
@@ -493,18 +523,25 @@ export default function Paywall() {
         {/* CTA */}
         <motion.div className="space-y-3" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <button
-            onClick={handleContinue}
-            disabled={loading || !pricing}
-            className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-black text-lg shadow-2xl shadow-teal-500/40 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <><Loader2 size={20} className="animate-spin" /> {t("processing_ellipsis")}</>
-            ) : isTrialExpired ? (
-              <><Crown size={20} /> {t("unlock_premium")}</>
-            ) : (
-              <><Sparkles size={20} /> {t("try_for_free_cta")}</>
-            )}
-          </button>
+             onClick={handleContinue}
+             disabled={loading || !pricing}
+             className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-black text-lg shadow-2xl shadow-teal-500/40 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
+           >
+             {loading ? (
+               <><Loader2 size={20} className="animate-spin" /> {t("processing_ellipsis")}</>
+             ) : isTrialExpired ? (
+               <><Crown size={20} /> {t("unlock_premium")}</>
+             ) : (
+               <><Sparkles size={20} /> {(() => {
+                 const baseText = lang === 'es' ? 'Probar gratis 3 días → ' : lang === 'nl' ? '3 dagen gratis proberen → ' : 'Try free 3 days → ';
+                 if (selectedPlan === 'yearly') return baseText + '€39.99/año';
+                 if (selectedPlan === 'monthly') return baseText + '€8.99/mes';
+                 if (selectedPlan === 'power_yearly') return baseText + '€89.99/año';
+                 if (selectedPlan === 'power_monthly') return baseText + '€12.99/mes';
+                 return baseText;
+               })()}</>
+             )}
+           </button>
 
           <p className="text-center text-xs text-white/40">
             {t("try_for_free_fine_print")}
