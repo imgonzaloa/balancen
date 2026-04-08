@@ -18,35 +18,47 @@ export default async function getPricingForRegion(input, { secrets }) {
     region = 'EU';
     currency = '€';
     prices = {
-      monthly: 6.99,
-      yearly: 49.99
+      monthly: 8.99,
+      yearly: 39.99,
+      power_monthly: 12.99,
+      power_yearly: 89.99
     };
     priceIds = {
       monthly: secrets.STRIPE_MONTHLY_PRICE_ID_EUR,
-      yearly: secrets.STRIPE_YEARLY_PRICE_ID_EUR
+      yearly: secrets.STRIPE_YEARLY_PRICE_ID_EUR,
+      power_monthly: secrets.STRIPE_POWER_MONTHLY_PRICE_ID_EUR,
+      power_yearly: secrets.STRIPE_POWER_YEARLY_PRICE_ID_EUR
     };
   } else if (latinAmericaCountries.includes(country)) {
     region = 'LATAM';
     currency = '$';
     prices = {
-      monthly: 3.99,
-      yearly: 25.99
+      monthly: 4.99,
+      yearly: 29.99,
+      power_monthly: 7.99,
+      power_yearly: 59.99
     };
     priceIds = {
       monthly: secrets.STRIPE_MONTHLY_PRICE_ID_USD_LATAM,
-      yearly: secrets.STRIPE_YEARLY_PRICE_ID_USD_LATAM
+      yearly: secrets.STRIPE_YEARLY_PRICE_ID_USD_LATAM,
+      power_monthly: secrets.STRIPE_POWER_MONTHLY_PRICE_ID_USD_LATAM,
+      power_yearly: secrets.STRIPE_POWER_YEARLY_PRICE_ID_USD_LATAM
     };
   } else {
     // Default to US pricing
     region = 'US';
     currency = '$';
     prices = {
-      monthly: 7.99,
-      yearly: 59.99
+      monthly: 8.99,
+      yearly: 39.99,
+      power_monthly: 12.99,
+      power_yearly: 89.99
     };
     priceIds = {
       monthly: secrets.STRIPE_MONTHLY_PRICE_ID_USD_US,
-      yearly: secrets.STRIPE_YEARLY_PRICE_ID_USD_US
+      yearly: secrets.STRIPE_YEARLY_PRICE_ID_USD_US,
+      power_monthly: secrets.STRIPE_POWER_MONTHLY_PRICE_ID_USD_US,
+      power_yearly: secrets.STRIPE_POWER_YEARLY_PRICE_ID_USD_US
     };
   }
   
