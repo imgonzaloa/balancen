@@ -709,7 +709,7 @@ const resources = {
       feature_streak_metrics: "Streak & consistency metrics",
       feature_history_export: "Full history export & backup",
       try_for_free_cta: "Try free — €0.00",
-      try_for_free_fine_print: "Free for 5 days, then €8.99/mo or €52.99/yr. Cancel anytime.",
+      try_for_free_fine_print: "Free for 3 days, then €8.99/mo or €39.99/yr. Cancel anytime.",
 
       // Premium hubs and AI features
       progress_saved: "Progress saved!",
@@ -723,7 +723,7 @@ const resources = {
       plan_error: "Error generating plan",
       plan_activated: "Plan activated",
       story_published: "Story published!",
-      ai_scans_limit: "You've used your 5 free AI scans today. Upgrade to Premium for unlimited.",
+      ai_scans_limit: "You've used your 5 free AI scans today. Upgrade to Premium for unlimited scans.",
       ai_scans_left: "AI scans left today",
       daily_limit_reached: "Daily limit reached — Upgrade for unlimited",
       trainer_dashboard_title: "Your AI Trainer",
@@ -746,7 +746,7 @@ const resources = {
       meal_moment_title: "What are you eating now? 📸",
       meal_moment_subtitle: "Share it with your team",
       meal_moment_scan: "Scan",
-      invite_description: "You + your friend both get 5 extra Premium days",
+      invite_description: "You + your friend both get 3 extra Premium days",
       joined_with_link: "joined with your link",
       share_failed: "Share failed",
       feature_premium_scans: "300 AI meal scans per month",
@@ -870,7 +870,7 @@ const resources = {
       feature_streak_metrics: "Streak- en consistentiemetrieken",
       feature_history_export: "Volledige geschiedenisexport",
       try_for_free_cta: "Gratis proberen — €0,00",
-      try_for_free_fine_print: "Gratis 5 dagen, daarna €8,99/maand of €52,99/jaar. Annuleer wanneer je wilt.",
+      try_for_free_fine_print: "Gratis 3 dagen, daarna €8,99/maand of €39,99/jaar. Annuleer wanneer je wilt.",
 
       // General
       logout: "Uitloggen",
@@ -923,7 +923,7 @@ const resources = {
       meal_moment_subtitle: "Deel het met je team",
       meal_moment_scan: "Scan",
       ai_scans_limit: "Je hebt vandaag je 5 gratis AI-scans gebruikt. Upgrade naar Premium voor onbeperkt.",
-      invite_description: "Jij en je vriend krijgen beide 5 extra Premium-dagen",
+      invite_description: "Jij en je vriend krijgen beide 3 extra Premium-dagen",
       joined_with_link: "mededaan met je link",
       share_failed: "Delen mislukt",
       search_foods: "Zoek voedsel",
@@ -1650,7 +1650,7 @@ const resources = {
       feature_streak_metrics: "Racha y métricas de consistencia",
       feature_history_export: "Exportación de historial completo",
       try_for_free_cta: "Probar gratis — €0.00",
-      try_for_free_fine_print: "Gratis 5 días, luego €8.99/mes o €52.99/año. Cancela cuando quieras.",
+      try_for_free_fine_print: "Gratis 3 días, luego €8.99/mes o €39.99/año. Cancela cuando quieras.",
 
       // Premium hubs and AI features
       progress_saved: "¡Progreso guardado!",
@@ -1690,7 +1690,7 @@ const resources = {
       create_your_profile: "Crea tu perfil",
       sign_in: "Iniciar sesión",
       sign_in_to_access_profile: "Inicia sesión para ver tu perfil",
-      invite_description: "Tú y tu amigo ganan 5 días extra de Premium",
+      invite_description: "Tú y tu amigo ganan 3 días extra de Premium",
       joined_with_link: "se unió con tu link",
       share_failed: "Error al compartir",
       feature_premium_scans: "300 análisis de comida con IA por mes",

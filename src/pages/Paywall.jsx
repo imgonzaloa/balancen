@@ -39,14 +39,13 @@ export default function Paywall() {
     // Only load Stripe pricing on web
      if (!isNative) {
        base44.functions.invoke('getStripePublishableKey', {})
-         .then(res => setPricing(res.data))
-         .catch(() => setPricing({
-           region: 'EUR', currency: '€',
-           prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 },
-           priceIds: { monthly: null, yearly: null, power_monthly: null, power_yearly: null }
-         }));
-     } else {
-       // On native, show fallback prices (RevenueCat will use store prices)
+       .then(res => setPricing(res.data))
+       .catch(() => setPricing({
+        region: 'EUR', currency: '€',
+        prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 },
+        priceIds: { monthly: null, yearly: null, power_monthly: null, power_yearly: null }
+       }));
+       } else {
        setPricing({ region: 'EUR', currency: '€', prices: { monthly: 8.99, yearly: 39.99, power_monthly: 12.99, power_yearly: 89.99 }, priceIds: {} });
      }
 
