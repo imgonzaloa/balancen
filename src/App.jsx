@@ -13,6 +13,13 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { MealProvider } from '@/components/MealContext';
 import { useEffect } from 'react';
 
+// iPad detection
+function isIPad() {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent.toLowerCase();
+  return /ipad|macintosh/.test(ua) && 'ontouchend' in document || (window.screen?.width > 768 && /ipad/.test(ua));
+}
+
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
@@ -30,6 +37,31 @@ function ScrollToTop() {
     }
   }, [pathname]);
   return null;
+}
+
+function IPadLayout({ children }) {
+  const isIPadDevice = isIPad();
+  if (!isIPadDevice) return children;
+
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'stretch',
+      minHeight: '100vh',
+      backgroundColor: '#0f172a'
+    }}>
+      <div style={{
+        width: '390px',
+        maxWidth: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        boxShadow: isIPadDevice ? '0 0 30px rgba(0,0,0,0.3)' : 'none'
+      }}>
+        {children}
+      </div>
+    </div>
+  );
 }
 
 const AuthenticatedApp = () => {
@@ -109,7 +141,9 @@ function App() {
         <Router>
           <MealProvider>
             <NavigationTracker />
-            <AuthenticatedApp />
+            <IPadLayout>
+              <AuthenticatedApp />
+            </IPadLayout>
           </MealProvider>
         </Router>
         <Toaster />
