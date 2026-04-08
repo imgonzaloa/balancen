@@ -341,6 +341,8 @@ export default function MealResult() {
 
   const [phase, setPhase] = useState("analyzing"); // analyzing | review | saving | error | manual | share
   const [stepIndex, setStepIndex] = useState(0);
+  const [retryCount, setRetryCount] = useState(0);
+  const [suspiciousMacros, setSuspiciousMacros] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [savedTotals, setSavedTotals] = useState(null);
@@ -446,7 +448,7 @@ export default function MealResult() {
       // Check cache before calling AI
       const cachedResult = findCachedResult(file.size);
       const analysis = cachedResult || await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a professional nutritionist. Analyze this food photo precisely. Return a JSON with: items (array of each food with name, calories, protein, carbs, fats as numbers, portion as descriptive string), total_calories, total_protein, total_carbs, total_fats (all numbers), health_score (0-100), confidence (0-100 integer). Be accurate and realistic. If you cannot detect any food, set confidence to 0 and items to empty array.`,
+        prompt: `You are a professional sports nutritionist analyzing a meal photo. Be specific and accurate. Identify every visible food item separately. For each item estimate realistic portion size based on visual cues (plate size, standard portions). Common calibration: a standard plate is 25-28cm diameter. Return calories within 10% of real values. If image is blurry, dark, or food is unclear, set confidence below 50. Always estimate rather than refusing. Return a JSON with: items (array of each food with name, calories, protein, carbs, fats as numbers, portion as descriptive string), total_calories, total_protein, total_carbs, total_fats (all numbers), health_score (0-100), confidence (0-100 integer).`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
@@ -496,7 +498,21 @@ export default function MealResult() {
         portion: item.portion || "",
       }));
 
-      // If confidence is very low or no items, go to manual — photo is already uploaded
+      const totalCal = Math.round(analysis.total_calories || items.reduce((s, i) => s + i.calories, 0));
+
+      // Validate results: implausible calories or empty items → auto-retry once
+      const isInvalid = totalCal < 30 || totalCal > 4000 || items.length === 0;
+      const isLowConf = conf < 40;
+
+      if ((isInvalid || isLowConf) && !cachedResult) {
+        if (retryCount === 0) {
+          setRetryCount(1);
+          setTimeout(() => { hasRun.current = false; runAnalysis(); }, 1000);
+          return;
+        }
+      }
+
+      // If confidence is very low or no items after retries, show error
       if (conf < 20 && items.length === 0) {
         setConfidence(conf);
         setPhase("error");
@@ -504,9 +520,13 @@ export default function MealResult() {
         return;
       }
 
+      // Flag suspicious macros: calories present but all macros are zero
+      const totalMacros = (analysis.total_protein || 0) + (analysis.total_carbs || 0) + (analysis.total_fats || 0);
+      setSuspiciousMacros(totalCal > 0 && totalMacros === 0);
+
       setFoodItems(items);
       setTotals({
-        calories: Math.round(analysis.total_calories || items.reduce((s, i) => s + i.calories, 0)),
+        calories: totalCal,
         protein: Math.round(analysis.total_protein || items.reduce((s, i) => s + i.protein, 0)),
         carbs: Math.round(analysis.total_carbs || items.reduce((s, i) => s + i.carbs, 0)),
         fats: Math.round(analysis.total_fats || items.reduce((s, i) => s + i.fats, 0)),
@@ -849,6 +869,24 @@ export default function MealResult() {
   // ─── REVIEW SCREEN ───
   const confidenceColor = confidence >= 70 ? "text-emerald-400" : confidence >= 40 ? "text-amber-400" : "text-red-400";
 
+  const confidenceBadge = (() => {
+    if (confidence >= 75) return {
+      bg: "bg-emerald-500/20 border-emerald-500/40",
+      text: "text-emerald-300",
+      label: { es: "Alta precisión", en: "High accuracy", nl: "Hoge nauwkeurigheid" },
+    };
+    if (confidence >= 50) return {
+      bg: "bg-amber-500/20 border-amber-500/40",
+      text: "text-amber-300",
+      label: { es: "Precisión media — verificá los valores", en: "Medium accuracy — check the values", nl: "Gemiddelde nauwkeurigheid — controleer de waarden" },
+    };
+    return {
+      bg: "bg-red-500/20 border-red-500/40",
+      text: "text-red-300",
+      label: { es: "Baja precisión — te recomendamos ajustar manualmente", en: "Low accuracy — we recommend adjusting manually", nl: "Lage nauwkeurigheid — we raden aan handmatig aan te passen" },
+    };
+  })();
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col">
       {/* Header */}
@@ -918,6 +956,24 @@ export default function MealResult() {
               ))}
             </div>
           </div>
+
+          {/* Confidence badge */}
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${confidenceBadge.bg}`}>
+            <span className={`text-xs font-semibold ${confidenceBadge.text}`}>
+              {confidenceBadge.label[lang] || confidenceBadge.label.en}
+            </span>
+          </div>
+
+          {/* Suspicious macros warning */}
+          {suspiciousMacros && (
+            <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl p-3 flex items-start gap-2">
+              <span className="text-amber-300 text-xs font-medium">
+                {lang === 'es' ? '⚠️ Macros incompletos detectados. Verificá los valores antes de guardar.'
+                 : lang === 'nl' ? '⚠️ Onvolledige macros gedetecteerd. Controleer de waarden vóór opslaan.'
+                 : '⚠️ Incomplete macros detected. Please verify values before saving.'}
+              </span>
+            </div>
+          )}
 
           {/* Accuracy disclaimer */}
           <p className="text-white/30 text-xs text-center leading-relaxed">
