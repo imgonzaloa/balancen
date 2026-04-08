@@ -40,7 +40,7 @@ export default function Social() {
         base44.entities.GroupMember.filter({ user_email: user?.email }),
         3000
       );
-      const groupIds = members.map(m => m.group_id);
+      const groupIds = members.map(m => m.group_id).filter(Boolean);
       if (groupIds.length === 0) return [];
       const groups = await Promise.all(
         groupIds.map(id => withTimeout(base44.entities.Group.filter({ id }), 2000).catch(() => []))
@@ -72,7 +72,7 @@ export default function Social() {
     queryFn: async () => {
       const friendIds = friends.map(f =>
         f.created_by === user?.email ? f.friend_user_id : f.created_by
-      ).filter(id => !blockedUsers.includes(id));
+      ).filter(id => id && !blockedUsers.includes(id));
       if (friendIds.length === 0) return [];
       const results = await Promise.all(
         friendIds.slice(0, 10).map(id =>
