@@ -86,8 +86,8 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
       try {
         const user = await base44.auth.me();
         if (!user?.email) return;
-        const meals = await base44.entities.MealLog.filter({ created_by: user.email });
-        setMealCount(meals.length);
+        const meals = await base44.entities.MealLog.filter({ created_by: user.email }).catch(() => []);
+        setMealCount(meals?.length || 0);
       } catch (_) {
         setMealCount(0);
       }
