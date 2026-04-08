@@ -20,15 +20,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
       
-      // Check if essential app params are available
-      if (!appParams.appId) {
-        console.warn('appId not available yet, waiting for params to load');
-        setIsLoadingPublicSettings(false);
-        setIsLoadingAuth(false);
-        return;
-      }
-      
-      // Just check if user is authenticated using the SDK
+      // Check if user is authenticated using the SDK
       const isAuth = await base44.auth.isAuthenticated();
       
       if (isAuth) {

@@ -49,6 +49,10 @@ const getAppParams = () => {
 }
 
 
-export const appParams = {
-	...getAppParams()
-}
+// Return a fresh copy of params on each access to ensure latest values
+export const appParams = new Proxy({}, {
+	get: (target, prop) => {
+		const freshParams = getAppParams();
+		return freshParams[prop];
+	}
+});
