@@ -71,6 +71,11 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
   // Only show if trial <= 2 days left and not dismissed
   useEffect(() => {
     const isDismissed = localStorage.getItem("balancen_upgrade_modal_dismissed");
+    // Check role and entitlement conditions — hide if any true
+    if (profile?.role === 'owner' || profile?.role === 'collaborator' || profile?.access_type === 'campus_access' || profile?.access_type === 'campus_reward' || (profile?.is_premium === true && profile?.subscription_status !== 'trial') || profile?.subscription_status === 'active') {
+      setIsVisible(false);
+      return;
+    }
     if (isDismissed || trialDaysLeft === null || trialDaysLeft > 2) {
       setIsVisible(false);
       return;
@@ -98,7 +103,7 @@ export default function SmartUpgradeModal({ trialDaysLeft, profile, lang = "en" 
     setIsVisible(true);
   }, [trialDaysLeft, profile]);
 
-  if (!isVisible || trialDaysLeft === null || trialDaysLeft > 2) {
+  if (!isVisible || trialDaysLeft === null || trialDaysLeft > 2 || profile?.role === 'owner' || profile?.role === 'collaborator' || profile?.access_type === 'campus_access' || profile?.access_type === 'campus_reward' || (profile?.is_premium === true && profile?.subscription_status !== 'trial') || profile?.subscription_status === 'active') {
     return null;
   }
 

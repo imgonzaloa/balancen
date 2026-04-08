@@ -202,7 +202,7 @@ const Home = React.memo(() => {
     <PullToRefresh>
     <div style={{ minHeight: '100%', paddingBottom: '8px' }}>
       {/* Smart Upgrade Modal */}
-      <SmartUpgradeModal trialDaysLeft={trialDaysLeft} profile={profile} lang={lang} />
+      {isTrialActive && trialDaysLeft <= 2 && profile?.role !== 'owner' && profile?.role !== 'collaborator' && <SmartUpgradeModal trialDaysLeft={trialDaysLeft} profile={profile} lang={lang} />}
 
       <div className="max-w-2xl mx-auto px-6 pt-4 pb-8 space-y-4">
 
