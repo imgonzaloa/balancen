@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import { Sparkles, Zap, ArrowLeft, Flame, Target, Calendar, Utensils } from "lucide-react";
+import { Sparkles, Zap, ArrowLeft, Flame, Target, Calendar, Utensils, Lock, Bell, Crown } from "lucide-react";
 import Buddy from "@/components/buddy/Buddy";
 
 function AIDemo() {
@@ -291,6 +291,12 @@ export default function Onboarding() {
       founder_para1: "Creé Balancen porque yo mismo luché para mantener hábitos de nutrición siendo deportista. Las apps existentes eran o muy complicadas o demasiado genéricas.",
       founder_para2: "Sé honesto: cada análisis de IA tiene un costo real. El precio de Balancen está calculado para ser justo — ni demasiado caro para vos, ni insostenible para mí. Quiero construir esto a largo plazo.",
       founder_para3: "3 días gratis, sin tarjeta. Si no te cambia el hábito, cancelás sin drama. — Gonzalo 🙌",
+      trial_timeline: [
+        { title: "Hoy — Acceso completo", sub: "Desbloqueás análisis IA, social, retos y más" },
+        { title: "Día 2 — Te avisamos", sub: "Te enviamos un recordatorio antes de que termine el trial" },
+        { title: "Día 3 — Empieza tu plan", sub: "Solo si no cancelás antes. Sin sorpresas." },
+      ],
+      trial_no_charge: "Sin cargo hoy. Cancelá cuando quieras.",
       why_badge: "Todo esto que Cal AI no tiene",
       why_features: [
         { emoji: "📸", title: "Análisis IA de comidas", desc: "Fotografiá tu plato y obtené calorías, proteínas, carbos y grasas en segundos" },
@@ -401,6 +407,12 @@ export default function Onboarding() {
       founder_para1: "I built Balancen because I struggled myself to maintain nutrition habits as an athlete. Existing apps were either too complex or too generic.",
       founder_para2: "Full transparency: every AI analysis has a real cost. Balancen's price is calculated to be fair — not too expensive for you, not unsustainable for me. I want to build this for the long term.",
       founder_para3: "3 days free, no card needed. If it doesn't change your habit, cancel no drama. — Gonzalo 🙌",
+      trial_timeline: [
+        { title: "Today — Full access", sub: "Unlock AI analysis, social, challenges and more" },
+        { title: "Day 2 — We remind you", sub: "We send you a reminder before your trial ends" },
+        { title: "Day 3 — Your plan starts", sub: "Only if you don't cancel. No surprises." },
+      ],
+      trial_no_charge: "No charge today. Cancel anytime.",
       why_badge: "Everything Cal AI doesn't have",
       why_features: [
         { emoji: "📸", title: "AI Meal Analysis", desc: "Snap your plate and get calories, protein, carbs and fat in seconds" },
@@ -511,6 +523,12 @@ export default function Onboarding() {
       founder_para1: "Ik heb Balancen gemaakt omdat ik zelf moeite had met voedingsgewoonten als sporter. Bestaande apps waren te complex of te generiek.",
       founder_para2: "Volledige transparantie: elke AI-analyse kost geld. Balancens prijs is fair berekend — niet te duur voor jou, niet onhoudbaar voor mij.",
       founder_para3: "3 dagen gratis, geen kaart nodig. Als het je gewoonte niet verandert, kun je annuleren zonder stress. — Gonzalo 🙌",
+      trial_timeline: [
+        { title: "Vandaag — Volledige toegang", sub: "Ontgrendel AI-analyse, sociaal, uitdagingen en meer" },
+        { title: "Dag 2 — Wij herinneren je", sub: "We sturen je een herinnering voor het einde van je proefperiode" },
+        { title: "Dag 3 — Je plan begint", sub: "Alleen als je niet annuleert. Geen verrassingen." },
+      ],
+      trial_no_charge: "Geen kosten vandaag. Annuleer wanneer je wilt.",
       why_badge: "Alles wat Cal AI niet heeft",
       why_features: [
         { emoji: "📸", title: "AI-maaltijdanalyse", desc: "Foto je bord en krijg calorieën, eiwit, koolhydraten en vetten in seconden" },
@@ -1274,6 +1292,37 @@ export default function Onboarding() {
               <div className="space-y-1">
                 <h1 className="text-3xl font-black text-white leading-tight">{l.trial_title}</h1>
                 <p className="text-teal-300 font-semibold text-sm">{l.trial_sub}</p>
+              </div>
+
+              {/* Trial timeline */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left">
+                {(l.trial_timeline || []).map((item, i) => {
+                  const icons = [Lock, Bell, Crown];
+                  const circleColors = ["bg-teal-500", "bg-amber-500", "bg-slate-500"];
+                  const Icon = icons[i];
+                  const isLast = i === 2;
+                  return (
+                    <div key={i} className="flex gap-3">
+                      {/* Left: circle + line */}
+                      <div className="flex flex-col items-center">
+                        <div className={`w-8 h-8 rounded-full ${circleColors[i]} flex items-center justify-center flex-shrink-0 z-10`}>
+                          <Icon size={14} className="text-white" />
+                        </div>
+                        {!isLast && <div className="w-0.5 flex-1 bg-teal-500/40 my-1" style={{ minHeight: '24px' }} />}
+                      </div>
+                      {/* Right: text */}
+                      <div className={`pb-4 ${isLast ? '' : ''}`}>
+                        <p className="text-white font-bold text-sm leading-snug">{item.title}</p>
+                        <p className="text-white/50 text-xs mt-0.5 leading-relaxed">{item.sub}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+                {/* No charge line */}
+                <div className="flex items-center gap-2 mt-1 pt-3 border-t border-white/10">
+                  <span className="text-emerald-400 text-sm font-black">✓</span>
+                  <p className="text-emerald-300 text-xs font-semibold">{l.trial_no_charge}</p>
+                </div>
               </div>
 
               {/* 3-column comparison table */}
