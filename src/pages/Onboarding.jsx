@@ -56,7 +56,7 @@ function calcCalories({ gender, weight_kg, height_cm, age, activity_level }) {
   return Math.round(bmr * (multipliers[activity_level] || 1.375));
 }
 
-const TOTAL_STEPS = 18;
+const TOTAL_STEPS = 22;
 
 const TESTIMONIALS = [
   { name: "Carlos M.", flag: "🇲🇽", quote: { es: "¡Bajé 4 kg en 6 semanas sin pasar hambre!", en: "Lost 4 kg in 6 weeks without feeling hungry!", nl: "In 6 weken 4 kg afgevallen zonder honger!" } },
@@ -306,6 +306,24 @@ export default function Onboarding() {
         { emoji: "🤖", title: "Coach IA personalizado", desc: "Recomendaciones diarias basadas en tus objetivos y hábitos reales" },
         { emoji: "👥", title: "Feed social", desc: "Seguí a atletas reales y ve qué comen cada día" },
       ],
+      goal_insight_lose_weight: "Usuarios con tu objetivo perdieron un promedio de 4.2kg en 30 días con Balancen",
+      goal_insight_build_muscle: "87% de nuestros atletas cumplen sus objetivos de proteína diaria",
+      goal_insight_maintain: "La consistencia es todo — Usuarios de Balancen registran un promedio de 6.2 comidas por día",
+      calorie_result_title: "Tu plan personalizado está listo",
+      calorie_daily: "Meta diaria de calorías",
+      calorie_protein_goal: "Objetivo de proteína",
+      calorie_carbs_goal: "Objetivo de carbos",
+      calorie_fats_goal: "Objetivo de grasas",
+      calorie_view_plan: "Ver mi plan completo →",
+      activity_feature_sedentary: "Tu coach IA te va a recordar moverte cada día con tips personalizados",
+      activity_feature_active: "Seguí lo que comen atletas reales con tu mismo nivel de actividad",
+      timeline_title: "Tu camino hacia tu meta",
+      timeline_week1: "Semana 1 — Hábito de registro",
+      timeline_week2: "Semana 2-4 — Primeros cambios",
+      timeline_final: "Tu meta alcanzada",
+      goal_insight_title: "Esto es para mí →",
+      activity_insight_title: "Entendido →",
+      timeline_weeks: "semanas",
       },
     en: {
       lang_title: "Choose your language",
@@ -422,6 +440,22 @@ export default function Onboarding() {
         { emoji: "🤖", title: "Personalized AI Coach", desc: "Daily recommendations based on your goals and real habits" },
         { emoji: "👥", title: "Social Feed", desc: "Follow real athletes and see what they eat every day" },
       ],
+      goal_insight_lose_weight: "Users with your goal lost an average of 4.2kg in 30 days with Balancen",
+      goal_insight_build_muscle: "87% of our athletes hit their protein targets daily",
+      goal_insight_maintain: "Consistency is everything — Balancen users log 6.2 meals per day on average",
+      calorie_result_title: "Your personalized plan is ready",
+      calorie_daily: "Daily calorie target",
+      calorie_protein_goal: "Protein goal",
+      calorie_carbs_goal: "Carbs goal",
+      calorie_fats_goal: "Fats goal",
+      calorie_view_plan: "View my complete plan →",
+      activity_feature_sedentary: "Your AI coach will remind you to move every day with personalized tips",
+      activity_feature_active: "Follow what real athletes eat at your same activity level",
+      timeline_title: "Your path to your goal",
+      timeline_week1: "Week 1 — Build logging habit",
+      timeline_week2: "Weeks 2-4 — First changes",
+      timeline_final: "Goal achieved",
+      continue_btn: "Continue →",
       },
       nl: {
       lang_title: "Kies je taal",
@@ -746,8 +780,48 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 3: Biggest obstacle (NEW) */}
+          {/* Step 3: Goal Insight (NEW) */}
           {step === 3 && (
+            <motion.div key="goalinsight"
+              initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
+              className="space-y-8 flex flex-col items-center justify-center">
+              {/* Emoji Large */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 100 }}
+                className="text-9xl">
+                {formData.primary_goal === 'weight_loss' ? '🎯' : formData.primary_goal === 'build_muscle' ? '💪' : '⚖️'}
+              </motion.div>
+
+              {/* Insight Stat */}
+              <div className="text-center space-y-4">
+                <p className="text-white font-black text-2xl leading-snug">
+                  {formData.primary_goal === 'weight_loss' 
+                    ? currentLang === 'es' ? l.goal_insight_lose_weight 
+                      : currentLang === 'nl' ? "Gebruikers met jouw doel verloren gemiddeld 4,2 kg in 30 dagen met Balancen" 
+                      : l.goal_insight_lose_weight
+                    : formData.primary_goal === 'build_muscle'
+                    ? currentLang === 'es' ? l.goal_insight_build_muscle
+                      : currentLang === 'nl' ? "87% van onze atleten bereiken hun dagelijkse eiwitdoelen"
+                      : l.goal_insight_build_muscle
+                    : currentLang === 'es' ? l.goal_insight_maintain
+                    : currentLang === 'nl' ? "Consistentie is alles — Balancen-gebruikers registreren gemiddeld 6,2 maaltijden per dag"
+                    : l.goal_insight_maintain}
+                </p>
+              </div>
+
+              {/* Continue button */}
+              <button
+                onClick={() => setStep(4)}
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
+                {currentLang === 'es' ? l.goal_insight_title : currentLang === 'nl' ? 'Dit is voor mij →' : 'This is for me →'}
+              </button>
+            </motion.div>
+          )}
+
+          {/* Step 4: Biggest obstacle */}
+          {step === 4 && (
             <motion.div key="obstacle"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
