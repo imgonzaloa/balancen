@@ -408,6 +408,26 @@ export default function Paywall() {
                 power: '✓'
               },
               {
+                label: lang === 'es' ? '🔥 Streaks y retos' : lang === 'nl' ? '🔥 Streaks & uitdagingen' : '🔥 Streaks & challenges',
+                premium: '✓',
+                power: '✓'
+              },
+              {
+                label: lang === 'es' ? '👥 Feed social' : lang === 'nl' ? '👥 Sociale feed' : '👥 Social feed',
+                premium: '✓',
+                power: '✓'
+              },
+              {
+                label: lang === 'es' ? '🤖 Coach IA' : lang === 'nl' ? '🤖 AI Coach' : '🤖 AI Coach',
+                premium: '✓',
+                power: '✓'
+              },
+              {
+                label: lang === 'es' ? '📷 Fotos de progreso' : lang === 'nl' ? '📷 Voortgangsfoto\'s' : '📷 Progress photos',
+                premium: '✓',
+                power: '✓'
+              },
+              {
                 label: lang === 'es' ? '🏆 Para quién' : lang === 'nl' ? '🏆 Voor wie' : '🏆 Best for',
                 premium: lang === 'es' ? 'Usuario regular' : lang === 'nl' ? 'Standaardgebruiker' : 'Regular user',
                 power: lang === 'es' ? 'Usuario intensivo' : lang === 'nl' ? 'Intensieve gebruiker' : 'Power user'
