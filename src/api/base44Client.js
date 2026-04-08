@@ -1,25 +1,17 @@
 import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
 
-let base44Instance;
+// Log configuration for debugging
+console.debug('Base44 Client Config:', {
+  appId: appParams.appId ? 'set' : 'missing',
+  appBaseUrl: appParams.appBaseUrl ? 'set' : 'missing',
+  token: appParams.token ? 'set' : 'missing'
+});
 
-function getBase44Client() {
-  if (!base44Instance) {
-    const { appId, token, functionsVersion, appBaseUrl } = appParams;
-    base44Instance = createClient({
-      appId,
-      token,
-      functionsVersion,
-      requiresAuth: false,
-      appBaseUrl
-    });
-  }
-  return base44Instance;
-}
-
-export const base44 = new Proxy({}, {
-  get: (target, prop) => {
-    const client = getBase44Client();
-    return client[prop];
-  }
+export const base44 = createClient({
+  appId: appParams.appId,
+  token: appParams.token,
+  functionsVersion: appParams.functionsVersion,
+  requiresAuth: false,
+  appBaseUrl: appParams.appBaseUrl
 });
