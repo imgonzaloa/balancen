@@ -272,6 +272,21 @@ export default function Onboarding() {
       power_label: "Plan Power",
       power_price: "€12.99/mes",
       power_monthly: "Análisis ilimitados",
+      power_subtitle: "Para usuarios intensivos",
+      save_vs_monthly: "Ahorrá €54 vs mensual",
+      compare_title: "¿Qué incluye cada plan?",
+      plan_free_header: "Free",
+      plan_premium_header: "Premium",
+      plan_power_header: "Power",
+      feat_ai_scans: "Análisis IA de comidas",
+      feat_daily_limit: "5 por día",
+      feat_monthly_limit: "300 por mes",
+      feat_unlimited: "Ilimitado",
+      feat_social: "Feed social",
+      feat_groups: "Grupos y retos",
+      feat_ai_coach: "Coach IA personalizado",
+      feat_progress_photos: "Fotos de progreso",
+      feat_not_included: "No incluido",
       founder_title: "Hi, I'm Gonzalo 👋",
       founder_para1: "Creé Balancen porque yo mismo luché para mantener hábitos de nutrición siendo deportista. Las apps existentes eran o muy complicadas o demasiado genéricas.",
       founder_para2: "Sé honesto: cada análisis de IA tiene un costo real. El precio de Balancen está calculado para ser justo — ni demasiado caro para vos, ni insostenible para mí. Quiero construir esto a largo plazo.",
@@ -358,6 +373,21 @@ export default function Onboarding() {
       power_label: "Power Plan",
       power_price: "€12.99/month",
       power_monthly: "Unlimited analyses",
+      power_subtitle: "For power users",
+      save_vs_monthly: "Save €54 vs monthly",
+      compare_title: "What does each plan include?",
+      plan_free_header: "Free",
+      plan_premium_header: "Premium",
+      plan_power_header: "Power",
+      feat_ai_scans: "AI meal analyses",
+      feat_daily_limit: "5 per day",
+      feat_monthly_limit: "300 per month",
+      feat_unlimited: "Unlimited",
+      feat_social: "Social feed",
+      feat_groups: "Groups & challenges",
+      feat_ai_coach: "Personalized AI coach",
+      feat_progress_photos: "Progress photos",
+      feat_not_included: "Not included",
       founder_title: "Hi, I'm Gonzalo 👋",
       founder_para1: "I built Balancen because I struggled myself to maintain nutrition habits as an athlete. Existing apps were either too complex or too generic.",
       founder_para2: "Full transparency: every AI analysis has a real cost. Balancen's price is calculated to be fair — not too expensive for you, not unsustainable for me. I want to build this for the long term.",
@@ -436,6 +466,21 @@ export default function Onboarding() {
       annual_badge: "Beste waarde",
       monthly_label: "Maandplan",
       monthly_price: "€8,99/maand",
+      power_subtitle: "Voor intensieve gebruikers",
+      save_vs_monthly: "Bespaar €54 vs maandelijks",
+      compare_title: "Wat zit er in elk plan?",
+      plan_free_header: "Gratis",
+      plan_premium_header: "Premium",
+      plan_power_header: "Power",
+      feat_ai_scans: "AI-maaltijdanalyses",
+      feat_daily_limit: "5 per dag",
+      feat_monthly_limit: "300 per maand",
+      feat_unlimited: "Onbeperkt",
+      feat_social: "Sociale feed",
+      feat_groups: "Groepen & uitdagingen",
+      feat_ai_coach: "Persoonlijke AI-coach",
+      feat_progress_photos: "Voortgangsfoto's",
+      feat_not_included: "Niet inbegrepen",
       cta: "Mijn plan zien →",
       restore: "Aankoop herstellen",
       next: "Doorgaan",
@@ -1151,92 +1196,135 @@ export default function Onboarding() {
               </motion.div>
               )}
 
-              {/* Step 16: Paywall */}
+              {/* Step 16: Paywall — redesigned */}
               {step === 16 && (
             <motion.div key="paywall"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-              className="space-y-6 text-center">
-              <div className="space-y-2">
+              className="space-y-5 text-center">
+
+              {/* Header */}
+              <div className="space-y-1">
                 <h1 className="text-3xl font-black text-white leading-tight">{l.trial_title}</h1>
-                <p className="text-teal-300 font-semibold">{l.trial_sub}</p>
+                <p className="text-teal-300 font-semibold text-sm">{l.trial_sub}</p>
               </div>
 
-              {/* Plan options */}
-              <div className="space-y-3">
-                {/* Annual — highlighted */}
-                <button
-                  onClick={() => setSelectedPlan('annual')}
-                  className={`w-full p-4 rounded-2xl border-2 transition-all text-left relative ${
-                    selectedPlan === 'annual' ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5'
-                  }`}>
-                  <div className="absolute -top-2.5 right-4 bg-amber-400 text-slate-900 text-xs font-black px-2.5 py-0.5 rounded-full">
-                    {l.annual_badge}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-left">
-                      <p className="text-white font-bold">{l.annual_label}</p>
-                      <p className="text-white/50 text-xs">{l.annual_monthly}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-white font-black text-lg">{l.annual_price}</p>
-                    </div>
-                  </div>
-                  {selectedPlan === 'annual' && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-teal-400 flex items-center justify-center">
-                      <span className="text-white text-xs font-black">✓</span>
-                    </div>
-                  )}
-                </button>
+              {/* 3-column comparison table */}
+              <div className="rounded-2xl overflow-hidden border border-white/10">
+                {/* Header row */}
+                <div className="grid grid-cols-4 bg-white/10 border-b border-white/10">
+                  <div className="p-2.5 text-xs text-white/40 font-semibold text-left">{l.compare_title.split(' ')[0]}</div>
+                  <div className="p-2.5 text-xs text-white/60 font-bold text-center">{l.plan_free_header}</div>
+                  <div className="p-2.5 text-xs text-teal-300 font-black text-center bg-teal-500/20 border-x border-teal-500/30">{l.plan_premium_header}</div>
+                  <div className="p-2.5 text-xs text-amber-300 font-black text-center">{l.plan_power_header}</div>
+                </div>
 
-                {/* Monthly — decoy */}
+                {/* AI Scans row */}
+                <div className="grid grid-cols-4 border-b border-white/8 bg-white/3">
+                  <div className="p-2.5 text-xs text-white/70 text-left flex items-center">📸 {l.feat_ai_scans}</div>
+                  <div className="p-2.5 text-xs text-white/50 text-center flex items-center justify-center">{l.feat_daily_limit}</div>
+                  <div className="p-2.5 text-xs text-teal-300 font-bold text-center flex items-center justify-center bg-teal-500/10 border-x border-teal-500/20">{l.feat_monthly_limit}</div>
+                  <div className="p-2.5 text-xs text-amber-300 font-bold text-center flex items-center justify-center">∞ {l.feat_unlimited}</div>
+                </div>
+
+                {/* Social Feed */}
+                <div className="grid grid-cols-4 border-b border-white/8">
+                  <div className="p-2.5 text-xs text-white/70 text-left flex items-center">📱 {l.feat_social}</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-white/30 text-xs">{l.feat_not_included.slice(0,1)}✗</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-teal-400 font-black bg-teal-500/10 border-x border-teal-500/20">✓</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-amber-400 font-black">✓</div>
+                </div>
+
+                {/* Groups & Challenges */}
+                <div className="grid grid-cols-4 border-b border-white/8 bg-white/3">
+                  <div className="p-2.5 text-xs text-white/70 text-left flex items-center">🏆 {l.feat_groups}</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-white/30 text-sm">✗</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-teal-400 font-black bg-teal-500/10 border-x border-teal-500/20">✓</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-amber-400 font-black">✓</div>
+                </div>
+
+                {/* AI Coach */}
+                <div className="grid grid-cols-4 border-b border-white/8">
+                  <div className="p-2.5 text-xs text-white/70 text-left flex items-center">🤖 {l.feat_ai_coach}</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-white/30 text-sm">✗</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-teal-400 font-black bg-teal-500/10 border-x border-teal-500/20">✓</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-amber-400 font-black">✓</div>
+                </div>
+
+                {/* Progress Photos */}
+                <div className="grid grid-cols-4">
+                  <div className="p-2.5 text-xs text-white/70 text-left flex items-center">📷 {l.feat_progress_photos}</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-white/30 text-sm">✗</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-teal-400 font-black bg-teal-500/10 border-x border-teal-500/20">✓</div>
+                  <div className="p-2.5 text-center flex items-center justify-center text-amber-400 font-black">✓</div>
+                </div>
+              </div>
+
+              {/* Annual Premium — highlighted */}
+              <button
+                onClick={() => setSelectedPlan('annual')}
+                className={`w-full p-4 rounded-2xl border-2 transition-all text-left relative ${
+                  selectedPlan === 'annual' ? 'border-teal-400 bg-teal-500/20 shadow-xl shadow-teal-500/20' : 'border-teal-400/40 bg-teal-500/10'
+                }`}>
+                <div className="absolute -top-2.5 right-4 bg-amber-400 text-slate-900 text-xs font-black px-2.5 py-0.5 rounded-full">
+                  {l.annual_badge}
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-white font-black">{l.annual_label}</p>
+                  <p className="text-white font-black text-lg">{l.annual_price}</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-teal-300 text-xs">{l.annual_monthly}</p>
+                  <p className="text-emerald-400 text-xs font-semibold">{l.save_vs_monthly}</p>
+                </div>
+                {selectedPlan === 'annual' && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-teal-400 flex items-center justify-center mt-0.5">
+                    <span className="text-white text-xs font-black">✓</span>
+                  </div>
+                )}
+              </button>
+
+              {/* Monthly Premium */}
+              <button
+                onClick={() => setSelectedPlan('monthly')}
+                className={`w-full p-3.5 rounded-2xl border-2 transition-all text-left ${
+                  selectedPlan === 'monthly' ? 'border-white/40 bg-white/10' : 'border-white/10 bg-white/3 opacity-60'
+                }`}>
+                <div className="flex items-center justify-between">
+                  <p className="text-white font-bold text-sm">{l.monthly_label}</p>
+                  <p className="text-white font-bold text-sm">{l.monthly_price}</p>
+                </div>
+              </button>
+
+              {/* Power plan — amber, compact */}
+              <div className={`w-full rounded-2xl border-2 transition-all overflow-hidden ${
+                selectedPlan === 'power_monthly' || selectedPlan === 'power_yearly'
+                  ? 'border-amber-400 bg-amber-500/15'
+                  : 'border-amber-400/30 bg-amber-500/5'
+              }`}>
+                <div className="flex items-center justify-between px-4 pt-3 pb-1">
+                  <div>
+                    <p className="text-amber-300 font-black text-sm">⚡ {l.power_label}</p>
+                    <p className="text-amber-300/60 text-xs">{l.power_subtitle}</p>
+                  </div>
+                  <span className="bg-amber-400 text-slate-900 text-xs font-black px-2 py-0.5 rounded-full">∞</span>
+                </div>
+                <div className="flex gap-2 px-3 pb-3 pt-1">
                   <button
-                    onClick={() => setSelectedPlan('monthly')}
-                    className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
-                      selectedPlan === 'monthly' ? 'border-teal-400 bg-teal-500/20' : 'border-white/10 bg-white/3 opacity-70'
+                    onClick={() => setSelectedPlan('power_monthly')}
+                    className={`flex-1 py-2 px-2 rounded-xl text-xs font-bold transition-all ${
+                      selectedPlan === 'power_monthly' ? 'bg-amber-500 text-white' : 'bg-white/10 text-white/60'
                     }`}>
-                    <div className="flex items-center justify-between">
-                      <div className="text-left">
-                        <p className="text-white font-bold">{l.monthly_label}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-white font-bold">{l.monthly_price}</p>
-                      </div>
-                    </div>
+                    €12.99/{currentLang === 'es' ? 'mes' : currentLang === 'nl' ? 'mnd' : 'mo'}
+                  </button>
+                  <button
+                    onClick={() => setSelectedPlan('power_yearly')}
+                    className={`flex-1 py-2 px-2 rounded-xl text-xs font-bold transition-all ${
+                      selectedPlan === 'power_yearly' ? 'bg-amber-500 text-white' : 'bg-white/10 text-white/60'
+                    }`}>
+                    €89.99/{currentLang === 'es' ? 'año' : currentLang === 'nl' ? 'jaar' : 'yr'}
                   </button>
                 </div>
-
-                {/* Comparison Table */}
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left space-y-3">
-                  <div className="text-xs font-bold text-white/60 uppercase tracking-wide mb-3">Comparación de planes</div>
-
-                  {/* Row 1: AI Analyses */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-white/80 text-sm flex-1">📸 {currentLang === 'es' ? 'Análisis IA' : currentLang === 'nl' ? 'IA-analyses' : 'AI Analyses'}</span>
-                    <span className="text-white font-bold text-sm">300/mes</span>
-                    <span className="text-teal-300 font-black text-lg">∞</span>
-                  </div>
-
-                  {/* Row 2: Social Feed */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-white/80 text-sm flex-1">📱 {currentLang === 'es' ? 'Feed Social' : currentLang === 'nl' ? 'Sociale feed' : 'Social Feed'}</span>
-                    <span className="text-teal-400">✓</span>
-                    <span className="text-teal-400">✓</span>
-                  </div>
-
-                  {/* Row 3: Groups & Challenges */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-white/80 text-sm flex-1">🏆 {currentLang === 'es' ? 'Grupos y retos' : currentLang === 'nl' ? 'Groepen & retos' : 'Groups & Challenges'}</span>
-                    <span className="text-teal-400">✓</span>
-                    <span className="text-teal-400">✓</span>
-                  </div>
-                </div>
-
-                {/* Features */}
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left space-y-2">
-                  {l.features.map((f, i) => (
-                    <p key={i} className="text-white/80 text-sm">{f}</p>
-                  ))}
-                </div>
+              </div>
 
               {/* CTA */}
               <button
@@ -1244,15 +1332,6 @@ export default function Onboarding() {
                 disabled={saving}
                 className="w-full py-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-2xl shadow-teal-500/40 active:scale-95 transition-transform disabled:opacity-70">
                 {saving ? l.entering : l.cta}
-              </button>
-
-              {/* Power Plan Option */}
-              <button
-                onClick={handleActivateTrial}
-                disabled={saving}
-                className="w-full py-3 rounded-2xl border-2 border-amber-400/40 bg-amber-500/10 text-amber-300 font-bold text-sm hover:border-amber-400/60 active:scale-95 transition-all relative">
-                <span className="absolute -top-2 right-3 bg-amber-400 text-slate-900 text-xs font-black px-2 py-0.5 rounded-full">∞</span>
-                {l.power_label} — {l.power_price}
               </button>
 
               <p className="text-white/30 text-xs">{l.trial_sub}</p>
