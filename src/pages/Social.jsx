@@ -1,7 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, Plus, UserPlus, Flame, Activity, MessageSquare, Trophy, Share2, GraduationCap } from "lucide-react";
+import { Users, Plus, UserPlus, Flame, Activity, MessageSquare, Trophy, Share2, GraduationCap, Swords } from "lucide-react";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -187,6 +187,22 @@ export default function Social() {
               </div>
             </button>
           )}
+
+          {/* Team Mode card — always visible */}
+          <button
+            type="button"
+            onClick={() => navigate(createPageUrl('TeamMode'))}
+            className="w-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-xl border border-indigo-400/30 rounded-2xl p-4 hover:from-indigo-500/30 transition-all flex items-center gap-4"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+              <Swords size={20} className="text-white" />
+            </div>
+            <div className="text-left flex-1">
+              <h3 className="text-white font-bold">{lang === 'es' ? 'Modo Equipo' : lang === 'nl' ? 'Teammodus' : 'Team Mode'}</h3>
+              <p className="text-indigo-200 text-xs">{lang === 'es' ? 'Retos, ranking y nutrición en equipo' : lang === 'nl' ? 'Uitdagingen, ranglijst en teamvoeding' : 'Challenges, leaderboard & team nutrition'}</p>
+            </div>
+            <Plus size={20} className="text-indigo-300" />
+          </button>
 
           {isCampusAdmin && (
             <button

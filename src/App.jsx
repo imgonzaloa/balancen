@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { Suspense, lazy } from 'react'
 import ProgressPhotos from './pages/ProgressPhotos'
+import TeamMode from './pages/TeamMode'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
@@ -82,6 +83,11 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      <Route path="/TeamMode" element={
+        <LayoutWrapper currentPageName="TeamMode">
+          <TeamMode />
+        </LayoutWrapper>
+      } />
       <Route path="/ProgressPhotos" element={
         <LayoutWrapper currentPageName="ProgressPhotos">
           <ProgressPhotos />
