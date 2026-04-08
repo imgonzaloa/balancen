@@ -133,6 +133,7 @@ export default function Paywall() {
 
   const yearlyMonthly = pricing ? (pricing.prices.yearly / 12).toFixed(2) : null;
   const savingsPct = Math.round((1 - (39.99 / 12) / 8.99) * 100);
+  const discountYearly = 31.99;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950 relative overflow-hidden flex flex-col" style={{ pointerEvents: 'auto' }}>
@@ -281,7 +282,15 @@ export default function Paywall() {
                  {t("best_value_label")}
                </div>
                <div className="flex items-baseline gap-2 mb-1">
-                 <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
+                 {trialDaysLeft !== null && trialDaysLeft <= 1 ? (
+                   <>
+                     <span className="text-white/40 text-lg line-through">{pricing.currency}39.99</span>
+                     <span className="text-3xl font-black text-amber-300">{pricing.currency}{discountYearly}</span>
+                     <span className="bg-amber-500 text-white text-xs font-black px-2 py-0.5 rounded-full">-20%</span>
+                   </>
+                 ) : (
+                   <span className="text-3xl font-black text-white">{pricing.currency}{pricing.prices.yearly}</span>
+                 )}
                  <span className="text-white/50 text-sm">/ {t("year_label")}</span>
                </div>
                <p className="text-teal-300 text-sm font-semibold">
@@ -389,7 +398,7 @@ export default function Paywall() {
               },
               {
                 label: lang === 'es' ? '💰 Precio mensual' : lang === 'nl' ? '💰 Maandelijks' : '💰 Monthly',
-                premium: '€8.99',
+                premium: trialDaysLeft !== null && trialDaysLeft <= 1 ? `€${(discountYearly / 12).toFixed(2)}/mo` : '€8.99',
                 power: '€12.99'
               },
               {
