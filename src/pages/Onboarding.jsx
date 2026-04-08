@@ -1618,16 +1618,21 @@ export default function Onboarding() {
               </button>
 
               {/* Monthly Premium */}
-              <button
-                onClick={() => setSelectedPlan('monthly')}
-                className={`w-full p-3.5 rounded-2xl border-2 transition-all text-left ${
-                  selectedPlan === 'monthly' ? 'border-white/40 bg-white/10' : 'border-white/10 bg-white/3 opacity-60'
-                }`}>
-                <div className="flex items-center justify-between">
-                  <p className="text-white font-bold text-sm">{l.monthly_label}</p>
-                  <p className="text-white font-bold text-sm">{l.monthly_price}</p>
-                </div>
-              </button>
+              <div className="space-y-1.5">
+                <button
+                  onClick={() => setSelectedPlan('monthly')}
+                  className={`w-full p-3.5 rounded-2xl border-2 transition-all text-left ${
+                    selectedPlan === 'monthly' ? 'border-white/40 bg-white/10' : 'border-white/10 bg-white/3 opacity-60'
+                  }`}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-white font-bold text-sm">{l.monthly_label}</p>
+                    <p className="text-white font-bold text-sm">{l.monthly_price}</p>
+                  </div>
+                </button>
+                <p className="text-white/50 text-xs text-center">
+                  {currentLang === 'es' ? 'Sin compromiso' : currentLang === 'nl' ? 'Geen verplichting' : 'No commitment'}
+                </p>
+              </div>
 
               {/* Power plan — amber, compact */}
               <div className={`w-full rounded-2xl border-2 transition-all overflow-hidden ${
