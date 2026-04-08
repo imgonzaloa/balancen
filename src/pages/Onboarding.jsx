@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
-import { Sparkles, Zap, ArrowLeft, Flame, Target, Calendar, Utensils, Lock, Bell, Crown } from "lucide-react";
+import { Sparkles, Zap, ArrowLeft, Flame, Target, Calendar, Utensils, Lock, Bell, Crown, CheckCircle } from "lucide-react";
 import Buddy from "@/components/buddy/Buddy";
 
 function AIDemo() {
@@ -52,7 +52,7 @@ function calcCalories({ gender, weight_kg, height_cm, age, activity_level }) {
   const bmr = gender === 'female'
     ? 10 * w + 6.25 * h - 5 * a - 161
     : 10 * w + 6.25 * h - 5 * a + 5;
-  const multipliers = { sedentary: 1.2, light: 1.375, active: 1.55, very_active: 1.725 };
+  const multipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.55, very_active: 1.9 };
   return Math.round(bmr * (multipliers[activity_level] || 1.375));
 }
 
@@ -953,8 +953,49 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 8: Meals per day (NEW) */}
-          {step === 8 && (
+          {/* Step 8: Calorie Insight Celebration */}
+          {step === 8 && (formData.height_cm && formData.weight_kg) && (
+            <motion.div key="calories"
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              className="space-y-6 flex flex-col items-center justify-center">
+
+              {/* Animated checkmark */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 120, damping: 12 }}
+              >
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center shadow-2xl shadow-teal-500/50">
+                  <CheckCircle size={40} className="text-white" strokeWidth={2} />
+                </div>
+              </motion.div>
+
+              {/* Calorie result card */}
+              <div className="w-full bg-gradient-to-br from-teal-500/20 to-emerald-500/20 border border-teal-400/30 rounded-3xl p-6 text-center space-y-4">
+                <p className="text-white/70 text-xs uppercase tracking-wider font-semibold">{currentLang === 'es' ? 'Tu objetivo personalizado' : currentLang === 'nl' ? 'Je persoonlijke doelstelling' : 'Your personalized target'}</p>
+                <div>
+                  <p className="text-white font-black text-5xl">{formData.calories_goal || 2000}</p>
+                  <p className="text-white/60 text-lg font-bold">{currentLang === 'es' ? 'kcal al día' : currentLang === 'nl' ? 'kcal per dag' : 'kcal per day'}</p>
+                </div>
+
+                {/* Protein goal */}
+                <div className="pt-3 border-t border-teal-400/20">
+                  <p className="text-white/60 text-xs mb-1">{currentLang === 'es' ? 'Proteína diaria' : currentLang === 'nl' ? 'Dagelijks eiwit' : 'Daily protein goal'}</p>
+                  <p className="text-teal-300 font-bold text-xl">{Math.round(parseFloat(formData.weight_kg) * 2)}g / {currentLang === 'es' ? 'día' : currentLang === 'nl' ? 'dag' : 'day'}</p>
+                </div>
+              </div>
+
+              {/* Continue button */}
+              <button
+                onClick={() => setStep(9)}
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
+                {l.next}
+              </button>
+            </motion.div>
+          )}
+
+          {/* Step 9: Meals per day (if calories skipped) or actual step 9 */}
+          {((step === 9 && formData.height_cm && formData.weight_kg) || (step === 8 && (!formData.height_cm || !formData.weight_kg))) && (
             <motion.div key="meals"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -976,8 +1017,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 9: Dietary restrictions (NEW, multi-select) */}
-          {step === 9 && (
+          {/* Step 10: Dietary restrictions (NEW, multi-select) */}
+          {step === 10 && (
             <motion.div key="diet"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1002,15 +1043,15 @@ export default function Onboarding() {
                 })}
               </div>
               <button
-                onClick={() => setStep(10)}
+                onClick={() => setStep(11)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.diet_continue}
               </button>
-            </motion.div>
-          )}
+              </motion.div>
+              )}
 
-          {/* Step 10: Motivation */}
-          {step === 10 && (
+              {/* Step 11: Motivation */}
+              {step === 11 && (
             <motion.div key="motivation"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1026,7 +1067,7 @@ export default function Onboarding() {
                   { value: "perform_better", emoji: "⚡", label: l.perform_better },
                 ].map((opt) => (
                   <button key={opt.value}
-                    onClick={() => { setFormData(p => ({ ...p, motivation: opt.value })); setStep(11); }}
+                    onClick={() => { setFormData(p => ({ ...p, motivation: opt.value })); setStep(12); }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
                       formData.motivation === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -1038,8 +1079,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 11: Weight goal + timeframe (NEW) */}
-          {step === 11 && (
+          {/* Step 12: Weight goal + timeframe (NEW) */}
+          {step === 12 && (
             <motion.div key="weightgoal"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1085,15 +1126,15 @@ export default function Onboarding() {
                 </div>
               )}
               <button
-                onClick={() => setStep(12)}
+                onClick={() => setStep(13)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
-            </motion.div>
-          )}
+              </motion.div>
+              )}
 
-          {/* Step 12: Who will you follow? */}
-          {step === 12 && (
+              {/* Step 13: Who will you follow? */}
+              {step === 13 && (
             <motion.div key="follow"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1108,7 +1149,7 @@ export default function Onboarding() {
                   { emoji: "🏆", title: currentLang === 'es' ? "Ambos" : currentLang === 'nl' ? "Beide" : "Both", subtitle: currentLang === 'es' ? "La experiencia completa de Balancen" : currentLang === 'nl' ? "De volledige Balancen-ervaring" : "The full Balancen experience", value: "both" },
                 ].map((option) => (
                   <button key={option.value}
-                    onClick={() => { setFormData(p => ({ ...p, follow_preference: option.value })); setStep(13); }}
+                    onClick={() => { setFormData(p => ({ ...p, follow_preference: option.value })); setStep(14); }}
                     className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
                       (formData.follow_preference || "both") === option.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -1123,8 +1164,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 13: Referral source (NEW) */}
-          {step === 13 && (
+          {/* Step 14: Referral source (NEW) */}
+          {step === 14 && (
             <motion.div key="referral"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1144,7 +1185,7 @@ export default function Onboarding() {
                   { emoji: "🌐", value: "other", label: currentLang === 'es' ? "Otro" : currentLang === 'nl' ? "Anders" : "Other" },
                 ].map((opt) => (
                   <button key={opt.value}
-                    onClick={() => { setFormData(p => ({ ...p, referral_source: opt.value })); setStep(14); }}
+                    onClick={() => { setFormData(p => ({ ...p, referral_source: opt.value })); setStep(15); }}
                     className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
                       formData.referral_source === opt.value ? 'border-teal-400 bg-teal-500/20' : 'border-white/20 bg-white/5 hover:border-teal-400 hover:bg-teal-500/20'
                     }`}>
@@ -1156,8 +1197,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {/* Step 14: Personalized summary (NEW) */}
-          {step === 14 && (
+          {/* Step 15: Personalized summary (NEW) */}
+          {step === 15 && (
             <motion.div key="summary"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1228,15 +1269,15 @@ export default function Onboarding() {
                 )}
               </div>
               <button
-                onClick={() => setStep(14)}
+                onClick={() => setStep(16)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
-            </motion.div>
-          )}
+              </motion.div>
+              )}
 
-          {/* Step 14: Social proof (NEW) */}
-          {step === 14 && (
+              {/* Step 16: Social proof (NEW) */}
+              {step === 16 && (
             <motion.div key="social"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="space-y-8 text-center">
@@ -1269,15 +1310,15 @@ export default function Onboarding() {
                 ))}
               </div>
               <button
-                onClick={() => setStep(15)}
+                onClick={() => setStep(17)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
               </motion.div>
               )}
 
-              {/* Step 15: Founder message */}
-              {step === 15 && (
+              {/* Step 17: Founder message */}
+              {step === 17 && (
               <motion.div key="founder"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-6">
@@ -1308,15 +1349,15 @@ export default function Onboarding() {
 
               {/* Continue button */}
               <button
-                onClick={() => setStep(16)}
+                onClick={() => setStep(18)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
               </motion.div>
               )}
 
-              {/* Step 16: Competition comparison */}
-              {step === 16 && (
+              {/* Step 18: Competition comparison */}
+              {step === 18 && (
               <motion.div key="competition"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-5">
@@ -1382,15 +1423,15 @@ export default function Onboarding() {
 
               {/* Continue button */}
               <button
-                onClick={() => setStep(17)}
+                onClick={() => setStep(19)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
               </motion.div>
               )}
 
-              {/* Step 17: Why Balancen */}
-              {step === 17 && (
+              {/* Step 19: Why Balancen */}
+              {step === 19 && (
               <motion.div key="why"
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
               className="space-y-5">
@@ -1423,15 +1464,15 @@ export default function Onboarding() {
 
               {/* Continue button */}
               <button
-                onClick={() => setStep(18)}
+                onClick={() => setStep(20)}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black text-lg shadow-xl active:scale-95 transition-transform">
                 {l.next}
               </button>
               </motion.div>
               )}
 
-              {/* Step 18: Paywall — redesigned */}
-              {step === 18 && (
+              {/* Step 20: Paywall — redesigned */}
+              {step === 20 && (
             <motion.div key="paywall"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="space-y-5 text-center">
