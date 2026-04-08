@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Search, Plus, X, Sparkles, Loader2, RefreshCw, Clock } from "lucide-react";
+import { ArrowLeft, Search, Plus, X, Sparkles, Loader2, RefreshCw, Clock, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/components/TranslationProvider";
 import { useAppState } from "@/components/AppStateContext";
@@ -97,7 +97,36 @@ export default function AddMeal() {
   const [aiLoading, setAiLoading] = useState(false);
   const [recentMeals, setRecentMeals] = useState([]);
   const [recentLoading, setRecentLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
   const debounceRef = useRef(null);
+
+  const startVoiceSearch = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      const msg = lang === 'es' ? 'Tu navegador no soporta reconocimiento de voz' : lang === 'nl' ? 'Je browser ondersteunt geen spraakherkenning' : 'Your browser does not support speech recognition';
+      toast.error(msg);
+      return;
+    }
+    if (isListening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = lang === 'es' ? 'es-ES' : lang === 'nl' ? 'nl-NL' : 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onstart = () => setIsListening(true);
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setSearchQuery(transcript);
+      setActiveTab("search");
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
 
   // Load recent meals when tab switches
   useEffect(() => {
@@ -362,17 +391,46 @@ export default function AddMeal() {
 
         {/* Search */}
         {activeTab === "search" && <div className="mb-6 relative">
-          <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
-            <Input
-              type="text"
-              placeholder={t("search_foods") || "Search foods..."}
-              autoComplete="off"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/10 border-white/20 text-white placeholder-white/40"
-            />
+          <div className="relative flex gap-2 items-center">
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+              <Input
+                type="text"
+                placeholder={isListening
+                  ? (lang === 'es' ? 'Escuchando...' : lang === 'nl' ? 'Luisteren...' : 'Listening...')
+                  : (t("search_foods") || "Search foods...")}
+                autoComplete="off"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`pl-10 bg-white/10 border-white/20 text-white placeholder-white/40 ${isListening ? 'border-red-400/60 placeholder-red-300/60' : ''}`}
+              />
+            </div>
+            <button
+              onClick={startVoiceSearch}
+              className={`flex-shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center transition-all active:scale-90 ${
+                isListening
+                  ? 'bg-red-500/30 border-red-400/60 animate-pulse'
+                  : 'bg-white/10 border-white/20 hover:bg-white/20'
+              }`}
+              title={lang === 'es' ? 'Buscar por voz' : lang === 'nl' ? 'Zoeken op stem' : 'Voice search'}
+            >
+              {isListening ? <MicOff size={16} className="text-red-300" /> : <Mic size={16} className="text-white/70" />}
+            </button>
           </div>
+
+          {/* Recording indicator */}
+          {isListening && (
+            <div className="flex items-center gap-2 mt-2 px-1">
+              <div className="flex gap-0.5">
+                {[0,1,2,3].map(i => (
+                  <div key={i} className="w-1 bg-red-400 rounded-full animate-bounce" style={{ height: '12px', animationDelay: `${i * 0.1}s` }} />
+                ))}
+              </div>
+              <span className="text-red-300 text-xs font-semibold">
+                {lang === 'es' ? 'Escuchando... hablá ahora' : lang === 'nl' ? 'Luisteren... spreek nu' : 'Listening... speak now'}
+              </span>
+            </div>
+          )}
 
           {/* Dropdown */}
           {showDropdown && (
