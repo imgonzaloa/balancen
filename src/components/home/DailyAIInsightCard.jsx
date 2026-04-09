@@ -32,6 +32,8 @@ export default function DailyAIInsightCard({ lang, onViewPlan }) {
           setInsight(text);
           try { localStorage.setItem(cacheKey, text); } catch {}
         }
+      } catch {
+        // silently fail — insight is optional
       } finally {
         if (!cancelled) setLoading(false);
       }
