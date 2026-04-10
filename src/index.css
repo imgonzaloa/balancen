@@ -114,6 +114,7 @@
 .liquid-glass {
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   backdrop-filter: blur(24px) saturate(1.8) brightness(1.15);
   -webkit-backdrop-filter: blur(24px) saturate(1.8) brightness(1.15);
   background: linear-gradient(
@@ -128,6 +129,25 @@
     0 8px 32px rgba(0,0,0,0.35),
     inset 0 1px 0 rgba(255,255,255,0.35),
     inset 0 -1px 0 rgba(255,255,255,0.08);
+}
+
+/* Nav variant — no overflow:hidden so active indicator isn't clipped */
+.liquid-glass-nav {
+  position: fixed;
+  isolation: isolate;
+  backdrop-filter: blur(24px) saturate(1.8) brightness(1.15);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8) brightness(1.15);
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.14) 0%,
+    rgba(255,255,255,0.05) 40%,
+    rgba(255,255,255,0.10) 70%,
+    rgba(255,255,255,0.03) 100%
+  );
+  border-top: 1px solid rgba(255,255,255,0.20);
+  box-shadow:
+    0 -4px 24px rgba(0,0,0,0.30),
+    inset 0 1px 0 rgba(255,255,255,0.28);
 }
 
 /* sweeping specular highlight */
@@ -145,7 +165,7 @@
   background-size: 200% 100%;
   animation: liquid-shimmer 6s ease-in-out infinite;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 /* refraction sweep */
@@ -158,5 +178,5 @@
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
   animation: liquid-refract 8s ease-in-out infinite 2s;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }

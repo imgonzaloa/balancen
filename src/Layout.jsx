@@ -306,7 +306,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
       {/* Fixed Tab bar - pinned to viewport */}
       {!hideNav && (
         <nav
-          className="fixed bottom-0 left-0 right-0 liquid-glass"
+          className="liquid-glass-nav bottom-0 left-0 right-0"
             style={{
               zIndex: 1000,
             pointerEvents: 'auto',
