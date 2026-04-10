@@ -102,6 +102,15 @@ function getNavItems(t) {
 
 function LayoutInner({ children, currentPageName, bootState }) {
   const navigate = useNavigate();
+  const [liquidGlassEnabled, setLiquidGlassEnabled] = React.useState(
+    () => localStorage.getItem('balancen_liquid_glass') !== 'false'
+  );
+
+  React.useEffect(() => {
+    const handler = (e) => setLiquidGlassEnabled(e.detail);
+    window.addEventListener('balancen-liquid-glass-change', handler);
+    return () => window.removeEventListener('balancen-liquid-glass-change', handler);
+  }, []);
   const { t, lang, changeLanguage } = useTranslation();
 
   // STABILITY: confirm root layout mounts only once
@@ -306,7 +315,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
       {/* Fixed Tab bar - pinned to viewport */}
       {!hideNav && (
         <nav
-          className="liquid-glass-nav bottom-0 left-0 right-0"
+          className={`${liquidGlassEnabled ? 'liquid-glass-nav' : 'bg-slate-900/95 border-t border-white/10'} bottom-0 left-0 right-0`}
             style={{
               zIndex: 1000,
             pointerEvents: 'auto',

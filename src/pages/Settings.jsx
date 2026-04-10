@@ -20,6 +20,7 @@ import AffiliatesSection from "@/components/settings/AffiliatesSection";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
+  const [liquidGlass, setLiquidGlass] = useState(() => localStorage.getItem('balancen_liquid_glass') !== 'false');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAIDisclaimer, setShowAIDisclaimer] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
@@ -97,6 +98,13 @@ export default function Settings() {
     updateMutation.mutate({ [field]: value });
   };
 
+  const handleLiquidGlassToggle = (checked) => {
+    setLiquidGlass(checked);
+    localStorage.setItem('balancen_liquid_glass', String(checked));
+    // Dispatch event so layout reacts instantly
+    window.dispatchEvent(new CustomEvent('balancen-liquid-glass-change', { detail: checked }));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 relative overflow-hidden">
       <div className="absolute inset-0 opacity-30">
@@ -165,6 +173,34 @@ export default function Settings() {
             </motion.div>
           </Link>
         ) : null}
+
+        {/* Liquid Glass Effect */}
+        <motion.div
+          className="relative overflow-hidden rounded-3xl p-5 mb-4 bg-white/10 backdrop-blur-xl border border-white/20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                <span className="text-lg">🫧</span>
+              </div>
+              <div>
+                <Label className="text-white font-semibold">
+                  {lang === 'es' ? 'Efecto Liquid Glass' : lang === 'nl' ? 'Liquid Glass effect' : 'Liquid Glass Effect'}
+                </Label>
+                <p className="text-xs text-white/60">
+                  {lang === 'es' ? 'Fondo translúcido en la barra de navegación' : lang === 'nl' ? 'Doorschijnende achtergrond op de navigatiebalk' : 'Translucent nav bar background'}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={liquidGlass}
+              onCheckedChange={handleLiquidGlassToggle}
+            />
+          </div>
+        </motion.div>
 
         {/* AI Recommendations */}
         <motion.div
