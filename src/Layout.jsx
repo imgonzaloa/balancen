@@ -316,7 +316,7 @@ function LayoutInner({ children, currentPageName, bootState }) {
             width: '100%'
           }}
         >
-          <div className="w-full flex items-center justify-center py-2 px-0 relative">
+          <div className="w-full flex items-center justify-center py-2 px-0 relative" style={{ zIndex: 1 }}>
             {navItems.map((item) => (
               <NavButton
                 key={item.name}
