@@ -35,7 +35,7 @@ export default function GlobalHeader() {
 
   return (
     <div
-      className="relative flex items-center justify-between px-4 bg-slate-900/80 backdrop-blur-xl border-b border-white/8"
+      className="relative flex items-center justify-between px-4 liquid-glass border-b border-white/10"
       style={{ height: '56px', flexShrink: 0 }}
     >
       {/* Brand logo */}
