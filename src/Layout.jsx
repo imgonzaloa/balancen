@@ -315,14 +315,21 @@ function LayoutInner({ children, currentPageName, bootState }) {
       {/* Fixed Tab bar - pinned to viewport */}
       {!hideNav && (
         <nav
-          className={`${liquidGlassEnabled ? 'liquid-glass-nav' : 'bg-slate-900/95 border-t border-white/10'} bottom-0 left-0 right-0`}
-            style={{
-              zIndex: 1000,
+          className={liquidGlassEnabled ? 'liquid-glass-nav bottom-0 left-0 right-0' : 'bottom-0 left-0 right-0'}
+          style={{
+            position: 'fixed',
+            zIndex: 1000,
             pointerEvents: 'auto',
             touchAction: 'manipulation',
             WebkitTapHighlightColor: 'transparent',
             paddingBottom: 'env(safe-area-inset-bottom, 0)',
-            width: '100%'
+            width: '100%',
+            ...(liquidGlassEnabled ? {} : {
+              background: 'rgba(15, 23, 42, 0.97)',
+              borderTop: '1px solid rgba(255,255,255,0.10)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            })
           }}
         >
           <div className="w-full flex items-center justify-center py-2 px-0 relative" style={{ zIndex: 1 }}>
