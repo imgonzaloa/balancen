@@ -4,12 +4,24 @@ import { getLocalLanguage, setLocalLanguage, resolveLanguage } from '@/lib/langu
 
 // Global error handler for iPad/Capacitor crashes
 if (typeof window !== 'undefined') {
-  window.onerror = function(msg, src, line) {
+  // Handle synchronous errors
+  window.onerror = function(msg, src, line, col, err) {
     console.error('[BootGate] Caught error:', msg, 'at', src, ':', line);
-    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%);font-family:system-ui,-apple-system,sans-serif"><div style="text-align:center;color:white"><div style="font-size:80px;font-weight:900;color:#1D9E75;margin-bottom:20px">B</div><p style="font-size:18px;margin:0">Cargando...</p></div></div>';
-    setTimeout(() => window.location.reload(), 2000);
+    showErrorFallback();
     return true;
   };
+
+  // Handle unhandled promise rejections
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('[BootGate] Unhandled rejection:', event.reason);
+    event.preventDefault();
+    showErrorFallback();
+  });
+
+  function showErrorFallback() {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%);font-family:system-ui,-apple-system,sans-serif"><div style="text-align:center;color:white"><div style="font-size:80px;font-weight:900;color:#1D9E75;margin-bottom:20px">B</div><p style="font-size:18px;margin:0">Loading...</p><p style="font-size:13px;margin:10px 0 0 0;color:#888">Please wait...</p></div></div>';
+    setTimeout(() => window.location.reload(), 2500);
+  }
 }
 
 // ─── Phrases ────────────────────────────────────────────────────────────────
