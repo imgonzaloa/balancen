@@ -1,0 +1,10 @@
+{
+  "appId": "com.balancen.app",
+  "appName": "Balancen",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "automatic",
+    "allowsLinkPreview": false,
+    "scrollEnabled": false
+  }
+}

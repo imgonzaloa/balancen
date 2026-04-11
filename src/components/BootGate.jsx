@@ -2,6 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { getLocalLanguage, setLocalLanguage, resolveLanguage } from '@/lib/language';
 
+// Global error handler for iPad/Capacitor crashes
+if (typeof window !== 'undefined') {
+  window.onerror = function(msg, src, line) {
+    console.error('[BootGate] Caught error:', msg, 'at', src, ':', line);
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #065f46 100%);font-family:system-ui,-apple-system,sans-serif"><div style="text-align:center;color:white"><div style="font-size:80px;font-weight:900;color:#1D9E75;margin-bottom:20px">B</div><p style="font-size:18px;margin:0">Cargando...</p></div></div>';
+    setTimeout(() => window.location.reload(), 2000);
+    return true;
+  };
+}
+
 // ─── Phrases ────────────────────────────────────────────────────────────────
 
 const SPLASH_PHRASES = [
