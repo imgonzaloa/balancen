@@ -585,6 +585,4 @@ export default function MealResultCard({ profile, onSave }) {
       </motion.div>
     </motion.div>
   );
-});
-
-export default MealResultCard;
+}

@@ -53,8 +53,6 @@ const copy = {
 };
 
 export default function PostModerationMenu({ contentId, authorEmail, currentUserEmail, lang = "en", onBlocked }) {
-  if (authorEmail === currentUserEmail) return null;
-
   const [open, setOpen] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReason, setSelectedReason] = useState(null);
@@ -71,6 +69,8 @@ export default function PostModerationMenu({ contentId, authorEmail, currentUser
     document.addEventListener("pointerdown", handler);
     return () => document.removeEventListener("pointerdown", handler);
   }, [open]);
+
+  if (authorEmail === currentUserEmail) return null;
 
   const handleReport = async () => {
     if (!selectedReason) return;

@@ -34,25 +34,6 @@ export default function UserManagement() {
 
   // OWNER-ONLY ACCESS CHECK
   const isOwner = user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && profile?.role === "owner";
-  
-  if (user && profile && !isOwner) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center px-5">
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center mx-auto mb-4">
-            <span className="text-4xl">🚫</span>
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-2">{t('forbidden')}</h1>
-          <p className="text-white/60 mb-6">{t('access_denied_owner')}</p>
-          <Link to={createPageUrl("Settings")}>
-            <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
-              {t('go_back')}
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   const { data: allProfiles = [] } = useQuery({
     queryKey: ["allProfiles"],
@@ -88,6 +69,25 @@ export default function UserManagement() {
       toast.success("Featured status updated");
     },
   });
+
+  if (user && profile && !isOwner) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center px-5">
+        <div className="text-center">
+          <div className="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">🚫</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">{t('forbidden')}</h1>
+          <p className="text-white/60 mb-6">{t('access_denied_owner')}</p>
+          <Link to={createPageUrl("Settings")}>
+            <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
+              {t('go_back')}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const filteredProfiles = allProfiles.filter(p => 
     p.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||

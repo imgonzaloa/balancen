@@ -43,7 +43,7 @@ export default function HomeErrorFallback({ onRetry, error }) {
         </Button>
 
         {/* Debug Info (dev only) */}
-        {process.env.NODE_ENV === 'development' && error && (
+        {import.meta.env.DEV && error && (
           <pre className="mt-6 p-4 bg-white/5 rounded-lg text-left text-xs text-red-300 overflow-auto max-h-40">
             {error.message || 'Unknown error'}
           </pre>

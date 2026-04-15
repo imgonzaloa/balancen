@@ -40,7 +40,7 @@ export const logger = {
     }
     
     // DEV: console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (typeof import.meta !== 'undefined' && import.meta.env?.DEV) {
       console.log(`[${event}]`, data);
     }
   },

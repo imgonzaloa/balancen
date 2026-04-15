@@ -9,7 +9,7 @@ export default function PerformanceMonitor() {
   const location = useLocation();
   
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'development') return;
+    if (!import.meta.env.DEV) return;
     
     const startTime = performance.now();
     const pageName = location.pathname.replace('/', '') || 'Home';

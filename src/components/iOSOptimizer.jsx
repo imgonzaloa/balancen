@@ -4,7 +4,7 @@ import { useEffect } from 'react';
  * iOS Standalone mode optimizer
  * Disables heavy effects on iOS PWA for performance
  */
-export default function iOSOptimizer() {
+export default function IOSOptimizer() {
   useEffect(() => {
     const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;

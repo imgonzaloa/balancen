@@ -43,7 +43,7 @@ export default function TabErrorFallback({ tabName, error, onRetry }) {
         </div>
         
         {/* Error details (dev only) */}
-        {process.env.NODE_ENV === 'development' && error && (
+        {import.meta.env.DEV && error && (
           <div className="bg-red-900/20 p-4 rounded-xl border border-red-500/30">
             <p className="text-xs text-red-300 font-mono break-words">
               {error.message || error.toString()}

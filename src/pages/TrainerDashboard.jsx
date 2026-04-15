@@ -19,24 +19,6 @@ export default function TrainerDashboard() {
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
-  if (!isPremium) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 flex flex-col items-center justify-center p-6 pb-24">
-        <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6">
-          <Zap size={40} className="text-indigo-400" />
-        </div>
-        <h2 className="text-white text-2xl font-bold mb-2">{t('trainer_premium_title') || 'AI Trainer — Premium'}</h2>
-        <p className="text-white/70 text-center mb-8">{t('trainer_premium_desc') || 'Access personalized workout plans, session tracking and progression analysis'}</p>
-        <Button
-          onClick={() => navigate(createPageUrl('Premium'))}
-          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold px-8 py-3"
-        >
-          {t('upgrade_now') || 'Upgrade to Premium'}
-        </Button>
-      </div>
-    );
-  }
-
   const { data: workoutPlans = [] } = useQuery({
     queryKey: ["workout-plans", user?.email],
     queryFn: () => base44.entities.WorkoutPlan.filter({ user_email: user?.email }, "-created_date"),
@@ -91,6 +73,24 @@ export default function TrainerDashboard() {
       exercises: s.exercises_completed.length,
     }))
     .reverse();
+
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 flex flex-col items-center justify-center p-6 pb-24">
+        <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6">
+          <Zap size={40} className="text-indigo-400" />
+        </div>
+        <h2 className="text-white text-2xl font-bold mb-2">{t('trainer_premium_title') || 'AI Trainer — Premium'}</h2>
+        <p className="text-white/70 text-center mb-8">{t('trainer_premium_desc') || 'Access personalized workout plans, session tracking and progression analysis'}</p>
+        <Button
+          onClick={() => navigate(createPageUrl('Premium'))}
+          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold px-8 py-3"
+        >
+          {t('upgrade_now') || 'Upgrade to Premium'}
+        </Button>
+      </div>
+    );
+  }
 
   const activePlan = workoutPlans.find(p => p.status === "active");
   const totalWorkouts = sessions.length;

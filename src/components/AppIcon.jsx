@@ -30,28 +30,7 @@ export function AppIconLink() {
       <link rel="apple-touch-icon" href="data:image/svg+xml,${encodeURIComponent(getAppIconSVG(192))}" />
       
       {/* Manifest */}
-      <link rel="manifest" href="data:application/manifest+json,${encodeURIComponent(JSON.stringify({
-        name: "Balance",
-        short_name: "Balance",
-        start_url: "/Home",
-        display: "standalone",
-        background_color: "#0B0B0B",
-        theme_color: "#0B0B0B",
-        icons: [
-          {
-            src: "data:image/svg+xml," + encodeURIComponent(getAppIconSVG(192)),
-            sizes: "192x192",
-            type: "image/svg+xml",
-            purpose: "any"
-          },
-          {
-            src: "data:image/svg+xml," + encodeURIComponent(getAppIconSVG(512)),
-            sizes: "512x512",
-            type: "image/svg+xml",
-            purpose: "any maskable"
-          }
-        ]
-      }))}" />
+      <link rel="manifest" href="/manifest.json" />
     </>
   );
 }

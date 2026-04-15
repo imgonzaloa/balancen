@@ -19,28 +19,6 @@ export default function NutritionHub() {
 
   const isPremium = profile?.is_premium || profile?.role === 'owner' || profile?.role === 'collaborator';
 
-  if (!isPremium) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-orange-900/30 to-slate-900 flex flex-col items-center justify-center p-6 pb-24">
-        <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mb-6">
-          <Apple size={40} className="text-amber-400" />
-        </div>
-        <h2 className="text-white text-2xl font-bold mb-2 text-center">
-          {t('nutrition_hub_premium_title') || 'Nutrition Hub — Premium'}
-        </h2>
-        <p className="text-white/70 text-center mb-8 max-w-xs">
-          {t('nutrition_hub_premium_desc') || 'Full macro analysis, AI personalized plans and advanced nutrition tracking'}
-        </p>
-        <Button
-          onClick={() => navigate(createPageUrl('Premium'))}
-          className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-8 py-3"
-        >
-          {t('upgrade_now') || 'Upgrade to Premium'}
-        </Button>
-      </div>
-    );
-  }
-
   const { data: nutritionPlan, isLoading: isPlanLoading } = useQuery({
     queryKey: ["nutrition-plan", user?.email],
     queryFn: async () => {
@@ -113,6 +91,28 @@ export default function NutritionHub() {
 
   const caloriesGoal = nutritionPlan?.calories_target || profile?.calories_goal || 2000;
   const caloriesDiff = todayCalories - caloriesGoal;
+
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-orange-900/30 to-slate-900 flex flex-col items-center justify-center p-6 pb-24">
+        <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mb-6">
+          <Apple size={40} className="text-amber-400" />
+        </div>
+        <h2 className="text-white text-2xl font-bold mb-2 text-center">
+          {t('nutrition_hub_premium_title') || 'Nutrition Hub — Premium'}
+        </h2>
+        <p className="text-white/70 text-center mb-8 max-w-xs">
+          {t('nutrition_hub_premium_desc') || 'Full macro analysis, AI personalized plans and advanced nutrition tracking'}
+        </p>
+        <Button
+          onClick={() => navigate(createPageUrl('Premium'))}
+          className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-8 py-3"
+        >
+          {t('upgrade_now') || 'Upgrade to Premium'}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-orange-900 to-amber-900 pb-24">

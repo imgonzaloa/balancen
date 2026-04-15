@@ -33,11 +33,11 @@ const isDebugMode = () =>
   localStorage.getItem('DEBUG_OVERLAY') === '1';
 
 export default function BuildBadge({ currentPageName }) {
-  if (!isDebugMode()) return null;
-
   const [open, setOpen] = useState(false);
   const [logs, setLogs] = useState([]);
   const [route, setRoute] = useState(window.location.pathname);
+
+  if (!isDebugMode()) return null;
 
   // Refresh logs when panel opens
   useEffect(() => {

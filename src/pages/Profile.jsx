@@ -436,7 +436,7 @@ export default function Profile() {
       <PhotoPickerModal
         isOpen={!!photoPreview}
         onClose={() => setPhotoPreview(false)}
-        anchorRef={React.useRef(null)}
+        anchorRef={null}
         onSelectFile={(file) => {
           const reader = new FileReader();
           reader.onload = (e) => handlePhotoUpload(file, e.target.result);
