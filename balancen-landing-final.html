@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balancen — AI Nutrition App for iPhone</title>
+<meta name="description" content="Snap your meal and get instant calories, macros and AI coaching. Challenges, streaks and a real sports community. Free on iPhone.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+:root{
+  --teal:#1D9E75;--teal2:#25b885;
+  --bg:#0a1a16;--card:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.1);
+  --text:#fff;--muted:rgba(255,255,255,.5);
+  --blue:#60a5fa;--amber:#f59e0b;--pink:#ec4899;--purple:#a855f7;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+
+/* BG */
+.pbg{position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse 130% 65% at 50% -5%,rgba(13,80,60,.85) 0%,transparent 65%),radial-gradient(ellipse 70% 70% at 95% 95%,rgba(10,50,40,.4) 0%,transparent 60%),#0a1a16}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(10,26,22,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-size:18px;font-weight:700}
+.li{width:38px;height:38px;background:#111;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;border:1px solid rgba(255,255,255,.15)}
+.nr{display:flex;align-items:center;gap:28px}
+.nl{color:var(--muted);text-decoration:none;font-size:14px;transition:color .2s}
+.nl:hover{color:var(--text)}
+.nb{background:var(--teal);color:#fff;padding:9px 22px;border-radius:100px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:7px}
+.nb:hover{background:var(--teal2);transform:translateY(-1px)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:130px 24px 60px;text-align:center}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.35);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:#4ade80;margin-bottom:28px;animation:fu .5s ease both}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:bk 2s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-size:clamp(42px,7vw,84px);font-weight:900;line-height:1.02;letter-spacing:-2.5px;animation:fu .5s .1s ease both}
+.tc{color:var(--teal)}
+.hdesc{font-size:clamp(16px,2.2vw,20px);color:var(--muted);max-width:540px;margin:22px auto 0;font-weight:400;animation:fu .5s .2s ease both}
+.hbtns{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:36px;flex-wrap:wrap;animation:fu .5s .3s ease both}
+.bm{display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:15px 30px;border-radius:100px;font-size:15px;font-weight:700;box-shadow:0 0 48px rgba(29,158,117,.4);transition:all .2s}
+.bm:hover{background:var(--teal2);transform:translateY(-2px);box-shadow:0 0 70px rgba(29,158,117,.55)}
+.hn{font-size:13px;color:var(--muted);margin-top:14px;animation:fu .5s .4s ease both}
+
+/* PHONES */
+.pw{margin-top:64px;display:flex;justify-content:center;align-items:flex-end;gap:20px;animation:fu .8s .5s ease both}
+.ph{width:195px;background:linear-gradient(160deg,#0d2820 0%,#0a1e18 100%);border:1px solid rgba(255,255,255,.12);border-radius:36px;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,.6);position:relative;flex-shrink:0}
+.ph.m{width:235px;transform:translateY(-20px);box-shadow:0 44px 88px rgba(0,0,0,.7),0 0 70px rgba(29,158,117,.22);border-color:rgba(29,158,117,.35)}
+.pn{position:absolute;top:0;left:50%;transform:translateX(-50%);width:88px;height:24px;background:#0a1e18;border-radius:0 0 16px 16px;z-index:10}
+.pi{padding:32px 12px 16px;display:flex;flex-direction:column;gap:8px;min-height:410px}
+.phd{display:flex;justify-content:space-between;align-items:center}
+.plo{width:26px;height:26px;background:#111;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;border:1px solid rgba(255,255,255,.15)}
+.pc{background:rgba(255,255,255,.07);border-radius:16px;padding:11px;border:1px solid rgba(255,255,255,.06)}
+.pct{font-size:7px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:7px;text-transform:uppercase}
+.pkr{display:flex;align-items:center;justify-content:space-between}
+.pkv{font-size:26px;font-weight:900;letter-spacing:-1px}
+.pr{width:50px;height:50px;border-radius:50%;background:conic-gradient(var(--teal) 0% 68%,rgba(255,255,255,.08) 68% 100%);display:flex;align-items:center;justify-content:center}
+.pri{width:38px;height:38px;border-radius:50%;background:#0d2820;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800}
+.pdiv{height:1px;background:rgba(255,255,255,.06);margin:7px 0}
+.pmc{display:flex;gap:4px}
+.pma{flex:1;text-align:center}
+.pmv{font-size:10px;font-weight:800}
+.pml{font-size:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+.pfr{background:rgba(255,255,255,.06);border-radius:11px;padding:9px;display:flex;align-items:center;gap:7px}
+.pfi{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.pft{font-size:9px;font-weight:700}
+.pfs{font-size:7px;color:var(--muted);margin-top:1px}
+.pch{background:rgba(255,255,255,.05);border-radius:10px;padding:9px}
+.pchl{font-size:7px;font-weight:700;letter-spacing:.5px;color:var(--muted);margin-bottom:7px}
+.pba{display:flex;align-items:flex-end;gap:3px;height:34px}
+.pbar{flex:1;border-radius:3px}
+.psb{background:var(--teal);border-radius:10px;padding:8px;text-align:center;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px}
+.pnav{display:flex;justify-content:space-around;padding:8px 0 4px;border-top:1px solid rgba(255,255,255,.06);margin-top:auto}
+.pni{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:6px;color:var(--muted)}
+.pni.a{color:var(--teal)}
+.pnio{font-size:12px}
+.mbar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:3px}
+.mfill{height:100%;border-radius:2px}
+
+/* STATS */
+.sbar{background:rgba(255,255,255,.03);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px 24px}
+.si{max-width:920px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center}
+.st{flex:1;min-width:140px;text-align:center;padding:12px 20px;border-right:1px solid var(--border)}
+.st:last-child{border-right:none}
+.sn{font-size:26px;font-weight:900;color:var(--teal);letter-spacing:-1px}
+.sl{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* SECTIONS */
+section{padding:88px 24px}
+.wr{max-width:1080px;margin:0 auto}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+h2{font-size:clamp(30px,4.5vw,54px);font-weight:900;letter-spacing:-1.5px;line-height:1.05}
+.sub{font-size:17px;color:var(--muted);max-width:480px;margin-top:14px;font-weight:400;line-height:1.7}
+
+/* HOW */
+.hbg{background:rgba(255,255,255,.02);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:52px;background:var(--border);border-radius:20px;overflow:hidden}
+.step{background:#0d1f1a;padding:40px 32px}
+.stepn{font-size:52px;font-weight:900;color:rgba(29,158,117,.12);line-height:1;margin-bottom:20px;letter-spacing:-2px}
+.stepi{font-size:32px;margin-bottom:12px;display:block}
+.step h3{font-size:18px;font-weight:800;margin-bottom:10px}
+.step p{font-size:14px;color:var(--muted);line-height:1.7}
+
+/* FEATURES */
+.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:52px}
+.ft{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:32px 28px;transition:all .25s;cursor:default}
+.ft:hover{background:rgba(255,255,255,.07);border-color:rgba(29,158,117,.3);transform:translateY(-3px)}
+.fti{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.ft h3{font-size:16px;font-weight:800;margin-bottom:8px}
+.ft p{font-size:13px;color:var(--muted);line-height:1.7}
+.fp{display:inline-block;background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.25);color:#4ade80;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;margin-top:14px}
+
+/* PRICING */
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:52px}
+.prc{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:24px;padding:36px 28px;position:relative;transition:transform .2s}
+.prc:hover{transform:translateY(-4px)}
+.prc.best{background:rgba(29,158,117,.08);border-color:rgba(29,158,117,.5);box-shadow:0 0 60px rgba(29,158,117,.15)}
+.pbdg{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:100px;white-space:nowrap}
+.prn{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px}
+.prv{font-size:46px;font-weight:900;letter-spacing:-2px;line-height:1}
+.prv sup{font-size:20px;vertical-align:super;font-weight:600}
+.prv sub{font-size:14px;color:var(--muted);font-weight:400;vertical-align:middle;letter-spacing:0}
+.prper{font-size:12px;color:var(--muted);margin-top:4px}
+.prsv{display:inline-block;background:rgba(29,158,117,.15);color:#4ade80;font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;margin:8px 0 24px;border:1px solid rgba(29,158,117,.2)}
+.prdv{height:1px;background:var(--border);margin:20px 0}
+.prfl{list-style:none}
+.prfl li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--muted);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.prfl li:last-child{border-bottom:none}
+.prfl li strong{color:var(--text)}
+.ok{color:var(--teal);font-size:14px;flex-shrink:0}
+.no{color:rgba(255,255,255,.2);font-size:14px;flex-shrink:0}
+.prb{display:block;text-align:center;padding:13px;border-radius:100px;font-size:14px;font-weight:700;text-decoration:none;margin-top:28px;transition:all .2s}
+.probl{border:1px solid var(--border);color:var(--text)}
+.probl:hover{border-color:var(--teal);color:var(--teal)}
+.probf{background:var(--teal);color:#fff;box-shadow:0 4px 20px rgba(29,158,117,.35)}
+.probf:hover{background:var(--teal2);transform:translateY(-1px)}
+
+/* CTA */
+.ctas{text-align:center;padding:100px 24px;position:relative}
+.ctag{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(29,158,117,.18) 0%,transparent 70%);pointer-events:none}
+.ctab{display:flex;gap:14px;justify-content:center;margin-top:40px;flex-wrap:wrap;position:relative;z-index:1}
+.stb{display:inline-flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);text-decoration:none;padding:14px 26px;border-radius:16px;transition:all .2s}
+.stb:hover{background:rgba(255,255,255,.14);transform:translateY(-2px)}
+.stb.pr{background:var(--teal);border-color:transparent;box-shadow:0 8px 28px rgba(29,158,117,.45)}
+.stb.pr:hover{background:var(--teal2)}
+.stbs{font-size:28px}
+.stbl{font-size:10px;color:rgba(255,255,255,.6)}
+.stbn{font-size:16px;font-weight:700}
+
+/* FOOTER */
+footer{padding:36px 24px;border-top:1px solid var(--border)}
+.fi{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.flo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);font-weight:700}
+.fls{display:flex;gap:24px;list-style:none}
+.fls a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.fls a:hover{color:var(--text)}
+.fc{font-size:12px;color:var(--muted)}
+
+/* ANIM */
+@keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.rv{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+.rv.on{opacity:1;transform:translateY(0)}
+
+/* MOBILE */
+@media(max-width:768px){
+  nav{padding:12px 16px}
+  .nr .nl{display:none}
+  section{padding:56px 16px}
+  .hero{padding:100px 16px 48px}
+  h1{letter-spacing:-1px}
+  .pw .ph:not(.m){display:none}
+  .ph.m{transform:none;width:240px}
+  .steps,.fg,.pg{grid-template-columns:1fr}
+  .si{justify-content:flex-start}
+  .st{min-width:50%;border-right:none;border-bottom:1px solid var(--border)}
+  .fi{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="pbg"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="li">B</div>
+    Balancen
+  </a>
+  <div class="nr">
+    <a href="#how" class="nl">How it works</a>
+    <a href="#features" class="nl">Features</a>
+    <a href="#pricing" class="nl">Pricing</a>
+    <a href="https://apps.apple.com/app/balancen" class="nb">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Download free
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge"><div class="dot"></div>iPhone only · Powered by Claude Vision · Anthropic</div>
+
+  <h1>Snap your meal.<br><span class="tc">We handle the rest.</span></h1>
+
+  <p class="hdesc">
+    Instant calories and macros from a photo. Challenges, streaks and a real sports community. Your personal AI coach — always in your pocket.
+  </p>
+
+  <div class="hbtns">
+    <a href="https://apps.apple.com/app/balancen" class="bm">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Download on App Store
+    </a>
+  </div>
+
+  <p class="hn">3 days free · No credit card · Cancel anytime</p>
+
+  <!-- PHONE MOCKUPS -->
+  <div class="pw">
+
+    <!-- Social -->
+    <div class="ph">
+      <div class="pn"></div>
+      <div class="pi">
+        <div class="phd"><div class="plo">B</div><div style="font-size:10px;opacity:.4">🔔</div></div>
+        <div style="font-size:15px;font-weight:900;margin-bottom:8px">Social</div>
+        <div class="pfr"><div class="pfi" style="background:rgba(29,158,117,.25)">💬</div><div><div class="pft">Social Feed</div><div class="pfs">Share progress with friends</div></div></div>
+        <div class="pfr"><div class="pfi" style="background:rgba(245,158,11,.25)">🏆</div><div><div class="pft">Challenges</div><div class="pfs">Join group challenges</div></div></div>
+        <div class="pfr"><div class="pfi" style="background:rgba(168,85,247,.25)">❌</div><div><div class="pft">Team Mode</div><div class="pfs">Challenges, ranking & nutrition</div></div></div>
+        <div style="margin-top:auto"><div style="font-size:8px;font-weight:700;color:var(--muted);margin-bottom:6px">MY FRIENDS</div><div style="background:rgba(255,255,255,.05);border-radius:11px;padding:11px;text-align:center"><div style="font-size:18px;opacity:.3;margin-bottom:4px">👥</div><div style="font-size:9px;font-weight:700">No activity yet today</div><div style="font-size:7px;color:var(--muted)">Invite friends to join</div></div></div>
+        <div class="pnav">
+          <div class="pni"><div class="pnio">🏠</div>Home</div>
+          <div class="pni a"><div class="pnio">👥</div>Social</div>
+          <div class="pni"><div class="pnio">🏆</div>Challenges</div>
+          <div class="pni"><div class="pnio">📊</div>Progress</div>
+          <div class="pni"><div class="pnio">👤</div>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Home MAIN -->
+    <div class="ph m">
+      <div class="pn"></div>
+      <div class="pi">
+        <div class="phd">
+          <div class="plo">B</div>
+          <div style="display:flex;gap:6px;align-items:center"><div style="font-size:10px;opacity:.4">🔔</div><div style="width:24px;height:24px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px">G</div></div>
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--muted);font-weight:600;letter-spacing:.5px">TUESDAY, APRIL 15</div>
+          <div style="font-size:13px;font-weight:900;margin-top:2px">Good afternoon, Gonzalo</div>
+          <div style="font-size:8px;color:var(--muted);margin-top:1px">+ Add your status...</div>
+        </div>
+        <div class="pc">
+          <div class="pct">Daily Intake</div>
+          <div class="pkr">
+            <div>
+              <div class="pkv">1,450<span style="font-size:13px;color:var(--muted);font-weight:400"> / 2000</span></div>
+              <div style="font-size:8px;color:var(--muted)">kcal</div>
+            </div>
+            <div class="pr"><div class="pri">72%</div></div>
+          </div>
+          <div class="pdiv"></div>
+          <div class="pmc">
+            <div class="pma"><div class="pmv" style="color:var(--blue)">142g</div><div class="pml">Protein</div></div>
+            <div class="pma"><div class="pmv" style="color:var(--amber)">165g</div><div class="pml">Carbs</div></div>
+            <div class="pma"><div class="pmv" style="color:var(--pink)">48g</div><div class="pml">Fats</div></div>
+          </div>
+        </div>
+        <div class="pc">
+          <div class="pct">Macros & Hydration</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;justify-content:space-between;font-size:8px"><span>Protein</span><span style="color:var(--muted)">142/150g</span></div>
+            <div class="mbar"><div class="mfill" style="width:95%;background:var(--blue)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:8px"><span>Carbohydrates</span><span style="color:var(--muted)">165/200g</span></div>
+            <div class="mbar"><div class="mfill" style="width:82%;background:var(--amber)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:8px"><span>Fats</span><span style="color:var(--muted)">48/67g</span></div>
+            <div class="mbar"><div class="mfill" style="width:72%;background:var(--pink)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:8px"><span>Water</span><span style="color:var(--muted)">0/8 🥤</span></div>
+            <div class="mbar"><div class="mfill" style="width:0%;background:var(--teal)"></div></div>
+          </div>
+        </div>
+        <div class="psb">📸 Scan — What are you eating now?</div>
+        <div class="pnav">
+          <div class="pni a"><div class="pnio">🏠</div>Home</div>
+          <div class="pni"><div class="pnio">👥</div>Social</div>
+          <div class="pni"><div class="pnio">🏆</div>Challenges</div>
+          <div class="pni"><div class="pnio">📊</div>Progress</div>
+          <div class="pni"><div class="pnio">👤</div>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="ph">
+      <div class="pn"></div>
+      <div class="pi">
+        <div class="phd"><div class="plo">B</div><div style="font-size:10px;opacity:.4">🔔</div></div>
+        <div style="font-size:15px;font-weight:900;margin-bottom:2px">Progress</div>
+        <div style="font-size:8px;color:var(--muted);margin-bottom:7px">Track your journey and metrics</div>
+        <div class="pc">
+          <div class="pct">Calories</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="pr" style="width:42px;height:42px"><div class="pri" style="width:32px;height:32px;font-size:7px">72%</div></div>
+            <div style="display:flex;flex-direction:column;gap:3px;flex:1">
+              <div style="display:flex;justify-content:space-between;font-size:7px"><span style="color:var(--blue)">● Protein</span><span>142g</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:7px"><span style="color:var(--purple)">● Carbs</span><span>165g</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:7px"><span style="color:var(--amber)">● Fats</span><span>48g</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:7px;border-top:1px solid rgba(255,255,255,.06);padding-top:3px"><span style="color:var(--teal)">● Net carbs</span><span style="color:var(--teal)">140g</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="pch">
+          <div class="pchl">Calories — 7 Days &nbsp; Goal: 2000 kcal</div>
+          <div class="pba">
+            <div class="pbar" style="height:55%;background:rgba(29,158,117,.4)"></div>
+            <div class="pbar" style="height:75%;background:rgba(29,158,117,.4)"></div>
+            <div class="pbar" style="height:88%;background:var(--teal)"></div>
+            <div class="pbar" style="height:65%;background:rgba(29,158,117,.4)"></div>
+            <div class="pbar" style="height:82%;background:rgba(29,158,117,.4)"></div>
+            <div class="pbar" style="height:72%;background:rgba(29,158,117,.4)"></div>
+            <div class="pbar" style="height:20%;background:rgba(255,255,255,.1);border:1px dashed rgba(255,255,255,.15)"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:5px">
+            <div style="font-size:7px;color:var(--teal)">● On target</div>
+            <div style="font-size:7px;color:var(--amber)">● Low</div>
+            <div style="font-size:7px;color:#f87171">● Over</div>
+          </div>
+        </div>
+        <div class="pnav">
+          <div class="pni"><div class="pnio">🏠</div>Home</div>
+          <div class="pni"><div class="pnio">👥</div>Social</div>
+          <div class="pni"><div class="pnio">🏆</div>Challenges</div>
+          <div class="pni a"><div class="pnio">📊</div>Progress</div>
+          <div class="pni"><div class="pnio">👤</div>Profile</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="sbar"><div class="si">
+  <div class="st"><div class="sn">Claude</div><div class="sl">Vision AI by Anthropic</div></div>
+  <div class="st"><div class="sn">2,000+</div><div class="sl">Foods recognized</div></div>
+  <div class="st"><div class="sn">3</div><div class="sl">Languages · EN · ES · NL</div></div>
+  <div class="st"><div class="sn">±10%</div><div class="sl">Calorie accuracy</div></div>
+  <div class="st"><div class="sn">€0</div><div class="sl">To get started</div></div>
+</div></div>
+
+<!-- HOW IT WORKS -->
+<section class="hbg" id="how"><div class="wr">
+  <span class="tag rv">How it works</span>
+  <h2 class="rv">As simple as<br><span class="tc">taking a photo.</span></h2>
+  <p class="sub rv">No forms. No weighing every gram. Just point your iPhone camera.</p>
+  <div class="steps rv">
+    <div class="step"><div class="stepn">01</div><span class="stepi">📸</span><h3>Snap your meal</h3><p>Open the app, point your camera and Claude Vision identifies ingredients, estimates portions and calculates macros in seconds.</p></div>
+    <div class="step"><div class="stepn">02</div><span class="stepi">🏆</span><h3>Compete with your team</h3><p>Join weekly challenges, follow real athletes' meals and keep your streak alive. Community is what sustains the habit long-term.</p></div>
+    <div class="step"><div class="stepn">03</div><span class="stepi">🤖</span><h3>Your AI coach guides you</h3><p>Daily recommendations based on your real history — not generic formulas. Your coach learns and adapts with you every week.</p></div>
+  </div>
+</div></section>
+
+<!-- FEATURES -->
+<section id="features"><div class="wr">
+  <span class="tag rv">Features</span>
+  <h2 class="rv">Everything you need.<br><span class="tc">Nothing you don't.</span></h2>
+  <div class="fg rv">
+    <div class="ft"><div class="fti" style="background:rgba(29,158,117,.2)">📸</div><h3>AI Meal Analysis</h3><p>Snap any meal — home-cooked, restaurant, ethnic food — and instantly get calories, protein, carbs and fats. Claude Vision handles the rest.</p><span class="fp">Claude Vision</span></div>
+    <div class="ft"><div class="fti" style="background:rgba(245,158,11,.2)">🔥</div><h3>Streaks & Missions</h3><p>Keep your daily streak and complete missions to earn rewards. The gamification layer that turns food tracking into an unbreakable habit.</p><span class="fp">Gamification</span></div>
+    <div class="ft"><div class="fti" style="background:rgba(96,165,250,.2)">👥</div><h3>Sports Social Feed</h3><p>Follow real athletes and see what they eat every day. The only nutrition app with a social feed designed for the sports community.</p><span class="fp">Balancen Exclusive</span></div>
+    <div class="ft"><div class="fti" style="background:rgba(168,85,247,.2)">❌</div><h3>Team Mode</h3><p>Create groups with your hockey, rugby or crossfit team. Weekly consistency challenges and a leaderboard that keeps everyone motivated.</p><span class="fp">Athlete Mode</span></div>
+    <div class="ft"><div class="fti" style="background:rgba(236,72,153,.2)">🤖</div><h3>Personalized AI Coach</h3><p>Daily recommendations that adapt to your real history, not generic plans. Your AI coach learns your habits and adjusts week by week.</p><span class="fp">Adaptive AI</span></div>
+    <div class="ft"><div class="fti" style="background:rgba(34,197,94,.2)">📊</div><h3>Visual Progress</h3><p>7-day calorie charts, progress photos with side-by-side comparison and consistency metrics that show your real trend over time.</p><span class="fp">Analytics</span></div>
+  </div>
+</div></section>
+
+<!-- PRICING -->
+<section id="pricing" style="background:rgba(255,255,255,.02);border-top:1px solid var(--border);border-bottom:1px solid var(--border)"><div class="wr">
+  <span class="tag rv">Pricing</span>
+  <h2 class="rv">No surprises.<br><span class="tc">No tricks.</span></h2>
+  <p class="sub rv">3 days free, no card required. Choose your plan after.</p>
+  <div class="pg rv">
+
+    <!-- Free -->
+    <div class="prc">
+      <div class="prn">Free</div>
+      <div class="prv"><sup>€</sup>0</div>
+      <div class="prper">forever</div>
+      <div class="prdv"></div>
+      <ul class="prfl">
+        <li><span class="ok">✓</span><span><strong>5 AI analyses</strong> per day</span></li>
+        <li><span class="ok">✓</span><span>Calorie and macro tracking</span></li>
+        <li><span class="ok">✓</span><span>Basic streaks</span></li>
+        <li><span class="no">✕</span><span style="opacity:.4">Social feed</span></li>
+        <li><span class="no">✕</span><span style="opacity:.4">Challenges & groups</span></li>
+        <li><span class="no">✕</span><span style="opacity:.4">AI Coach</span></li>
+      </ul>
+      <a href="https://apps.apple.com/app/balancen" class="prb probl">Start free</a>
+    </div>
+
+    <!-- Premium (featured) -->
+    <div class="prc best">
+      <div class="pbdg">✦ Most popular</div>
+      <div class="prn">Premium</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Monthly</div>
+          <div style="font-size:20px;font-weight:900;letter-spacing:-1px">€8.99</div>
+          <div style="font-size:10px;color:var(--muted)">/month</div>
+        </div>
+        <div style="flex:1;background:var(--teal);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:rgba(255,255,255,.75);margin-bottom:3px">Annual ✦</div>
+          <div style="font-size:20px;font-weight:900;letter-spacing:-1px">€39.99</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.75)">€3.33/mo · -63%</div>
+        </div>
+      </div>
+      <ul class="prfl">
+        <li><span class="ok">✓</span><span><strong>300 AI analyses</strong> per month</span></li>
+        <li><span class="ok">✓</span><span>Full social feed</span></li>
+        <li><span class="ok">✓</span><span>Unlimited challenges & groups</span></li>
+        <li><span class="ok">✓</span><span>Personalized AI coach</span></li>
+        <li><span class="ok">✓</span><span>Progress photos</span></li>
+        <li><span class="ok">✓</span><span>Streaks & missions</span></li>
+      </ul>
+      <a href="https://apps.apple.com/app/balancen" class="prb probf">Try 3 days free</a>
+    </div>
+
+    <!-- Power -->
+    <div class="prc">
+      <div class="prn">Power — Unlimited</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Monthly</div>
+          <div style="font-size:20px;font-weight:900;letter-spacing:-1px">€12.99</div>
+          <div style="font-size:10px;color:var(--muted)">/month</div>
+        </div>
+        <div style="flex:1;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Annual ✦</div>
+          <div style="font-size:20px;font-weight:900;letter-spacing:-1px">€89.99</div>
+          <div style="font-size:10px;color:var(--muted)">€7.50/mo · -42%</div>
+        </div>
+      </div>
+      <ul class="prfl">
+        <li><span class="ok">✓</span><span><strong>∞ unlimited AI analyses</strong></span></li>
+        <li><span class="ok">✓</span><span>Everything in Premium</span></li>
+        <li><span class="ok">✓</span><span>No scan restrictions ever</span></li>
+        <li><span class="ok">✓</span><span>Early access to new features</span></li>
+        <li><span class="ok">✓</span><span>Priority support</span></li>
+        <li><span class="ok">✓</span><span>Ideal for elite athletes</span></li>
+      </ul>
+      <a href="https://apps.apple.com/app/balancen" class="prb probl">Choose Power</a>
+    </div>
+
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="ctas"><div class="ctag"></div><div class="wr">
+  <span class="tag rv" style="position:relative;z-index:1">Get started</span>
+  <h2 class="rv" style="position:relative;z-index:1">The most important habit<br><span class="tc">starts with one photo.</span></h2>
+  <p class="rv" style="position:relative;z-index:1;font-size:18px;color:var(--muted);margin-top:14px">3 days free. No credit card. No commitment.</p>
+  <div class="ctab rv">
+    <a href="https://apps.apple.com/app/balancen" class="stb pr">
+      <span class="stbs">🍎</span>
+      <div><div class="stbl">Download on</div><div class="stbn">App Store</div></div>
+    </a>
+  </div>
+  <p class="rv" style="position:relative;z-index:1;font-size:13px;color:var(--muted);margin-top:16px">Available for iPhone · iOS 15 or later</p>
+</div></section>
+
+<!-- FOOTER -->
+<footer><div class="fi">
+  <a href="#" class="flo">
+    <div class="li" style="width:28px;height:28px;font-size:14px;border-radius:8px">B</div>
+    Balancen
+  </a>
+  <ul class="fls">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="https://balancen.app/privacy-policy/">Privacy</a></li>
+    <li><a href="https://balancen.app/terms-of-service/">Terms</a></li>
+    <li><a href="https://www.instagram.com/balancen.app/">Instagram</a></li>
+  </ul>
+  <div class="fc">© 2026 Balancen · EN · ES · NL</div>
+</div></footer>
+
+<script>
+const o=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('on');o.unobserve(x.target)}})},{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>o.observe(el));
+</script>
+</body>
+</html>
