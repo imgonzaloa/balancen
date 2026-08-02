@@ -1,0 +1,63 @@
+{
+  "name": "Challenge",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string",
+      "description": "Reference to group"
+    },
+    "name": {
+      "type": "string",
+      "description": "Challenge name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Challenge description"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "streak",
+        "steps",
+        "checkins",
+        "consistency"
+      ],
+      "description": "Challenge type"
+    },
+    "goal": {
+      "type": "number",
+      "description": "Goal value (e.g., 30 days, 100000 steps)"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Challenge start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Challenge end date"
+    },
+    "is_premium": {
+      "type": "boolean",
+      "default": false,
+      "description": "Premium-only challenge"
+    },
+    "reward_badge": {
+      "type": "string",
+      "description": "Badge ID for completion"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Challenge is active"
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "goal",
+    "start_date",
+    "end_date"
+  ]
+}

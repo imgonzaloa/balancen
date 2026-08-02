@@ -1,0 +1,42 @@
+{
+  "name": "GroupInvite",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string",
+      "description": "Reference to group"
+    },
+    "email": {
+      "type": "string",
+      "description": "Invited email address"
+    },
+    "invited_by": {
+      "type": "string",
+      "description": "Admin email who sent invite"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "expired",
+        "revoked"
+      ],
+      "default": "pending"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiry (7 days)"
+    },
+    "accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "group_id",
+    "email",
+    "invited_by"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "MealComment",
+  "type": "object",
+  "properties": {
+    "meal_id": {
+      "type": "string",
+      "description": "Reference to MealLog"
+    },
+    "commenter_email": {
+      "type": "string",
+      "description": "Email of person commenting"
+    },
+    "commenter_name": {
+      "type": "string",
+      "description": "Display name of commenter"
+    },
+    "commenter_avatar": {
+      "type": "string",
+      "description": "Commenter's avatar URL"
+    },
+    "comment_text": {
+      "type": "string",
+      "description": "Comment content"
+    }
+  },
+  "required": [
+    "meal_id",
+    "commenter_email",
+    "comment_text"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Friend",
+  "type": "object",
+  "properties": {
+    "friend_user_id": {
+      "type": "string",
+      "description": "Friend's user ID"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Friend's display name"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "Friend's avatar URL"
+    },
+    "fire_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Friend's total fire count"
+    },
+    "status_text": {
+      "type": "string",
+      "description": "Friend's status text (max 18 chars)"
+    }
+  },
+  "required": [
+    "friend_user_id",
+    "display_name"
+  ]
+}

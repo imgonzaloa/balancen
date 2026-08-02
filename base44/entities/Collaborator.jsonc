@@ -1,0 +1,22 @@
+{
+  "name": "Collaborator",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Email del colaborador invitado"
+    },
+    "invited_by": {
+      "type": "string",
+      "description": "Email de quien invit\u00f3"
+    },
+    "has_registered": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si ya se registr\u00f3 en la app"
+    }
+  },
+  "required": [
+    "email"
+  ]
+}

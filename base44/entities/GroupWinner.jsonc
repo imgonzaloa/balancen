@@ -1,0 +1,52 @@
+{
+  "name": "GroupWinner",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string",
+      "description": "Reference to group"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Winner email"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Winner display name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "most_consistent",
+        "raffle_eligible"
+      ],
+      "description": "Award category"
+    },
+    "consistency_percent": {
+      "type": "number",
+      "description": "Final consistency score"
+    },
+    "days_completed": {
+      "type": "number"
+    },
+    "total_days": {
+      "type": "number"
+    },
+    "longest_streak": {
+      "type": "number"
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confirmed_by": {
+      "type": "string",
+      "description": "Admin who confirmed"
+    }
+  },
+  "required": [
+    "group_id",
+    "user_email",
+    "category"
+  ]
+}

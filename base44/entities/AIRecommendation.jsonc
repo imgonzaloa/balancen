@@ -1,0 +1,50 @@
+{
+  "name": "AIRecommendation",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User receiving recommendation"
+    },
+    "recommendation_text": {
+      "type": "string",
+      "description": "The recommendation message"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "motivation",
+        "nutrition",
+        "activity",
+        "recovery",
+        "progressive_overload"
+      ],
+      "description": "Recommendation type"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "Recommendation priority"
+    },
+    "shown": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has been shown to user"
+    },
+    "dismissed": {
+      "type": "boolean",
+      "default": false,
+      "description": "User dismissed recommendation"
+    }
+  },
+  "required": [
+    "user_email",
+    "recommendation_text",
+    "type"
+  ]
+}

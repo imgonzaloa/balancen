@@ -1,0 +1,36 @@
+{
+  "name": "FriendRequest",
+  "type": "object",
+  "properties": {
+    "sender_email": {
+      "type": "string",
+      "description": "User who sent the request"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Sender's display name"
+    },
+    "sender_avatar": {
+      "type": "string",
+      "description": "Sender's avatar"
+    },
+    "receiver_email": {
+      "type": "string",
+      "description": "User who receives the request"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Request status"
+    }
+  },
+  "required": [
+    "sender_email",
+    "receiver_email"
+  ]
+}

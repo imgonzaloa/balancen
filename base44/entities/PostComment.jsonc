@@ -1,0 +1,31 @@
+{
+  "name": "PostComment",
+  "type": "object",
+  "properties": {
+    "post_id": {
+      "type": "string",
+      "description": "Reference to post"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Commenter's email"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Commenter's display name"
+    },
+    "user_avatar": {
+      "type": "string",
+      "description": "Commenter's avatar"
+    },
+    "content": {
+      "type": "string",
+      "description": "Comment text"
+    }
+  },
+  "required": [
+    "post_id",
+    "user_email",
+    "content"
+  ]
+}

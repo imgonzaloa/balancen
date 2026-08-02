@@ -1,0 +1,40 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "sender_email": {
+      "type": "string",
+      "description": "Email of message sender"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Display name of sender"
+    },
+    "sender_avatar": {
+      "type": "string",
+      "description": "Sender's avatar URL"
+    },
+    "receiver_email": {
+      "type": "string",
+      "description": "Email of message receiver"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message text content"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Message has been read"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Optional image attachment"
+    }
+  },
+  "required": [
+    "sender_email",
+    "receiver_email",
+    "content"
+  ]
+}

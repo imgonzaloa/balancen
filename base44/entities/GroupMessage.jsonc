@@ -1,0 +1,51 @@
+{
+  "name": "GroupMessage",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string",
+      "description": "Reference to the group"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Admin who sent the message"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Admin display name"
+    },
+    "content": {
+      "type": "string",
+      "description": "Broadcast message content (max 500 chars)"
+    },
+    "reactions": {
+      "type": "object",
+      "description": "Reaction counts: { thumbsup: [...emails], fire: [...emails], muscle: [...emails] }",
+      "properties": {
+        "thumbsup": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fire": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "muscle": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "group_id",
+    "author_email",
+    "content"
+  ]
+}

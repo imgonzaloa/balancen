@@ -1,0 +1,105 @@
+{
+  "name": "NutritionPlan",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "plan_name": {
+      "type": "string",
+      "description": "Plan name"
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "muscle_gain",
+        "maintenance",
+        "performance"
+      ],
+      "description": "Nutrition goal"
+    },
+    "calories_target": {
+      "type": "number",
+      "description": "Daily calorie target"
+    },
+    "macros": {
+      "type": "object",
+      "properties": {
+        "protein_grams": {
+          "type": "number"
+        },
+        "protein_percentage": {
+          "type": "number"
+        },
+        "carbs_grams": {
+          "type": "number"
+        },
+        "carbs_percentage": {
+          "type": "number"
+        },
+        "fats_grams": {
+          "type": "number"
+        },
+        "fats_percentage": {
+          "type": "number"
+        }
+      },
+      "description": "Macro targets"
+    },
+    "micros_focus": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Important micronutrients to track"
+    },
+    "meal_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meal_name": {
+            "type": "string"
+          },
+          "meal_time": {
+            "type": "string"
+          },
+          "foods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "calories_target": {
+            "type": "number"
+          },
+          "macros": {
+            "type": "object"
+          }
+        }
+      },
+      "description": "Suggested meal plan"
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "paused"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "user_email",
+    "plan_name",
+    "goal",
+    "calories_target"
+  ]
+}

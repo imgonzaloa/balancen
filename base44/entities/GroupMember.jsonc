@@ -1,0 +1,57 @@
+{
+  "name": "GroupMember",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string",
+      "description": "Reference to group"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Member's email"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Member's display name"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "Member's avatar"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "member"
+      ],
+      "default": "member",
+      "description": "Member role"
+    },
+    "current_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "longest_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "checked_in_today": {
+      "type": "boolean",
+      "default": false
+    },
+    "days_completed": {
+      "type": "number",
+      "default": 0,
+      "description": "Days with day_completed within group range"
+    },
+    "last_activity_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last check-in date"
+    }
+  },
+  "required": [
+    "group_id",
+    "user_email"
+  ]
+}

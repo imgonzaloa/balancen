@@ -1,0 +1,53 @@
+{
+  "name": "Story",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Story author email"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Author display name"
+    },
+    "user_avatar": {
+      "type": "string",
+      "description": "Author avatar URL"
+    },
+    "media_url": {
+      "type": "string",
+      "description": "Image or video URL"
+    },
+    "media_type": {
+      "type": "string",
+      "enum": [
+        "image",
+        "video"
+      ],
+      "default": "image",
+      "description": "Media type"
+    },
+    "caption": {
+      "type": "string",
+      "description": "Story caption"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiry timestamp (24h from creation)"
+    },
+    "views": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "List of user emails who viewed"
+    }
+  },
+  "required": [
+    "user_email",
+    "media_url",
+    "expires_at"
+  ]
+}

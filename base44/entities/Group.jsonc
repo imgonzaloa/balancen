@@ -1,0 +1,66 @@
+{
+  "name": "Group",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Group name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Group description"
+    },
+    "group_type": {
+      "type": "string",
+      "enum": [
+        "campus",
+        "team",
+        "friends"
+      ],
+      "default": "campus",
+      "description": "Group type"
+    },
+    "invite_code": {
+      "type": "string",
+      "description": "Unique invite code (admin-only visible)"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Challenge start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Challenge end date"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "UTC",
+      "description": "Group timezone"
+    },
+    "is_private": {
+      "type": "boolean",
+      "default": true,
+      "description": "Private group flag"
+    },
+    "allow_join_by_code": {
+      "type": "boolean",
+      "default": false,
+      "description": "Allow join by code (admin toggle)"
+    },
+    "member_count": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of members"
+    },
+    "cover_image_url": {
+      "type": "string",
+      "description": "Group cover image"
+    }
+  },
+  "required": [
+    "name",
+    "invite_code"
+  ]
+}

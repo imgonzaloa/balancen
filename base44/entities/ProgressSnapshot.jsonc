@@ -1,0 +1,75 @@
+{
+  "name": "ProgressSnapshot",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Snapshot date"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Weight in kg"
+    },
+    "body_fat_percentage": {
+      "type": "number",
+      "description": "Body fat %"
+    },
+    "muscle_mass": {
+      "type": "number",
+      "description": "Muscle mass in kg"
+    },
+    "measurements": {
+      "type": "object",
+      "properties": {
+        "chest": {
+          "type": "number"
+        },
+        "waist": {
+          "type": "number"
+        },
+        "hips": {
+          "type": "number"
+        },
+        "arms": {
+          "type": "number"
+        },
+        "thighs": {
+          "type": "number"
+        }
+      },
+      "description": "Body measurements in cm"
+    },
+    "progress_photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Progress photos"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Personal notes"
+    },
+    "mood": {
+      "type": "string",
+      "enum": [
+        "excellent",
+        "good",
+        "neutral",
+        "tired",
+        "struggling"
+      ],
+      "description": "How you're feeling"
+    },
+    "energy_level": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Energy level 1-10"
+    }
+  },
+  "required": [
+    "date"
+  ]
+}

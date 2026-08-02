@@ -1,0 +1,81 @@
+{
+  "name": "WorkoutSession",
+  "type": "object",
+  "properties": {
+    "workout_plan_id": {
+      "type": "string",
+      "description": "Reference to WorkoutPlan"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Session date"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Total duration"
+    },
+    "exercises_completed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "exercise_name": {
+            "type": "string"
+          },
+          "sets_completed": {
+            "type": "number"
+          },
+          "actual_reps": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "weights_used": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "rpe": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "intensity_level": {
+      "type": "string",
+      "enum": [
+        "light",
+        "moderate",
+        "intense",
+        "very_intense"
+      ],
+      "description": "Overall session intensity"
+    },
+    "energy_level": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "mood": {
+      "type": "string",
+      "description": "How felt during workout"
+    },
+    "volume": {
+      "type": "number",
+      "description": "Total volume (sets \u00d7 reps \u00d7 weight)"
+    }
+  },
+  "required": [
+    "workout_plan_id",
+    "date",
+    "exercises_completed"
+  ]
+}

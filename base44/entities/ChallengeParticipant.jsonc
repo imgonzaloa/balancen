@@ -1,0 +1,32 @@
+{
+  "name": "ChallengeParticipant",
+  "type": "object",
+  "properties": {
+    "challenge_id": {
+      "type": "string",
+      "description": "Reference to challenge"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Participant email"
+    },
+    "current_progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Current progress value"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Challenge completed"
+    },
+    "rank": {
+      "type": "number",
+      "description": "Current rank in challenge"
+    }
+  },
+  "required": [
+    "challenge_id",
+    "user_email"
+  ]
+}

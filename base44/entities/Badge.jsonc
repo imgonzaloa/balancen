@@ -1,0 +1,41 @@
+{
+  "name": "Badge",
+  "type": "object",
+  "properties": {
+    "badge_id": {
+      "type": "string",
+      "description": "Unique badge identifier"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User who earned badge"
+    },
+    "badge_type": {
+      "type": "string",
+      "enum": [
+        "streak_3",
+        "streak_7",
+        "streak_14",
+        "streak_30",
+        "streak_60",
+        "streak_100",
+        "first_checkin",
+        "first_photo",
+        "joined_group",
+        "perfect_week"
+      ],
+      "description": "Type of badge"
+    },
+    "earned_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When badge was earned"
+    }
+  },
+  "required": [
+    "badge_id",
+    "user_email",
+    "badge_type",
+    "earned_date"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "name": "MealLog",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the meal"
+    },
+    "meal_time": {
+      "type": "string",
+      "description": "Time of meal (HH:MM)"
+    },
+    "meal_type": {
+      "type": "string",
+      "enum": [
+        "breakfast",
+        "lunch",
+        "dinner",
+        "snack"
+      ],
+      "description": "Type of meal"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo of the meal"
+    },
+    "estimated_calories": {
+      "type": "number",
+      "description": "AI-estimated calories"
+    },
+    "estimated_protein": {
+      "type": "number",
+      "description": "Estimated protein in grams"
+    },
+    "estimated_carbs": {
+      "type": "number",
+      "description": "Estimated carbs in grams"
+    },
+    "estimated_fats": {
+      "type": "number",
+      "description": "Estimated fats in grams"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about the meal"
+    }
+  },
+  "required": [
+    "date",
+    "photo_url"
+  ]
+}

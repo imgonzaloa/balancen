@@ -1,0 +1,65 @@
+{
+  "name": "Invite",
+  "type": "object",
+  "properties": {
+    "inviter_email": {
+      "type": "string",
+      "description": "Email of user who created invite"
+    },
+    "inviter_name": {
+      "type": "string",
+      "description": "Display name of inviter"
+    },
+    "invite_code": {
+      "type": "string",
+      "description": "Unique invite token"
+    },
+    "invitee_email": {
+      "type": "string",
+      "description": "Email of invited user (set after registration)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "invited",
+        "opened",
+        "registered",
+        "paywall_shown",
+        "subscribed",
+        "friend_connected",
+        "expired",
+        "revoked"
+      ],
+      "default": "invited",
+      "description": "Current invite status"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiry timestamp (7 days from creation)"
+    },
+    "opened_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When link was first opened"
+    },
+    "registered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When invitee registered"
+    },
+    "subscribed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When invitee subscribed to Premium"
+    },
+    "shared_via": {
+      "type": "string",
+      "description": "Share channel (whatsapp, copy, instagram, etc)"
+    }
+  },
+  "required": [
+    "inviter_email",
+    "invite_code"
+  ]
+}

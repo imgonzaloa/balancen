@@ -1,0 +1,40 @@
+{
+  "name": "ReferralProgress",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User who is earning referrals"
+    },
+    "total_successful_referrals": {
+      "type": "number",
+      "default": 0,
+      "description": "Count of friends who subscribed to Premium"
+    },
+    "rewards_granted_months": {
+      "type": "number",
+      "default": 0,
+      "description": "Total months of free Premium granted"
+    },
+    "pending_referrals_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Referrals awaiting subscription (mod 3)"
+    },
+    "last_reward_granted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When last reward was applied"
+    },
+    "referred_user_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of users who subscribed via this referral"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

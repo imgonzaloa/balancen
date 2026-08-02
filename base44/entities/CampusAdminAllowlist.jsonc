@@ -1,0 +1,27 @@
+{
+  "name": "CampusAdminAllowlist",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Normalized lowercase email of allowed campus admin"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Whether this allowlist entry is active"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about this entry"
+    }
+  },
+  "required": [
+    "email",
+    "status"
+  ]
+}

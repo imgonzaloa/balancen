@@ -1,0 +1,100 @@
+{
+  "name": "DailyCheckIn",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Check-in date"
+    },
+    "food_rating": {
+      "type": "string",
+      "enum": [
+        "great",
+        "ok",
+        "poor"
+      ],
+      "description": "Simple food quality rating"
+    },
+    "moved_today": {
+      "type": "boolean",
+      "description": "Did user move/exercise today"
+    },
+    "food_photo_url": {
+      "type": "string",
+      "description": "Optional food photo URL"
+    },
+    "estimated_calories": {
+      "type": "number",
+      "description": "AI-estimated calories from photo"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Weight recorded today in kg"
+    },
+    "sleep_hours": {
+      "type": "number",
+      "description": "Hours of sleep"
+    },
+    "sleep_quality": {
+      "type": "string",
+      "enum": [
+        "great",
+        "ok",
+        "poor"
+      ],
+      "description": "Sleep quality rating"
+    },
+    "hydrated": {
+      "type": "boolean",
+      "description": "Properly hydrated today"
+    },
+    "water_glasses": {
+      "type": "number",
+      "description": "Number of water glasses"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional personal notes"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": true,
+      "description": "Check-in completed flag"
+    },
+    "calories_goal_met": {
+      "type": "boolean",
+      "default": false,
+      "description": "Calories goal achieved today"
+    },
+    "app_open_fire_awarded": {
+      "type": "boolean",
+      "default": false,
+      "description": "App open fire awarded (+1)"
+    },
+    "checkin_fire_awarded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Check-in fire awarded (+2)"
+    },
+    "meal_photo_fire_awarded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Meal photo fire awarded (+2)"
+    },
+    "calories_fire_awarded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Calories goal fire awarded (+3)"
+    },
+    "social_fire_awarded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Social interaction fire awarded (+1)"
+    }
+  },
+  "required": [
+    "date",
+    "completed"
+  ]
+}
